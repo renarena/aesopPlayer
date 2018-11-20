@@ -16,19 +16,18 @@
             android:id="@+id/elapsedTime"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
             android:gravity="center"
             android:textColor="#ffffff"
             android:textSize="@dimen/bookElapsedTimeTextSize"
             app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toTopOf="@+id/rewindButton"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/fastForwardButton"
+            app:layout_constraintEnd_toStartOf="@+id/rewindButton"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="spread_inside"
-            app:layout_constraintVertical_weight="1"
+            app:layout_constraintHorizontal_weight="6"
+            app:layout_constraintStart_toEndOf="@+id/fastForwardButton"
+            app:layout_constraintTop_toTopOf="@+id/fastForwardButton"
             tools:text="00:13:10" />
 
         <android.support.v7.widget.AppCompatButton
@@ -36,7 +35,7 @@
             style="@style/buttonStartStop"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:gravity="center"
+            android:gravity="center_vertical|center"
             android:maxLines="1"
             android:text="@string/button_stop"
             android:theme="@style/buttonStopOverlay"
@@ -44,41 +43,39 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rewindButton"
+            app:layout_constraintTop_toBottomOf="@+id/fastForwardButton"
             app:layout_constraintVertical_weight="8" />
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/fastForwardButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
             android:contentDescription="@string/button_acc_fastforward"
             android:src="@drawable/ff"
             android:theme="@style/buttonFFRewindOverlay"
             app:layout_constraintBottom_toTopOf="@+id/stopButton"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/elapsedTime"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@+id/rewindButton"
-            app:layout_constraintTop_toBottomOf="@+id/elapsedTime"
-            app:layout_constraintVertical_weight="1" />
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            app:layout_constraintVertical_weight="2" />
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/rewindButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginEnd="8dp"
             android:contentDescription="@string/button_acc_rewind"
             android:src="@drawable/rewind"
             android:theme="@style/buttonFFRewindOverlay"
-            app:layout_constraintBottom_toTopOf="@+id/stopButton"
-            app:layout_constraintEnd_toStartOf="@+id/fastForwardButton"
+            app:layout_constraintBottom_toBottomOf="@+id/fastForwardButton"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/elapsedTime"
-            app:layout_constraintVertical_weight="1" />
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toEndOf="@+id/elapsedTime"
+            app:layout_constraintTop_toTopOf="@+id/fastForwardButton"
+            app:layout_constraintVertical_weight="2" />
 
     </android.support.constraint.ConstraintLayout>
 

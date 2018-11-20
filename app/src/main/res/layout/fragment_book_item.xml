@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/bookListItemPaddingHoriz"
@@ -10,10 +11,15 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize="@dimen/bookListTextSize"
-        android:singleLine="false"
+        android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:layout_above="@+id/startButton"/>
+        android:padding="8dp"
+        android:paddingTop="200dp"
+        android:singleLine="false"
+        tools:text="Book Title"
+        android:textAlignment="center"
+        android:textSize="@dimen/bookListTextSize"
+        android:visibility="visible" />
 
     <TextView
         android:id="@+id/copyBooksInstruction"
@@ -27,9 +33,14 @@
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/startButton"
         style="@style/buttonStartStop"
-        android:theme="@style/buttonStartOverlay"
-        android:text="@string/button_start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_margin="30dp"
+        android:background="@android:color/transparent"
+        android:gravity="bottom|center_horizontal"
+        android:text="@string/button_start"
+        android:theme="@style/buttonStartOverlay" />
 
 </RelativeLayout>
