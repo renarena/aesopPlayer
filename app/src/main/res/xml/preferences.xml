@@ -17,10 +17,10 @@
             android:defaultValue="0"/>
         <ListPreference
             android:key="playback_speed_preference"
-            android:title="@string/pref_playback_speed_title"
+            android:defaultValue="@string/pref_playback_speed_default_value"
             android:entries="@array/playback_speed_entries"
             android:entryValues="@array/playback_speed_values"
-            android:defaultValue="@string/pref_playback_speed_default_value"/>
+            android:title="@string/pref_playback_speed_title" />
         <SwitchPreference
             android:key="ff_rewind_sound_preference"
             android:title="@string/pref_ff_rewind_sound"
@@ -34,6 +34,12 @@
         android:entries="@array/screen_orientation_entries"
         android:entryValues="@array/screen_orientation_values"
         android:defaultValue="@string/pref_screen_orientation_default_value"/>
+    <ListPreference
+        android:key="snooze_delay_preference"
+        android:defaultValue="@string/pref_snooze_time_default_value"
+        android:entries="@array/snooze_time_entries"
+        android:entryValues="@array/snooze_time_values"
+        android:title="@string/pref_snooze_time_title" />
     <PreferenceScreen
         android:key="kiosk_mode_screen"
         android:title="@string/pref_kiosk_mode_screen_title">

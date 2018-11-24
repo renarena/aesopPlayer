@@ -7,4 +7,5 @@
     <color name="buttonFFRewindBackground">#2f459c</color>
     <color name="ffRewindFillBackground">@color/buttonFFRewindBackground</color>
     <color name="transparent">#00000000</color>
+    <color name="greyOut">#80000000</color>
 </resources>

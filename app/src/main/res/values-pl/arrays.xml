@@ -13,4 +13,10 @@
         <item>Mała</item>
         <item>Bardzo mała</item>
     </string-array>
+    <string-array name="snooze_time_entries">
+        <item>Żaden</item>
+        <item>Krótki</item>
+        <item>Normalna</item>
+        <item>Długie</item>
+    </string-array>
 </resources>

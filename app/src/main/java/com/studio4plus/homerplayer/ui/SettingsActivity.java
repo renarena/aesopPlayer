@@ -129,6 +129,7 @@ public class SettingsActivity extends Activity {
             updatePlaybackSpeedSummary(sharedPreferences);
             updateJumpBackSummary(sharedPreferences);
             updateSleepTimerSummary();
+            updateSnoozeDelaySummary(sharedPreferences);
 
             if (Build.VERSION.SDK_INT < 21) {
                 Preference kioskModePreference = findPreference(GlobalSettings.KEY_KIOSK_MODE);
@@ -237,6 +238,9 @@ public class SettingsActivity extends Activity {
                     updatePlaybackSpeedSummary(sharedPreferences);
                     playSnippet();
                     break;
+                case GlobalSettings.KEY_SNOOZE_DELAY:
+                    updateSnoozeDelaySummary(sharedPreferences);
+                    break;
             }
         }
 
@@ -269,6 +273,13 @@ public class SettingsActivity extends Activity {
                     sharedPreferences,
                     GlobalSettings.KEY_PLAYBACK_SPEED,
                     R.string.pref_playback_speed_default_value);
+        }
+
+        private void updateSnoozeDelaySummary(SharedPreferences sharedPreferences) {
+            updateListPreferenceSummary(
+                    sharedPreferences,
+                    GlobalSettings.KEY_SNOOZE_DELAY,
+                    R.string.pref_snooze_time_default_value);
         }
 
         private void updateJumpBackSummary(SharedPreferences sharedPreferences) {

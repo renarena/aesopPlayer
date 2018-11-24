@@ -25,6 +25,7 @@ import com.studio4plus.homerplayer.ui.FFRewindTimer;
 import com.studio4plus.homerplayer.ui.HintOverlay;
 import com.studio4plus.homerplayer.ui.PressReleaseDetector;
 import com.studio4plus.homerplayer.ui.SimpleAnimatorListener;
+import com.studio4plus.homerplayer.ui.SnoozeDisplay;
 import com.studio4plus.homerplayer.ui.UiControllerPlayback;
 import com.studio4plus.homerplayer.util.ViewUtils;
 
@@ -56,6 +57,10 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_playback, container, false);
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
+
+        // This should be early so no buttons go live before this
+        int time = globalSettings.getSnoozeDelay();
+        new SnoozeDisplay(this, view, time);
 
         stopButton = (Button) view.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {

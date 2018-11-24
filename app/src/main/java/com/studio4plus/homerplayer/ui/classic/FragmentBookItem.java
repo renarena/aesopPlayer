@@ -11,11 +11,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.ui.MainActivity;
+import com.studio4plus.homerplayer.ui.SnoozeDisplay;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 
 import javax.inject.Inject;
@@ -31,6 +33,7 @@ public class FragmentBookItem extends BookListChildFragment {
         return newFragment;
     }
 
+    @Inject public GlobalSettings globalSettings;
     @Inject public AudioBookManager audioBookManager;
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
 
@@ -43,6 +46,11 @@ public class FragmentBookItem extends BookListChildFragment {
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_item, container, false);
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
+
+        // This should be early so no buttons go live before this
+        // TODO: determine if we want to skip snoozeDelay on initial startup
+        int time = globalSettings.getSnoozeDelay();
+        new SnoozeDisplay(this, view, time);
 
         Bundle args = getArguments();
         final String bookId = args.getString(ARG_BOOK_ID);

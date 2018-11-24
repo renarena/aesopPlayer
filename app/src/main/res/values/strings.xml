@@ -40,6 +40,8 @@
     <string name="pref_playback_options_screen_title">Playback settings…</string>
     <string name="pref_playback_speed_title">Playback speed</string>
     <string name="pref_playback_speed_default_value" translatable="false">1.0</string>
+    <string name="pref_snooze_time_title">Button delay</string>
+    <string name="pref_snooze_time_default_value" translatable="false">2</string>
     <string name="pref_ff_rewind_sound">Fast-forward/rewind sound</string>
     <string name="pref_ff_rewind_sound_summary_on">Enabled</string>
     <string name="pref_ff_rewind_sound_summary_off">Disabled</string>
@@ -64,6 +66,7 @@
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
     <string name="multi_tap_prompt">%d more to go</string>
+    <string name="snooze_seconds" translatable="false">"%d"</string>
     <string name="noBooksOrMessage">or</string>
     <string name="noBooksDownloadSamplesButton">Download book samples</string>
     <string name="playbackErrorToast">Unable to play file:\n%s</string>

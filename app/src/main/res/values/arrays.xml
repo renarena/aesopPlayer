@@ -56,4 +56,16 @@
         <item>0.65</item>
         <item>0.5</item>
     </string-array>
+    <string-array name="snooze_time_entries">
+        <item>None</item>
+        <item>Short</item>
+        <item>Normal</item>
+        <item>Long</item>
+    </string-array>
+    <string-array name="snooze_time_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+    </string-array>
 </resources>

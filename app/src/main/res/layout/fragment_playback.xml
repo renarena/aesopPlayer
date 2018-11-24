@@ -99,6 +99,9 @@
             android:gravity="center"/>
     </RelativeLayout>
 
+    <!-- last is on top, so don't move this -->
+    <include layout="@layout/snooze_overlay"/>
+
     <ViewStub
         android:id="@+id/flipToStopHintOverlayStub"
         android:layout_width="match_parent"

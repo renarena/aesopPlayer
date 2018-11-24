@@ -36,6 +36,7 @@ public class GlobalSettings {
     public static final String KEY_SCREEN_ORIENTATION = "screen_orientation_preference";
     public static final String KEY_FF_REWIND_SOUND = "ff_rewind_sound_preference";
     public static final String KEY_PLAYBACK_SPEED = "playback_speed_preference";
+    public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -76,6 +77,12 @@ public class GlobalSettings {
         final String valueString = sharedPreferences.getString(
                 KEY_PLAYBACK_SPEED, resources.getString(R.string.pref_playback_speed_default_value));
         return Float.parseFloat(valueString);
+    }
+
+    public int getSnoozeDelay() {
+        final String valueString = sharedPreferences.getString(
+                KEY_SNOOZE_DELAY, resources.getString(R.string.pref_snooze_time_default_value));
+        return Integer.parseInt(valueString);
     }
 
     public LibraryContentType booksEverInstalled() {
