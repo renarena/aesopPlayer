@@ -36,6 +36,7 @@ public class HomerPlayerApplication extends Application {
     private ApplicationComponent component;
     private MediaStoreUpdateObserver mediaStoreUpdateObserver;
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
     @Inject public AnalyticsTracker analyticsTracker;  // Force creation of the tracker early.
 

@@ -54,7 +54,7 @@
     <string name="pref_reset_all_book_progress_done">Książki przewinięte</string>
     <string name="pref_version_title">Wersja</string>
     <string name="button_acc_rewind">przewiń do tyłu</string>
-    <string name="button_acc_fastforward">przewiń do przodu</string>
+    <string name="button_acc_fast_forward">przewiń do przodu</string>
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
     <string name="multi_tap_prompt">Jeszcze %d</string>

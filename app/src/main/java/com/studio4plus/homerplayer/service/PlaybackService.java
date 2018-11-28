@@ -49,7 +49,9 @@ public class PlaybackService
     private static final PlaybackStoppingEvent PLAYBACK_STOPPING_EVENT = new PlaybackStoppingEvent();
     private static final PlaybackStoppedEvent PLAYBACK_STOPPED_EVENT = new PlaybackStoppedEvent();
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
+    @SuppressWarnings("WeakerAccess")
     @Inject public EventBus eventBus;
 
     private Player player;
@@ -253,17 +255,17 @@ public class PlaybackService
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
         }
 
-        public void stop() {
+        void stop() {
             controller.stop();
         }
 
-        public void pauseForRewind() {
+        void pauseForRewind() {
             handler.removeCallbacks(updatePosition);
             stopSleepTimer();
             controller.pause();
         }
 
-        public void resumeFromRewind() {
+        void resumeFromRewind() {
             AudioBook.Position position = audioBook.getLastPosition();
             controller.start(position.file, position.seekPosition);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
@@ -336,7 +338,7 @@ public class PlaybackService
             controller.start(this);
         }
 
-        public void stop() {
+        void stop() {
             controller.stop();
         }
 
@@ -370,11 +372,11 @@ public class PlaybackService
         private final long STEP_INTERVAL_MS = 100;
         private final float VOLUME_DOWN_STEP =  (float) STEP_INTERVAL_MS / FADE_OUT_DURATION_MS;
 
-        public void scheduleStart(long delay) {
+        void scheduleStart(long delay) {
             handler.postDelayed(this, delay);
         }
 
-        public void reset() {
+        void reset() {
             handler.removeCallbacks(this);
             currentVolume = 1.0f;
 

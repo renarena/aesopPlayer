@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import java.util.concurrent.Callable;
 
-public class BackgroundDeferred<V> extends BaseDeferred<V> implements Runnable {
+class BackgroundDeferred<V> extends BaseDeferred<V> implements Runnable {
 
     private final @NonNull Callable<V> task;
     private final @NonNull Handler mainThreadHandler;

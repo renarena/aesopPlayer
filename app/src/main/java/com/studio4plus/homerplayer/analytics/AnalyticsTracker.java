@@ -117,6 +117,7 @@ public class AnalyticsTracker {
         FlurryAgent.logEvent(FF_REWIND, Collections.singletonMap(FF_REWIND_IS_FF_KEY, Boolean.toString(isFf)));
     }
 
+    @SuppressWarnings("unused")
     public void onFfRewindFinished(long elapsedWallTimeMs) {
         FlurryAgent.endTimedEvent(FF_REWIND);
     }

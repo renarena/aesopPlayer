@@ -12,6 +12,7 @@ import com.studio4plus.homerplayer.R;
 public class SnoozeDisplay {
     private View snoozeOverlay;
     private TextView snoozeCounter;
+    @SuppressWarnings("unused")
     private SnoozeDisplay snoozeForHolder; // Used for lifetime management
 
     @SuppressLint("ClickableViewAccessibility")
@@ -28,7 +29,7 @@ public class SnoozeDisplay {
         snoozeOverlay = view.findViewById(R.id.snoozeOverlay);
         Preconditions.checkNotNull(snoozeOverlay);
 
-        snoozeCounter = (TextView) view.findViewById(R.id.snoozeCounter);
+        snoozeCounter = view.findViewById(R.id.snoozeCounter);
         Preconditions.checkNotNull(snoozeCounter);
 
         snoozeCounter.setOnTouchListener(new View.OnTouchListener() {

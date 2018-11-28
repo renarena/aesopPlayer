@@ -70,7 +70,7 @@ public class Player {
         private File currentFile;
         private Observer observer;
         private int lastPlaybackState;
-        private Handler handler;
+        private final Handler handler;
         private final Runnable updateProgressTask = new Runnable() {
             @Override
             public void run() {

@@ -39,6 +39,7 @@ public class DemoSamplesInstaller {
         this.locale = locale;
     }
 
+    @SuppressWarnings("UnusedReturnValue") // future use?
     @WorkerThread
     public boolean installBooksFromZip(File zipPath) throws IOException {
         File tempFolder = Files.createTempDir();
@@ -51,6 +52,7 @@ public class DemoSamplesInstaller {
         return anythingInstalled;
     }
 
+    @SuppressWarnings("UnusedReturnValue") // future use?
     @WorkerThread
     private boolean installBooks(File sourceDirectory) {
         if (!audioBooksDirectory.exists()) {
@@ -118,6 +120,7 @@ public class DemoSamplesInstaller {
     @WorkerThread
     private String readLocalizedTitle(File file, Locale locale) {
         try {
+            //noinspection deprecation - toString comes from Files in Guava, which isn't deprecated (yet)
             String titlesString = Files.toString(file, Charset.forName(TITLES_FILE_CHARSET));
             JSONObject titles = (JSONObject) new JSONTokener(titlesString).nextValue();
             String languageCode = locale.getLanguage();

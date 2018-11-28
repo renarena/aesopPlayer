@@ -24,12 +24,13 @@ public class SoundBank {
         FF_REWIND
     }
 
+    @SuppressWarnings("unused")
     public static class Sound {
         public final AudioTrack track;
-        public final long frameCount;
+        final long frameCount; // unused, future use?
         public final int sampleRate;
 
-        public Sound(AudioTrack track, long frameCount, int sampleRate) {
+        Sound(AudioTrack track, long frameCount, int sampleRate) {
             this.track = track;
             this.frameCount = frameCount;
             this.sampleRate = sampleRate;
@@ -59,6 +60,7 @@ public class SoundBank {
         return tracks.get(soundId);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Sound createSoundFromWavResource(
             Resources resources, int resourceId, boolean isLooping) {
         try {
@@ -67,7 +69,7 @@ public class SoundBank {
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             int channelCount = buffer.getShort(WAVE_CHANNELS_OFFSET);
-            int sampleRate = buffer.getInt(WAVE_SAMPLERATE_OFFSET);
+            int sampleRate = buffer.getInt(WAVE_SAMPLE_RATE_OFFSET);
 
             int sizeInBytes = data.length - WAVE_DATA_OFFSET;
             AudioTrack track = new AudioTrack(
@@ -99,6 +101,6 @@ public class SoundBank {
     }
 
     private static final int WAVE_CHANNELS_OFFSET = 22;
-    private static final int WAVE_SAMPLERATE_OFFSET = 24;
+    private static final int WAVE_SAMPLE_RATE_OFFSET = 24;
     private static final int WAVE_DATA_OFFSET = 44;
 }

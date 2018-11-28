@@ -22,7 +22,7 @@ import dagger.Provides;
 import de.greenrobot.event.EventBus;
 
 @Module
-public class ApplicationModule {
+class ApplicationModule {
 
     private final Application application;
     private final Uri samplesDownloadUrl;

@@ -54,8 +54,11 @@ public class SettingsActivity extends Activity {
     private Runnable unblockEventsTask;
     private OrientationActivityDelegate orientationDelegate;
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public EventBus eventBus;
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
+    @SuppressWarnings("WeakerAccess")
     @Inject public KioskModeHandler kioskModeHandler;
 
     @Override
@@ -110,9 +113,9 @@ public class SettingsActivity extends Activity {
             extends PreferenceFragment
             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-        @Inject public AudioBookManager audioBookManager;
-        @Inject public GlobalSettings globalSettings;
-        @Inject public KioskModeSwitcher kioskModeSwitcher;
+        @Inject AudioBookManager audioBookManager;
+        @Inject GlobalSettings globalSettings;
+        @Inject KioskModeSwitcher kioskModeSwitcher;
 
         private SnippetPlayer snippetPlayer = null;
 
@@ -285,6 +288,7 @@ public class SettingsActivity extends Activity {
         private void updateJumpBackSummary(SharedPreferences sharedPreferences) {
             String stringValue = sharedPreferences.getString(
                     GlobalSettings.KEY_JUMP_BACK, getString(R.string.pref_jump_back_default_value));
+            assert stringValue != null;
             int value = Integer.parseInt(stringValue);
             Preference preference = findPreference(GlobalSettings.KEY_JUMP_BACK);
             if (value == 0) {
@@ -382,7 +386,7 @@ public class SettingsActivity extends Activity {
             HomerPlayerDeviceAdmin.clearDeviceOwner(getActivity());
         }
 
-        private void openUrl(@NonNull String url) {
+        private void openUrl(@SuppressWarnings("SameParameterValue") @NonNull String url) {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
             try {
@@ -395,7 +399,7 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        @SuppressLint("CommitPrefEdits")
+        @SuppressLint({"CommitPrefEdits", "ApplySharedPref"})
         private void onKioskModeSwitched(SharedPreferences sharedPreferences) {
             boolean newKioskModeEnabled =
                     sharedPreferences.getBoolean(GlobalSettings.KEY_KIOSK_MODE, false);
@@ -415,7 +419,7 @@ public class SettingsActivity extends Activity {
                 // It should be the last thing the function does.
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(GlobalSettings.KEY_KIOSK_MODE, false);
-                editor.commit();
+                editor.commit(); // Lint warning suppressed: for this commit seems safer.
                 return;
             }
             if (isLockedPermitted)

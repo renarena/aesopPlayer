@@ -266,16 +266,19 @@ public class UiControllerMain implements ServiceConnection {
         abstract void onLeaveState();
 
         void onPlaybackStop(@NonNull UiControllerMain mainController) {
+            //noinspection ConstantConditions - getting here is an error
             Preconditions.checkState(false);
         }
 
         void onBooksChanged(@NonNull UiControllerMain mainController) {
+            //noinspection ConstantConditions - getting here is an error
             Preconditions.checkState(false);
         }
 
         void onActivityPause() {}
 
         void onRequestPermissionResult(int code, @NonNull int[] grantResults) {
+            //noinspection ConstantConditions - getting here is an error
             Preconditions.checkState(false);
         }
 
@@ -297,7 +300,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private static class NoBooksState extends State {
-        private @NonNull UiControllerNoBooks controller;
+        private @NonNull final UiControllerNoBooks controller;
 
         NoBooksState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             this.controller = mainController.showNoBooks(!(previousState instanceof InitState));
@@ -324,7 +327,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private static class BookListState extends State {
-        private @NonNull UiControllerBookList controller;
+        private @NonNull final UiControllerBookList controller;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             controller = mainController.showBookList(!(previousState instanceof InitState));
@@ -347,7 +350,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private static class PlaybackState extends State {
-        private @NonNull UiControllerPlayback controller;
+        private @NonNull final UiControllerPlayback controller;
         private @Nullable AudioBook playingAudioBook;
 
         PlaybackState(@NonNull UiControllerMain mainController, @NonNull State previousState) {

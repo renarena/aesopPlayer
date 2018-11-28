@@ -38,13 +38,13 @@ public class HomerPlayerDeviceAdmin extends DeviceAdminReceiver {
     @TargetApi(21)
     private static class API21 {
 
-        public static boolean isDeviceOwner(Context context) {
+        static boolean isDeviceOwner(Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             return dpm.isDeviceOwnerApp(context.getPackageName());
         }
 
-        public static void clearDeviceOwnerAndAdmin(Context context) {
+        static void clearDeviceOwnerAndAdmin(Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             dpm.clearDeviceOwnerApp(context.getPackageName());
@@ -52,7 +52,7 @@ public class HomerPlayerDeviceAdmin extends DeviceAdminReceiver {
             dpm.removeActiveAdmin(adminComponentName);
         }
 
-        public static void enableLockTask(Context context) {
+        static void enableLockTask(Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             ComponentName adminComponentName = new ComponentName(context, HomerPlayerDeviceAdmin.class);

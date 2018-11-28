@@ -2,7 +2,7 @@ package com.studio4plus.homerplayer.content;
 
 import android.database.AbstractCursor;
 
-public class ConfigurationCursor extends AbstractCursor {
+class ConfigurationCursor extends AbstractCursor {
 
     private final static String[] COLUMN_NAMES = { "KioskModeAvailable", "KioskModeEnabled" };
     private final boolean[] values;

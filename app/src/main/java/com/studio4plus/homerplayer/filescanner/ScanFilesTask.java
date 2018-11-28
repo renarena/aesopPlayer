@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class ScanFilesTask implements Callable<List<FileSet>> {
+class ScanFilesTask implements Callable<List<FileSet>> {
 
     private static final String[] SUPPORTED_SUFFIXES = {".mp3", ".m4a", ".ogg"};
 
@@ -111,7 +111,7 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
 
         FileFilter filesAndDirectoriesFilter = new OrFilter(audioFiles, new DirectoryFilter());
         addFilesRecursive(directory, filesAndDirectoriesFilter, files);
-        return files.toArray(new File[files.size()]);
+        return files.toArray(new File[0]);
     }
 
 

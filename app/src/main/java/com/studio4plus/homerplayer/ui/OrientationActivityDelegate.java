@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.studio4plus.homerplayer.GlobalSettings;
 
-public class OrientationActivityDelegate
+class OrientationActivityDelegate
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final Activity activity;

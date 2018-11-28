@@ -16,7 +16,7 @@ public class SnippetPlayer implements PlaybackController.Observer {
 
     private static final long PLAYBACK_TIME_MS = 5000;
 
-    private PlaybackController playbackController;
+    private final PlaybackController playbackController;
     private long startPositionMs = -1;
     private boolean isPlaying = false;
 

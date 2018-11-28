@@ -2,6 +2,7 @@ package com.studio4plus.homerplayer.content;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -19,7 +20,9 @@ import javax.inject.Inject;
  */
 public class ConfigurationContentProvider extends ContentProvider {
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public KioskModeSwitcher kioskModeSwitcher;
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     @Override
@@ -30,8 +33,11 @@ public class ConfigurationContentProvider extends ContentProvider {
     private void injectDependenciesIfNecessary(){
         // onCreate is called before the application object is initialized therefore
         // Dagger injection is run by the first operation on the content provider.
-        if (globalSettings == null)
-            HomerPlayerApplication.getComponent(getContext()).inject(this);
+        if (globalSettings == null) {
+            Context c = getContext();
+            assert c != null;
+            HomerPlayerApplication.getComponent(c).inject(this);
+        }
     }
 
     @Nullable

@@ -135,8 +135,8 @@ public class UiControllerPlayback {
         private final @NonNull PlaybackUi ui;
         private final @NonNull FFRewindTimer timer;
 
-        private long startTimeNano;
-        private long initialDisplayTimeMs;
+        private final long startTimeNano;
+        private final long initialDisplayTimeMs;
         private int currentSpeedLevelIndex = -1;
 
         final boolean isFF;

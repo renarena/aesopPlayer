@@ -4,15 +4,14 @@ import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Decompress {
-    private InputStream _zipInputStream;
-    private String _location;
+    private final InputStream _zipInputStream;
+    private final String _location;
 
     public Decompress(InputStream zipInputStream, String location) {
         _zipInputStream = zipInputStream;
@@ -24,7 +23,7 @@ public class Decompress {
     public void unzip() {
         try  {
             ZipInputStream zin = new ZipInputStream(_zipInputStream);
-            ZipEntry ze = null;
+            ZipEntry ze;
             while ((ze = zin.getNextEntry()) != null) {
                 if (ze.isDirectory()) {
                     _dirChecker(ze.getName());
@@ -34,8 +33,8 @@ public class Decompress {
                     int size;
                     byte[] buffer = new byte[2048];
 
-                    FileOutputStream fout = new FileOutputStream(_location + File.separatorChar + ze.getName());
-                    BufferedOutputStream bufferOut = new BufferedOutputStream(fout, buffer.length);
+                    FileOutputStream f_out = new FileOutputStream(_location + File.separatorChar + ze.getName());
+                    BufferedOutputStream bufferOut = new BufferedOutputStream(f_out, buffer.length);
 
                     while ((size = zin.read(buffer, 0, buffer.length)) != -1) {
                         bufferOut.write(buffer, 0, size);
@@ -48,7 +47,7 @@ public class Decompress {
                     bufferOut.close();
 
                     zin.closeEntry();
-                    fout.close();
+                    f_out.close();
 
 
 
@@ -77,8 +76,9 @@ public class Decompress {
             File f = new File(loc + dir);
 
             if(!f.isDirectory()) {
-
-                f.mkdirs();
+                if (!f.mkdirs()) {
+                    Log.w("creating dir error", loc + dir);
+                }
             }
         }
         catch(Exception e){

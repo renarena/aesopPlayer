@@ -8,7 +8,8 @@ import dagger.Component;
 
 @ActivityScope
 @Component(dependencies = ApplicationComponent.class, modules = ActivityModule.class)
-public interface ActivityComponent {
+interface ActivityComponent {
+    @SuppressWarnings("unused")
     Activity activity();
     void inject(SettingsActivity settingsActivity);
 }

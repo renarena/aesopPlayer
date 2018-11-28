@@ -50,7 +50,7 @@
             android:id="@+id/fastForwardButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:contentDescription="@string/button_acc_fastforward"
+            android:contentDescription="@string/button_acc_fast_forward"
             android:src="@drawable/ff"
             android:theme="@style/buttonFFRewindOverlay"
             app:layout_constraintBottom_toTopOf="@+id/stopButton"

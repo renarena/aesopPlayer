@@ -175,7 +175,7 @@ public class UiControllerNoBooks {
             this.observer = observer;
         }
 
-        public void stop() {
+        void stop() {
             this.observer = null;
         }
 
@@ -205,6 +205,7 @@ public class UiControllerNoBooks {
                 observer.onFailure();
                 stopProgressReceiver();
             } else {
+                //noinspection ConstantConditions - getting here is an error
                 Preconditions.checkState(false,
                         "Unexpected intent action: " + intent.getAction());
             }

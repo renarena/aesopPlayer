@@ -1,5 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +48,8 @@ public class MultitapTouchListener implements View.OnTouchListener {
                 3 * TimeUnit.MILLISECONDS.toNanos(ViewConfiguration.getDoubleTapTimeout());
     }
 
+    // TODO: Fix accessibility issie on setOnTouchListener below if multitap remains.
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getPointerCount() != 1)
@@ -62,6 +65,7 @@ public class MultitapTouchListener implements View.OnTouchListener {
         }
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean onTouchDown(MotionEvent ev) {
         final float x = ev.getX();
         final float y = ev.getY();

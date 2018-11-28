@@ -82,7 +82,7 @@ public class FilesystemUtil {
 
     @TargetApi(19)
     private static class API19 {
-        public static File[] getExternalFilesDirs(Context context) {
+        static File[] getExternalFilesDirs(Context context) {
             return context.getExternalFilesDirs(null);
         }
     }

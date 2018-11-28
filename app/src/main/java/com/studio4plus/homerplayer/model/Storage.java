@@ -98,7 +98,7 @@ public class Storage implements AudioBook.UpdateObserver {
         return preferences.getString(LAST_AUDIOBOOK_KEY, null);
     }
 
-    public void writeCurrentAudioBook(String id) {
+    private void writeCurrentAudioBook(String id) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(LAST_AUDIOBOOK_KEY, id);
         editor.apply();

@@ -22,7 +22,7 @@ public class AudioBook {
         public final long seekPosition;
         public final File file;
 
-        public Position(int fileIndex, long seekPosition) {
+        Position(int fileIndex, long seekPosition) {
             this.fileIndex = fileIndex;
             this.seekPosition = seekPosition;
             this.file = fileSet.files[fileIndex];

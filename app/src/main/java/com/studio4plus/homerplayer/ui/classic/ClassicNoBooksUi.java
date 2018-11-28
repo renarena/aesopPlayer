@@ -35,6 +35,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
     private View view;
     private ProgressUi progressUi;
 
+    @SuppressWarnings("WeakerAccess")
     public @Inject @Named("AUDIOBOOKS_DIRECTORY") String audioBooksDirectoryName;
 
     @Override
@@ -46,12 +47,12 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
         ApplicationComponent component = HomerPlayerApplication.getComponent(view.getContext());
         component.inject(this);
 
-        TextView noBooksPath = (TextView) view.findViewById(R.id.noBooksPath);
+        TextView noBooksPath = view.findViewById(R.id.noBooksPath);
         String directoryMessage =
                 getString(R.string.copyBooksInstructionMessage, audioBooksDirectoryName);
         noBooksPath.setText(Html.fromHtml(directoryMessage));
 
-        Button downloadSamplesButton = (Button) view.findViewById(R.id.downloadSamplesButton);
+        Button downloadSamplesButton = view.findViewById(R.id.downloadSamplesButton);
         downloadSamplesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

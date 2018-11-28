@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">Homer Player</string>
     <string name="demo_samples_service_notification_download">Downloading sample audiobooks</string>
     <string name="demo_samples_service_notification_install">Installing sample audiobooks</string>
@@ -48,7 +48,7 @@
     <string name="pref_jump_back_default_value" translatable="false">5</string>
     <string name="pref_jump_back_entry_disabled">Disabled</string>
     <string name="pref_jump_back_title">Jump back when resuming playback</string>
-    <string name="pref_jump_back_summary">Jump %d seconds back</string>
+    <string name="pref_jump_back_summary" tools:ignore="PluralsCandidate">Jump %d seconds back</string>
     <string name="pref_sleep_timer_entry_disabled">Disable</string>
     <string name="pref_sleep_timer_title">Sleep timer</string>
     <string name="pref_sleep_timer_summary">Pause after %s of inactivity</string>
@@ -62,10 +62,10 @@
     <string name="pref_version_title">Version</string>
     <string name="playback_elapsed_time" translatable="false">%1$2d:%2$02d:%3$02d</string>
     <string name="button_acc_rewind">rewind</string>
-    <string name="button_acc_fastforward">fast-forward</string>
+    <string name="button_acc_fast_forward">fast-forward</string>
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
-    <string name="multi_tap_prompt">%d more to go</string>
+    <string name="multi_tap_prompt" tools:ignore="PluralsCandidate">%d more to go</string>
     <string name="snooze_seconds" translatable="false">"%d"</string>
     <string name="noBooksOrMessage">or</string>
     <string name="noBooksDownloadSamplesButton">Download book samples</string>

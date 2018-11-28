@@ -1,5 +1,6 @@
 package com.studio4plus.homerplayer.ui.classic;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -36,9 +37,13 @@ public class ClassicBookList extends Fragment implements BookListUi {
     private BookListPagerAdapter bookAdapter;
     private UiControllerBookList uiControllerBookList;
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public AnalyticsTracker analyticsTracker;
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
+    // TODO: Fix accessibility issie on setOnTouchListener below if multi-tap remains.
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(
             LayoutInflater inflater,
@@ -47,7 +52,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
         view = inflater.inflate(R.layout.fragment_book_list, container, false);
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
 
-        bookPager = (ViewPager) view.findViewById(R.id.bookListPager);
+        bookPager = view.findViewById(R.id.bookListPager);
         bookPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             int currentViewIndex;
             String currentBookId;
@@ -126,8 +131,8 @@ public class ClassicBookList extends Fragment implements BookListUi {
     }
 
     private boolean isAnyHintVisible() {
-        ViewStub browseHintStub = (ViewStub)view.findViewById(R.id.browseHintOverlayStub);
-        ViewStub settingsHintStub = (ViewStub) view.findViewById(R.id.settingsHintOverlayStub);
+        ViewStub browseHintStub = view.findViewById(R.id.browseHintOverlayStub);
+        ViewStub settingsHintStub = view.findViewById(R.id.settingsHintOverlayStub);
         return  browseHintStub == null || settingsHintStub == null;
     }
 

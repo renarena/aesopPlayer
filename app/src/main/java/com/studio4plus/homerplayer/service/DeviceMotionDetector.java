@@ -28,11 +28,11 @@ class DeviceMotionDetector implements SensorEventListener {
     private final @NonNull Listener listener;
     private @NonNull SamplesQueue queue;
 
-    private long AVG_SMOOTH_TIME_NANOS = TimeUnit.SECONDS.toNanos(3);
-    private float avgAcceleration[] = new float[3];
+    private final long AVG_SMOOTH_TIME_NANOS = TimeUnit.SECONDS.toNanos(3);
+    private final float[] avgAcceleration = new float[3];
 
     private long previousTimestamp = 0;
-    private float previousValues[] = new float[3];
+    private final float[] previousValues = new float[3];
 
     enum MotionType {
         FACE_DOWN,

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ff000000"
@@ -26,5 +27,6 @@
         android:layout_height="wrap_content"
         android:paddingEnd="@dimen/batteryIndicatorPaddingHoriz"
         android:visibility="gone"
-        android:layout_gravity="top|end" />
+        android:layout_gravity="top|end"
+        tools:ignore="RtlSymmetry,ContentDescription" /> <!-- Battery status doesn't work with Accessibility -->
 </FrameLayout>

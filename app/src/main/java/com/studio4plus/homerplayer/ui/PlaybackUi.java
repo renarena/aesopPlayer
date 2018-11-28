@@ -2,9 +2,6 @@ package com.studio4plus.homerplayer.ui;
 
 import android.support.annotation.NonNull;
 
-import com.google.common.base.Preconditions;
-import com.studio4plus.homerplayer.model.AudioBook;
-
 public interface PlaybackUi {
 
     enum SpeedLevel {

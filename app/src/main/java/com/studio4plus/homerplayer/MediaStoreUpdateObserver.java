@@ -15,7 +15,7 @@ import de.greenrobot.event.EventBus;
  * device. To avoid rescanning often, a rescan is triggered only after RESCAN_DELAY_MS milliseconds
  * have passed since the last onChange call.
  */
-public class MediaStoreUpdateObserver extends ContentObserver {
+class MediaStoreUpdateObserver extends ContentObserver {
 
     private static final int RESCAN_DELAY_MS = 5000;
 

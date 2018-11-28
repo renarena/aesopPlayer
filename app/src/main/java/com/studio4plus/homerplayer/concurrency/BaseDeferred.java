@@ -32,13 +32,13 @@ public class BaseDeferred<V> implements SimpleFuture<V> {
         listeners.remove(listener);
     }
 
-    protected void setResult(@NonNull V result) {
+    void setResult(@NonNull V result) {
         this.result = result;
         for (Listener<V> listener : listeners)
             listener.onResult(result);
     }
 
-    protected void setException(@NonNull Throwable exception) {
+    void setException(@NonNull Throwable exception) {
         this.exception = exception;
         for (Listener<V> listener : listeners)
             listener.onException(exception);

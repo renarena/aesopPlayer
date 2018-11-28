@@ -80,6 +80,7 @@ public class DemoSamplesInstallerService extends Service {
 
     // It's a bit ugly the the service communicates with other components both via
     // a LocalBroadcastManager and an EventBus.
+    @SuppressWarnings("WeakerAccess")
     @Inject public EventBus eventBus;
     private DownloadAndInstallThread downloadAndInstallThread;
     private boolean isDownloading = false;

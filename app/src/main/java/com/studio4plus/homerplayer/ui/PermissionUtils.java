@@ -17,7 +17,7 @@ import com.studio4plus.homerplayer.R;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class PermissionUtils {
+class PermissionUtils {
 
     public static boolean checkAndRequestPermission(
             final Activity activity, String[] permissions, int requestCode) {
@@ -29,7 +29,7 @@ public class PermissionUtils {
         });
         if (!missingPermissions.isEmpty()) {
             ActivityCompat.requestPermissions(
-                    activity, missingPermissions.toArray(new String[missingPermissions.size()]), requestCode);
+                    activity, missingPermissions.toArray(new String[0]), requestCode);
             return false;
         }
         return true;

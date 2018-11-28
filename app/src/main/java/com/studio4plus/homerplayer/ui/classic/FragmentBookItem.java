@@ -16,7 +16,6 @@ import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
-import com.studio4plus.homerplayer.ui.MainActivity;
 import com.studio4plus.homerplayer.ui.SnoozeDisplay;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 
@@ -33,8 +32,11 @@ public class FragmentBookItem extends BookListChildFragment {
         return newFragment;
     }
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
+    @SuppressWarnings("WeakerAccess")
     @Inject public AudioBookManager audioBookManager;
+    @SuppressWarnings("WeakerAccess")
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
 
     private @Nullable UiControllerBookList controller;
@@ -56,14 +58,14 @@ public class FragmentBookItem extends BookListChildFragment {
         final String bookId = args.getString(ARG_BOOK_ID);
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
-            TextView textView = (TextView) view.findViewById(R.id.title);
+            TextView textView = view.findViewById(R.id.title);
             textView.setText(book.getTitle());
             textView.setTextColor(book.getColourScheme().textColour);
             view.setBackgroundColor(book.getColourScheme().backgroundColour);
 
             if (book.isDemoSample()) {
                 TextView copyBooksInstruction =
-                        (TextView) view.findViewById(R.id.copyBooksInstruction);
+                        view.findViewById(R.id.copyBooksInstruction);
                 String directoryMessage =
                         getString(R.string.copyBooksInstructionMessage, audioBooksDirectoryName);
                 copyBooksInstruction.setText(Html.fromHtml(directoryMessage));
@@ -71,7 +73,7 @@ public class FragmentBookItem extends BookListChildFragment {
                 copyBooksInstruction.setVisibility(View.VISIBLE);
             }
 
-            final Button startButton = (Button) view.findViewById(R.id.startButton);
+            final Button startButton = view.findViewById(R.id.startButton);
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

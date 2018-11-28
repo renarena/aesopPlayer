@@ -16,7 +16,9 @@ import javax.inject.Inject;
 
 public class ClassicPlaybackUi implements PlaybackUi {
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public SoundBank soundBank;
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     private final @NonNull FragmentPlayback fragment;

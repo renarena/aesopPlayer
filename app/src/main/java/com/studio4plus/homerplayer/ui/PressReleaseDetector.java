@@ -1,5 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +19,8 @@ public class PressReleaseDetector implements View.OnTouchListener {
         this.listener = listener;
     }
 
+    @SuppressLint("ClickableViewAccessibility") // This is press-and-hold, so click not meaningful
+    // TODO: can press-and-hold be made accessible?
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {

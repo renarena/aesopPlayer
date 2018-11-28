@@ -24,7 +24,7 @@ public class HintOverlay {
     }
 
     public void show() {
-        ViewStub stub = (ViewStub) parentView.findViewById(viewStubId);
+        ViewStub stub = parentView.findViewById(viewStubId);
         if (stub != null) {
             final View hintOverlay = stub.inflate();
             hintOverlay.setVisibility(View.VISIBLE);

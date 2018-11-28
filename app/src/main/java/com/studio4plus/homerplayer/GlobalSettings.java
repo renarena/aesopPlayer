@@ -20,7 +20,7 @@ public class GlobalSettings {
         LANDSCAPE_LOCKED(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
         LANDSCAPE_REVERSE_LOCKED(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
 
-        public final int value;
+        final int value;
 
         Orientation(int value) {
             this.value = value;
@@ -57,13 +57,15 @@ public class GlobalSettings {
     public int getJumpBackPreferenceMs() {
         String valueString = sharedPreferences.getString(
                 KEY_JUMP_BACK, resources.getString(R.string.pref_jump_back_default_value));
+        assert valueString != null;
         return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(valueString));
     }
 
     public long getSleepTimerMs() {
         String valueString = sharedPreferences.getString(
                 KEY_SLEEP_TIMER, resources.getString(R.string.pref_sleep_timer_default_value));
-        return (long) TimeUnit.SECONDS.toMillis(Long.parseLong(valueString));
+        assert valueString != null;
+        return TimeUnit.SECONDS.toMillis(Long.parseLong(valueString));
     }
 
     public int getScreenOrientation() {
@@ -76,12 +78,14 @@ public class GlobalSettings {
     public float getPlaybackSpeed() {
         final String valueString = sharedPreferences.getString(
                 KEY_PLAYBACK_SPEED, resources.getString(R.string.pref_playback_speed_default_value));
+        assert valueString != null;
         return Float.parseFloat(valueString);
     }
 
     public int getSnoozeDelay() {
         final String valueString = sharedPreferences.getString(
                 KEY_SNOOZE_DELAY, resources.getString(R.string.pref_snooze_time_default_value));
+        assert valueString != null;
         return Integer.parseInt(valueString);
     }
 
@@ -107,6 +111,7 @@ public class GlobalSettings {
             sharedPreferences.edit().putString(KEY_BOOKS_EVER_INSTALLED, contentType.name()).apply();
     }
 
+    @SuppressWarnings("unused")
     public boolean settingsEverEntered() {
         return sharedPreferences.getBoolean(KEY_SETTINGS_EVER_ENTERED, false);
     }

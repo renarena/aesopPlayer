@@ -45,10 +45,15 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private @Nullable SimpleDeferred<Speaker> ttsDeferred;
     private OrientationActivityDelegate orientationDelegate;
 
+    @SuppressWarnings("WeakerAccess")
     @Inject public UiControllerMain controller;
+    @SuppressWarnings("WeakerAccess")
     @Inject public BatteryStatusProvider batteryStatusProvider;
+    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
+    @SuppressWarnings("WeakerAccess")
     @Inject public KioskModeHandler kioskModeHandler;
+    @SuppressWarnings("WeakerAccess")
     @Inject public KioskModeSwitcher kioskModeSwitcher;
 
     private final static long SUPPRESSED_BACK_MESSAGE_DELAY_NANO = TimeUnit.SECONDS.toNanos(2);
