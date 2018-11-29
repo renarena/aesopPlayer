@@ -1,7 +1,7 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -38,7 +38,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends AppCompatActivity {
 
     // Pseudo preferences that don't change any preference values directly.
     private static final String KEY_FAQ = "faq_preference";

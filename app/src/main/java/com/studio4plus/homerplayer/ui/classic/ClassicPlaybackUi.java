@@ -1,6 +1,6 @@
 package com.studio4plus.homerplayer.ui.classic;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -28,7 +28,7 @@ public class ClassicPlaybackUi implements PlaybackUi {
     private @Nullable SoundBank.Sound ffRewindSound;
 
     ClassicPlaybackUi(
-            @NonNull Activity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit) {
+            @NonNull AppCompatActivity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit) {
         this.fragment = new FragmentPlayback();
         this.mainUi = mainUi;
         this.animateOnInit = animateOnInit;
@@ -60,7 +60,7 @@ public class ClassicPlaybackUi implements PlaybackUi {
             if (speedLevel == SpeedLevel.STOP) {
                 SoundBank.stopTrack(ffRewindSound.track);
             } else {
-                int soundPlaybackFactor = SPEED_LEVEL_SOUND_RATE.get(speedLevel);
+                @SuppressWarnings("ConstantConditions") int soundPlaybackFactor = SPEED_LEVEL_SOUND_RATE.get(speedLevel);
                 ffRewindSound.track.setPlaybackRate(ffRewindSound.sampleRate * soundPlaybackFactor);
                 ffRewindSound.track.play();
             }

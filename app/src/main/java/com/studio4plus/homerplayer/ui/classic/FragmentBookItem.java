@@ -43,7 +43,7 @@ public class FragmentBookItem extends BookListChildFragment {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
+            @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_item, container, false);
@@ -55,6 +55,7 @@ public class FragmentBookItem extends BookListChildFragment {
         new SnoozeDisplay(this, view, time);
 
         Bundle args = getArguments();
+        assert args != null;
         final String bookId = args.getString(ARG_BOOK_ID);
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
@@ -88,6 +89,7 @@ public class FragmentBookItem extends BookListChildFragment {
     }
 
     public String getAudioBookId() {
+        assert getArguments() != null;
         return getArguments().getString(ARG_BOOK_ID);
     }
 
