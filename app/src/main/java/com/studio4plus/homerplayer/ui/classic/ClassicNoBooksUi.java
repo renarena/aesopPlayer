@@ -40,7 +40,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
 
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater,
+            LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_no_books, container, false);

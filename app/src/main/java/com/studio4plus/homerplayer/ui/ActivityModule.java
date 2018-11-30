@@ -1,6 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 
 import com.studio4plus.homerplayer.GlobalSettings;
 
@@ -10,20 +10,20 @@ import de.greenrobot.event.EventBus;
 
 @Module
 public class ActivityModule {
-    private final AppCompatActivity activity;
+    private final Activity activity;
 
-    public ActivityModule(AppCompatActivity activity) {
+    public ActivityModule(Activity activity) {
         this.activity = activity;
     }
 
     @Provides @ActivityScope
-    AppCompatActivity activity() {
+    Activity activity() {
         return activity;
     }
 
     @Provides @ActivityScope
     KioskModeHandler provideKioskModeHandler(
-            AppCompatActivity activity, GlobalSettings settings, EventBus eventBus) {
+            Activity activity, GlobalSettings settings, EventBus eventBus) {
         return new KioskModeHandler(activity, settings, eventBus);
     }
 }

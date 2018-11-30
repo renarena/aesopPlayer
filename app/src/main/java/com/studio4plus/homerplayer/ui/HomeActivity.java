@@ -1,13 +1,13 @@
 package com.studio4plus.homerplayer.ui;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

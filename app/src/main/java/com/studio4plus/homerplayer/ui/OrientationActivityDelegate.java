@@ -1,6 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -10,10 +10,10 @@ import com.studio4plus.homerplayer.GlobalSettings;
 class OrientationActivityDelegate
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private final AppCompatActivity activity;
+    private final Activity activity;
     private final GlobalSettings globalSettings;
 
-    OrientationActivityDelegate(@NonNull AppCompatActivity activity, GlobalSettings globalSettings) {
+    OrientationActivityDelegate(@NonNull Activity activity, GlobalSettings globalSettings) {
         this.activity = activity;
         this.globalSettings = globalSettings;
     }

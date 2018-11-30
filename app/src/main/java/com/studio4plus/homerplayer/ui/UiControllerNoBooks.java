@@ -1,7 +1,7 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.Manifest;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,13 +29,13 @@ import de.greenrobot.event.EventBus;
 public class UiControllerNoBooks {
 
     public static class Factory {
-        private final @NonNull AppCompatActivity activity;
+        private final @NonNull Activity activity;
         private final @NonNull Uri samplesDownloadUrl;
         private final @NonNull EventBus eventBus;
         private final @NonNull AnalyticsTracker analyticsTracker;
 
         @Inject
-        public Factory(@NonNull AppCompatActivity activity,
+        public Factory(@NonNull Activity activity,
                        @NonNull @Named("SAMPLES_DOWNLOAD_URL") Uri samplesDownloadUrl,
                        @NonNull EventBus eventBus,
                        @NonNull AnalyticsTracker analyticsTracker) {
@@ -52,7 +52,7 @@ public class UiControllerNoBooks {
 
     static final int PERMISSION_REQUEST_DOWNLOADS = 100;
 
-    private final @NonNull AppCompatActivity activity;
+    private final @NonNull Activity activity;
     private final @NonNull NoBooksUi ui;
     private final @NonNull Uri samplesDownloadUrl;
     private final @NonNull EventBus eventBus;
@@ -60,7 +60,7 @@ public class UiControllerNoBooks {
 
     private @Nullable DownloadProgressReceiver progressReceiver;
 
-    private UiControllerNoBooks(@NonNull AppCompatActivity activity,
+    private UiControllerNoBooks(@NonNull Activity activity,
                                 @NonNull NoBooksUi ui,
                                 @NonNull Uri samplesDownloadUrl,
                                 @NonNull EventBus eventBus,

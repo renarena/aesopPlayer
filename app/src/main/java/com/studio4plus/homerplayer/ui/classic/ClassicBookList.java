@@ -46,7 +46,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater,
+            LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_book_list, container, false);

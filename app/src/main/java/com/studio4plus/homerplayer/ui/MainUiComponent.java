@@ -1,9 +1,9 @@
 package com.studio4plus.homerplayer.ui;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 
 public interface MainUiComponent {
     @SuppressWarnings("unused")
-    AppCompatActivity activity();
+    Activity activity();
     void inject(MainActivity mainActivity);
 }

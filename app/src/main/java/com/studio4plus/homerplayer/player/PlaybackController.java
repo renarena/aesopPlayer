@@ -26,7 +26,7 @@ public interface PlaybackController {
 
         /**
          * Error playing file.
-         * @param path File with error
+         * @param path
          */
         void onPlaybackError(File path);
 

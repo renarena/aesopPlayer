@@ -54,7 +54,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater,
+            LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_playback, container, false);

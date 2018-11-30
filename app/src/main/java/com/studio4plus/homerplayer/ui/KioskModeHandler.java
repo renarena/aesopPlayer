@@ -1,7 +1,7 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.annotation.TargetApi;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.view.View;
@@ -19,13 +19,13 @@ public class KioskModeHandler {
     private static final String SCREEN_LOCK_PREFS = "ScreenLocker";
     private static final String PREF_SCREEN_LOCK_ENABLED = "screen_lock_enabled";
 
-    private final AppCompatActivity activity;
+    private final Activity activity;
     private final GlobalSettings globalSettings;
     private final EventBus eventBus;
     private boolean keepNavigation = false;
 
     @Inject
-    KioskModeHandler(AppCompatActivity activity, GlobalSettings settings, EventBus eventBus) {
+    KioskModeHandler(Activity activity, GlobalSettings settings, EventBus eventBus) {
         this.activity = activity;
         this.globalSettings = settings;
         this.eventBus = eventBus;
@@ -99,11 +99,11 @@ public class KioskModeHandler {
     }
     @TargetApi(21)
     private static class API21 {
-        static void startLockTask(AppCompatActivity activity) {
+        static void startLockTask(Activity activity) {
             activity.startLockTask();
         }
 
-        static void stopLockTask(AppCompatActivity activity) {
+        static void stopLockTask(Activity activity) {
             activity.stopLockTask();
         }
     }

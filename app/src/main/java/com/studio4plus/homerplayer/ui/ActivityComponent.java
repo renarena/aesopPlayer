@@ -1,6 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 
 import com.studio4plus.homerplayer.ApplicationComponent;
 
@@ -10,6 +10,6 @@ import dagger.Component;
 @Component(dependencies = ApplicationComponent.class, modules = ActivityModule.class)
 interface ActivityComponent {
     @SuppressWarnings("unused")
-    AppCompatActivity activity();
+    Activity activity();
     void inject(SettingsActivity settingsActivity);
 }
