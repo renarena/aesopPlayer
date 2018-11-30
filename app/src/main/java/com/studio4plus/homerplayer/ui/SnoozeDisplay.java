@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.R;
 
+@SuppressWarnings("deprecation") // of Fragment
 public class SnoozeDisplay {
     private View snoozeOverlay;
     private TextView snoozeCounter;

@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 
+@SuppressWarnings("deprecation") // of Fragment
 public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
 
     private UiControllerNoBooks controller;

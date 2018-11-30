@@ -36,6 +36,7 @@ import javax.inject.Inject;
 
 import io.codetail.animation.ViewAnimationUtils;
 
+@SuppressWarnings("deprecation") // of Fragment
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
     private View view;

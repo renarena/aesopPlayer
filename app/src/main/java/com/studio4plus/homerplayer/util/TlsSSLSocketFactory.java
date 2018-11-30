@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
@@ -43,13 +42,13 @@ public class TlsSSLSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+    public Socket createSocket(String host, int port) throws IOException {
         return enableTLSOnSocket(factory.createSocket(host, port));
     }
 
     @Override
     public Socket createSocket(String host, int port, InetAddress inetAddress, int localPort)
-            throws IOException, UnknownHostException {
+            throws IOException {
         return enableTLSOnSocket(factory.createSocket(host, port, inetAddress, localPort));
     }
 

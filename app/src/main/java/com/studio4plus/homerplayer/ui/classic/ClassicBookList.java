@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+@SuppressWarnings("deprecation") // of Fragment
 public class ClassicBookList extends Fragment implements BookListUi {
 
     private View view;
@@ -136,6 +137,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
         return  browseHintStub == null || settingsHintStub == null;
     }
 
+    @SuppressWarnings("deprecation") // of FragmentStatePagerAdapter, FragmentManager, Fragment
     private class BookListPagerAdapter extends FragmentStatePagerAdapter {
 
         private static final int OFFSET = 1;

@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
+@SuppressWarnings("deprecation") // of Fragment, etc.
 public class SettingsActivity extends Activity {
 
     // Pseudo preferences that don't change any preference values directly.

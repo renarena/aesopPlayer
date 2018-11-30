@@ -60,7 +60,7 @@ public class ClassicPlaybackUi implements PlaybackUi {
             if (speedLevel == SpeedLevel.STOP) {
                 SoundBank.stopTrack(ffRewindSound.track);
             } else {
-                int soundPlaybackFactor = SPEED_LEVEL_SOUND_RATE.get(speedLevel);
+                @SuppressWarnings("ConstantConditions") int soundPlaybackFactor = SPEED_LEVEL_SOUND_RATE.get(speedLevel);
                 ffRewindSound.track.setPlaybackRate(ffRewindSound.sampleRate * soundPlaybackFactor);
                 ffRewindSound.track.play();
             }

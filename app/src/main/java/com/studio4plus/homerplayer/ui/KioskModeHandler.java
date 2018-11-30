@@ -31,6 +31,7 @@ public class KioskModeHandler {
         this.eventBus = eventBus;
     }
 
+    @SuppressWarnings("SameParameterValue") // For a future?
     void setKeepNavigation(Boolean keepNavigation) {
         this.keepNavigation = keepNavigation;
     }

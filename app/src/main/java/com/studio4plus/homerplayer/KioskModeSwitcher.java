@@ -87,6 +87,7 @@ public class KioskModeSwitcher {
                     && dpm.isDeviceOwnerApp(context.getPackageName());
         }
 
+        @SuppressWarnings("SameParameterValue") // For a future?
         static void setPreferredHomeActivity(Context context, Class activityClass) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);

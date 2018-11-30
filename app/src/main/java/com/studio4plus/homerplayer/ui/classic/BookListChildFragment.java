@@ -11,6 +11,15 @@ import com.studio4plus.homerplayer.R;
  *
  * Inspired by http://stackoverflow.com/a/23276145/3892517
  */
+
+// TODO: Fragment etc. are deprecated. See DT change 11/29/2018 that ...
+// almost fixes this, but crashes on 4.4.2 (but not Pie). Fix requires
+// changing to AppCompatActivity (which the web in some places says is
+// preferred), and that seems to be the cause of the crash which
+// occurs deep in the Settings library with an illegal cast between
+// Activity and AppCompatActivity. Suppressing the warning here
+// and elsewhere but with a TO-DO (only here) to remind us.
+@SuppressWarnings("deprecation")
 public class BookListChildFragment extends Fragment {
 
     @Override

@@ -17,6 +17,7 @@ import java.io.File;
 import javax.inject.Inject;
 
 // TODO: ideally this would be a View.
+@SuppressWarnings("deprecation") // of Fragment, FragmentManager, etc.
 class ClassicMainUi implements MainUi {
 
     private final @NonNull Activity activity;
