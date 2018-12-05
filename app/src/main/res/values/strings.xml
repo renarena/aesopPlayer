@@ -42,6 +42,8 @@
     <string name="pref_playback_speed_default_value" translatable="false">1.0</string>
     <string name="pref_snooze_time_title">Button delay</string>
     <string name="pref_snooze_time_default_value" translatable="false">2</string>
+    <string name="pref_blink_rate_title">Blink Speed</string>
+    <string name="pref_blink_rate_default_value" translatable="false">500</string>
     <string name="pref_ff_rewind_sound">Fast-forward/rewind sound</string>
     <string name="pref_ff_rewind_sound_summary_on">Enabled</string>
     <string name="pref_ff_rewind_sound_summary_off">Disabled</string>

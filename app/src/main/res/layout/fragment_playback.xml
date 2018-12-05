@@ -31,22 +31,6 @@
             app:layout_constraintVertical_weight="1"
             tools:text="00:13:10" />
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/stopButton"
-            style="@style/buttonStartStop"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:gravity="center"
-            android:maxLines="1"
-            android:text="@string/button_stop"
-            android:theme="@style/buttonStopOverlay"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rewindButton"
-            app:layout_constraintVertical_weight="8" />
-
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/fastForwardButton"
             android:layout_width="0dp"
@@ -55,7 +39,7 @@
             android:contentDescription="@string/button_acc_fast_forward"
             android:src="@drawable/ff"
             android:theme="@style/buttonFFRewindOverlay"
-            app:layout_constraintBottom_toTopOf="@+id/stopButton"
+            app:layout_constraintBottom_toTopOf="@+id/stopBox"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_weight="1"
@@ -71,7 +55,7 @@
             android:contentDescription="@string/button_acc_rewind"
             android:src="@drawable/rewind"
             android:theme="@style/buttonFFRewindOverlay"
-            app:layout_constraintBottom_toTopOf="@+id/stopButton"
+            app:layout_constraintBottom_toTopOf="@+id/stopBox"
             app:layout_constraintEnd_toStartOf="@+id/fastForwardButton"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="spread"
@@ -79,6 +63,74 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/elapsedTime"
             app:layout_constraintVertical_weight="1" />
+
+        <RelativeLayout
+            android:id="@+id/stopBox"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fastForwardButton"
+            app:layout_constraintVertical_weight="8"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="0dp"
+            >
+
+            <!-- No text in button, overlaid with blinking text below -->
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/stopButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent"
+                android:theme="@style/buttonStopOverlay"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/buttonStopBackground"
+                android:orientation="vertical">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2" />
+
+                <ViewFlipper
+                    android:id="@+id/flipper"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:flipInterval="1000">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|center"
+                        android:text="@string/button_stop"
+                        android:textAllCaps="true"
+                        android:textColor="#ffffff"
+                        android:theme="@style/buttonStopOverlay"
+                        app:autoSizeTextType="uniform" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|center"
+                        android:theme="@style/buttonStopOverlay" />
+
+                </ViewFlipper>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </android.support.constraint.ConstraintLayout>
 
@@ -95,7 +147,7 @@
             android:textColor="#ffffff"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textSize="@dimen/bookElapsedTimeTextSize"
+            app:autoSizeTextType="uniform"
             android:gravity="center"/>
     </RelativeLayout>
 

@@ -16,7 +16,7 @@ import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
-import com.studio4plus.homerplayer.ui.SnoozeDisplay;
+import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 
 import javax.inject.Inject;
@@ -40,6 +40,8 @@ public class FragmentBookItem extends BookListChildFragment {
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
 
     private @Nullable UiControllerBookList controller;
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
+    private UiUtil.SnoozeDisplay snooze;
 
     @Override
     public View onCreateView(
@@ -51,8 +53,7 @@ public class FragmentBookItem extends BookListChildFragment {
 
         // This should be early so no buttons go live before this
         // TODO: determine if we want to skip snoozeDelay on initial startup
-        int time = globalSettings.getSnoozeDelay();
-        new SnoozeDisplay(this, view, time);
+        snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         Bundle args = getArguments();
         final String bookId = args.getString(ARG_BOOK_ID);
@@ -83,6 +84,8 @@ public class FragmentBookItem extends BookListChildFragment {
                 }
             });
         }
+
+        UiUtil.startBlinker(view, globalSettings);
 
         return view;
     }

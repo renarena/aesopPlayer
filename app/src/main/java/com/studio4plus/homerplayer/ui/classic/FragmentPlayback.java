@@ -26,7 +26,7 @@ import com.studio4plus.homerplayer.ui.FFRewindTimer;
 import com.studio4plus.homerplayer.ui.HintOverlay;
 import com.studio4plus.homerplayer.ui.PressReleaseDetector;
 import com.studio4plus.homerplayer.ui.SimpleAnimatorListener;
-import com.studio4plus.homerplayer.ui.SnoozeDisplay;
+import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerPlayback;
 import com.studio4plus.homerplayer.util.ViewUtils;
 
@@ -47,6 +47,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private TextView elapsedTimeRewindFFView;
     private RewindFFHandler rewindFFHandler;
     private Animator elapsedTimeRewindFFViewAnimation;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private UiUtil.SnoozeDisplay snooze;
 
     private @Nullable UiControllerPlayback controller;
 
@@ -62,8 +64,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
 
         // This should be early so no buttons go live before this
-        int time = globalSettings.getSnoozeDelay();
-        new SnoozeDisplay(this, view, time);
+        snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         stopButton = view.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(new View.OnClickListener() {
@@ -114,6 +115,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         elapsedTimeRewindFFViewAnimation =
                 AnimatorInflater.loadAnimator(view.getContext(), R.animator.bounce);
         elapsedTimeRewindFFViewAnimation.setTarget(elapsedTimeRewindFFView);
+
+        UiUtil.startBlinker(view, globalSettings);
 
         return view;
     }
