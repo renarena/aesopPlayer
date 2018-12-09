@@ -16,6 +16,12 @@
             android:entryValues="@array/sleep_timer_values"
             android:defaultValue="0"/>
         <ListPreference
+            android:key="stop_on_face_down_preference"
+            android:defaultValue="@string/pref_stop_on_face_down_default_value"
+            android:entries="@array/stop_on_face_down_entries"
+            android:entryValues="@array/stop_on_face_down_values"
+            android:title="@string/pref_stop_on_face_down_title" />
+        <ListPreference
             android:key="playback_speed_preference"
             android:defaultValue="@string/pref_playback_speed_default_value"
             android:entries="@array/playback_speed_entries"

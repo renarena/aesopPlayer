@@ -16,6 +16,8 @@ import android.support.v7.app.AlertDialog;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
+import com.studio4plus.homerplayer.GlobalSettings;
+import com.studio4plus.homerplayer.GlobalSettings.FaceDownAction;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
 import com.studio4plus.homerplayer.events.AudioBooksChangedEvent;
@@ -24,10 +26,14 @@ import com.studio4plus.homerplayer.events.PlaybackStoppedEvent;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.service.PlaybackService;
+import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+
+import static com.studio4plus.homerplayer.GlobalSettings.FaceDownAction.NONE;
+import static com.studio4plus.homerplayer.GlobalSettings.FaceDownAction.STOP_RESUME;
 
 public class UiControllerMain implements ServiceConnection {
 
@@ -39,6 +45,7 @@ public class UiControllerMain implements ServiceConnection {
     private final @NonNull UiControllerNoBooks.Factory noBooksControllerFactory;
     private final @NonNull UiControllerBookList.Factory bookListControllerFactory;
     private final @NonNull UiControllerPlayback.Factory playbackControllerFactory;
+    private final @NonNull GlobalSettings globalSettings;
 
     private static final int PERMISSION_REQUEST_FOR_BOOK_SCAN = 1;
 
@@ -54,7 +61,8 @@ public class UiControllerMain implements ServiceConnection {
                      @NonNull AnalyticsTracker analyticsTracker,
                      @NonNull UiControllerNoBooks.Factory noBooksControllerFactory,
                      @NonNull UiControllerBookList.Factory bookListControllerFactory,
-                     @NonNull UiControllerPlayback.Factory playbackControllerFactory) {
+                     @NonNull UiControllerPlayback.Factory playbackControllerFactory,
+                     @NonNull GlobalSettings globalSettings) {
         this.activity = activity;
         this.mainUi = mainUi;
         this.audioBookManager = audioBookManager;
@@ -63,6 +71,7 @@ public class UiControllerMain implements ServiceConnection {
         this.noBooksControllerFactory = noBooksControllerFactory;
         this.bookListControllerFactory = bookListControllerFactory;
         this.playbackControllerFactory = playbackControllerFactory;
+        this.globalSettings = globalSettings;
     }
 
     void onActivityCreated() {
@@ -122,14 +131,26 @@ public class UiControllerMain implements ServiceConnection {
         maybeSetInitialState();
     }
 
+    @NonNull
+    private Activity getActivity()
+    {
+        return activity;
+    }
+
+    @NonNull
+    private GlobalSettings getGlobalSettings()
+    {
+        return globalSettings;
+    }
+
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         playbackService = null;
     }
 
-    public void onRequestPermissionResult(
+    void onRequestPermissionResult(
             int code, final @NonNull String[] permissions, final @NonNull int[] grantResults) {
-        switch(code) {
+        switch (code) {
             case PERMISSION_REQUEST_FOR_BOOK_SCAN:
                 if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
@@ -138,8 +159,8 @@ public class UiControllerMain implements ServiceConnection {
                     boolean canRetry =
                             ActivityCompat.shouldShowRequestPermissionRationale(
                                     activity, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                            ActivityCompat.shouldShowRequestPermissionRationale(
-                                    activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                    ActivityCompat.shouldShowRequestPermissionRationale(
+                                            activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                     AlertDialog.Builder dialogBuilder = PermissionUtils.permissionRationaleDialogBuilder(
                             activity, R.string.permission_rationale_scan_audiobooks);
                     if (canRetry) {
@@ -170,7 +191,7 @@ public class UiControllerMain implements ServiceConnection {
                                     activity.finish();
                                 }
                             })
-                    .create().show();
+                            .create().show();
                 }
                 break;
             case UiControllerNoBooks.PERMISSION_REQUEST_DOWNLOADS:
@@ -182,13 +203,13 @@ public class UiControllerMain implements ServiceConnection {
     private void scanAudioBookFiles() {
         if (PermissionUtils.checkAndRequestPermission(
                 activity,
-                new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 PERMISSION_REQUEST_FOR_BOOK_SCAN))
             audioBookManager.scanFiles();
     }
 
-    private void  maybeSetInitialState() {
+    private void maybeSetInitialState() {
         if (currentState instanceof InitState && playbackService != null &&
                 audioBookManager.isInitialized()) {
 
@@ -264,6 +285,8 @@ public class UiControllerMain implements ServiceConnection {
 
     private static abstract class State {
         abstract void onLeaveState();
+        static boolean stoppedByFaceDown = false;
+        static FaceDownAction faceDownAction = NONE;
 
         void onPlaybackStop(@NonNull UiControllerMain mainController) {
             //noinspection ConstantConditions - getting here is an error
@@ -275,7 +298,7 @@ public class UiControllerMain implements ServiceConnection {
             Preconditions.checkState(false);
         }
 
-        void onActivityPause() {}
+        void onActivityPause() { }
 
         void onRequestPermissionResult(int code, @NonNull int[] grantResults) {
             //noinspection ConstantConditions - getting here is an error
@@ -287,13 +310,13 @@ public class UiControllerMain implements ServiceConnection {
 
     private static class InitState extends State {
         @Override
-        void onPlaybackStop(@NonNull UiControllerMain mainController) {}
+        void onPlaybackStop(@NonNull UiControllerMain mainController) { }
 
         @Override
-        void onBooksChanged(@NonNull UiControllerMain mainController) {}
+        void onBooksChanged(@NonNull UiControllerMain mainController) { }
 
         @Override
-        void onLeaveState() {}
+        void onLeaveState() { }
 
         @Override
         @NonNull String debugName() { return "InitState"; }
@@ -304,6 +327,7 @@ public class UiControllerMain implements ServiceConnection {
 
         NoBooksState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             this.controller = mainController.showNoBooks(!(previousState instanceof InitState));
+            stoppedByFaceDown = false;
         }
 
         @Override
@@ -326,32 +350,63 @@ public class UiControllerMain implements ServiceConnection {
         @NonNull String debugName() { return "NoBooksState"; }
     }
 
-    private static class BookListState extends State {
+    private static class BookListState extends State
+            implements DeviceMotionDetector.Listener {
         private @NonNull final UiControllerBookList controller;
+        private @NonNull final DeviceMotionDetector motionDetector;
+        private @NonNull final State prevState;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
+            prevState = previousState;
             controller = mainController.showBookList(!(previousState instanceof InitState));
+            //noinspection RedundantCast
+            motionDetector = DeviceMotionDetector.getDeviceMotionDetector((Context)mainController.getActivity(), this);
+            // Avoid starting playback via incidental motion of the phone
+            if (stoppedByFaceDown && faceDownAction == STOP_RESUME ) {
+                motionDetector.enable();
+            }
+            faceDownAction = mainController.getGlobalSettings().getStopOnFaceDown();
+            stoppedByFaceDown = false;
         }
 
         @Override
         void onLeaveState() {
+            motionDetector.disable();
             controller.shutdown();
         }
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
-            if (!mainController.hasAnyBooks())
+            if (!mainController.hasAnyBooks()) {
+                motionDetector.disable();
                 mainController.changeState(StateFactory.NO_BOOKS);
+            }
         }
+
+        @Override
+        public void onFaceDownStill() { /* ignore */ }
+
+        @Override
+        public void onFaceUpStill() {
+            motionDetector.disable();
+            if (prevState instanceof PlaybackState) {
+                controller.playCurrentAudiobook();
+            }
+        }
+
+        @Override
+        public void onSignificantMotion() { /* ignore */ }
 
         @Override
         @NonNull String debugName() { return "BookListState"; }
 
     }
 
-    private static class PlaybackState extends State {
+    private static class PlaybackState extends State
+            implements DeviceMotionDetector.Listener {
         private @NonNull final UiControllerPlayback controller;
         private @Nullable AudioBook playingAudioBook;
+        private @NonNull final DeviceMotionDetector motionDetector;
 
         PlaybackState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             controller = mainController.showPlayback(!(previousState instanceof InitState));
@@ -360,6 +415,12 @@ public class UiControllerMain implements ServiceConnection {
                 Preconditions.checkNotNull(playingAudioBook);
                 controller.startPlayback(playingAudioBook);
             }
+            //noinspection RedundantCast
+            motionDetector = DeviceMotionDetector.getDeviceMotionDetector((Context)mainController.getActivity(), this);
+            if (faceDownAction != NONE )
+                motionDetector.enable();
+            faceDownAction = mainController.getGlobalSettings().getStopOnFaceDown();
+            stoppedByFaceDown = false;
         }
 
         @Override
@@ -370,12 +431,14 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onLeaveState() {
+            motionDetector.disable();
             Preconditions.checkNotNull(controller);
             controller.shutdown();
         }
 
         @Override
         void onPlaybackStop(@NonNull UiControllerMain mainController) {
+            motionDetector.disable();
             mainController.changeState(mainController.hasAnyBooks()
                     ? StateFactory.BOOK_LIST
                     : StateFactory.NO_BOOKS);
@@ -383,11 +446,29 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
+            motionDetector.disable();
             if (playingAudioBook != null &&
                     playingAudioBook != mainController.currentAudioBook()) {
                 controller.stopPlayback();
                 playingAudioBook = null;
             }
+        }
+
+        @Override
+        public void onFaceDownStill() {
+            // Stop playback
+            stoppedByFaceDown = true;
+            controller.stopPlayback();
+        }
+
+        @Override
+        public void onFaceUpStill() {
+            /* ignore */
+        }
+
+        @Override
+        public void onSignificantMotion() {
+            controller.playbackService.resetSleepTimer();
         }
 
         @Override

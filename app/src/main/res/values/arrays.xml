@@ -48,6 +48,16 @@
         <item>Slow</item>
         <item>Very slow</item>
     </string-array>
+    <string-array name="stop_on_face_down_values" translatable="false">
+        <item>NONE</item>
+        <item>STOP_ONLY</item>
+        <item>STOP_RESUME</item>
+    </string-array>
+    <string-array name="stop_on_face_down_entries">
+        <item>Never</item>
+        <item>Stop</item>
+        <item>Stop, and resume on face up</item>
+    </string-array>
     <string-array name="playback_speed_values" translatable="false">
         <item>2.0</item>
         <item>1.5</item>

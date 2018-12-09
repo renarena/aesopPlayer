@@ -2,7 +2,6 @@ package com.studio4plus.homerplayer.service;
 
 import android.app.Notification;
 import android.content.Context;
-import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -35,7 +34,7 @@ import de.greenrobot.event.EventBus;
 
 public class PlaybackService
         extends Service
-        implements DeviceMotionDetector.Listener, AudioManager.OnAudioFocusChangeListener {
+        implements AudioManager.OnAudioFocusChangeListener {
 
     public enum State {
         IDLE,
@@ -57,7 +56,6 @@ public class PlaybackService
     private Player player;
     private DurationQuery durationQueryInProgress;
     private AudioBookPlayback playbackInProgress;
-    private DeviceMotionDetector motionDetector;
     private Handler handler;
     private final SleepFadeOut sleepFadeOut = new SleepFadeOut();
 
@@ -70,12 +68,8 @@ public class PlaybackService
     public void onCreate() {
         super.onCreate();
         HomerPlayerApplication.getComponent(getApplicationContext()).inject(this);
-        // TODO: use Dagger to create DeviceMotionDetector?
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
         handler = new Handler(getMainLooper());
-        if (sensorManager != null && DeviceMotionDetector.hasSensors(sensorManager)) {
-            motionDetector = new DeviceMotionDetector(sensorManager, this);
-        }
     }
 
     @Override
@@ -92,9 +86,6 @@ public class PlaybackService
         requestAudioFocus();
         player = HomerPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
         player.setPlaybackSpeed(globalSettings.getPlaybackSpeed());
-
-        if (motionDetector != null)
-            motionDetector.enable();
 
         Notification notification = NotificationUtil.createForegroundServiceNotification(
                 getApplicationContext(),
@@ -154,16 +145,6 @@ public class PlaybackService
     }
 
     @Override
-    public void onFaceDownStill() {
-        stopPlayback();
-    }
-
-    @Override
-    public void onSignificantMotion() {
-        resetSleepTimer();
-    }
-
-    @Override
     public void onAudioFocusChange(int focusChange) {
         // TRANSIENT loss is reported on phone calls.
         // Notifications should request TRANSIENT_CAN_DUCK so they won't interfere.
@@ -182,8 +163,6 @@ public class PlaybackService
     private void onPlaybackEnded() {
         durationQueryInProgress = null;
         playbackInProgress = null;
-        if (motionDetector != null)
-             motionDetector.disable();
 
         stopSleepTimer();
         dropAudioFocus();
@@ -213,7 +192,7 @@ public class PlaybackService
         audioManager.abandonAudioFocus(this);
     }
 
-    private void resetSleepTimer() {
+    public void resetSleepTimer() {
         stopSleepTimer();
         long timerMs = globalSettings.getSleepTimerMs();
         if (timerMs > 0)

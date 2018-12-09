@@ -39,7 +39,7 @@ public class UiControllerPlayback {
     private final @NonNull EventBus eventBus;
     private final @NonNull AnalyticsTracker analyticsTracker;
     private final @NonNull Handler mainHandler;
-    private final @NonNull PlaybackService playbackService;
+    final @NonNull PlaybackService playbackService;
     private final @NonNull PlaybackUi ui;
 
     // Non-null only when rewinding.

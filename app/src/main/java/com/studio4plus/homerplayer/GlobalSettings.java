@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 @Singleton
 public class GlobalSettings {
 
+    @SuppressWarnings("unused") // Used in xml, but use not detected by analyzer
     private enum Orientation {
         LANDSCAPE_AUTO(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE),
         LANDSCAPE_LOCKED(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
@@ -25,6 +26,13 @@ public class GlobalSettings {
         Orientation(int value) {
             this.value = value;
         }
+    }
+
+    @SuppressWarnings("unused") // Used in xml, but use not detected by analyzer
+    public enum FaceDownAction {
+        NONE,
+        STOP_ONLY,
+        STOP_RESUME
     }
 
     // TODO: figure out if these constants can somehow be shared with the keys in preferences.xml
@@ -38,6 +46,7 @@ public class GlobalSettings {
     public static final String KEY_PLAYBACK_SPEED = "playback_speed_preference";
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
+    public static final String KEY_STOP_ON_FACE_DOWN = "stop_on_face_down_preference";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -95,6 +104,13 @@ public class GlobalSettings {
                 KEY_BLINK_RATE, resources.getString(R.string.pref_blink_rate_default_value));
         assert valueString != null;
         return Integer.parseInt(valueString);
+    }
+
+    public FaceDownAction getStopOnFaceDown() {
+        final String stringValue = sharedPreferences.getString(
+                GlobalSettings.KEY_STOP_ON_FACE_DOWN,
+                resources.getString(R.string.pref_stop_on_face_down_default_value));
+        return FaceDownAction.valueOf(stringValue);
     }
 
     public LibraryContentType booksEverInstalled() {

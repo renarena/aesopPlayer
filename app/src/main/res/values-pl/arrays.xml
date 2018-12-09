@@ -25,4 +25,9 @@
         <item>Normalna</item>
         <item>Szybka</item>
     </string-array>
+    <string-array name="stop_on_face_down_entries">
+        <item>Nigdy</item>
+        <item>Zatrzymać</item>
+        <item>Zatrzymaj i возобновьте na stronie w górę</item>
+    </string-array>
 </resources>

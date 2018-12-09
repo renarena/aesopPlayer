@@ -135,6 +135,7 @@ public class SettingsActivity extends Activity {
             updateSleepTimerSummary();
             updateSnoozeDelaySummary(sharedPreferences);
             updateBlinkRateSummary(sharedPreferences);
+            updateStopOnFaceDownSummary(sharedPreferences);
 
             if (Build.VERSION.SDK_INT < 21) {
                 Preference kioskModePreference = findPreference(GlobalSettings.KEY_KIOSK_MODE);
@@ -249,6 +250,9 @@ public class SettingsActivity extends Activity {
                 case GlobalSettings.KEY_BLINK_RATE:
                     updateBlinkRateSummary(sharedPreferences);
                     break;
+                case GlobalSettings.KEY_STOP_ON_FACE_DOWN:
+                    updateStopOnFaceDownSummary(sharedPreferences);
+                    break;
             }
         }
 
@@ -295,6 +299,13 @@ public class SettingsActivity extends Activity {
                     sharedPreferences,
                     GlobalSettings.KEY_BLINK_RATE,
                     R.string.pref_blink_rate_default_value);
+        }
+
+        private void updateStopOnFaceDownSummary(SharedPreferences sharedPreferences) {
+            updateListPreferenceSummary(
+                    sharedPreferences,
+                    GlobalSettings.KEY_STOP_ON_FACE_DOWN,
+                    R.string.pref_stop_on_face_down_default_value);
         }
 
         private void updateJumpBackSummary(SharedPreferences sharedPreferences) {
