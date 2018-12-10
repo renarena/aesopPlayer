@@ -9,13 +9,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
-import com.studio4plus.homerplayer.events.PlaybackErrorEvent;
+import com.studio4plus.homerplayer.events.PlaybackFatalErrorEvent;
 import com.studio4plus.homerplayer.events.PlaybackProgressedEvent;
 import com.studio4plus.homerplayer.events.PlaybackStoppedEvent;
 import com.studio4plus.homerplayer.events.PlaybackStoppingEvent;
@@ -44,6 +46,7 @@ public class PlaybackService
 
     private static final long FADE_OUT_DURATION_MS = TimeUnit.SECONDS.toMillis(10);
 
+    private static final String TAG = "PlaybackService";
     private static final int NOTIFICATION_ID = R.string.playback_service_notification;
     private static final PlaybackStoppingEvent PLAYBACK_STOPPING_EVENT = new PlaybackStoppingEvent();
     private static final PlaybackStoppedEvent PLAYBACK_STOPPED_EVENT = new PlaybackStoppedEvent();
@@ -74,6 +77,7 @@ public class PlaybackService
 
     @Override
     public void onDestroy() {
+        Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.onDestroy");
         super.onDestroy();
         stopPlayback();
     }
@@ -91,13 +95,15 @@ public class PlaybackService
                 getApplicationContext(),
                 R.string.playback_service_notification,
                 android.R.drawable.ic_media_play);
+        ContextCompat.startForegroundService(
+                this, new Intent(this, PlaybackService.class));
         startForeground(NOTIFICATION_ID, notification);
 
         if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
-            Crashlytics.log("PlaybackService.startPlayback: create DurationQuery");
+            Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create DurationQuery");
             durationQueryInProgress = new DurationQuery(player, book);
         } else {
-            Crashlytics.log("PlaybackService.startPlayback: create AudioBookPlayback");
+            Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
             playbackInProgress = new AudioBookPlayback(
                     player, handler, book, globalSettings.getJumpBackPreferenceMs());
         }
@@ -140,7 +146,7 @@ public class PlaybackService
         else if (playbackInProgress != null)
             playbackInProgress.stop();
 
-        Crashlytics.log("PlaybackService.stopPlayback");
+        Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.stopPlayback");
         onPlaybackEnded();
     }
 
@@ -150,6 +156,7 @@ public class PlaybackService
         // Notifications should request TRANSIENT_CAN_DUCK so they won't interfere.
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
                 focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.onAudioFocusChange");
             stopPlayback();
         }
     }
@@ -170,13 +177,14 @@ public class PlaybackService
     }
 
     private void onPlayerReleased() {
-        Crashlytics.log("PlaybackService.onPlayerReleased");
+        Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.onPlayerReleased");
         if (playbackInProgress != null || durationQueryInProgress != null) {
             onPlaybackEnded();
         }
         player = null;
-        stopForeground(true);
         eventBus.post(PLAYBACK_STOPPED_EVENT);
+        stopForeground(true);
+        stopSelf();
     }
 
     private void requestAudioFocus() {
@@ -232,6 +240,7 @@ public class PlaybackService
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
             controller.start(position.file, startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
+            resetSleepTimer();
         }
 
         void stop() {
@@ -262,11 +271,6 @@ public class PlaybackService
         }
 
         @Override
-        public void onPlaybackStarted() {
-            resetSleepTimer();
-        }
-
-        @Override
         public void onDuration(File file, long durationMs) {
             audioBook.offerFileDuration(file, durationMs);
         }
@@ -274,13 +278,12 @@ public class PlaybackService
         @Override
         public void onPlaybackEnded() {
             boolean hasMoreToPlay = audioBook.advanceFile();
-            Crashlytics.log("PlaybackService.AudioBookPlayback.onPlaybackEnded: " +
+            Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.AudioBookPlayback.onPlaybackEnded: " +
                     (hasMoreToPlay ? "more to play" : "finished"));
             if (hasMoreToPlay) {
                 AudioBook.Position position = audioBook.getLastPosition();
                 controller.start(position.file, position.seekPosition);
             } else {
-                handler.removeCallbacks(updatePosition);
                 audioBook.resetPosition();
                 PlaybackService.this.onPlaybackEnded();
                 controller.release();
@@ -289,17 +292,17 @@ public class PlaybackService
 
         @Override
         public void onPlaybackStopped(long currentPositionMs) {
-            handler.removeCallbacks(updatePosition);
             audioBook.updatePosition(currentPositionMs);
         }
 
         @Override
         public void onPlaybackError(File path) {
-            eventBus.post(new PlaybackErrorEvent(path));
+            eventBus.post(new PlaybackFatalErrorEvent(path));
         }
 
         @Override
         public void onPlayerReleased() {
+            handler.removeCallbacks(updatePosition);
             PlaybackService.this.onPlayerReleased();
         }
     }
@@ -328,7 +331,7 @@ public class PlaybackService
 
         @Override
         public void onFinished() {
-            Crashlytics.log("PlaybackService.DurationQuery.onFinished");
+            Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.DurationQuery.onFinished");
             Preconditions.checkState(durationQueryInProgress == this);
             durationQueryInProgress = null;
             playbackInProgress = new AudioBookPlayback(
@@ -342,7 +345,7 @@ public class PlaybackService
 
         @Override
         public void onPlayerError(File path) {
-            eventBus.post(new PlaybackErrorEvent(path));
+            eventBus.post(new PlaybackFatalErrorEvent(path));
         }
     }
 
@@ -368,10 +371,12 @@ public class PlaybackService
         public void run() {
             currentVolume -= VOLUME_DOWN_STEP;
             player.setPlaybackVolume(currentVolume);
-            if (currentVolume <= 0)
+            if (currentVolume <= 0) {
+                Crashlytics.log(Log.DEBUG, TAG, "SleepFadeOut stop");
                 stopPlayback();
-            else
+            } else {
                 handler.postDelayed(this, STEP_INTERVAL_MS);
+            }
         }
     }
 }

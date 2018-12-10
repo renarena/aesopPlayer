@@ -114,9 +114,10 @@ public class SettingsActivity extends Activity {
             extends PreferenceFragment
             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-        @Inject AudioBookManager audioBookManager;
-        @Inject GlobalSettings globalSettings;
-        @Inject KioskModeSwitcher kioskModeSwitcher;
+        @Inject public AudioBookManager audioBookManager;
+        @Inject public GlobalSettings globalSettings;
+        @Inject public KioskModeSwitcher kioskModeSwitcher;
+        @Inject public EventBus eventBus;
 
         private SnippetPlayer snippetPlayer = null;
 
@@ -469,7 +470,7 @@ public class SettingsActivity extends Activity {
 
             AudioBook book = audioBookManager.getCurrentBook();
             if (book != null) {
-                snippetPlayer = new SnippetPlayer(getActivity(), globalSettings.getPlaybackSpeed());
+                snippetPlayer = new SnippetPlayer(getActivity(), eventBus, globalSettings.getPlaybackSpeed());
 
                 snippetPlayer.play(book);
             }
