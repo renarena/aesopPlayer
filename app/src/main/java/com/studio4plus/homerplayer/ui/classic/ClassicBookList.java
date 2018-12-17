@@ -3,8 +3,6 @@ package com.studio4plus.homerplayer.ui.classic;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,8 +21,6 @@ import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 import com.studio4plus.homerplayer.ui.BookListUi;
 import com.studio4plus.homerplayer.ui.HintOverlay;
-import com.studio4plus.homerplayer.ui.MultitapTouchListener;
-import com.studio4plus.homerplayer.ui.SettingsActivity;
 
 import java.util.List;
 
@@ -79,6 +75,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
             }
         });
 
+        /* Doesn't work here with big buttons
         final Context context = view.getContext();
         bookPager.setOnTouchListener(new MultitapTouchListener(
                 context, new MultitapTouchListener.Listener() {
@@ -87,6 +84,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
                         startActivity(new Intent(context, SettingsActivity.class));
                     }
                 }));
+        */
 
         return view;
     }

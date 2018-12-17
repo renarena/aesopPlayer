@@ -48,6 +48,7 @@ public class FragmentBookItem extends BookListChildFragment {
             LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_book_item, container, false);
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
 
@@ -84,6 +85,8 @@ public class FragmentBookItem extends BookListChildFragment {
                 }
             });
         }
+
+        UiUtil.connectToSettings(view, globalSettings);
 
         UiUtil.startBlinker(view, globalSettings);
 

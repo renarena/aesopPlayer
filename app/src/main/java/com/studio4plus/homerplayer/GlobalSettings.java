@@ -35,6 +35,12 @@ public class GlobalSettings {
         STOP_RESUME
     }
 
+    public enum SettingsInterlockMode {
+        NONE,
+        DOUBLE_PRESS,
+        MULTI_TAP
+    }
+
     // TODO: figure out if these constants can somehow be shared with the keys in preferences.xml
     public static final String KEY_KIOSK_MODE_SCREEN = "kiosk_mode_screen";
     public static final String KEY_KIOSK_MODE = "kiosk_mode_preference";
@@ -47,6 +53,7 @@ public class GlobalSettings {
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
     public static final String KEY_STOP_ON_FACE_DOWN = "stop_on_face_down_preference";
+    public static final String KEY_SETTINGS_INTERLOCK = "settings_interlock_preference";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -111,6 +118,13 @@ public class GlobalSettings {
                 GlobalSettings.KEY_STOP_ON_FACE_DOWN,
                 resources.getString(R.string.pref_stop_on_face_down_default_value));
         return FaceDownAction.valueOf(stringValue);
+    }
+
+    public SettingsInterlockMode getSettingsInterlock() {
+        final String stringValue = sharedPreferences.getString(
+                GlobalSettings.KEY_SETTINGS_INTERLOCK,
+                resources.getString(R.string.pref_settings_interlock_default_value));
+        return SettingsInterlockMode.valueOf(stringValue);
     }
 
     public LibraryContentType booksEverInstalled() {

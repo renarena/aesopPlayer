@@ -30,4 +30,9 @@
         <item>Zatrzymać</item>
         <item>Zatrzymaj i возобновьте na stronie w górę</item>
     </string-array>
+    <string-array name="settings_interlock_entries">
+        <item>Żaden</item>
+        <item>Jednocześnie kliknij drugą ikonę ustawień</item>
+        <item>Dotknij ikony ustawień kilka razy</item>
+    </string-array>
 </resources>

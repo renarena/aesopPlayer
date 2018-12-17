@@ -6,43 +6,95 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:weightSum="10"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/bookListItemPaddingHoriz"
-        android:paddingRight="@dimen/bookListItemPaddingHoriz"
-        android:paddingBottom="@dimen/bookListItemPaddingVertical">
+        >
 
-        <TextView
-            android:id="@+id/title"
+        <LinearLayout
+            android:weightSum="7"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:gravity="center"
-            android:padding="8dp"
-            android:paddingTop="200dp"
-            android:singleLine="false"
-            tools:text="Book Title"
-            android:textAlignment="center"
-            android:textSize="@dimen/bookListTextSize"
-            android:visibility="visible" />
+            android:layout_height="0dp"
+            android:baselineAligned="false"
+            android:layout_weight="2"
+            >
 
-        <TextView
-            android:id="@+id/copyBooksInstruction"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/copyBooksInstructionTextSize"
-            android:visibility="gone"
-            android:layout_alignParentTop="true"/>
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                tools:ignore="NestedWeights">
+
+                <Button
+                    android:id="@+id/settingsButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:contentDescription="@string/settings_title"
+                    app:srcCompat="@drawable/ic_settings_black_24dp"
+                    >
+
+                </ImageView>
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                >
+
+                <TextView
+                    android:id="@+id/copyBooksInstruction"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="top|center_horizontal"
+                    android:textSize="@dimen/copyBooksInstructionTextSize"
+                    android:visibility="gone"
+                    tools:text="Copy Books Instruction" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/settingsButton2box"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/settingsButton2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:contentDescription="@string/settings_title_2"
+                    app:srcCompat="@drawable/ic_settings_black_24dp">
+                </ImageView>
+
+            </FrameLayout>
+        </LinearLayout>
 
         <RelativeLayout
+            android:layout_weight="10"
             android:id="@+id/startBox"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:background="@android:color/transparent"
             android:gravity="bottom|center_horizontal"
-            android:theme="@style/buttonStartOverlay">
+            >
 
             <!-- No text in button, overlaid with blinking text below -->
             <android.support.v7.widget.AppCompatButton
@@ -57,16 +109,23 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <Space
+                <TextView
+                    android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="3" />
+                    android:layout_weight="3"
+                    android:gravity="center"
+                    android:singleLine="false"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/bookListTextSize"
+                    android:visibility="visible"
+                    tools:text="Book Title" />
 
                 <ViewFlipper
                     android:id="@+id/flipper"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:background="@android:color/transparent"
                     android:flipInterval="1000"
                     tools:padding="0dp">
@@ -82,21 +141,21 @@
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        />
+                        android:layout_height="match_parent" />
 
                 </ViewFlipper>
 
                 <Space
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    android:layout_weight="0" />
+                    android:layout_weight="2" />
 
             </LinearLayout>
 
         </RelativeLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
+
 
     <!-- last is on top, so don't move this -->
     <include layout="@layout/snooze_overlay"/>

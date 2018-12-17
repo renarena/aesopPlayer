@@ -1,33 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:paddingLeft="@dimen/bookListItemPaddingHoriz"
-    android:paddingRight="@dimen/bookListItemPaddingHoriz"
-    android:paddingTop="@dimen/bookListItemPaddingVertical"
-    android:paddingBottom="@dimen/bookListItemPaddingVertical">
+    android:orientation="vertical"
+    android:weightSum="10"
+    android:background="@android:color/darker_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:orientation="horizontal"
+        android:weightSum="7">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/settingsButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent"
+                android:contentDescription="@string/settings_title"
+                app:srcCompat="@drawable/ic_settings_black_24dp">
+
+            </ImageView>
+
+        </FrameLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5" />
+
+        <FrameLayout
+            android:id="@+id/settingsButton2box"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/settingsButton2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent"
+                android:contentDescription="@string/settings_title_2"
+                app:srcCompat="@drawable/ic_settings_black_24dp">
+            </ImageView>
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <TextView
         android:id="@+id/noBooksPath"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/copyBooksInstructionTextSize"/>
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:textSize="@dimen/copyBooksInstructionTextSize"
+        tools:text="Path to books" />
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/copyBooksInstructionTextSize"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
         android:layout_marginTop="@dimen/copyBooksInstructionTextSize"
         android:layout_marginBottom="@dimen/copyBooksInstructionTextSize"
-        android:text="@string/noBooksOrMessage"/>
+        android:layout_weight="2"
+        android:gravity="center"
+        android:text="@string/noBooksOrMessage"
+        android:textSize="@dimen/copyBooksInstructionTextSize" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/downloadSamplesButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/copyBooksInstructionTextSize"
-        android:text="@string/noBooksDownloadSamplesButton"/>
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:text="@string/noBooksDownloadSamplesButton"
+        android:textSize="@dimen/copyBooksInstructionTextSize" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 </LinearLayout>

@@ -11,7 +11,7 @@ import com.studio4plus.homerplayer.R;
 
 import java.util.concurrent.TimeUnit;
 
-public class MultitapTouchListener implements View.OnTouchListener {
+class MultitapTouchListener implements View.OnTouchListener {
 
     private static final int TRIGGER_TAP_COUNT = 5;
 
@@ -75,7 +75,7 @@ public class MultitapTouchListener implements View.OnTouchListener {
                 nanoTime - lastTouchDownNanoTime > maxConsecutiveTapNanoTime ||
                 Math.abs(x - initialTouchDownX) > maxMultiTapSlop ||
                 Math.abs(y - initialTouchDownY) > maxMultiTapSlop) {
-            hidePrompt();
+            displayInitialPrompt();
             consecutiveTapCount = 0;
             initialTouchDownX = x;
             initialTouchDownY = y;
@@ -109,6 +109,14 @@ public class MultitapTouchListener implements View.OnTouchListener {
             return true;
         }
         return false;
+    }
+
+    private void displayInitialPrompt() {
+        String message = context.getResources().getString(
+                R.string.initial_multi_tap_prompt, TRIGGER_TAP_COUNT);
+        hidePrompt();
+        lastToast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+        lastToast.show();
     }
 
     private void displayPrompt(int tapNumber) {

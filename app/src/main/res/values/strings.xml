@@ -13,6 +13,7 @@
     <string name="back_suppressed_by_kiosk">Exit blocked (kiosk mode is enabled)</string>
     <string name="notificationChannelPlayback">Audio playback</string>
     <string name="settings_title">Settings</string>
+    <string name="settings_title_2">Settings (interlocked)</string>
     <string name="settings_device_owner_required_alert">The application must be a "device owner". See http://goo.gl/46gevp</string>
     <string name="permission_rationale_title">Permission needed</string>
     <string name="permission_rationale_try_again">Try again</string>
@@ -58,6 +59,8 @@
     <string name="pref_sleep_timer_default_value" translatable="false">0</string>
     <string name="pref_stop_on_face_down_title">Stop on face down</string>
     <string name="pref_stop_on_face_down_default_value" translatable="false">STOP_ONLY</string>
+    <string name="pref_settings_interlock_title">Settings mode access interlock</string>
+    <string name="pref_settings_interlock_default_value" translatable="false">NONE</string>
     <string name="pref_screen_orientation">Screen orientation</string>
     <string name="pref_screen_orientation_default_value" translatable="false">LANDSCAPE_AUTO</string>
     <string name="pref_reset_all_book_progress">Rewind all books to the beginning…</string>
@@ -70,6 +73,8 @@
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
     <string name="multi_tap_prompt" tools:ignore="PluralsCandidate">%d more to go</string>
+    <string name="initial_multi_tap_prompt" tools:ignore="PluralsCandidate">Tap %d times for settings</string>
+    <string name="press_other_gear_prompt">Hold this Gear, then tap the new Gear for Settings</string>
     <string name="snooze_seconds" translatable="false">"%d"</string>
     <string name="noBooksOrMessage">or</string>
     <string name="noBooksDownloadSamplesButton">Download book samples</string>

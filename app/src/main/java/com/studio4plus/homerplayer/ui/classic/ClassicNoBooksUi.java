@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,12 +17,12 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.ApplicationComponent;
+import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
-import com.studio4plus.homerplayer.ui.MultitapTouchListener;
 import com.studio4plus.homerplayer.ui.UiControllerNoBooks;
 import com.studio4plus.homerplayer.ui.NoBooksUi;
-import com.studio4plus.homerplayer.ui.SettingsActivity;
+import com.studio4plus.homerplayer.ui.UiUtil;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,6 +30,9 @@ import javax.inject.Named;
 
 @SuppressWarnings("deprecation") // of Fragment
 public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
+
+    @SuppressWarnings("WeakerAccess")
+    @Inject public GlobalSettings globalSettings;
 
     private UiControllerNoBooks controller;
     private View view;
@@ -61,6 +63,9 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
             }
         });
 
+        UiUtil.connectToSettings(view, globalSettings);
+
+        /* Doesn't work here with big buttons
         final Context context = view.getContext();
         view.setOnTouchListener(new MultitapTouchListener(
                 context, new MultitapTouchListener.Listener() {
@@ -69,6 +74,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
                 startActivity(new Intent(context, SettingsActivity.class));
             }
         }));
+        */
 
         return view;
     }

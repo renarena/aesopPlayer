@@ -41,6 +41,12 @@
         android:entryValues="@array/screen_orientation_values"
         android:defaultValue="@string/pref_screen_orientation_default_value"/>
     <ListPreference
+        android:key="settings_interlock_preference"
+        android:defaultValue="@string/pref_settings_interlock_default_value"
+        android:entries="@array/settings_interlock_entries"
+        android:entryValues="@array/settings_interlock_values"
+        android:title="@string/pref_settings_interlock_title" />
+    <ListPreference
         android:key="snooze_delay_preference"
         android:defaultValue="@string/pref_snooze_time_default_value"
         android:entries="@array/snooze_time_entries"
