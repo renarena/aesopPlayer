@@ -101,6 +101,10 @@ public class UiControllerPlayback {
         playbackService.pauseForRewind();
     }
 
+    public AudioBook getAudioBookBeingPlayed() {
+        return playbackService.getAudioBookBeingPlayed();
+    }
+
     public void resumeFromRewind() {
         playbackService.resumeFromRewind();
     }

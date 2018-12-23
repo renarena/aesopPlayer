@@ -55,6 +55,32 @@ public class AudioBook {
         return fileSet.id;
     }
 
+    String chapter;
+    int lastFileIndex = -1;
+
+    // Do the best we can for this format.
+    public String getChapter() {
+        // Do this only if we haven't done it before
+        if (lastPosition.fileIndex != lastFileIndex) {
+            chapter = fileSet.files[lastPosition.fileIndex].getName();
+            // Get rid of ".mp3" (etc.)
+            chapter = chapter.substring(0, chapter.lastIndexOf("."));
+            // clean up _s
+            chapter = directoryToTitle(chapter);
+
+            // Guess if the title is repeated in the chapter name and remove that
+            String title = getTitle();
+            int titleLoc = chapter.indexOf(title);
+            if (titleLoc >= 0) {
+                chapter = chapter.substring(0, titleLoc)
+                        + chapter.substring(titleLoc + title.length() + 1);
+            }
+            lastFileIndex = lastPosition.fileIndex;
+        }
+
+        return chapter;
+    }
+
     public Position getLastPosition() {
         return lastPosition;
     }

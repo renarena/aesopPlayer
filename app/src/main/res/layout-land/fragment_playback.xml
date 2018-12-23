@@ -43,7 +43,7 @@
             app:layout_constraintHorizontal_weight="6"
             app:layout_constraintStart_toEndOf="@+id/fastForwardButton"
             app:layout_constraintTop_toTopOf="@+id/fastForwardButton"
-            tools:text="00:13:10" />
+            tools:text="00:13:10 12%" />
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/rewindButton"
@@ -88,16 +88,26 @@
                 android:background="@color/buttonStopBackground"
                 android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/chapterInfo"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    tools:text="Chapter Info"
+                    app:autoSizeTextType="uniform"
+                    android:gravity="center">
+                </TextView>
+
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="2" />
 
                 <ViewFlipper
                     android:id="@+id/flipper"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:flipInterval="1000">
 
                     <TextView
@@ -119,7 +129,7 @@
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="4" />
 
             </LinearLayout>
 

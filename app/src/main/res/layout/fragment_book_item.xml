@@ -47,22 +47,36 @@
 
             </FrameLayout>
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_weight="5"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
                 >
 
                 <TextView
                     android:id="@+id/copyBooksInstruction"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
                     android:gravity="top|center_horizontal"
                     android:textSize="@dimen/copyBooksInstructionTextSize"
-                    android:visibility="gone"
+                    android:visibility="invisible"
                     tools:text="Copy Books Instruction" />
 
-            </FrameLayout>
+                <TextView
+                    android:id="@+id/currentPosition"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    android:textColor="#ffffff"
+                    app:autoSizeTextType="uniform"
+                    tools:text="00:13:10 12%" />
+
+            </LinearLayout>
 
             <FrameLayout
                 android:id="@+id/settingsButton2box"
@@ -110,10 +124,19 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/chapterInfo"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:autoSizeTextType="uniform"
+                    android:gravity="center"
+                    tools:text="Chapter Info" />
+
+                <TextView
                     android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="3"
+                    android:layout_weight="6"
                     android:gravity="center"
                     android:singleLine="false"
                     android:textAlignment="center"
@@ -125,7 +148,7 @@
                     android:id="@+id/flipper"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="2"
+                    android:layout_weight="4"
                     android:background="@android:color/transparent"
                     android:flipInterval="1000"
                     tools:padding="0dp">
@@ -148,7 +171,7 @@
                 <Space
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    android:layout_weight="2" />
+                    android:layout_weight="4" />
 
             </LinearLayout>
 

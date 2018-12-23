@@ -67,7 +67,7 @@
     <string name="pref_reset_all_book_progress_dialog_title">Reset listening progress on all books?</string>
     <string name="pref_reset_all_book_progress_done">Book progress reset</string>
     <string name="pref_version_title">Version</string>
-    <string name="playback_elapsed_time" translatable="false">%1$2d:%2$02d:%3$02d</string>
+    <string name="playback_elapsed_time" translatable="false">%1$2d:%2$02d:%3$02d - %4$2d%%</string>
     <string name="button_acc_rewind">rewind</string>
     <string name="button_acc_fast_forward">fast-forward</string>
     <string name="button_start">Start</string>

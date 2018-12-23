@@ -19,6 +19,8 @@ import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -75,6 +77,16 @@ public class FragmentBookItem extends BookListChildFragment {
                 copyBooksInstruction.setVisibility(View.VISIBLE);
             }
 
+            // Show the total length and how far along
+            final TextView progress = view.findViewById(R.id.currentPosition);
+            String progressMessage = thisBookProgress(book);
+            progress.setText(progressMessage);
+
+            // Try to show chapter information
+            final TextView chapter = view.findViewById(R.id.chapterInfo);
+            String chapterName = book.getChapter();
+            chapter.setText(chapterName);
+
             final Button startButton = view.findViewById(R.id.startButton);
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -91,6 +103,21 @@ public class FragmentBookItem extends BookListChildFragment {
         UiUtil.startBlinker(view, globalSettings);
 
         return view;
+    }
+
+    // Where we are in the current book
+    private String thisBookProgress(AudioBook book) {
+        long totalMs = book.getTotalDurationMs();
+        AudioBook.Position position = book.getLastPosition();
+        long currentMs = book.getLastPositionTime(position.seekPosition);
+
+        long hours = TimeUnit.MILLISECONDS.toHours(totalMs);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(totalMs) % 60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(totalMs) % 60;
+
+        long progress = (currentMs * 100) / totalMs;
+
+        return getString(R.string.playback_elapsed_time, hours, minutes, seconds, progress);
     }
 
     public String getAudioBookId() {

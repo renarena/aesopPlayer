@@ -45,6 +45,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private ImageButton ffButton;
     private TextView elapsedTimeView;
     private TextView elapsedTimeRewindFFView;
+    private TextView chapterInfoView;
     private RewindFFHandler rewindFFHandler;
     private Animator elapsedTimeRewindFFViewAnimation;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
@@ -77,6 +78,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
         elapsedTimeView = view.findViewById(R.id.elapsedTime);
         elapsedTimeRewindFFView = view.findViewById(R.id.elapsedTimeRewindFF);
+        chapterInfoView = view.findViewById(R.id.chapterInfo);
 
         elapsedTimeView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -168,7 +170,10 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMs) % 60;
         long seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMs) % 60;
 
-        return getString(R.string.playback_elapsed_time, hours, minutes, seconds);
+        long total = controller.getAudioBookBeingPlayed().getTotalDurationMs();
+        long progress = (100*elapsedMs)/total;
+
+        return getString(R.string.playback_elapsed_time, hours, minutes, seconds, progress);
     }
 
     private void showHintIfNecessary() {
@@ -185,6 +190,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     @Override
     public void onTimerUpdated(long displayTimeMs) {
         elapsedTimeView.setText(elapsedTime(displayTimeMs));
+        chapterInfoView.setText(controller.getAudioBookBeingPlayed().getChapter());
         elapsedTimeRewindFFView.setText(elapsedTime(displayTimeMs));
     }
 
