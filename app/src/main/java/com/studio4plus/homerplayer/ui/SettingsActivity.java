@@ -44,6 +44,7 @@ public class SettingsActivity extends Activity {
     // Pseudo preferences that don't change any preference values directly.
     private static final String KEY_FAQ = "faq_preference";
     private static final String KEY_RESET_ALL_BOOK_PROGRESS = "reset_all_book_progress_preference";
+    private static final String KEY_CLEAR_PINNING = "clear_application_pinning";
     private static final String KEY_UNREGISTER_DEVICE_OWNER = "unregister_device_owner_preference";
     private static final String KEY_VERSION = "version_preference";
 
@@ -178,6 +179,33 @@ public class SettingsActivity extends Activity {
                             Toast.LENGTH_SHORT).show();
                 }
             });
+
+            // Application pinning is not the same as Kiosk mode according to Google, but
+            // they are very similar. Normally, exit is achieved by simultaneously pressing
+            // the Back and Recents (triangle and square) keys, but that's not possible
+            // remotely. So provide a way to do it for remote administrators.
+            if (Build.VERSION.SDK_INT >= 21) {
+               ConfirmDialogPreference preferenceClearPinning =
+                       (ConfirmDialogPreference) findPreference(KEY_CLEAR_PINNING);
+
+                preferenceClearPinning.setOnConfirmListener(new ConfirmDialogPreference.OnConfirmListener() {
+                    @Override
+                    public void onConfirmed() {
+                        try {
+                            getActivity().stopLockTask();
+                            // The system provides a Toast when it does this.
+                        } catch (Exception e) {
+                            // I haven't seen this happen, but it can't hurt
+                            Toast.makeText(getActivity(), "Already unlocked", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+            else {
+               Preference clearApplicationPinningPreference =
+                       findPreference(KEY_CLEAR_PINNING);
+               clearApplicationPinningPreference.setEnabled(false);
+            }
 
             setupFaq();
             updateVersionSummary();

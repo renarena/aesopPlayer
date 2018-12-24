@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.studio4plus.homerplayer.GlobalSettings;
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         controller.onActivityCreated();
 
         batteryStatusIndicator = new BatteryStatusIndicator(
-                (ImageView) findViewById(R.id.batteryStatusIndicator), EventBus.getDefault());
+                findViewById(R.id.batteryStatusIndicator), EventBus.getDefault());
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 

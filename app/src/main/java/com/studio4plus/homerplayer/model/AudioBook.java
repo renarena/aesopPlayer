@@ -55,8 +55,8 @@ public class AudioBook {
         return fileSet.id;
     }
 
-    String chapter;
-    int lastFileIndex = -1;
+    private String chapter;
+    private int lastFileIndex = -1;
 
     // Do the best we can for this format.
     public String getChapter() {

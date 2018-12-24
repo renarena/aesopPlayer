@@ -166,6 +166,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     }
 
     private String elapsedTime(long elapsedMs) {
+        Preconditions.checkNotNull(controller);
         long hours = TimeUnit.MILLISECONDS.toHours(elapsedMs);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMs) % 60;
         long seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMs) % 60;
@@ -189,6 +190,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
     @Override
     public void onTimerUpdated(long displayTimeMs) {
+        Preconditions.checkNotNull(controller);
         elapsedTimeView.setText(elapsedTime(displayTimeMs));
         chapterInfoView.setText(controller.getAudioBookBeingPlayed().getChapter());
         elapsedTimeRewindFFView.setText(elapsedTime(displayTimeMs));

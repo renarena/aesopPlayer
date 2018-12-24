@@ -1,1 +1,15 @@
+.gradle
+.gitignore
+/app/app.iml
+/app/*.apk
+/app/settings.gradle
+/local.properties
+/.idea/*
+.DS_Store
 /build
+
+*.iml
+
+*~
+*.swp
+*.swo
