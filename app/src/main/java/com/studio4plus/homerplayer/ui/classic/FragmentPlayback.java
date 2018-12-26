@@ -30,8 +30,6 @@ import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerPlayback;
 import com.studio4plus.homerplayer.util.ViewUtils;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
 import io.codetail.animation.ViewAnimationUtils;
@@ -167,14 +165,15 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
     private String elapsedTime(long elapsedMs) {
         Preconditions.checkNotNull(controller);
-        long hours = TimeUnit.MILLISECONDS.toHours(elapsedMs);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMs) % 60;
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMs) % 60;
+        String duration = UiUtil.formatDuration(elapsedMs);
 
         long total = controller.getAudioBookBeingPlayed().getTotalDurationMs();
-        long progress = (100*elapsedMs)/total;
+        long progress = 0;
+        if (total != 0) {
+            progress = (100 * elapsedMs) / total;
+        }
 
-        return getString(R.string.playback_elapsed_time, hours, minutes, seconds, progress);
+        return getString(R.string.playback_elapsed_time, duration, progress);
     }
 
     private void showHintIfNecessary() {

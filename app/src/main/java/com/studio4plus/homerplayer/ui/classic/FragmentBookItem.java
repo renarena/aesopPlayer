@@ -19,8 +19,6 @@ import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -77,10 +75,16 @@ public class FragmentBookItem extends BookListChildFragment {
                 copyBooksInstruction.setVisibility(View.VISIBLE);
             }
 
-            // Show the total length and how far along
+            // Show the progress in time and percentage
             final TextView progress = view.findViewById(R.id.currentPosition);
             String progressMessage = thisBookProgress(book);
             progress.setText(progressMessage);
+
+            // Total time
+            final TextView displayDuration = view.findViewById(R.id.totalLength);
+            long totalMs = book.getTotalDurationMs();
+            String duration = UiUtil.formatDuration(totalMs);
+            displayDuration.setText(duration);
 
             // Try to show chapter information
             final TextView chapter = view.findViewById(R.id.chapterInfo);
@@ -107,17 +111,17 @@ public class FragmentBookItem extends BookListChildFragment {
 
     // Where we are in the current book
     private String thisBookProgress(AudioBook book) {
-        long totalMs = book.getTotalDurationMs();
         AudioBook.Position position = book.getLastPosition();
         long currentMs = book.getLastPositionTime(position.seekPosition);
+        String duration = UiUtil.formatDuration(currentMs);
 
-        long hours = TimeUnit.MILLISECONDS.toHours(totalMs);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(totalMs) % 60;
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(totalMs) % 60;
+        long totalMs = book.getTotalDurationMs();
+        long progress = 0;
+        if (totalMs != 0) {
+            progress = (currentMs * 100) / totalMs;
+        }
 
-        long progress = (currentMs * 100) / totalMs;
-
-        return getString(R.string.playback_elapsed_time, hours, minutes, seconds, progress);
+        return getString(R.string.playback_elapsed_time, duration, progress);
     }
 
     public String getAudioBookId() {

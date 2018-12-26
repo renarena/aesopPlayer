@@ -19,6 +19,8 @@ import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.R;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Singleton;
 
 @Singleton
@@ -191,5 +193,15 @@ public class UiUtil {
             }
             return true;
         }
+    }
+
+    // Where we are in the current book
+    @SuppressLint("DefaultLocale")
+    static public String formatDuration(long currentMs) {
+        long hours = TimeUnit.MILLISECONDS.toHours(currentMs);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMs) % 60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(currentMs) % 60;
+
+        return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
 }

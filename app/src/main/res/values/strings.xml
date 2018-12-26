@@ -69,7 +69,7 @@
     <string name="pref_clear_application_pinning">Clear application pinning.</string>
     <string name="pref_clear_application_pinning_dialog_title">Clear application pinning? (Allow other applications to run?)</string>
     <string name="pref_version_title">Version</string>
-    <string name="playback_elapsed_time" translatable="false">%1$2d:%2$02d:%3$02d - %4$2d%%</string>
+    <string name="playback_elapsed_time" translatable="false">%1$s - %2$2d%%</string>
     <string name="button_acc_rewind">rewind</string>
     <string name="button_acc_fast_forward">fast-forward</string>
     <string name="button_start">Start</string>
