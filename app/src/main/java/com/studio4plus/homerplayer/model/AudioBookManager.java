@@ -33,7 +33,7 @@ public class AudioBookManager {
     private final Storage storage;
     private AudioBook currentBook;
     private boolean isInitialized = false;
-    private boolean isFirstScan = true;
+    private int isFirstScan = 2;
 
     @Inject
     @MainThread
@@ -112,16 +112,14 @@ public class AudioBookManager {
 
     @MainThread
     private void processScanResult(@NonNull List<FileSet> fileSets) {
-        if (isFirstScan && fileSets.isEmpty()) {
+        if (isFirstScan > 1 && fileSets.isEmpty()) {
             // The first scan may fail if it is just after booting and the SD card is not yet
-            // mounted. Retry in a while.
+            // mounted. Retry in a while. If it's still empty, then it really is empty and
+            // post that.
             Handler handler = new Handler(Looper.myLooper());
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    scanFiles();
-                }
-            }, TimeUnit.SECONDS.toMillis(10));
+            handler.postDelayed(this::scanFiles, TimeUnit.SECONDS.toMillis(10));
+            isFirstScan = 1;
+            return;
         }
 
         // This isn't very efficient but there shouldn't be more than a dozen audio books on the
@@ -177,10 +175,10 @@ public class AudioBookManager {
                 setCurrentBook(id);
         }
 
-        if (audioBooksChanged || isFirstScan)
+        if (audioBooksChanged || isFirstScan > 0)
             EventBus.getDefault().post(new AudioBooksChangedEvent(contentType));
 
-        isFirstScan = false;
+        isFirstScan = 0;
     }
 
     @MainThread

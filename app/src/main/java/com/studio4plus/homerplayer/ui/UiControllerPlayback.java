@@ -97,16 +97,24 @@ public class UiControllerPlayback {
         ui.onPlaybackProgressed(event.playbackPositionMs);
     }
 
-    public void pauseForRewind() {
-        playbackService.pauseForRewind();
-    }
-
     public AudioBook getAudioBookBeingPlayed() {
         return playbackService.getAudioBookBeingPlayed();
     }
 
+    public void pauseForRewind() {
+        playbackService.pauseForRewind();
+    }
+
+    public void pauseForPause() {
+        playbackService.pauseForPause();
+    }
+
     public void resumeFromRewind() {
         playbackService.resumeFromRewind();
+    }
+
+    public void resumeFromPause() {
+        playbackService.resumeFromPause();
     }
 
     public void startRewind(boolean isForward, @NonNull FFRewindTimer.Observer timerObserver) {

@@ -18,7 +18,6 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
-import com.studio4plus.homerplayer.GlobalSettings.FaceDownAction;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
 import com.studio4plus.homerplayer.events.AudioBooksChangedEvent;
@@ -32,9 +31,6 @@ import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
-
-import static com.studio4plus.homerplayer.GlobalSettings.FaceDownAction.NONE;
-import static com.studio4plus.homerplayer.GlobalSettings.FaceDownAction.STOP_RESUME;
 
 public class UiControllerMain implements ServiceConnection {
 
@@ -54,6 +50,8 @@ public class UiControllerMain implements ServiceConnection {
     private @Nullable PlaybackService playbackService;
 
     private @NonNull State currentState = new InitState();
+    // Critical elements of the FSM that must be preserved over Activity restart
+    private @NonNull StateFactory savedByStop = StateFactory.INIT_STATE;
 
     @Inject
     UiControllerMain(@NonNull Activity activity,
@@ -94,9 +92,14 @@ public class UiControllerMain implements ServiceConnection {
 
     void onActivityStop() {
         Crashlytics.log(Log.DEBUG, TAG,
-                "UI: leave state " + currentState.debugName() + " (activity stop)");
+                "UI: leave state " + currentState.stateId() + " (activity stop)");
+        savedByStop = currentState.stateId();
         currentState.onLeaveState();
         currentState = new InitState();
+
+        if (savedByStop != StateFactory.INIT_STATE) {
+            DeviceMotionDetector.DetectUserInterest(getActivity());
+        }
     }
 
     void onActivityDestroy() {
@@ -107,7 +110,6 @@ public class UiControllerMain implements ServiceConnection {
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void onEvent(AudioBooksChangedEvent event) {
         currentState.onBooksChanged(this);
-        maybeSetInitialState();
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
@@ -215,16 +217,16 @@ public class UiControllerMain implements ServiceConnection {
     private void maybeSetInitialState() {
         if (currentState instanceof InitState && playbackService != null &&
                 audioBookManager.isInitialized()) {
-
-            if (playbackService.getState() != PlaybackService.State.IDLE) {
-                Preconditions.checkState(hasAnyBooks());
-                changeState(StateFactory.PLAYBACK);
-            } else if (hasAnyBooks()) {
-                changeState(StateFactory.BOOK_LIST);
-            } else {
-                changeState(StateFactory.NO_BOOKS);
+            if (savedByStop != StateFactory.INIT_STATE)
+            {
+                changeState(savedByStop);
             }
+        } else if (hasAnyBooks()) {
+            changeState(StateFactory.BOOK_LIST);
         }
+        //else {
+            /* No state change yet: INIT_STATE will do it when the book list is ready */
+        //}
     }
 
     private boolean hasAnyBooks() {
@@ -236,7 +238,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private void changeState(StateFactory newStateFactory) {
-        Crashlytics.log(Log.DEBUG, TAG, "UI: leave state: " + currentState.debugName());
+        Crashlytics.log(Log.DEBUG, TAG, "UI: leave state: " + currentState.stateId());
         currentState.onLeaveState();
         Crashlytics.log(Log.DEBUG, TAG,"UI: create state: " + newStateFactory.name());
         currentState = newStateFactory.create(this, currentState);
@@ -256,13 +258,19 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @NonNull
-    private UiControllerPlayback showPlayback(boolean animate) {
+    private UiControllerPlayback showPlayback(@SuppressWarnings("SameParameterValue") boolean animate) {
         Preconditions.checkNotNull(playbackService);
         PlaybackUi playbackUi = mainUi.switchToPlayback(animate);
         return playbackControllerFactory.create(playbackService, playbackUi);
     }
 
     private enum StateFactory {
+        INIT_STATE {
+            @Override
+            State create(@NonNull UiControllerMain mainController, @NonNull State previousState) {
+                return new InitState();
+            }
+        },
         NO_BOOKS {
             @Override
             State create(@NonNull UiControllerMain mainController, @NonNull State previousState) {
@@ -280,6 +288,12 @@ public class UiControllerMain implements ServiceConnection {
             State create(@NonNull UiControllerMain mainController, @NonNull State previousState) {
                 return new PlaybackState(mainController, previousState);
             }
+        },
+        PAUSED {
+            @Override
+            State create(@NonNull UiControllerMain mainController, @NonNull State previousState) {
+                return new PausedState(mainController, previousState);
+            }
         };
 
         abstract State create(
@@ -288,8 +302,8 @@ public class UiControllerMain implements ServiceConnection {
 
     private static abstract class State {
         abstract void onLeaveState();
-        static boolean stoppedByFaceDown = false;
-        static FaceDownAction faceDownAction = NONE;
+        static @Nullable UiControllerPlayback playbackController;
+        static @Nullable AudioBook playingAudioBook;
 
         void onPlaybackStop(@NonNull UiControllerMain mainController) {
             //noinspection ConstantConditions - getting here is an error
@@ -308,34 +322,44 @@ public class UiControllerMain implements ServiceConnection {
             Preconditions.checkState(false);
         }
 
-        abstract @NonNull String debugName();
+        abstract StateFactory stateId();
     }
 
     private static class InitState extends State {
-        @Override
-        void onPlaybackStop(@NonNull UiControllerMain mainController) { }
 
         @Override
-        void onBooksChanged(@NonNull UiControllerMain mainController) { }
+        void onPlaybackStop(@NonNull UiControllerMain mainController) { }
+        // Put up the right initial window once we've figured out whether there are
+        // any books at all.  Because this can be asynchronously delayed due to the amount
+        // of work, and because there are some system-initiated start/stop pairs before we're
+        // set up, this happens here when it's really ready.
+        @Override
+        void onBooksChanged(@NonNull UiControllerMain mainController) {
+            if (mainController.hasAnyBooks()) {
+                mainController.changeState(StateFactory.BOOK_LIST);
+            }
+            else {
+                mainController.changeState(StateFactory.NO_BOOKS);
+            }
+        }
 
         @Override
         void onLeaveState() { }
 
         @Override
-        @NonNull String debugName() { return "InitState"; }
+        StateFactory stateId() { return StateFactory.INIT_STATE; }
     }
 
     private static class NoBooksState extends State {
-        private @NonNull final UiControllerNoBooks controller;
+        private @NonNull final UiControllerNoBooks noBooksController;
 
         NoBooksState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
-            this.controller = mainController.showNoBooks(!(previousState instanceof InitState));
-            stoppedByFaceDown = false;
+            noBooksController = mainController.showNoBooks(!(previousState instanceof InitState));
         }
 
         @Override
         public void onLeaveState() {
-            controller.shutdown();
+            noBooksController.shutdown();
         }
 
         @Override
@@ -346,36 +370,30 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onRequestPermissionResult(int code, @NonNull int[] grantResults) {
-            controller.onRequestPermissionResult(code, grantResults);
+            noBooksController.onRequestPermissionResult(code, grantResults);
         }
 
         @Override
-        @NonNull String debugName() { return "NoBooksState"; }
+        StateFactory stateId() { return StateFactory.NO_BOOKS; }
     }
 
     private static class BookListState extends State
             implements DeviceMotionDetector.Listener {
-        private @NonNull final UiControllerBookList controller;
+        private @NonNull final UiControllerBookList bookListController;
         private @NonNull final DeviceMotionDetector motionDetector;
         private @NonNull final State prevState;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             prevState = previousState;
-            controller = mainController.showBookList(!(previousState instanceof InitState));
+            bookListController = mainController.showBookList(!(previousState instanceof InitState));
             //noinspection RedundantCast
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector((Context)mainController.getActivity(), this);
-            // Avoid starting playback via incidental motion of the phone
-            if (stoppedByFaceDown && faceDownAction == STOP_RESUME ) {
-                motionDetector.enable();
-            }
-            faceDownAction = mainController.getGlobalSettings().getStopOnFaceDown();
-            stoppedByFaceDown = false;
         }
 
         @Override
         void onLeaveState() {
             motionDetector.disable();
-            controller.shutdown();
+            bookListController.shutdown();
         }
 
         @Override
@@ -393,7 +411,7 @@ public class UiControllerMain implements ServiceConnection {
         public void onFaceUpStill() {
             motionDetector.disable();
             if (prevState instanceof PlaybackState) {
-                controller.playCurrentAudiobook();
+                bookListController.playCurrentAudiobook();
             }
         }
 
@@ -401,42 +419,41 @@ public class UiControllerMain implements ServiceConnection {
         public void onSignificantMotion() { /* ignore */ }
 
         @Override
-        @NonNull String debugName() { return "BookListState"; }
-
+        StateFactory stateId() { return StateFactory.BOOK_LIST; }
     }
 
     private static class PlaybackState extends State
             implements DeviceMotionDetector.Listener {
-        private @NonNull final UiControllerPlayback controller;
-        private @Nullable AudioBook playingAudioBook;
+        private @NonNull final UiControllerMain mainController;
         private @NonNull final DeviceMotionDetector motionDetector;
 
-        PlaybackState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
-            controller = mainController.showPlayback(!(previousState instanceof InitState));
-            playingAudioBook = mainController.currentAudioBook();
-            if (!(previousState instanceof InitState)) {
-                Preconditions.checkNotNull(playingAudioBook);
-                controller.startPlayback(playingAudioBook);
+        PlaybackState(@NonNull UiControllerMain mc, @NonNull State previousState) {
+            mainController = mc;
+            if (!(previousState instanceof InitState) && !(previousState instanceof PausedState))
+            {
+                // Equivalently, we're coming from BOOK_LIST
+                playbackController = mainController.showPlayback(true);
+                playingAudioBook = mainController.currentAudioBook();
+                playbackController.startPlayback(playingAudioBook);
             }
+            Preconditions.checkNotNull(playbackController);
+            Preconditions.checkNotNull(playingAudioBook);
             //noinspection RedundantCast
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector((Context)mainController.getActivity(), this);
-            if (faceDownAction != NONE )
-                motionDetector.enable();
-            faceDownAction = mainController.getGlobalSettings().getStopOnFaceDown();
-            stoppedByFaceDown = false;
+            motionDetector.enable();
         }
 
         @Override
         void onActivityPause() {
-            Preconditions.checkNotNull(controller);
-            controller.stopRewindIfActive();
+            Preconditions.checkNotNull(playbackController);
+            playbackController.stopRewindIfActive();
         }
 
         @Override
         void onLeaveState() {
             motionDetector.disable();
-            Preconditions.checkNotNull(controller);
-            controller.shutdown();
+            Preconditions.checkNotNull(playbackController);
+            playbackController.shutdown();
         }
 
         @Override
@@ -449,19 +466,30 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
+            Preconditions.checkNotNull(playbackController);
             motionDetector.disable();
             if (playingAudioBook != null &&
                     playingAudioBook != mainController.currentAudioBook()) {
-                controller.stopPlayback();
+                playbackController.stopPlayback();
                 playingAudioBook = null;
             }
         }
 
         @Override
         public void onFaceDownStill() {
-            // Stop playback
-            stoppedByFaceDown = true;
-            controller.stopPlayback();
+            Preconditions.checkNotNull(playbackController);
+            switch (mainController.getGlobalSettings().getStopOnFaceDown()) {
+            case NONE:
+                break;
+            case STOP_ONLY:
+                playbackController.stopPlayback();
+                mainController.changeState(StateFactory.BOOK_LIST);
+                break;
+            case STOP_RESUME:
+                playbackController.pauseForPause();
+                mainController.changeState(StateFactory.PAUSED);
+                break;
+            }
         }
 
         @Override
@@ -471,11 +499,70 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         public void onSignificantMotion() {
-            controller.playbackService.resetSleepTimer();
+            Preconditions.checkNotNull(playbackController);
+            playbackController.playbackService.resetSleepTimer();
         }
 
         @Override
-        @NonNull String debugName() { return "PlaybackState"; }
+        StateFactory stateId() { return StateFactory.PLAYBACK; }
     }
 
+
+    private static class PausedState extends State
+            implements DeviceMotionDetector.Listener {
+        private @NonNull final UiControllerMain mainController;
+        private @NonNull final DeviceMotionDetector motionDetector;
+
+        PausedState(@NonNull UiControllerMain mc, @SuppressWarnings("unused") @NonNull State previousState) {
+            mainController = mc;
+            motionDetector = DeviceMotionDetector.getDeviceMotionDetector(mainController.getActivity(), this);
+            motionDetector.enable();
+        }
+
+        @Override
+        void onLeaveState() {
+            motionDetector.disable();
+        }
+
+        @Override
+        void onPlaybackStop(@NonNull UiControllerMain mainController) {
+            mainController.changeState(mainController.hasAnyBooks()
+                    ? StateFactory.BOOK_LIST
+                    : StateFactory.NO_BOOKS);
+        }
+
+        @Override
+        void onBooksChanged(@NonNull UiControllerMain mainController) {
+            Preconditions.checkNotNull(playbackController);
+            motionDetector.disable();
+            if (playingAudioBook != null &&
+                    playingAudioBook != mainController.currentAudioBook()) {
+                playbackController.stopPlayback();
+                playingAudioBook = null;
+            }
+        }
+
+        @Override
+        public void onFaceDownStill() {
+            /* nothing */
+        }
+
+        @Override
+        public void onFaceUpStill() {
+            Preconditions.checkNotNull(playbackController);
+            // We only get in this state when it's STOP_RESUME
+            playbackController.resumeFromPause();
+            playbackController.playbackService.resetSleepTimer();
+            mainController.changeState(StateFactory.PLAYBACK);
+        }
+
+        @Override
+        public void onSignificantMotion() {
+            Preconditions.checkNotNull(playbackController);
+            playbackController.playbackService.resetSleepTimer();
+        }
+
+        @Override
+        StateFactory stateId() { return StateFactory.PAUSED; }
+    }
 }

@@ -104,8 +104,9 @@ public class Player {
         public void start(File currentFile, long startPositionMs) {
             Preconditions.checkNotNull(observer);
             this.currentFile = currentFile;
-            exoPlayer.setPlayWhenReady(true);
+            // Change position then resume to avoid audio glitch
             prepareAudioFile(currentFile, startPositionMs);
+            exoPlayer.setPlayWhenReady(true);
         }
 
         @Override

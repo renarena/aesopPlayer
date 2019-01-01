@@ -130,6 +130,16 @@ public class PlaybackService
         playbackInProgress.resumeFromRewind();
     }
 
+    public void pauseForPause() {
+        Preconditions.checkNotNull(playbackInProgress);
+        playbackInProgress.pauseForPause();
+    }
+
+    public void resumeFromPause() {
+        Preconditions.checkNotNull(playbackInProgress);
+        playbackInProgress.resumeFromPause();
+    }
+
     public long getCurrentTotalPositionMs() {
         Preconditions.checkNotNull(playbackInProgress);
         return playbackInProgress.getCurrentTotalPositionMs();
@@ -168,6 +178,7 @@ public class PlaybackService
     }
 
     private void onPlaybackEnded() {
+        Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.onPlaybackEnded");
         durationQueryInProgress = null;
         playbackInProgress = null;
 
@@ -216,6 +227,7 @@ public class PlaybackService
         final @NonNull AudioBook audioBook;
         private final @NonNull PlaybackController controller;
         private final @NonNull Handler handler;
+        private final int jumpBackMs;
         private final @NonNull Runnable updatePosition = new Runnable() {
             @Override
             public void run() {
@@ -230,9 +242,10 @@ public class PlaybackService
                 @NonNull Player player,
                 @NonNull Handler handler,
                 @NonNull AudioBook audioBook,
-                int jumpBackMs) {
+                int jBM) {
             this.audioBook = audioBook;
             this.handler = handler;
+            jumpBackMs = jBM;
 
             controller = player.createPlayback();
             controller.setObserver(this);
@@ -253,9 +266,21 @@ public class PlaybackService
             controller.pause();
         }
 
+        void pauseForPause() {
+            pauseForRewind();
+        }
+
         void resumeFromRewind() {
             AudioBook.Position position = audioBook.getLastPosition();
             controller.start(position.file, position.seekPosition);
+            handler.postDelayed(updatePosition, UPDATE_TIME_MS);
+            resetSleepTimer();
+        }
+
+        void resumeFromPause() {
+            AudioBook.Position position = audioBook.getLastPosition();
+            long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
+            controller.start(position.file, startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }

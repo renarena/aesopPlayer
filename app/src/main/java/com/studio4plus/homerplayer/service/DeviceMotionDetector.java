@@ -1,10 +1,12 @@
 package com.studio4plus.homerplayer.service;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 
 import static android.content.Context.SENSOR_SERVICE;
@@ -57,10 +59,17 @@ public class DeviceMotionDetector implements SensorEventListener {
 
     @NonNull
     public static DeviceMotionDetector getDeviceMotionDetector(Context ctx, @NonNull Listener listener) {
+        getDeviceMotionDetector(ctx);
+        deviceMotionDetector.listener = listener;
+        return deviceMotionDetector;
+    }
+
+    @NonNull
+    private static DeviceMotionDetector getDeviceMotionDetector(Context ctx) {
         if (deviceMotionDetector == null) {
             deviceMotionDetector = new DeviceMotionDetector(ctx);
         }
-        deviceMotionDetector.listener = listener;
+        deviceMotionDetector.listener = null;
         return deviceMotionDetector;
     }
 
@@ -92,6 +101,7 @@ public class DeviceMotionDetector implements SensorEventListener {
         if (sensorManager == null) {
             return;
         }
+        // 4 argument form requires Api19
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
 
@@ -293,4 +303,62 @@ public class DeviceMotionDetector implements SensorEventListener {
         }
     }
 
+    private static class ReawakenListener implements DeviceMotionDetector.Listener {
+        final DeviceMotionDetector dmd;
+        final Context context;
+
+        ReawakenListener(Context c, DeviceMotionDetector d) {
+            context = c;
+            dmd = d;
+        }
+
+        @Override
+        public void onSignificantMotion() {
+            reawaken(context);
+            // We have to cancel ourselves
+            dmd.disable();
+        }
+
+        @Override
+        public void onFaceDownStill() {
+            /* ignore */
+        }
+
+        @Override
+        public void onFaceUpStill() {
+            /* ignore */
+        }
+    }
+
+    static private void reawaken(@NonNull Context context) {
+
+        PowerManager pm = (PowerManager)context.getSystemService(
+                Context.POWER_SERVICE);
+        // After a lot of research, I was unable to find a way to achieve what
+        // this does without the deprecation warning. There are other ways that
+        // might work (setting android:turnScreenOn or the equivalent call), but
+        // that requires API 27.
+        //noinspection deprecation - SCREEN_BRIGHT_WAKE_LOCK
+        PowerManager.WakeLock wl = pm.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                             PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                             PowerManager.ON_AFTER_RELEASE,
+                "HomerPlayer:reawaken");
+
+        // Screen will stay on 5 seconds if not touched
+        // and revert to normal timeouts if touched.
+        wl.acquire(5000);
+    }
+
+    // Set up a motion detector that runs when the playback and bookList windows get
+    // turned off for device sleep. When a motion is detected, wake up the device.
+    @TargetApi(18)
+    static public void DetectUserInterest(Context context) {
+        // Ideally we'd use TYPE_SIGNIFICANT_MOTION, but that (on devices where it's
+        // even present) is too insensitive. "Significant" means really significant,
+        // apparently (as in a full-arm shake).
+        DeviceMotionDetector detector = getDeviceMotionDetector(context);
+        detector.listener = new ReawakenListener(context, detector);
+        detector.enable();
+    }
 }
