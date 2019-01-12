@@ -30,6 +30,7 @@ public class UiUtil {
     static public class SnoozeDisplay {
         private View snoozeOverlay;
         private TextView snoozeCounter;
+        static private boolean suspended;
 
         @SuppressLint("ClickableViewAccessibility")
         private void SnoozeDisplayFor(
@@ -38,6 +39,10 @@ public class UiUtil {
                 final int time) {
 
             if (time <= 0) {
+                return;
+            }
+
+            if (suspended) {
                 return;
             }
 
@@ -60,11 +65,18 @@ public class UiUtil {
             {
                 @Override
                 public final void onTick(final long millisUntilFinished) {
-                    long secsRemaining = millisUntilFinished / 1000;
-                    if (secsRemaining <= 1) {
-                        snoozeCounter.setText("");
-                    } else {
-                        snoozeCounter.setText(fragment.getString(R.string.snooze_seconds, secsRemaining));
+                    try {
+                        long secsRemaining = millisUntilFinished / 1000;
+                        if (secsRemaining <= -1) {
+                            snoozeCounter.setText("");
+                        } else {
+                            snoozeCounter.setText(fragment.getString(R.string.snooze_seconds, secsRemaining));
+                        }
+                    }
+                    catch (Exception e) {
+                        /* Occasionally the fragment isn't attached to any Activity during
+                           Activity stop/start, and we don't care when the screen is that busy anyway.
+                         */
                     }
                 }
 
@@ -80,6 +92,18 @@ public class UiUtil {
         public SnoozeDisplay(Fragment fragment, View view, @NonNull GlobalSettings globalSettings) {
             int time = globalSettings.getSnoozeDelay();
             SnoozeDisplayFor(fragment, view, time);
+        }
+
+        // It turns out that the callers of this class can be called multiple times
+        // for one apparent (to a human) event. Those places that don't want a snooze lockout
+        // can call suspend(); the playback FSM resets it with a call to resume()
+        // when an actual state change is made.
+        static public void suspend() {
+            suspended = true;
+        }
+
+        static void resume() {
+            suspended = false;
         }
     }
 

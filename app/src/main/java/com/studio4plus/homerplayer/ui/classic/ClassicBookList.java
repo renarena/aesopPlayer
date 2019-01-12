@@ -21,6 +21,7 @@ import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
 import com.studio4plus.homerplayer.ui.BookListUi;
 import com.studio4plus.homerplayer.ui.HintOverlay;
+import com.studio4plus.homerplayer.ui.UiUtil;
 
 import java.util.List;
 
@@ -99,7 +100,10 @@ public class ClassicBookList extends Fragment implements BookListUi {
 
     @Override
     public void updateCurrentBook(int currentBookId) {
-
+        // Don't snooze - we just want to update the total time
+        UiUtil.SnoozeDisplay.suspend();
+        // Simply calls updateBookList (above) with appropriate params.
+        uiControllerBookList.updateAudioBooks();
     }
 
     @Override

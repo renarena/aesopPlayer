@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
+import com.studio4plus.homerplayer.events.CurrentBookChangedEvent;
 import com.studio4plus.homerplayer.events.PlaybackFatalErrorEvent;
 import com.studio4plus.homerplayer.events.PlaybackProgressedEvent;
 import com.studio4plus.homerplayer.events.PlaybackStoppedEvent;
@@ -28,6 +29,7 @@ import com.studio4plus.homerplayer.player.Player;
 
 import java.io.File;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -61,6 +63,7 @@ public class PlaybackService
     private AudioBookPlayback playbackInProgress;
     private Handler handler;
     private final SleepFadeOut sleepFadeOut = new SleepFadeOut();
+    private final Vector<DurationQuery> queries = new Vector<>();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -91,6 +94,8 @@ public class PlaybackService
         player = HomerPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
         player.setPlaybackSpeed(globalSettings.getPlaybackSpeed());
 
+        // Needed to notify the user of the service that's handling the Audio and to keep
+        // (Oreo or greater) from shutting it down after a while.
         Notification notification = NotificationUtil.createForegroundServiceNotification(
                 getApplicationContext(),
                 R.string.playback_service_notification,
@@ -99,13 +104,37 @@ public class PlaybackService
                 this, new Intent(this, PlaybackService.class));
         startForeground(NOTIFICATION_ID, notification);
 
-        if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
+        if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION)
+        findQuery: {
+            // There should be a query in progress.
+            // Repurpose it to start playback (almost always there's only one, but...)
             Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create DurationQuery");
-            durationQueryInProgress = new DurationQuery(player, book);
+            for (DurationQuery q : queries) {
+                if (q.audioBook == book) {
+                    q.isQueryOnly = false;
+                    durationQueryInProgress = q;
+                    queries.remove(q);
+                    break findQuery;
+                }
+            }
+
+            // Shouldn't ever happen, but just in case
+            durationQueryInProgress = new DurationQuery(player, book, false);
         } else {
             Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
             playbackInProgress = new AudioBookPlayback(
                     player, handler, book, globalSettings.getJumpBackPreferenceMs());
+        }
+    }
+
+    public void computeDuration(AudioBook book) {
+        // With debug enabled exoplayer can take a very long time to do this operation.
+        // (As in 10s of seconds.)
+        if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
+            Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.computeDuration: create DurationQuery");
+            Player queryPlayer = HomerPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
+            DurationQuery queryQuery = new DurationQuery(queryPlayer, book, true);
+            queries.add(queryQuery);
         }
     }
 
@@ -332,13 +361,26 @@ public class PlaybackService
         }
     }
 
-    private class DurationQuery implements DurationQueryController.Observer {
+    class DurationQuery implements DurationQueryController.Observer {
 
+        // DurationQueries are a bit tricky:
+        // We want to display the total book time, but we must actually have exoplayer
+        // scan all the files to get the total time. And that can take a long time.
+        // We remember the length after we've done that once, but with a new batch
+        // of books, and with the user browsing, we want to do the scans in the background.
+        // But if the user actually starts a book, we want the completion of the scan
+        // to start the player. We thus create a list of duration scans in progress
+        // and if the user starts a book, we find it in the list and convert it to the
+        // query that starts playback. We also call back to the display to update
+        // the time once we have it. There's frequently a visible delay the first
+        // time the book is displayed, but no other effect.
         private final AudioBook audioBook;
         private final DurationQueryController controller;
+        private boolean isQueryOnly;
 
-        private DurationQuery(Player player, AudioBook audioBook) {
+        private DurationQuery(Player player, AudioBook audioBook, boolean queryOnly) {
             this.audioBook = audioBook;
+            isQueryOnly = queryOnly;
 
             List<File> files = audioBook.getFilesWithNoDuration();
             controller = player.createDurationQuery(files);
@@ -357,10 +399,16 @@ public class PlaybackService
         @Override
         public void onFinished() {
             Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.DurationQuery.onFinished");
-            Preconditions.checkState(durationQueryInProgress == this);
-            durationQueryInProgress = null;
-            playbackInProgress = new AudioBookPlayback(
-                    player, handler, audioBook, globalSettings.getJumpBackPreferenceMs());
+            if (isQueryOnly) {
+                queries.remove(this);
+                EventBus.getDefault().post(new CurrentBookChangedEvent(this.audioBook));
+            }
+            else {
+                Preconditions.checkState(durationQueryInProgress == this);
+                durationQueryInProgress = null;
+                playbackInProgress = new AudioBookPlayback(
+                        player, handler, audioBook, globalSettings.getJumpBackPreferenceMs());
+            }
         }
 
         @Override

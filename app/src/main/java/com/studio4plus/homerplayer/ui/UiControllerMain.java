@@ -214,6 +214,11 @@ public class UiControllerMain implements ServiceConnection {
             audioBookManager.scanFiles();
     }
 
+    void computeDuration(AudioBook book) {
+        Preconditions.checkNotNull(playbackService);
+        playbackService.computeDuration(book);
+    }
+
     private void maybeSetInitialState() {
         if (currentState instanceof InitState && playbackService != null &&
                 audioBookManager.isInitialized()) {
@@ -280,7 +285,12 @@ public class UiControllerMain implements ServiceConnection {
         BOOK_LIST {
             @Override
             State create(@NonNull UiControllerMain mainController, @NonNull State previousState) {
-                return new BookListState(mainController, previousState);
+                if (mainController.hasAnyBooks()) {
+                    return new BookListState(mainController, previousState);
+                }
+                else {
+                    return new NoBooksState(mainController, previousState);
+                }
             }
         },
         PLAYBACK {
@@ -335,12 +345,7 @@ public class UiControllerMain implements ServiceConnection {
         // set up, this happens here when it's really ready.
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
-            if (mainController.hasAnyBooks()) {
-                mainController.changeState(StateFactory.BOOK_LIST);
-            }
-            else {
-                mainController.changeState(StateFactory.NO_BOOKS);
-            }
+            mainController.changeState(StateFactory.BOOK_LIST);
         }
 
         @Override
@@ -364,8 +369,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         public void onBooksChanged(@NonNull UiControllerMain mainController) {
-            if (mainController.hasAnyBooks())
-                mainController.changeState(StateFactory.BOOK_LIST);
+            mainController.changeState(StateFactory.BOOK_LIST);
         }
 
         @Override
@@ -384,6 +388,7 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final State prevState;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
+            UiUtil.SnoozeDisplay.resume();
             prevState = previousState;
             bookListController = mainController.showBookList(!(previousState instanceof InitState));
             //noinspection RedundantCast
@@ -398,10 +403,8 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
-            if (!mainController.hasAnyBooks()) {
-                motionDetector.disable();
-                mainController.changeState(StateFactory.NO_BOOKS);
-            }
+            motionDetector.disable();
+            mainController.changeState(StateFactory.BOOK_LIST);
         }
 
         @Override
@@ -428,6 +431,7 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final DeviceMotionDetector motionDetector;
 
         PlaybackState(@NonNull UiControllerMain mc, @NonNull State previousState) {
+            UiUtil.SnoozeDisplay.resume();
             mainController = mc;
             if (!(previousState instanceof InitState) && !(previousState instanceof PausedState))
             {
@@ -459,17 +463,15 @@ public class UiControllerMain implements ServiceConnection {
         @Override
         void onPlaybackStop(@NonNull UiControllerMain mainController) {
             motionDetector.disable();
-            mainController.changeState(mainController.hasAnyBooks()
-                    ? StateFactory.BOOK_LIST
-                    : StateFactory.NO_BOOKS);
+            mainController.changeState(StateFactory.BOOK_LIST);
         }
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
             Preconditions.checkNotNull(playbackController);
-            motionDetector.disable();
             if (playingAudioBook != null &&
                     playingAudioBook != mainController.currentAudioBook()) {
+                // This will cause a state change
                 playbackController.stopPlayback();
                 playingAudioBook = null;
             }
@@ -482,10 +484,12 @@ public class UiControllerMain implements ServiceConnection {
             case NONE:
                 break;
             case STOP_ONLY:
+                motionDetector.disable();
                 playbackController.stopPlayback();
                 mainController.changeState(StateFactory.BOOK_LIST);
                 break;
             case STOP_RESUME:
+                motionDetector.disable();
                 playbackController.pauseForPause();
                 mainController.changeState(StateFactory.PAUSED);
                 break;
@@ -513,8 +517,11 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final UiControllerMain mainController;
         private @NonNull final DeviceMotionDetector motionDetector;
 
-        PausedState(@NonNull UiControllerMain mc, @SuppressWarnings("unused") @NonNull State previousState) {
-            mainController = mc;
+        PausedState(@NonNull UiControllerMain mainController, @SuppressWarnings("unused") @NonNull State previousState) {
+            UiUtil.SnoozeDisplay.resume();
+            this.mainController = mainController;
+            playbackController = this.mainController.showPlayback(false);
+
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(mainController.getActivity(), this);
             motionDetector.enable();
         }
@@ -526,17 +533,15 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onPlaybackStop(@NonNull UiControllerMain mainController) {
-            mainController.changeState(mainController.hasAnyBooks()
-                    ? StateFactory.BOOK_LIST
-                    : StateFactory.NO_BOOKS);
+            mainController.changeState(StateFactory.BOOK_LIST);
         }
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
             Preconditions.checkNotNull(playbackController);
-            motionDetector.disable();
             if (playingAudioBook != null &&
                     playingAudioBook != mainController.currentAudioBook()) {
+                // This will cause a state change
                 playbackController.stopPlayback();
                 playingAudioBook = null;
             }

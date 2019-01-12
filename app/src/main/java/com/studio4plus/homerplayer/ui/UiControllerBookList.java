@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.events.AudioBooksChangedEvent;
 import com.studio4plus.homerplayer.events.CurrentBookChangedEvent;
+import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.concurrency.SimpleFuture;
 
@@ -117,7 +118,12 @@ public class UiControllerBookList {
 
     public void changeBook(@NonNull String bookId) {
         audioBookManager.setCurrentBook(bookId);
-        speak(audioBookManager.getById(bookId).getTitle());
+        AudioBook book = audioBookManager.getById(bookId);
+        Preconditions.checkNotNull(book);
+        Preconditions.checkNotNull(uiControllerMain);
+
+        uiControllerMain.computeDuration(book);
+        speak(book.getTitle());
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -146,7 +152,7 @@ public class UiControllerBookList {
             speaker.stop();
     }
 
-    private void updateAudioBooks() {
+    public void updateAudioBooks() {
         ui.updateBookList(
                 audioBookManager.getAudioBooks(),
                 audioBookManager.getCurrentBookIndex());

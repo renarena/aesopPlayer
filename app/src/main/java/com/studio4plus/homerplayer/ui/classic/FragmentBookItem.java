@@ -53,7 +53,7 @@ public class FragmentBookItem extends BookListChildFragment {
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
 
         // This should be early so no buttons go live before this
-        // TODO: determine if we want to skip snoozeDelay on initial startup
+        // TODO: determine if we want to suspend snoozeDelay on initial startup
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         Bundle args = getArguments();
