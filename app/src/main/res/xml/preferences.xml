@@ -58,6 +58,12 @@
         android:entries="@array/blink_rate_entries"
         android:entryValues="@array/blink_rate_values"
         android:title="@string/pref_blink_rate_title" />
+    <SwitchPreference
+        android:key="awaken_on_proximity_preference"
+        android:title="@string/pref_proximity_awaken"
+        android:summaryOn="@string/pref_proximity_awaken_summary_on"
+        android:summaryOff="@string/pref_proximity_awaken_summary_off"
+        android:defaultValue="true"/>
     <PreferenceScreen
         android:key="kiosk_mode_screen"
         android:title="@string/pref_kiosk_mode_screen_title">

@@ -33,6 +33,7 @@ import com.studio4plus.homerplayer.events.DeviceAdminChangeEvent;
 import com.studio4plus.homerplayer.events.SettingsEnteredEvent;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
+import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 
 import javax.inject.Inject;
 
@@ -93,11 +94,18 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        DeviceMotionDetector.suspend();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         orientationDelegate.onStop();
         cancelBlockEventOnStart();
         kioskModeHandler.onActivityStop();
+        DeviceMotionDetector.resume();
     }
 
     @Override

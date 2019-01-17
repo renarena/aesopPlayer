@@ -48,11 +48,12 @@ public class GlobalSettings {
     public static final String KEY_JUMP_BACK = "jump_back_preference";
     public static final String KEY_SLEEP_TIMER = "sleep_timer_preference";
     public static final String KEY_SCREEN_ORIENTATION = "screen_orientation_preference";
-    public static final String KEY_FF_REWIND_SOUND = "ff_rewind_sound_preference";
+    private static final String KEY_FF_REWIND_SOUND = "ff_rewind_sound_preference";
     public static final String KEY_PLAYBACK_SPEED = "playback_speed_preference";
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
     public static final String KEY_STOP_ON_FACE_DOWN = "stop_on_face_down_preference";
+    private static final String KEY_PROXIMITY_AWAKEN = "awaken_on_proximity_preference";
     public static final String KEY_SETTINGS_INTERLOCK = "settings_interlock_preference";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
@@ -118,6 +119,10 @@ public class GlobalSettings {
                 GlobalSettings.KEY_STOP_ON_FACE_DOWN,
                 resources.getString(R.string.pref_stop_on_face_down_default_value));
         return FaceDownAction.valueOf(stringValue);
+    }
+
+    public boolean isProximityEnabled() {
+        return sharedPreferences.getBoolean(KEY_PROXIMITY_AWAKEN, true);
     }
 
     public SettingsInterlockMode getSettingsInterlock() {

@@ -67,7 +67,7 @@ public class UiUtil {
                 public final void onTick(final long millisUntilFinished) {
                     try {
                         long secsRemaining = millisUntilFinished / 1000;
-                        if (secsRemaining <= -1) {
+                        if (secsRemaining <= 1) {
                             snoozeCounter.setText("");
                         } else {
                             snoozeCounter.setText(fragment.getString(R.string.snooze_seconds, secsRemaining));

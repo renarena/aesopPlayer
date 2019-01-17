@@ -98,7 +98,7 @@ public class UiControllerMain implements ServiceConnection {
         currentState = new InitState();
 
         if (savedByStop != StateFactory.INIT_STATE) {
-            DeviceMotionDetector.DetectUserInterest(getActivity());
+            DeviceMotionDetector.DetectUserInterest();
         }
     }
 
@@ -215,11 +215,18 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void computeDuration(AudioBook book) {
-        Preconditions.checkNotNull(playbackService);
+        // If the playback service isn't ready yet, just ignore it and we'll get it later.
+        // (Seems to vary with device speed.)
+        if (playbackService == null)
+            return;
+
         playbackService.computeDuration(book);
     }
 
     private void maybeSetInitialState() {
+        // Just so we're sure we've done this once to initialize the singleton
+        DeviceMotionDetector.initDeviceMotionDetector(getActivity());
+
         if (currentState instanceof InitState && playbackService != null &&
                 audioBookManager.isInitialized()) {
             if (savedByStop != StateFactory.INIT_STATE)

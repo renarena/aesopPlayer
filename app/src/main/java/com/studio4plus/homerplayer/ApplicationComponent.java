@@ -11,6 +11,7 @@ import com.studio4plus.homerplayer.model.DemoSamplesInstaller;
 import com.studio4plus.homerplayer.player.Player;
 import com.studio4plus.homerplayer.service.AudioBookPlayerModule;
 import com.studio4plus.homerplayer.service.DemoSamplesInstallerService;
+import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 import com.studio4plus.homerplayer.service.PlaybackService;
 import com.studio4plus.homerplayer.ui.classic.ClassicPlaybackUi;
 import com.studio4plus.homerplayer.ui.classic.FragmentBookItem;
@@ -41,6 +42,7 @@ public interface ApplicationComponent {
     // --Commented out by Inspection (11/27/2018 2:56 PM):void inject(BatteryStatusIndicator batteryStatusIndicator);
     void inject(DemoSamplesInstallerService demoSamplesInstallerService);
     void inject(PlaybackService playbackService);
+    void inject(DeviceMotionDetector deviceMotionDetector);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();
