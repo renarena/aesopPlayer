@@ -6,7 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.PowerManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
@@ -94,8 +94,8 @@ public class DeviceMotionDetector implements SensorEventListener {
     public static void initDeviceMotionDetector(Context context) {
         if (deviceMotionDetector == null) {
             deviceMotionDetector = new DeviceMotionDetector(context);
+            deviceMotionDetector.listener = null;
         }
-        deviceMotionDetector.listener = null;
     }
 
     @NonNull

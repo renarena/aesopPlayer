@@ -1,7 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,10 +8,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -34,7 +34,7 @@ import de.greenrobot.event.EventBus;
 
 public class UiControllerMain implements ServiceConnection {
 
-    private final @NonNull Activity activity;
+    private final @NonNull AppCompatActivity activity;
     private final @NonNull MainUi mainUi;
     private final @NonNull AudioBookManager audioBookManager;
     private final @NonNull EventBus eventBus;
@@ -53,8 +53,10 @@ public class UiControllerMain implements ServiceConnection {
     // Critical elements of the FSM that must be preserved over Activity restart
     private @NonNull StateFactory savedByStop = StateFactory.INIT_STATE;
 
+    //private boolean isRunning = false;
+
     @Inject
-    UiControllerMain(@NonNull Activity activity,
+    UiControllerMain(@NonNull AppCompatActivity activity,
                      @NonNull MainUi mainUi,
                      @NonNull AudioBookManager audioBookManager,
                      @NonNull EventBus eventBus,
@@ -81,13 +83,19 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void onActivityStart() {
-        Crashlytics.log(Log.DEBUG, TAG,"activity start");
+        Crashlytics.log(Log.DEBUG, TAG,"UI: onActivityStart");
         scanAudioBookFiles();
         maybeSetInitialState();
     }
 
+    void onActivityResumeFragments() {
+        //isRunning = true;
+    }
+
     void onActivityPause() {
+        Crashlytics.log(Log.DEBUG, TAG, "UI: onActivityPause, state: " + currentState.stateId());
         currentState.onActivityPause();
+        //isRunning = false;
     }
 
     void onActivityStop() {
@@ -136,7 +144,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @NonNull
-    private Activity getActivity()
+    private AppCompatActivity getActivity()
     {
         return activity;
     }
@@ -228,7 +236,8 @@ public class UiControllerMain implements ServiceConnection {
         DeviceMotionDetector.initDeviceMotionDetector(getActivity());
 
         if (currentState instanceof InitState && playbackService != null &&
-                audioBookManager.isInitialized()) {
+            //    audioBookManager.isInitialized() && isRunning) {
+            audioBookManager.isInitialized() ) {
             if (savedByStop != StateFactory.INIT_STATE)
             {
                 changeState(savedByStop);
@@ -250,6 +259,9 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private void changeState(StateFactory newStateFactory) {
+        //if (!isRunning)
+        //    Crashlytics.log(Log.DEBUG, TAG, "UI(!): changing state while activity is paused");
+
         Crashlytics.log(Log.DEBUG, TAG, "UI: leave state: " + currentState.stateId());
         currentState.onLeaveState();
         Crashlytics.log(Log.DEBUG, TAG,"UI: create state: " + newStateFactory.name());

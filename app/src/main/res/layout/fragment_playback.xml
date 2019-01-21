@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<io.codetail.widget.RevealFrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,7 +31,7 @@
             app:layout_constraintVertical_weight="1"
             tools:text="00:13:10 12%" />
 
-        <android.support.v7.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/fastForwardButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -47,7 +47,7 @@
             app:layout_constraintTop_toBottomOf="@+id/elapsedTime"
             app:layout_constraintVertical_weight="1" />
 
-        <android.support.v7.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/rewindButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -79,7 +79,7 @@
             >
 
             <!-- No text in button, overlaid with blinking text below -->
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/stopButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -142,7 +142,7 @@
 
         </RelativeLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <RelativeLayout
         android:id="@+id/rewindFFOverlay"
@@ -161,9 +161,6 @@
             android:gravity="center"/>
     </RelativeLayout>
 
-    <!-- last is on top, so don't move this -->
-    <include layout="@layout/snooze_overlay"/>
-
     <ViewStub
         android:id="@+id/flipToStopHintOverlayStub"
         android:layout_width="match_parent"
@@ -171,4 +168,7 @@
         android:visibility="gone"
         android:layout="@layout/hint_horizontal_image" />
 
-</io.codetail.widget.RevealFrameLayout>
+    <!-- last is on top, so don't move this -->
+    <include layout="@layout/snooze_overlay"/>
+
+</RelativeLayout>

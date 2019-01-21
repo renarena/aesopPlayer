@@ -3,13 +3,12 @@ package com.studio4plus.homerplayer.ui.classic;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
-import android.app.Fragment;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -18,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
@@ -34,7 +34,6 @@ import javax.inject.Inject;
 
 import io.codetail.animation.ViewAnimationUtils;
 
-@SuppressWarnings("deprecation") // of Fragment
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
     private View view;
@@ -54,9 +53,10 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
+            @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_playback, container, false);
@@ -66,12 +66,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         stopButton = view.findViewById(R.id.stopButton);
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Preconditions.checkNotNull(controller);
-                controller.stopPlayback();
-            }
+        stopButton.setOnClickListener(v -> {
+            Preconditions.checkNotNull(controller);
+            controller.stopPlayback();
         });
 
         elapsedTimeView = view.findViewById(R.id.elapsedTime);
@@ -103,13 +100,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         rewindButton.setEnabled(false);
         ffButton.setEnabled(false);
 
-        rewindFFOverlay.setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility") // We meant that.
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // Don't let any events "through" the overlay.
-                return true;
-            }
+        rewindFFOverlay.setOnTouchListener((v, event) -> {
+            // Don't let any events "through" the overlay.
+            return true;
         });
 
         elapsedTimeRewindFFViewAnimation =
@@ -126,6 +119,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     @Override
     public void onResume() {
         super.onResume();
+        Crashlytics.log("UI: FragmentPlayback resumed");
         rewindButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         ffButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         showHintIfNecessary();

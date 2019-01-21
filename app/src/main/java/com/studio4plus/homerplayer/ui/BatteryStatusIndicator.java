@@ -14,7 +14,7 @@ import java.util.EnumMap;
 
 import de.greenrobot.event.EventBus;
 
-class BatteryStatusIndicator {
+public class BatteryStatusIndicator {
 
     private final ImageView indicatorView;
     private final EventBus eventBus;

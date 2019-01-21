@@ -1,7 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,12 +8,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
@@ -29,13 +31,13 @@ import de.greenrobot.event.EventBus;
 public class UiControllerNoBooks {
 
     public static class Factory {
-        private final @NonNull Activity activity;
+        private final @NonNull AppCompatActivity activity;
         private final @NonNull Uri samplesDownloadUrl;
         private final @NonNull EventBus eventBus;
         private final @NonNull AnalyticsTracker analyticsTracker;
 
         @Inject
-        public Factory(@NonNull Activity activity,
+        public Factory(@NonNull AppCompatActivity activity,
                        @NonNull @Named("SAMPLES_DOWNLOAD_URL") Uri samplesDownloadUrl,
                        @NonNull EventBus eventBus,
                        @NonNull AnalyticsTracker analyticsTracker) {
@@ -50,9 +52,10 @@ public class UiControllerNoBooks {
         }
     }
 
+    private static final String TAG = "UiControllerBooks";
     static final int PERMISSION_REQUEST_DOWNLOADS = 100;
 
-    private final @NonNull Activity activity;
+    private final @NonNull AppCompatActivity activity;
     private final @NonNull NoBooksUi ui;
     private final @NonNull Uri samplesDownloadUrl;
     private final @NonNull EventBus eventBus;
@@ -60,7 +63,7 @@ public class UiControllerNoBooks {
 
     private @Nullable DownloadProgressReceiver progressReceiver;
 
-    private UiControllerNoBooks(@NonNull Activity activity,
+    private UiControllerNoBooks(@NonNull AppCompatActivity activity,
                                 @NonNull NoBooksUi ui,
                                 @NonNull Uri samplesDownloadUrl,
                                 @NonNull EventBus eventBus,
@@ -79,10 +82,13 @@ public class UiControllerNoBooks {
     }
 
     public void startSamplesInstallation() {
-        if (PermissionUtils.checkAndRequestPermission(
+        final boolean permissionsAlreadyGranted = PermissionUtils.checkAndRequestPermission(
                 activity,
                 new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
-                PERMISSION_REQUEST_DOWNLOADS))
+                PERMISSION_REQUEST_DOWNLOADS);
+        Crashlytics.log(Log.DEBUG, TAG, "startSamplesInstallation, "
+                + (permissionsAlreadyGranted ? "has permissions" : "requesting permissions"));
+        if (permissionsAlreadyGranted)
             doStartSamplesInstallation();
     }
 
@@ -96,6 +102,8 @@ public class UiControllerNoBooks {
     public void abortSamplesInstallation() {
         Preconditions.checkState(DemoSamplesInstallerService.isDownloading()
                 || DemoSamplesInstallerService.isInstalling());
+        Crashlytics.log(Log.DEBUG, TAG, "abortSamplesInstallation, isDownloading: " +
+                DemoSamplesInstallerService.isDownloading());
         // Can't cancel installation.
         if (DemoSamplesInstallerService.isDownloading()) {
             activity.startService(DemoSamplesInstallerService.createCancelIntent(
@@ -149,6 +157,8 @@ public class UiControllerNoBooks {
 
     private void showInstallProgress(boolean isAlreadyInstalling) {
         Preconditions.checkState(progressReceiver == null);
+        Crashlytics.log(Log.DEBUG, TAG, "showInstallProgress, " +
+                (isAlreadyInstalling ? "installation in progress" : "starting installation"));
         NoBooksUi.InstallProgressObserver uiProgressObserver =
                 ui.showInstallProgress(isAlreadyInstalling);
         progressReceiver = new DownloadProgressReceiver(uiProgressObserver);
@@ -162,6 +172,7 @@ public class UiControllerNoBooks {
 
     private void stopProgressReceiver() {
         Preconditions.checkState(progressReceiver != null);
+        Crashlytics.log(Log.DEBUG, TAG, "stopProgressReceiver");
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(progressReceiver);
         progressReceiver.stop();
         progressReceiver = null;
@@ -187,6 +198,7 @@ public class UiControllerNoBooks {
             if (observer == null)
                 return;
 
+            Crashlytics.log(Log.DEBUG, TAG, "progress receiver: " + intent.getAction());
             if (DemoSamplesInstallerService.BROADCAST_DOWNLOAD_PROGRESS_ACTION.equals(
                     intent.getAction())) {
                 int transferredBytes = intent.getIntExtra(

@@ -32,32 +32,23 @@ public class KioskModeHandler {
     }
 
     @SuppressWarnings("SameParameterValue") // For a future?
-    void setKeepNavigation(Boolean keepNavigation) {
+    public void setKeepNavigation(Boolean keepNavigation) {
         this.keepNavigation = keepNavigation;
     }
 
-    void onActivityStart() {
+    public void onActivityStart() {
         if (!globalSettings.isFullKioskModeEnabled() && isLockTaskEnabled())
             lockTask(false);
+        setUiFlagsAndLockTask();
         eventBus.register(this);
     }
 
-    void onActivityStop() {
+    public void onActivityStop() {
         eventBus.unregister(this);
     }
 
-    void onFocusGained() {
-        // Set fullscreen mode.
-        int visibilitySetting =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-        activity.getWindow().getDecorView().setSystemUiVisibility(visibilitySetting);
-        if (globalSettings.isAnyKioskModeEnabled())
-            setNavigationVisibility(false);
-
-        if (globalSettings.isFullKioskModeEnabled())
-            lockTask(true);
+    public void onFocusGained() {
+        setUiFlagsAndLockTask();
     }
 
     @SuppressWarnings("unused")
@@ -65,6 +56,21 @@ public class KioskModeHandler {
         if (event.type == KioskModeChanged.Type.FULL)
             lockTask(event.isEnabled);
         setNavigationVisibility(!event.isEnabled);
+    }
+
+    private void setUiFlagsAndLockTask() {
+        int visibilitySetting = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        if (!keepNavigation) {
+            visibilitySetting |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+        }
+
+        activity.getWindow().getDecorView().setSystemUiVisibility(visibilitySetting);
+        if (globalSettings.isAnyKioskModeEnabled())
+            setNavigationVisibility(false);
+
+        if (globalSettings.isFullKioskModeEnabled())
+            lockTask(true);
     }
 
     private void setNavigationVisibility(boolean show) {

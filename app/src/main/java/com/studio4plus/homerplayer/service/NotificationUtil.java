@@ -7,7 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.R;
@@ -45,7 +45,7 @@ public class NotificationUtil {
             NotificationChannel channel = new NotificationChannel(
                     PLAYBACK_SERVICE_CHANNEL_ID,
                     context.getString(R.string.notificationChannelPlayback),
-                    NotificationManager.IMPORTANCE_HIGH);
+                    NotificationManager.IMPORTANCE_LOW);
             manager.createNotificationChannel(channel);
         }
     }

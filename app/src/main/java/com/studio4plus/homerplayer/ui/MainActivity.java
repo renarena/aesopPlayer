@@ -7,9 +7,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -91,17 +91,24 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onStart() {
+        super.onStart();
+        // onStart must be called before the UI controller can manipulate fragments.
         controller.onActivityStart();
         orientationDelegate.onStart();
         batteryStatusProvider.start();
         kioskModeHandler.onActivityStart();
-        super.onStart();
         handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        controller.onActivityResumeFragments();
     }
 
     @SuppressLint("MissingSuperCall")
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         // Do nothing, this activity takes state from the PlayerService and the AudioBookManager.
     }
 
@@ -112,8 +119,11 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onPause() {
-        controller.onActivityPause();
+        // Call super.onPause() first. It may, among other things, call onResumeFragments(), so
+        // calling super.onPause() before controller.onActivityPause() is necessary to ensure that
+        // controller.onActivityResumeFragments() is called in the right order.
         super.onPause();
+        controller.onActivityPause();
     }
 
     @Override

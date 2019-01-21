@@ -1,13 +1,13 @@
 package com.studio4plus.homerplayer.ui.classic;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.ApplicationComponent;
 import com.studio4plus.homerplayer.GlobalSettings;
@@ -28,7 +29,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 
-@SuppressWarnings("deprecation") // of Fragment
 public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
 
     @SuppressWarnings("WeakerAccess")
@@ -43,7 +43,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
+            @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_no_books, container, false);
@@ -56,24 +56,14 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
         noBooksPath.setText(Html.fromHtml(directoryMessage));
 
         Button downloadSamplesButton = view.findViewById(R.id.downloadSamplesButton);
-        downloadSamplesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                controller.startSamplesInstallation();
-            }
-        });
+        downloadSamplesButton.setOnClickListener(v -> controller.startSamplesInstallation());
 
         UiUtil.connectToSettings(view, globalSettings);
 
         /* Doesn't work here with big buttons
         final Context context = view.getContext();
         view.setOnTouchListener(new MultitapTouchListener(
-                context, new MultitapTouchListener.Listener() {
-            @Override
-            public void onMultiTap() {
-                startActivity(new Intent(context, SettingsActivity.class));
-            }
-        }));
+                context, () -> startActivity(new Intent(context, SettingsActivity.class))));
         */
 
         return view;
@@ -82,6 +72,12 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
     @Override
     public void initWithController(@NonNull UiControllerNoBooks controller) {
         this.controller = controller;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Crashlytics.log("UI: ClassicNoBooks fragment resumed");
     }
 
     @Override
@@ -168,13 +164,10 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
             progressDialog.setButton(
                     DialogInterface.BUTTON_NEGATIVE,
                     context.getString(android.R.string.cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Note: the dialog will dismiss itself even if the controller doesn't
-                            // abort the installation.
-                            controller.abortSamplesInstallation();
-                        }
+                    (dialog, which) -> {
+                        // Note: the dialog will dismiss itself even if the controller doesn't
+                        // abort the installation.
+                        controller.abortSamplesInstallation();
                     });
             return progressDialog;
         }

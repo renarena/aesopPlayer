@@ -2,7 +2,7 @@ package com.studio4plus.homerplayer.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
@@ -13,11 +13,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.R;
+import com.studio4plus.homerplayer.ui.settings.SettingsActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +27,6 @@ import javax.inject.Singleton;
 @Singleton
 public class UiUtil {
 
-    @SuppressWarnings("deprecation") // of Fragment
     static public class SnoozeDisplay {
         private View snoozeOverlay;
         private TextView snoozeCounter;

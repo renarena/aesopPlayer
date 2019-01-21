@@ -20,9 +20,10 @@
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            tools:ignore="NestedWeights">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/settingsButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -50,7 +51,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/settingsButton2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -93,7 +94,7 @@
         android:text="@string/noBooksOrMessage"
         android:textSize="@dimen/copyBooksInstructionTextSize" />
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/downloadSamplesButton"
         android:layout_width="wrap_content"
         android:layout_height="0dp"

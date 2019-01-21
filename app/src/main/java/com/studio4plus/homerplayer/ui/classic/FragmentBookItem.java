@@ -1,8 +1,8 @@
 package com.studio4plus.homerplayer.ui.classic;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +18,8 @@ import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerBookList;
+
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,7 +47,7 @@ public class FragmentBookItem extends BookListChildFragment {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
+            @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
 
@@ -57,6 +59,7 @@ public class FragmentBookItem extends BookListChildFragment {
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         Bundle args = getArguments();
+        Preconditions.checkNotNull(args);
         final String bookId = args.getString(ARG_BOOK_ID);
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
@@ -125,7 +128,7 @@ public class FragmentBookItem extends BookListChildFragment {
     }
 
     public String getAudioBookId() {
-        return getArguments().getString(ARG_BOOK_ID);
+        return Objects.requireNonNull(getArguments()).getString(ARG_BOOK_ID);
     }
 
     void setController(@NonNull UiControllerBookList controller) {

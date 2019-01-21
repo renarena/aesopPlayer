@@ -1,18 +1,19 @@
 package com.studio4plus.homerplayer.ui.classic;
 
 import android.annotation.SuppressLint;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 
+import com.crashlytics.android.Crashlytics;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
@@ -27,7 +28,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-@SuppressWarnings("deprecation") // of Fragment
 public class ClassicBookList extends Fragment implements BookListUi {
 
     private View view;
@@ -44,7 +44,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
+            @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_book_list, container, false);
@@ -79,12 +79,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
         /* Doesn't work here with big buttons
         final Context context = view.getContext();
         bookPager.setOnTouchListener(new MultitapTouchListener(
-                context, new MultitapTouchListener.Listener() {
-                    @Override
-                    public void onMultiTap() {
-                        startActivity(new Intent(context, SettingsActivity.class));
-                    }
-                }));
+                context, () -> startActivity(new Intent(context, SettingsActivity.class))));
         */
 
         return view;
@@ -114,6 +109,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     @Override
     public void onResume() {
         super.onResume();
+        Crashlytics.log("UI: ClassicBookList fragment resumed");
         showHintsIfNecessary();
     }
 
@@ -139,7 +135,6 @@ public class ClassicBookList extends Fragment implements BookListUi {
         return  browseHintStub == null || settingsHintStub == null;
     }
 
-    @SuppressWarnings("deprecation") // of FragmentStatePagerAdapter, FragmentManager, Fragment
     private class BookListPagerAdapter extends FragmentStatePagerAdapter {
 
         private static final int OFFSET = 1;
@@ -159,6 +154,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
                 return bookIndex % audioBooks.size();
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int viewIndex) {
             int bookIndex = getBookIndex(viewIndex);

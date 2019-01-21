@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        app:key="playback_options_screen"
+        app:title="@string/pref_playback_options_screen_title"
+        app:fragment="com.studio4plus.homerplayer.ui.settings.PlaybackSettingsFragment"/>
+    <ListPreference
+        app:key="screen_orientation_preference"
+        app:title="@string/pref_screen_orientation"
+        app:entries="@array/screen_orientation_entries"
+        app:entryValues="@array/screen_orientation_values"
+        app:defaultValue="@string/pref_screen_orientation_default_value"/>
+    <ListPreference
+        app:key="snooze_delay_preference"
+        app:defaultValue="@string/pref_snooze_time_default_value"
+        app:entries="@array/snooze_time_entries"
+        app:entryValues="@array/snooze_time_values"
+        app:title="@string/pref_snooze_time_title" />
+    <ListPreference
+        app:key="blink_rate_preference"
+        app:defaultValue="@string/pref_blink_rate_default_value"
+        app:entries="@array/blink_rate_entries"
+        app:entryValues="@array/blink_rate_values"
+        app:title="@string/pref_blink_rate_title" />
+    <SwitchPreference
+        app:key="awaken_on_proximity_preference"
+        app:title="@string/pref_proximity_awaken"
+        app:summaryOn="@string/pref_proximity_awaken_summary_on"
+        app:summaryOff="@string/pref_proximity_awaken_summary_off"
+        app:defaultValue="true"/>
+    <ListPreference
+        app:key="settings_interlock_preference"
+        app:defaultValue="@string/pref_settings_interlock_default_value"
+        app:entries="@array/settings_interlock_entries"
+        app:entryValues="@array/settings_interlock_values"
+        app:title="@string/pref_settings_interlock_title" />
+    <PreferenceScreen
+        app:key="kiosk_mode_screen"
+        app:title="@string/pref_kiosk_mode_screen_title"
+        app:fragment="com.studio4plus.homerplayer.ui.settings.KioskSettingsFragment"/>
+    <!--suppress AndroidElementNotAllowed -->
+    <com.studio4plus.homerplayer.ui.settings.ConfirmDialogPreference
+        app:key="reset_all_book_progress_preference"
+        app:title="@string/pref_reset_all_book_progress"
+        android:dialogTitle="@string/pref_reset_all_book_progress_dialog_title" />
+    <Preference
+        app:key="faq_preference"
+        app:title="@string/pref_help_faq_title" />
+    <Preference
+        app:key="version_preference"
+        app:title="@string/pref_version_title"/>
+</PreferenceScreen>

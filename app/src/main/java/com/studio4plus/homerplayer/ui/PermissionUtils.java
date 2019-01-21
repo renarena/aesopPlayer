@@ -4,12 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 
+import androidx.annotation.StringRes;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.studio4plus.homerplayer.R;
@@ -23,7 +24,8 @@ class PermissionUtils {
             final Activity activity, String[] permissions, int requestCode) {
         Collection<String> missingPermissions = Collections2.filter(Arrays.asList(permissions), new Predicate<String>() {
             @Override
-            public boolean apply(@NonNull String permission) {
+            public boolean apply(String permission) {
+                Preconditions.checkNotNull(permission);
                 return ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED;
             }
         });

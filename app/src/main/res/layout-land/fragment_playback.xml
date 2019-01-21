@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#008856"
         >
 
-        <android.support.v7.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/fastForwardButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -45,7 +45,7 @@
             app:layout_constraintTop_toTopOf="@+id/fastForwardButton"
             tools:text="00:13:10 12%" />
 
-        <android.support.v7.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/rewindButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -74,7 +74,7 @@
             >
 
             <!-- No text in button, overlaid with blinking text below -->
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/stopButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -135,7 +135,7 @@
 
         </RelativeLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <RelativeLayout
         android:id="@+id/rewindFFOverlay"

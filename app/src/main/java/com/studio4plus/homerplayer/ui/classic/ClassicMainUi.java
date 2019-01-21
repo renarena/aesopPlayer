@@ -1,10 +1,10 @@
 package com.studio4plus.homerplayer.ui.classic;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.studio4plus.homerplayer.R;
@@ -20,10 +20,10 @@ import javax.inject.Inject;
 @SuppressWarnings("deprecation") // of Fragment, FragmentManager, etc.
 class ClassicMainUi implements MainUi {
 
-    private final @NonNull Activity activity;
+    private final @NonNull AppCompatActivity activity;
 
     @Inject
-    ClassicMainUi(@NonNull Activity activity) {
+    ClassicMainUi(@NonNull AppCompatActivity activity) {
         this.activity = activity;
     }
 
@@ -57,12 +57,11 @@ class ClassicMainUi implements MainUi {
     }
 
     private void showPage(@NonNull Fragment pageFragment, boolean animate) {
-        FragmentManager fragmentManager = activity.getFragmentManager();
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (animate)
             transaction.setCustomAnimations(R.animator.flip_right_in, R.animator.flip_right_out);
         transaction.replace(R.id.mainContainer, pageFragment);
-        transaction.commit();
-        fragmentManager.executePendingTransactions();
+        transaction.commitNow();
     }
 }
