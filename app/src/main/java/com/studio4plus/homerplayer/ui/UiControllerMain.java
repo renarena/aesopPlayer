@@ -80,6 +80,8 @@ public class UiControllerMain implements ServiceConnection {
         eventBus.register(this);
         Intent serviceIntent = new Intent(activity, PlaybackService.class);
         activity.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
+
+        DeviceMotionDetector.initDeviceMotionDetector(activity);
     }
 
     void onActivityStart() {
@@ -232,8 +234,6 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private void maybeSetInitialState() {
-        // Just so we're sure we've done this once to initialize the singleton
-        DeviceMotionDetector.initDeviceMotionDetector(getActivity());
 
         if (currentState instanceof InitState && playbackService != null &&
             //    audioBookManager.isInitialized() && isRunning) {
@@ -358,6 +358,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onPlaybackStop(@NonNull UiControllerMain mainController) { }
+
         // Put up the right initial window once we've figured out whether there are
         // any books at all.  Because this can be asynchronously delayed due to the amount
         // of work, and because there are some system-initiated start/stop pairs before we're
@@ -411,7 +412,7 @@ public class UiControllerMain implements ServiceConnection {
             prevState = previousState;
             bookListController = mainController.showBookList(!(previousState instanceof InitState));
             //noinspection RedundantCast
-            motionDetector = DeviceMotionDetector.getDeviceMotionDetector((Context)mainController.getActivity(), this);
+            motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
         }
 
         @Override
@@ -462,7 +463,7 @@ public class UiControllerMain implements ServiceConnection {
             Preconditions.checkNotNull(playbackController);
             Preconditions.checkNotNull(playingAudioBook);
             //noinspection RedundantCast
-            motionDetector = DeviceMotionDetector.getDeviceMotionDetector((Context)mainController.getActivity(), this);
+            motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
             motionDetector.enable();
         }
 
@@ -541,7 +542,7 @@ public class UiControllerMain implements ServiceConnection {
             this.mainController = mainController;
             playbackController = this.mainController.showPlayback(false);
 
-            motionDetector = DeviceMotionDetector.getDeviceMotionDetector(mainController.getActivity(), this);
+            motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
             motionDetector.enable();
         }
 

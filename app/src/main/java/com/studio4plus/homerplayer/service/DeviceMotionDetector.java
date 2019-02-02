@@ -85,8 +85,7 @@ public class DeviceMotionDetector implements SensorEventListener {
     }
 
     @NonNull
-    public static DeviceMotionDetector getDeviceMotionDetector(Context context, @NonNull Listener listener) {
-        initDeviceMotionDetector(context);
+    public static DeviceMotionDetector getDeviceMotionDetector(@NonNull Listener listener) {
         deviceMotionDetector.listener = listener;
         return deviceMotionDetector;
     }
