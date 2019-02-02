@@ -1,6 +1,7 @@
 package com.studio4plus.homerplayer.ui.settings;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.preference.Preference;
@@ -21,6 +22,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private static final String KEY_RESET_ALL_BOOK_PROGRESS = "reset_all_book_progress_preference";
     private static final String KEY_FAQ = "faq_preference";
     private static final String KEY_VERSION = "version_preference";
+    private static final String KEY_QUICK_EXIT = "quick_exit_preference";
 
     private static final String FAQ_URL = "https://goo.gl/1RVxFW";
 
@@ -50,6 +52,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             }
         });
         setupFaq();
+        setupQuickExit();
         updateVersionSummary();
     }
 
@@ -146,6 +149,22 @@ public class MainSettingsFragment extends BaseSettingsFragment {
                 openUrl(FAQ_URL);
                 return true;
             }
+        });
+    }
+
+    private void setupQuickExit() {
+        Preference preference = findPreference(KEY_QUICK_EXIT);
+        preference.setOnPreferenceClickListener( (pref) -> {
+            if (Build.VERSION.SDK_INT >= 21) {
+                // If it's already pinned, un-pin it.
+                Objects.requireNonNull(getActivity()).stopLockTask();
+            }
+            // First bring up "the usual android" screen. Then exit so we start a new process next
+            // time, rather than resuming.  (The recents window may well show the settings
+            // screen we just left, but it's just a snapshot.)
+            getActivity().moveTaskToBack(true);
+            System.exit(0);
+            return true;
         });
     }
 }

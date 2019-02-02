@@ -36,6 +36,9 @@
         app:entries="@array/settings_interlock_entries"
         app:entryValues="@array/settings_interlock_values"
         app:title="@string/pref_settings_interlock_title" />
+    <Preference
+        app:key="quick_exit_preference"
+        app:title="@string/pref_quick_exit" />
     <PreferenceScreen
         app:key="kiosk_mode_screen"
         app:title="@string/pref_kiosk_mode_screen_title"
