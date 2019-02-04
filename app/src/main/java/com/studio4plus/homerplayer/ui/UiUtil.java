@@ -2,6 +2,8 @@ package com.studio4plus.homerplayer.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +11,6 @@ import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -141,7 +142,7 @@ public class UiUtil {
 
         final Context context = view.getContext();
         final Activity activity = (Activity)context;
-        final Button settingsButton = view.findViewById(R.id.settingsButton);
+        final AppCompatButton settingsButton = view.findViewById(R.id.settingsButton);
 
         switch (globalSettings.getSettingsInterlock()) {
             case NONE: {
@@ -194,7 +195,7 @@ public class UiUtil {
                     final View settingsButton2box = pressListener.findViewById(R.id.settingsButton2box);
                     settingsButton2box.setVisibility(View.VISIBLE);
 
-                    final Button settingsButton2 = pressListener.findViewById(R.id.settingsButton2);
+                    final AppCompatButton settingsButton2 = pressListener.findViewById(R.id.settingsButton2);
                     settingsButton2.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {

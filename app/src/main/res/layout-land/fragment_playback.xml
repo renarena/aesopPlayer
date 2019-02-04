@@ -74,7 +74,7 @@
             >
 
             <!-- No text in button, overlaid with blinking text below -->
-            <androidx.appcompat.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/stopButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

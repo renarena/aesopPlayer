@@ -7,13 +7,12 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -37,9 +36,9 @@ import io.codetail.animation.ViewAnimationUtils;
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
     private View view;
-    private Button stopButton;
-    private ImageButton rewindButton;
-    private ImageButton ffButton;
+    private AppCompatImageButton stopButton;
+    private AppCompatImageButton rewindButton;
+    private AppCompatImageButton ffButton;
     private TextView elapsedTimeView;
     private TextView elapsedTimeRewindFFView;
     private TextView chapterInfoView;

@@ -3,11 +3,12 @@ package com.studio4plus.homerplayer.ui.classic;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
+
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
@@ -94,7 +95,7 @@ public class FragmentBookItem extends BookListChildFragment {
             String chapterName = book.getChapter();
             chapter.setText(chapterName);
 
-            final Button startButton = view.findViewById(R.id.startButton);
+            final AppCompatButton startButton = view.findViewById(R.id.startButton);
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
