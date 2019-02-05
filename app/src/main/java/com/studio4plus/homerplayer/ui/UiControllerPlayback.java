@@ -69,6 +69,7 @@ public class UiControllerPlayback {
     }
 
     void shutdown() {
+        // Caution: if this needs to do more, make sure that it pairs nicely with resumeFromPause
         stopRewindIfActive();
         eventBus.unregister(this);
     }
@@ -114,6 +115,7 @@ public class UiControllerPlayback {
     }
 
     public void resumeFromPause() {
+        eventBus.register(this);
         playbackService.resumeFromPause();
     }
 

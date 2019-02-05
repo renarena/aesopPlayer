@@ -35,6 +35,8 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         super.onCreate(savedInstanceState);
     }
 
+    private static boolean enteringSettings;
+
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey);
@@ -59,6 +61,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onStart() {
         super.onStart();
+        enteringSettings = true;
 
         SharedPreferences sharedPreferences = getSharedPreferences();
         updateKioskModeSummary();
@@ -66,6 +69,16 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         updateSnoozeDelaySummary(sharedPreferences);
         updateBlinkRateSummary(sharedPreferences);
         updateSettingsInterlockSummary(sharedPreferences);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        enteringSettings = false;
+    }
+
+    static public boolean getInSettings() {
+        return enteringSettings;
     }
 
     @Override
@@ -162,7 +175,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             // First bring up "the usual android" screen. Then exit so we start a new process next
             // time, rather than resuming.  (The recents window may well show the settings
             // screen we just left, but it's just a snapshot.)
-            getActivity().moveTaskToBack(true);
+            Objects.requireNonNull(getActivity()).moveTaskToBack(true);
             System.exit(0);
             return true;
         });

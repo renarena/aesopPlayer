@@ -113,14 +113,15 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         return view;
     }
 
-    @SuppressLint("ClickableViewAccessibility") // This is press-and-hold, so click not meaningful
     // TODO: can press-and-hold be made accessible?
+    @SuppressLint("ClickableViewAccessibility") // This is press-and-hold, so click not meaningful
     @Override
     public void onResume() {
         super.onResume();
         Crashlytics.log("UI: FragmentPlayback resumed");
         rewindButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         ffButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
+        UiUtil.startBlinker(view, globalSettings);
         showHintIfNecessary();
     }
 

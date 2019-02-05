@@ -45,15 +45,12 @@ public class UiControllerMain implements ServiceConnection {
     private final @NonNull GlobalSettings globalSettings;
 
     private static final int PERMISSION_REQUEST_FOR_BOOK_SCAN = 1;
+    public static final int PERMISSION_REQUEST_FOR_SIMPLE_KIOSK = 2;
     private static final String TAG = "UiControllerMain";
 
     private @Nullable PlaybackService playbackService;
 
     private @NonNull State currentState = new InitState();
-    // Critical elements of the FSM that must be preserved over Activity restart
-    private @NonNull StateFactory savedByStop = StateFactory.INIT_STATE;
-
-    //private boolean isRunning = false;
 
     @Inject
     UiControllerMain(@NonNull AppCompatActivity activity,
@@ -86,28 +83,30 @@ public class UiControllerMain implements ServiceConnection {
 
     void onActivityStart() {
         Crashlytics.log(Log.DEBUG, TAG,"UI: onActivityStart");
-        scanAudioBookFiles();
+            scanAudioBookFiles();
         maybeSetInitialState();
     }
 
-    void onActivityResumeFragments() {
-        //isRunning = true;
+    private static boolean justPaused; // set when we perform an action that will trigger a pause
+                                       // event that we don't want a kiosk toast from in MainActivity
+    public boolean justDidPauseActionAndReset() {
+        boolean result = justPaused;
+        justPaused = false;
+        return result;
     }
 
     void onActivityPause() {
         Crashlytics.log(Log.DEBUG, TAG, "UI: onActivityPause, state: " + currentState.stateId());
         currentState.onActivityPause();
-        //isRunning = false;
     }
 
     void onActivityStop() {
         Crashlytics.log(Log.DEBUG, TAG,
-                "UI: leave state " + currentState.stateId() + " (activity stop)");
-        savedByStop = currentState.stateId();
-        currentState.onLeaveState();
-        currentState = new InitState();
+                "UI: stopping in state " + currentState.stateId() + " (activity stop)");
 
-        if (savedByStop != StateFactory.INIT_STATE) {
+        StateFactory priorState = currentState.stateId();
+        changeState(StateFactory.INIT_STATE);
+        if (priorState != StateFactory.INIT_STATE) {
             DeviceMotionDetector.DetectUserInterest();
         }
     }
@@ -143,12 +142,6 @@ public class UiControllerMain implements ServiceConnection {
         Preconditions.checkState(playbackService == null);
         playbackService = ((PlaybackService.ServiceBinder) service).getService();
         maybeSetInitialState();
-    }
-
-    @NonNull
-    private AppCompatActivity getActivity()
-    {
-        return activity;
     }
 
     @NonNull
@@ -212,6 +205,9 @@ public class UiControllerMain implements ServiceConnection {
             case UiControllerNoBooks.PERMISSION_REQUEST_DOWNLOADS:
                 currentState.onRequestPermissionResult(code, grantResults);
                 break;
+            case PERMISSION_REQUEST_FOR_SIMPLE_KIOSK:
+                // for now, nothing
+                break;
         }
     }
 
@@ -234,20 +230,26 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private void maybeSetInitialState() {
-
-        if (currentState instanceof InitState && playbackService != null &&
-            //    audioBookManager.isInitialized() && isRunning) {
-            audioBookManager.isInitialized() ) {
-            if (savedByStop != StateFactory.INIT_STATE)
-            {
-                changeState(savedByStop);
+        if (playbackService != null)
+        {
+            // Already playing somehow (likely some forced restart)
+            if (playbackService.getState() == PlaybackService.State.PLAYBACK) {
+                changeState(StateFactory.PLAYBACK);
             }
-        } else if (hasAnyBooks()) {
+            else if (playbackService.getState() == PlaybackService.State.PAUSED) {
+                changeState(StateFactory.PAUSED);
+            }
+            else {
+                changeState(StateFactory.INIT_STATE);
+            }
+        }
+        else if (hasAnyBooks()) {
             changeState(StateFactory.BOOK_LIST);
         }
-        //else {
+        else {
+            Preconditions.checkState(currentState.stateId() == StateFactory.INIT_STATE);
             /* No state change yet: INIT_STATE will do it when the book list is ready */
-        //}
+        }
     }
 
     private boolean hasAnyBooks() {
@@ -259,13 +261,10 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     private void changeState(StateFactory newStateFactory) {
-        //if (!isRunning)
-        //    Crashlytics.log(Log.DEBUG, TAG, "UI(!): changing state while activity is paused");
-
-        Crashlytics.log(Log.DEBUG, TAG, "UI: leave state: " + currentState.stateId());
+        Crashlytics.log(Log.DEBUG, TAG, "UI: leave state: " + currentState.stateId() + " to " + newStateFactory);
         currentState.onLeaveState();
-        Crashlytics.log(Log.DEBUG, TAG,"UI: create state: " + newStateFactory.name());
         currentState = newStateFactory.create(this, currentState);
+
     }
 
     @NonNull
@@ -282,7 +281,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @NonNull
-    private UiControllerPlayback showPlayback(@SuppressWarnings("SameParameterValue") boolean animate) {
+    private UiControllerPlayback showPlayback(boolean animate) {
         Preconditions.checkNotNull(playbackService);
         PlaybackUi playbackUi = mainUi.switchToPlayback(animate);
         return playbackControllerFactory.create(playbackService, playbackUi);
@@ -292,6 +291,7 @@ public class UiControllerMain implements ServiceConnection {
         INIT_STATE {
             @Override
             State create(@NonNull UiControllerMain mainController, @NonNull State previousState) {
+                // We'll leave here as soon as the book list is initialized
                 return new InitState();
             }
         },
@@ -410,9 +410,12 @@ public class UiControllerMain implements ServiceConnection {
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             UiUtil.SnoozeDisplay.resume();
             prevState = previousState;
-            bookListController = mainController.showBookList(!(previousState instanceof InitState));
-            //noinspection RedundantCast
+            bookListController = mainController.showBookList(
+                    !(previousState instanceof InitState) && !(previousState instanceof BookListState));
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
+
+            // We get a free onPause during this transition
+            justPaused = true;
         }
 
         @Override
@@ -453,16 +456,18 @@ public class UiControllerMain implements ServiceConnection {
         PlaybackState(@NonNull UiControllerMain mc, @NonNull State previousState) {
             UiUtil.SnoozeDisplay.resume();
             mainController = mc;
-            if (!(previousState instanceof InitState) && !(previousState instanceof PausedState))
+            if (!(previousState instanceof PausedState))
             {
-                // Equivalently, we're coming from BOOK_LIST
-                playbackController = mainController.showPlayback(true);
+                // If was paused, this is all already set up
+                // ...previousState could be playback when awakening from stop
+                playbackController = mainController.showPlayback(
+                        !(previousState instanceof PlaybackState));
+                Preconditions.checkNotNull(playbackController);
                 playingAudioBook = mainController.currentAudioBook();
                 playbackController.startPlayback(playingAudioBook);
             }
             Preconditions.checkNotNull(playbackController);
             Preconditions.checkNotNull(playingAudioBook);
-            //noinspection RedundantCast
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
             motionDetector.enable();
         }
@@ -475,6 +480,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onLeaveState() {
+            justPaused = true;
             motionDetector.disable();
             Preconditions.checkNotNull(playbackController);
             playbackController.shutdown();
@@ -540,7 +546,7 @@ public class UiControllerMain implements ServiceConnection {
         PausedState(@NonNull UiControllerMain mainController, @SuppressWarnings("unused") @NonNull State previousState) {
             UiUtil.SnoozeDisplay.resume();
             this.mainController = mainController;
-            playbackController = this.mainController.showPlayback(false);
+            // We're using the FSM global playbackController
 
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
             motionDetector.enable();

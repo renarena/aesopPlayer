@@ -43,7 +43,8 @@ public class PlaybackService
     public enum State {
         IDLE,
         PREPARATION,
-        PLAYBACK
+        PLAYBACK,
+        PAUSED
     }
 
     private static final long FADE_OUT_DURATION_MS = TimeUnit.SECONDS.toMillis(10);
@@ -62,6 +63,7 @@ public class PlaybackService
     private DurationQuery durationQueryInProgress;
     private AudioBookPlayback playbackInProgress;
     private Handler handler;
+    private boolean userPaused;
     private final SleepFadeOut sleepFadeOut = new SleepFadeOut();
     private final Vector<DurationQuery> queries = new Vector<>();
 
@@ -86,44 +88,49 @@ public class PlaybackService
     }
 
     public void startPlayback(AudioBook book) {
-        Preconditions.checkState(playbackInProgress == null);
         Preconditions.checkState(durationQueryInProgress == null);
-        Preconditions.checkState(player == null);
 
-        requestAudioFocus();
-        player = HomerPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
-        player.setPlaybackSpeed(globalSettings.getPlaybackSpeed());
+        if (playbackInProgress != null) {
+            Preconditions.checkState(player != null);
+            // Just believe whatever's already there
+        }
+        else {
+            Preconditions.checkState(player == null);
+            requestAudioFocus();
+            player = HomerPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
+            player.setPlaybackSpeed(globalSettings.getPlaybackSpeed());
 
-        // Needed to notify the user of the service that's handling the Audio and to keep
-        // (Oreo or greater) from shutting it down after a while.
-        Notification notification = NotificationUtil.createForegroundServiceNotification(
-                getApplicationContext(),
-                R.string.playback_service_notification,
-                android.R.drawable.ic_media_play);
-        ContextCompat.startForegroundService(
-                this, new Intent(this, PlaybackService.class));
-        startForeground(NOTIFICATION_ID, notification);
+            // Needed to notify the user of the service that's handling the Audio and to keep
+            // (Oreo or greater) from shutting it down after a while.
+            Notification notification = NotificationUtil.createForegroundServiceNotification(
+                    getApplicationContext(),
+                    R.string.playback_service_notification,
+                    android.R.drawable.ic_media_play);
+            ContextCompat.startForegroundService(
+                    this, new Intent(this, PlaybackService.class));
+            startForeground(NOTIFICATION_ID, notification);
 
-        if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION)
-        findQuery: {
-            // There should be a query in progress.
-            // Repurpose it to start playback (almost always there's only one, but...)
-            Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create DurationQuery");
-            for (DurationQuery q : queries) {
-                if (q.audioBook == book) {
-                    q.isQueryOnly = false;
-                    durationQueryInProgress = q;
-                    queries.remove(q);
-                    break findQuery;
+            if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION)
+            findQuery: {
+                // There should be a query in progress.
+                // Repurpose it to start playback (almost always there's only one, but...)
+                Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create DurationQuery");
+                for (DurationQuery q : queries) {
+                    if (q.audioBook == book) {
+                        q.isQueryOnly = false;
+                        durationQueryInProgress = q;
+                        queries.remove(q);
+                        break findQuery;
+                    }
                 }
-            }
 
-            // Shouldn't ever happen, but just in case
-            durationQueryInProgress = new DurationQuery(player, book, false);
-        } else {
-            Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
-            playbackInProgress = new AudioBookPlayback(
-                    player, handler, book, globalSettings.getJumpBackPreferenceMs());
+                // Shouldn't ever happen, but just in case
+                durationQueryInProgress = new DurationQuery(player, book, false);
+            } else {
+                Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
+                playbackInProgress = new AudioBookPlayback(
+                        player, handler, book, globalSettings.getJumpBackPreferenceMs());
+            }
         }
     }
 
@@ -143,28 +150,35 @@ public class PlaybackService
             return State.IDLE;
         } else if (durationQueryInProgress != null) {
             return State.PREPARATION;
-        } else {
+        } else if (userPaused) {
+            return State.PAUSED;
+        }
+        else {
             Preconditions.checkNotNull(playbackInProgress);
             return State.PLAYBACK;
         }
     }
 
     public void pauseForRewind() {
+        userPaused = true;
         Preconditions.checkNotNull(playbackInProgress);
         playbackInProgress.pauseForRewind();
     }
 
     public void resumeFromRewind() {
+        userPaused = false;
         Preconditions.checkNotNull(playbackInProgress);
         playbackInProgress.resumeFromRewind();
     }
 
     public void pauseForPause() {
+        userPaused = true;
         Preconditions.checkNotNull(playbackInProgress);
         playbackInProgress.pauseForPause();
     }
 
     public void resumeFromPause() {
+        userPaused = false;
         Preconditions.checkNotNull(playbackInProgress);
         playbackInProgress.resumeFromPause();
     }
@@ -309,7 +323,7 @@ public class PlaybackService
         void resumeFromPause() {
             AudioBook.Position position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
-            controller.start(position.file, startPositionMs);
+            controller.resume(position.file, startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }

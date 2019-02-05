@@ -74,8 +74,9 @@ public class UiControllerBookList {
                 final AudioBook currentBook = audioBookManager.getCurrentBook();
                 // The onReceive call is posted from another thread and there may be no books
                 // by the time it is executed.
-                if (currentBook != null)
+                if (currentBook != null) {
                     speak(currentBook.getTitle());
+                }
             }
         };
 

@@ -1,11 +1,15 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +28,7 @@ import com.studio4plus.homerplayer.concurrency.SimpleDeferred;
 import com.studio4plus.homerplayer.ui.classic.ClassicMainUiModule;
 import com.studio4plus.homerplayer.ui.classic.DaggerClassicMainUiComponent;
 import com.studio4plus.homerplayer.concurrency.SimpleFuture;
-
-import java.util.concurrent.TimeUnit;
+import com.studio4plus.homerplayer.ui.settings.MainSettingsFragment;
 
 import javax.inject.Inject;
 
@@ -41,28 +44,79 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private MainUiComponent mainUiComponent;
 
     private BatteryStatusIndicator batteryStatusIndicator;
-    private @Nullable SimpleDeferred<Speaker> ttsDeferred;
+    private @Nullable
+    SimpleDeferred<Speaker> ttsDeferred;
     private OrientationActivityDelegate orientationDelegate;
 
     @SuppressWarnings("WeakerAccess")
-    @Inject public UiControllerMain controller;
+    @Inject
+    public UiControllerMain controller;
     @SuppressWarnings("WeakerAccess")
-    @Inject public BatteryStatusProvider batteryStatusProvider;
+    @Inject
+    public BatteryStatusProvider batteryStatusProvider;
     @SuppressWarnings("WeakerAccess")
-    @Inject public GlobalSettings globalSettings;
+    @Inject
+    public GlobalSettings globalSettings;
     @SuppressWarnings("WeakerAccess")
-    @Inject public KioskModeHandler kioskModeHandler;
+    @Inject
+    public KioskModeHandler kioskModeHandler;
     @SuppressWarnings("WeakerAccess")
-    @Inject public KioskModeSwitcher kioskModeSwitcher;
+    @Inject
+    public KioskModeSwitcher kioskModeSwitcher;
 
-    private final static long SUPPRESSED_BACK_MESSAGE_DELAY_NANO = TimeUnit.SECONDS.toNanos(2);
-    private long lastSuppressedBackTimeNano = 0;
+    private PowerManager powerManager;
+    private ActivityManager activityManager;
+
+
+    /* General comments:
+       This section contains a lot of heuristically arrived at ad-hoc code to make the
+       "simple" kiosk mode work reasonably well. Most things are easy enough, but handling of
+       the Home (a.k.a Start) key (effectively "application pause") is messy. There are a few
+       timeouts, but their values are not particularly critical to the design,
+       although they may affect apparent responsiveness.
+
+       Expected results do include strange partial animations, temporary revisions to portrait
+       mode, and black screens. I know of no way to make any of these "stick" - they'll always
+       go away after several seconds. (But I don't claim it's impossible.)
+
+       It also posts toasts telling the user that exit was blocked. They're not always accurate,
+       with both false positives and false negatives, but neither actually affects anything, and
+       are associated with fast, repeated key presses.
+
+       See restoreApp() for details on how it and cancelRestore() interact as the last line
+       of defense from excessive button pushing.
+
+       This works pretty well on 4.4.2 devices: on newer devices it's not quite as solid and more
+       prone to odd things happening. Application Pinning and or full Kiosk may be better there.
+
+       Note that Samsung has the S-Voice application that's started with a double-tap of the Home
+       key on some devices. That has to be explicitly disabled manually for this to be reliable.
+       See http://www.androidbeat.com/2014/05/disable-s-voice-galaxy-s5/ .
+     */
+
+    // The "exit blocked" toast looks much better after the resume.
+    private boolean postToastOnResume;
+
+    // If we did an onStart recently, we (probably) aren't seeing bad button pushing, don't toast.
+    private boolean recentlyDidStart;
+
+    // For pause overrides force some restarts that would otherwise hang.
+    private boolean recentPauseOverride;
+
+    // These need to be on separate handler queues so they can be cleared.
+    // (I can't make removing specific run-ables from the common queue work!)
+    private final Handler recentPauseOverrideHandler = new Handler();
+    private final Handler recentStartHandler = new Handler();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        cancelRestore();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
 
         mainUiComponent = DaggerClassicMainUiComponent.builder()
                 .applicationComponent(HomerPlayerApplication.getComponent(this))
@@ -91,6 +145,13 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onStart() {
+        cancelRestore();
+
+        // Indicate that onStart just ran ...
+        recentlyDidStart = true;
+        recentStartHandler.removeCallbacksAndMessages(null);
+        recentStartHandler.postDelayed(()-> recentlyDidStart = false , 1000); //... but only for a second
+
         super.onStart();
         // onStart must be called before the UI controller can manipulate fragments.
         controller.onActivityStart();
@@ -101,15 +162,26 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     }
 
     @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-        controller.onActivityResumeFragments();
+    protected void onResume() {
+        cancelRestore();
+        postToastOnResume &= !recentlyDidStart;
+        postToastOnResume &= !controller.justDidPauseActionAndReset();
+
+        if (postToastOnResume) {
+            // onPause decided to restart the activity; tell the user here because it
+            // looks better when it does a full redraw.
+            toastKioskActive();
+            postToastOnResume = false;
+        }
+        super.onResume();
     }
 
     @SuppressLint("MissingSuperCall")
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         // Do nothing, this activity takes state from the PlayerService and the AudioBookManager.
+        // There's no fault here, but a runtime error would point you here.
+        // See ClassicMainUi:showPage for details.
     }
 
     @Override
@@ -117,8 +189,38 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // Do nothing, this activity takes state from the PlayerService and the AudioBookManager.
     }
 
+    private boolean isInteractive() {
+        return Build.VERSION.SDK_INT >= 20
+                ? powerManager.isInteractive()
+                : powerManager.isScreenOn();
+    }
+
     @Override
     protected void onPause() {
+        // When onPause is called, it might either be a "real" pause, or a synthetic one from
+        // the system that will be immediately resumed.
+
+        if (globalSettings.isSimpleKioskModeEnabled() && isInteractive() ) {
+            // Work with onStop to ignore user presses of the home key when in kiosk mode.
+
+            // The real work of ignoring the button.
+            activityManager.moveTaskToFront(getTaskId(), 0);
+
+            // This may later be suppressed if we're doing "real" starts where we get a
+            // system-generated pause "just because".
+            postToastOnResume = !recentlyDidStart;
+
+            // Tell onStop that we were just here, making sure it clears after a moment.
+            // According to debug log, 1/2 second is enough, but let's assume
+            // slower hardware and be generous since it's a human pressing the buttons.
+            // Cancel any prior clear so a prior one doesn't clear recentPauseOverride too soon.
+            recentPauseOverride = true;
+            recentPauseOverrideHandler.removeCallbacksAndMessages(null);
+            recentPauseOverrideHandler.postDelayed(()-> recentPauseOverride = false , 2000);
+
+            restoreApp(); // In case something goes awry
+        }
+
         // Call super.onPause() first. It may, among other things, call onResumeFragments(), so
         // calling super.onPause() before controller.onActivityPause() is necessary to ensure that
         // controller.onActivityResumeFragments() is called in the right order.
@@ -128,22 +230,58 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onStop() {
+        if (globalSettings.isSimpleKioskModeEnabled()) {
+            postToastOnResume = !recentlyDidStart;
+
+            // The user pressed buttons we're trying to ignore
+            boolean kioskUndoStop = isInteractive() && hasWindowFocus();
+
+            // If home (pause) is pressed twice with an interval around 1/2 second, there
+            // is a narrow interval (1/10(?) second wide) where it will go directly to Stop state
+            // and one or the other of isInteractive and hasWindowFocus (or both) is not set and
+            // it gets into a limbo of stopped but not restarting. Thus...
+            // If home (pause) was just recently pressed (and we're in kiosk mode),
+            // undo stop forcibly.
+            kioskUndoStop |= recentPauseOverride;
+
+            // But if we're entering settings, just let it stop.
+            kioskUndoStop &= !MainSettingsFragment.getInSettings();
+
+            if (kioskUndoStop) {
+                // We have to let the stop proceed, but then force a restart
+                // This works better here (fewer chances of failing) than after all
+                // the other stop activity.
+                recentlyDidStart = false;
+                restoreApp();
+            }
+        }
+
         controller.onActivityStop();
         orientationDelegate.onStop();
         kioskModeHandler.onActivityStop();
         super.onStop();
         batteryStatusProvider.stop();
+
+    }
+
+    private Toast lastToast = null;
+    private void toastKioskActive() {
+
+        if (lastToast != null) {
+            // Cancel prior one (that may prove a no-op) so the times don't accumulate.
+            // It'll clear LENGTH_SHORT after the last toast is posted.
+            lastToast.cancel();
+            lastToast = null;
+        }
+
+        lastToast = Toast.makeText(this, R.string.back_suppressed_by_kiosk, Toast.LENGTH_SHORT);
+        lastToast.show();
     }
 
     @Override
     public void onBackPressed() {
         if (globalSettings.isAnyKioskModeEnabled()) {
-            long now = System.nanoTime();
-            if (now - lastSuppressedBackTimeNano < SUPPRESSED_BACK_MESSAGE_DELAY_NANO) {
-                Toast.makeText(this, R.string.back_suppressed_by_kiosk, Toast.LENGTH_SHORT)
-                        .show();
-            }
-            lastSuppressedBackTimeNano = now;
+            toastKioskActive();
         } else {
             super.onBackPressed();
         }
@@ -157,6 +295,11 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             batteryStatusIndicator.startAnimations();
 
             kioskModeHandler.onFocusGained();
+        }
+        else {
+            // Close every kind of system dialog
+            Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(closeDialog);
         }
     }
 
@@ -222,6 +365,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         return result;
     }
 
+    // Triggered from an external (PC) app that's not finished yet. Not reachable from
+    // within this app.
     private void handleIntent(Intent intent) {
         if (intent != null && KIOSK_MODE_ENABLE_ACTION.equals(intent.getAction())) {
             if (kioskModeSwitcher.isLockTaskPermitted()) {
@@ -245,5 +390,51 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 }
             }
         }
+    }
+
+    // The functions below serve as the last line of defense from too many button
+    // pushes. restoreApp is called whenever there's a chance that that's happened.
+    // cancelRestore is called when something "good" happens to indicate that normal
+    // processing has occurred, and this isn't needed. If the cancellation doesn't
+    // occur, a call to forcibly restore the app will occur after a delay. If a
+    // cancellation doesn't then occur, it will try one more time to force the issue
+    // after a longer delay. Note that the "counting" is done in the program state
+    // so there's no issue of local variables being reset in the process.
+
+    private static final int restoreDelay = 2000;
+    private static final Handler restoreHandler = new Handler();
+
+    // If the app hasn't started after the delay, force the issue.
+    private void restoreApp() {
+        cancelRestore(); // Only one restart should be active, so clean up.
+        restoreHandler.postDelayed(this::doRestoreApp, restoreDelay);
+    }
+
+    // All went well, cancel the forced restart
+    private void cancelRestore() {
+        restoreHandler.removeCallbacksAndMessages(null);
+    }
+
+    // Post another try at cleaning up that won't itself try again
+    // and then force the restore.
+    private void doRestoreApp() {
+        restoreHandler.postDelayed(this::restoreAppWorker, 2*restoreDelay);
+        restoreAppWorker();
+    }
+
+    // Restart this activity after stop shut it down.
+    // (After Andreas Schrade's article on Kiosks)
+    private void restoreAppWorker() {
+        if (MainSettingsFragment.getInSettings()) {
+            // A switch to settings mode looks like an unexpected pause, so
+            // don't actually do anything. (This would be very hard to get
+            // right in the main line, and is easy here.)
+            cancelRestore(); // The backup call is already posted.
+            return;
+        }
+        Context context = getApplicationContext();
+        Intent i = new Intent(context, this.getClass());
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
     }
 }

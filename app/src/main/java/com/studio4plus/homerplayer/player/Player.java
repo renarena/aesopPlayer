@@ -118,6 +118,12 @@ public class Player {
             handler.removeCallbacks(updateProgressTask);
         }
 
+        @Override
+        public void resume(File currentFile, long startPositionMs) {
+            start(currentFile, startPositionMs);
+            updateProgress();
+        }
+
         public void stop() {
             long position = exoPlayer.getCurrentPosition();
             exoPlayer.stop();

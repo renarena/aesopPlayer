@@ -40,7 +40,7 @@
     <string name="pref_kiosk_mode_screen_summary_simple">Prosty tryb kiosku włączony</string>
     <string name="pref_kiosk_mode_screen_summary_full">Pełny tryb kiosku włączony</string>
     <string name="pref_kiosk_mode_full_title">Tryb pełny - zablokuj wyjście z aplikacji (zalecane)</string>
-    <string name="pref_kiosk_mode_simple_title">Tryb prosty - ukryj przyciski nawigacji</string>
+    <string name="pref_kiosk_mode_simple_title">Tryb prosty - maksymalne wysiłki w ramach ograniczeń</string>
     <string name="pref_kiosk_mode_any_summary_off">Wyłączone</string>
     <string name="pref_kiosk_mode_any_summary_on">Włączone</string>
     <string name="pref_kiosk_mode_simple_summary_old_version">Wymagany Android 4.4 lub nowszy</string>

@@ -20,6 +20,9 @@ class Speaker implements TextToSpeech.OnInitListener {
 
     Speaker(Context context) {
         this.locale = context.getResources().getConfiguration().locale;
+        // Occasionally see complaint that the TTS below is leaked.
+        // Just after on stop, and after playback is destroyed. Not sure where
+        // playback destroy occurs. Call from 354 in MainActivity.j
         this.tts = new TextToSpeech(context, this);
         speechParams.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, TTS_VOLUME_ADJUSTMENT);
     }

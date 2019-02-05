@@ -38,6 +38,7 @@ public interface PlaybackController {
     void setObserver(Observer observer);
     void start(File file, long positionPosition);
     void pause();
+    void resume(File file, long positionPosition);
     void stop();
     void release();
     long getCurrentPosition();
