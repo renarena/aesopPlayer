@@ -145,6 +145,11 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onStart() {
+        // If app is started with a black screen (thus, from the debugger) various bad things
+        // appear to happen not under our control. At a minimum it will loop between start
+        // and stop states (with all the intermediate stuff as expected) at a fairly high
+        // rate (about 1.2 sec interval on one manchine: not even seconds). This does not
+        // occur if the screen is on.
         cancelRestore();
 
         // Indicate that onStart just ran ...

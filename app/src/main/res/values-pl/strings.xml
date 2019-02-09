@@ -72,6 +72,8 @@
     <string name="press_other_gear_prompt">Przytrzymaj tę transmisję, a następnie stuknij pozycję nowej transmisji do ustawienia</string>
     <string name="noBooksDownloadSamplesButton">Pobierz przykładowe ksiązki</string>
     <string name="noBooksOrMessage">lub</string>
+    <string name="scanning_books">Skanowanie książek</string>
+    <string name="scanning_title">Logo dla Homer Playera</string>
     <string name="playbackErrorToast">Nie można odtworzyć pliku:\n%s</string>
     <string name="samplesDownloadErrorMessage">Nie udało się pobrać i zainstalować przykładowych audiobooków.</string>
     <string name="samplesDownloadErrorTitle">Błąd</string>

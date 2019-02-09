@@ -84,6 +84,8 @@
     <string name="snooze_seconds" translatable="false">"%d"</string>
     <string name="noBooksOrMessage">or</string>
     <string name="noBooksDownloadSamplesButton">Download book samples</string>
+    <string name="scanning_books">Scanning available books</string>
+    <string name="scanning_title">Homer Player logo</string>
     <string name="playbackErrorToast">Unable to play file:\n%s</string>
     <string name="samplesDownloadErrorTitle">Error</string>
     <string name="samplesDownloadErrorMessage">Download and installation failed.</string>

@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.ui.BookListUi;
+import com.studio4plus.homerplayer.ui.InitUi;
 import com.studio4plus.homerplayer.ui.MainUi;
 import com.studio4plus.homerplayer.ui.NoBooksUi;
 
@@ -41,6 +42,13 @@ class ClassicMainUi implements MainUi {
     }
 
     @NonNull @Override
+    public InitUi switchToInit() {
+        ClassicInitUi init = new ClassicInitUi();
+        showPage(init,false);
+        return init;
+    }
+
+    @NonNull @Override
     public ClassicPlaybackUi switchToPlayback(boolean animate) {
         return new ClassicPlaybackUi(activity, this, animate);
     }
@@ -70,7 +78,7 @@ class ClassicMainUi implements MainUi {
         // possible or more common when starting with the debugger when the screen is off.
         // onSaveInstance is overridden in MainActivity as a do-nothing.
         // See TO-DO above... it might help.
-        // transaction.commitNowAllowingStateLoss();
-        transaction.commitNow();
+        transaction.commitNowAllowingStateLoss();
+        //transaction.commitNow();
     }
 }

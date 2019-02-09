@@ -17,6 +17,7 @@ import com.studio4plus.homerplayer.ui.classic.ClassicPlaybackUi;
 import com.studio4plus.homerplayer.ui.classic.FragmentBookItem;
 import com.studio4plus.homerplayer.ui.classic.ClassicBookList;
 import com.studio4plus.homerplayer.ui.classic.ClassicNoBooksUi;
+import com.studio4plus.homerplayer.ui.classic.ClassicInitUi;
 import com.studio4plus.homerplayer.ui.settings.KioskSettingsFragment;
 import com.studio4plus.homerplayer.ui.settings.MainSettingsFragment;
 import com.studio4plus.homerplayer.ui.settings.PlaybackSettingsFragment;
@@ -37,6 +38,7 @@ public interface ApplicationComponent {
     void inject(DemoSamplesInstallerService demoSamplesInstallerService);
     void inject(ClassicBookList fragment);
     void inject(ClassicNoBooksUi fragment);
+    void inject(ClassicInitUi fragment);
     void inject(ClassicPlaybackUi playbackUi);
     void inject(ConfigurationContentProvider provider);
     void inject(FragmentBookItem fragment);

@@ -13,5 +13,6 @@ public interface MainUi {
     @NonNull BookListUi switchToBookList(boolean animate);
     @NonNull NoBooksUi switchToNoBooks(boolean animate);
     @NonNull PlaybackUi switchToPlayback(boolean animate);
+    @NonNull InitUi switchToInit();
     void onPlaybackError(File path);
 }
