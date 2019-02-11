@@ -1,10 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
-
 import androidx.annotation.NonNull;
 
 import com.google.common.base.Preconditions;
@@ -42,13 +38,11 @@ public class UiControllerBookList {
         public UiControllerBookList create(
                 @NonNull UiControllerMain uiControllerMain, @NonNull BookListUi ui) {
             return new UiControllerBookList(
-                    context, audioBookManager, speakerProvider, eventBus, uiControllerMain, ui);
+                    context, audioBookManager, speakerProvider, uiControllerMain, ui);
         }
     }
 
-    //private final @NonNull Context context;
     private final @NonNull AudioBookManager audioBookManager;
-    //private final @NonNull EventBus eventBus;
     private final @NonNull UiControllerMain uiControllerMain;
     private final @NonNull BookListUi ui;
 
@@ -57,12 +51,9 @@ public class UiControllerBookList {
     private UiControllerBookList(@NonNull Context context,
                                  @NonNull AudioBookManager audioBookManager,
                                  @NonNull SpeakerProvider speakerProvider,
-                                 @SuppressWarnings("unused") @NonNull EventBus eventBus,
                                  @NonNull UiControllerMain uiControllerMain,
                                  @NonNull BookListUi ui) {
-        //this.context = context;
         this.audioBookManager = audioBookManager;
-        //this.eventBus = eventBus;
         this.uiControllerMain = uiControllerMain;
         this.ui = ui;
 
@@ -70,44 +61,10 @@ public class UiControllerBookList {
 
         ui.initWithController(this);
         updateAudioBooks();
-
-        // We don't need the below because onBookChanged is called during activity startup
-        // which occurs when screen-on happens. Left "just in case".
-        // When screen-on, announce the book title
-        //context.registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-
-        //We're not using the event bus, but we might?
-        //eventBus.register(this);
     }
-
-    // A callback for screen-on
-    private static boolean onScreenAnnounced;
-    private final @NonNull BroadcastReceiver screenOnReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (onScreenAnnounced) {
-                // The system gives us a bunch of these if we get any; we only want to announce the title once
-                return;
-            }
-            onScreenAnnounced = true;
-            final AudioBook currentBook = audioBookManager.getCurrentBook();
-            // The onReceive call is posted from another thread and there may be no books
-            // by the time it is executed.
-            if (currentBook != null) {
-                speak(currentBook.getTitle());
-            }
-            Handler handler = new Handler();
-            handler.postDelayed(()->onScreenAnnounced=false, 2000);
-        }
-    };
 
     @SuppressWarnings("EmptyMethod")
-    public void shutdown() {
-        /* ignore */
-        //eventBus.unregister(this);
-
-        //context.unregisterReceiver(screenOnReceiver);
-    }
+    public void shutdown() { }
 
     public void playCurrentAudiobook() {
         uiControllerMain.playCurrentAudiobook();
@@ -135,6 +92,7 @@ public class UiControllerBookList {
             speak(book.getTitle());
         }
         lastTitleAnnouncedAt = now;
+
         uiControllerMain.computeDuration(book);
     }
 
