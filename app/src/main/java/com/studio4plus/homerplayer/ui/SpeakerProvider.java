@@ -5,5 +5,5 @@ import androidx.annotation.NonNull;
 import com.studio4plus.homerplayer.concurrency.SimpleFuture;
 
 public interface SpeakerProvider {
-    @NonNull SimpleFuture<Speaker> obtainTts();
+    @NonNull SimpleFuture<Object> obtainTts();
 }

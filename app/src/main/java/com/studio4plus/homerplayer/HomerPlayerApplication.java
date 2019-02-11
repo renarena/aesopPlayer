@@ -12,6 +12,7 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
 import com.studio4plus.homerplayer.ui.HomeActivity;
 import com.studio4plus.homerplayer.service.NotificationUtil;
+import com.studio4plus.homerplayer.ui.Speaker;
 
 import javax.inject.Inject;
 
@@ -58,6 +59,7 @@ public class HomerPlayerApplication extends Application {
         super.onTerminate();
         getContentResolver().unregisterContentObserver(mediaStoreUpdateObserver);
         mediaStoreUpdateObserver = null;
+        Speaker.shutdown();
     }
 
     public static ApplicationComponent getComponent(Context context) {

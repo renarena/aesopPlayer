@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private MainUiComponent mainUiComponent;
 
     private BatteryStatusIndicator batteryStatusIndicator;
-    private @Nullable
-    SimpleDeferred<Speaker> ttsDeferred;
+    private static @Nullable
+    SimpleDeferred<Object> ttsDeferred;
     private OrientationActivityDelegate orientationDelegate;
 
     @SuppressWarnings("WeakerAccess")
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // If app is started with a black screen (thus, from the debugger) various bad things
         // appear to happen not under our control. At a minimum it will loop between start
         // and stop states (with all the intermediate stuff as expected) at a fairly high
-        // rate (about 1.2 sec interval on one manchine: not even seconds). This does not
+        // rate (about 1.2 sec interval on one machine: not even seconds). This does not
         // occur if the screen is on.
         cancelRestore();
 
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
                 if (ttsDeferred != null) {
-                    ttsDeferred.setResult(new Speaker(this));
+                    ttsDeferred.setResult(this); // Result value not needed, ignored.
                     ttsDeferred = null;
                 }
             } else {
@@ -352,8 +352,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     @NonNull
-    public SimpleFuture<Speaker> obtainTts() {
-        SimpleDeferred<Speaker> result = ttsDeferred;
+    public SimpleFuture<Object> obtainTts() {
+        SimpleDeferred<Object> result = ttsDeferred;
         if (ttsDeferred == null) {
             result = new SimpleDeferred<>();
             Intent checkIntent = new Intent();
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             } catch (ActivityNotFoundException e) {
                 Log.w("MainActivity", "Text-to-Speech not available");
                 result.setException(e);
-                // ttsDeferred stays unset because the result is delivered.
+                // ttsDeferred stays unset because the exception is delivered.
             }
         }
         return result;

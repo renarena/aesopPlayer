@@ -3,16 +3,17 @@ package com.studio4plus.homerplayer.ui;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.Handler;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.events.AudioBooksChangedEvent;
 import com.studio4plus.homerplayer.events.CurrentBookChangedEvent;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
-import com.studio4plus.homerplayer.concurrency.SimpleFuture;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -45,81 +46,76 @@ public class UiControllerBookList {
         }
     }
 
-    private final @NonNull Context context;
+    //private final @NonNull Context context;
     private final @NonNull AudioBookManager audioBookManager;
-    private final @NonNull EventBus eventBus;
+    //private final @NonNull EventBus eventBus;
     private final @NonNull UiControllerMain uiControllerMain;
     private final @NonNull BookListUi ui;
 
-    private final @NonNull BroadcastReceiver screenOnReceiver;
-
-    private @Nullable SimpleFuture<Speaker> speakerFuture;
-    private @Nullable SimpleFuture.Listener<Speaker> speakerListener;
-    private @Nullable Speaker speaker;
+    private final @NonNull Speaker speaker;
 
     private UiControllerBookList(@NonNull Context context,
                                  @NonNull AudioBookManager audioBookManager,
                                  @NonNull SpeakerProvider speakerProvider,
-                                 @NonNull EventBus eventBus,
+                                 @SuppressWarnings("unused") @NonNull EventBus eventBus,
                                  @NonNull UiControllerMain uiControllerMain,
                                  @NonNull BookListUi ui) {
-        this.context = context;
+        //this.context = context;
         this.audioBookManager = audioBookManager;
-        this.eventBus = eventBus;
+        //this.eventBus = eventBus;
         this.uiControllerMain = uiControllerMain;
         this.ui = ui;
-        this.screenOnReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final AudioBook currentBook = audioBookManager.getCurrentBook();
-                // The onReceive call is posted from another thread and there may be no books
-                // by the time it is executed.
-                if (currentBook != null) {
-                    speak(currentBook.getTitle());
-                }
-            }
-        };
 
-        speakerFuture = speakerProvider.obtainTts();
-        speakerListener = new SimpleFuture.Listener<Speaker>() {
-            @Override
-            public void onResult(@NonNull Speaker result) {
-                onSpeakerObtained(result);
-            }
-            @Override
-            public void onException(@NonNull Throwable t) {
-                onSpeakerObtained(null);
-            }
-        };
-        speakerFuture.addListener(speakerListener);
+        speaker = Speaker.get(context, speakerProvider);
 
         ui.initWithController(this);
-
         updateAudioBooks();
 
-        context.registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-        eventBus.register(this);
+        // We don't need the below because onBookChanged is called during activity startup
+        // which occurs when screen-on happens. Left "just in case".
+        // When screen-on, announce the book title
+        //context.registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+
+        //We're not using the event bus, but we might?
+        //eventBus.register(this);
     }
 
-    public void shutdown() {
-        stopSpeaking();
-        if (speaker != null) {
-            speaker.shutdown();
-            speaker = null;
+    // A callback for screen-on
+    private static boolean onScreenAnnounced;
+    private final @NonNull BroadcastReceiver screenOnReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (onScreenAnnounced) {
+                // The system gives us a bunch of these if we get any; we only want to announce the title once
+                return;
+            }
+            onScreenAnnounced = true;
+            final AudioBook currentBook = audioBookManager.getCurrentBook();
+            // The onReceive call is posted from another thread and there may be no books
+            // by the time it is executed.
+            if (currentBook != null) {
+                speak(currentBook.getTitle());
+            }
+            Handler handler = new Handler();
+            handler.postDelayed(()->onScreenAnnounced=false, 2000);
         }
-        if (speakerFuture != null) {
-            Preconditions.checkNotNull(speakerListener);
-            speakerFuture.removeListener(speakerListener);
-            speakerFuture = null;
-        }
+    };
 
-        eventBus.unregister(this);
-        context.unregisterReceiver(screenOnReceiver);
+    @SuppressWarnings("EmptyMethod")
+    public void shutdown() {
+        /* ignore */
+        //eventBus.unregister(this);
+
+        //context.unregisterReceiver(screenOnReceiver);
     }
 
     public void playCurrentAudiobook() {
         uiControllerMain.playCurrentAudiobook();
     }
+
+    private static long lastTitleAnnouncedAt = 0;
+    private static String previousBook = "";
+    private final static long MINIMUM_INTERVAL_BETWEEN_TITLES = TimeUnit.SECONDS.toMillis(30);
 
     public void changeBook(@NonNull String bookId) {
         audioBookManager.setCurrentBook(bookId);
@@ -127,8 +123,19 @@ public class UiControllerBookList {
         Preconditions.checkNotNull(book);
         Preconditions.checkNotNull(uiControllerMain);
 
+        long now = System.currentTimeMillis();
+
+        // If the book actually changed, always say it.
+        if (!previousBook.equals(bookId)) {
+            speak(book.getTitle());
+            previousBook = bookId;
+        }
+        // Otherwise, don't do it very often (This is policy that might change)
+        else if (now - lastTitleAnnouncedAt > MINIMUM_INTERVAL_BETWEEN_TITLES) {
+            speak(book.getTitle());
+        }
+        lastTitleAnnouncedAt = now;
         uiControllerMain.computeDuration(book);
-        speak(book.getTitle());
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -141,20 +148,8 @@ public class UiControllerBookList {
         ui.updateCurrentBook(audioBookManager.getCurrentBookIndex());
     }
 
-    private void onSpeakerObtained(@Nullable Speaker speaker) {
-        this.speaker = speaker;
-        speakerFuture = null;
-        speakerListener = null;
-    }
-
     private void speak(@NonNull String text) {
-        if (speaker != null)
-            speaker.speak(text);
-    }
-
-    private void stopSpeaking() {
-        if (speaker != null)
-            speaker.stop();
+        speaker.speak(text);
     }
 
     public void updateAudioBooks() {
