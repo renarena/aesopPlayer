@@ -1,7 +1,6 @@
 package com.studio4plus.homerplayer.ui.settings;
 
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.preference.Preference;
@@ -12,6 +11,7 @@ import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.AudioBookManager;
+import com.studio4plus.homerplayer.ui.KioskModeHandler;
 
 import java.util.Objects;
 
@@ -34,8 +34,6 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         HomerPlayerApplication.getComponent(Objects.requireNonNull(getActivity())).inject(this);
         super.onCreate(savedInstanceState);
     }
-
-    private static boolean enteringSettings;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
@@ -61,7 +59,6 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onStart() {
         super.onStart();
-        enteringSettings = true;
 
         SharedPreferences sharedPreferences = getSharedPreferences();
         updateKioskModeSummary();
@@ -69,16 +66,6 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         updateSnoozeDelaySummary(sharedPreferences);
         updateBlinkRateSummary(sharedPreferences);
         updateSettingsInterlockSummary(sharedPreferences);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        enteringSettings = false;
-    }
-
-    static public boolean getInSettings() {
-        return enteringSettings;
     }
 
     @Override
@@ -168,15 +155,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private void setupQuickExit() {
         Preference preference = findPreference(KEY_QUICK_EXIT);
         preference.setOnPreferenceClickListener( (pref) -> {
-            if (Build.VERSION.SDK_INT >= 21) {
-                // If it's already pinned, un-pin it.
-                Objects.requireNonNull(getActivity()).stopLockTask();
-            }
-            // First bring up "the usual android" screen. Then exit so we start a new process next
-            // time, rather than resuming.  (The recents window may well show the settings
-            // screen we just left, but it's just a snapshot.)
-            Objects.requireNonNull(getActivity()).moveTaskToBack(true);
-            System.exit(0);
+            KioskModeHandler.forceExit(Objects.requireNonNull(getActivity()));
             return true;
         });
     }

@@ -19,8 +19,16 @@
     <string name="permission_rationale_try_again">Try again</string>
     <string name="permission_rationale_settings">Open settings</string>
     <string name="permission_rationale_exit">Exit app</string>
+    <string name="permission_rationale_ignore">Skip (Kiosk less effective)</string>
     <string name="permission_rationale_download_samples">Storage permission is needed by Homer Player to save downloaded audiobook samples.</string>
     <string name="permission_rationale_scan_audiobooks">Storage permission is needed by Homer Player to access the audiobook files.</string>
+    <string name="permission_rationale_simple_kiosk">Simple Kiosk mode requires these permissions.</string>
+    <string name="permission_rationale_simple_kiosk_overlay">Overlay permissions avoid accidental use of the status bar.</string>
+    <string name="permission_rationale_simple_default_app">Simple Kiosk Mode Must Set the Default App.</string>
+    <string name="permission_rationale_home_screen">One-time setup for Default App.\nSelect "OK" below, then on next screen&#8230;\nSelect "Homer Player", then "Always"</string>
+    <string name="permission_rationale_home_screen_more1">&#8230;\nThen on final screen "OK".</string> <!-- 8230 is "ellipsis" "..." -->
+    <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
+    <string name="permission_rationale_home_screen_more3">\nThis will return to the Books List screen.</string>
     <string name="pref_help_faq_title">Help: Frequently Asked Questions</string>
     <string name="pref_help_faq_summary">Go to website: %s</string>
     <string name="pref_quick_exit">Exit this application now.</string>

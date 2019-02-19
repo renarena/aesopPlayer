@@ -18,7 +18,7 @@ import com.studio4plus.homerplayer.R;
 import java.util.Arrays;
 import java.util.Collection;
 
-class PermissionUtils {
+public class PermissionUtils {
 
     public static boolean checkAndRequestPermission(
             final Activity activity, String[] permissions, int requestCode) {

@@ -145,7 +145,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 onKioskModeSwitched(sharedPreferences);
                 break;
             case GlobalSettings.KEY_SIMPLE_KIOSK_MODE:
-                kioskModeSwitcher.onSimpleKioskModeEnabled(sharedPreferences.getBoolean(key, false));
+                kioskModeSwitcher.onSimpleKioskModeEnabled(sharedPreferences.getBoolean(key, false), getActivity());
                 updateKioskModeSummaries();
                 break;
         }
@@ -221,7 +221,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             return;
         }
         if (isLockedPermitted)
-            kioskModeSwitcher.onFullKioskModeEnabled(newKioskModeEnabled);
+            kioskModeSwitcher.onFullKioskModeEnabled(newKioskModeEnabled, getActivity());
         updateKioskModeSummaries();
     }
 }

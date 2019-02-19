@@ -46,11 +46,11 @@ public class UiControllerMain implements ServiceConnection {
     private final @NonNull GlobalSettings globalSettings;
 
     private static final int PERMISSION_REQUEST_FOR_BOOK_SCAN = 1;
-    public static final int PERMISSION_REQUEST_FOR_SIMPLE_KIOSK = 2;
     private static final String TAG = "UiControllerMain";
 
     private @Nullable PlaybackService playbackService;
 
+    @SuppressWarnings("NullableProblems")
     private @NonNull State currentState;
 
     @Inject
@@ -209,9 +209,6 @@ public class UiControllerMain implements ServiceConnection {
                 break;
             case UiControllerNoBooks.PERMISSION_REQUEST_DOWNLOADS:
                 currentState.onRequestPermissionResult(code, grantResults);
-                break;
-            case PERMISSION_REQUEST_FOR_SIMPLE_KIOSK:
-                // for now, nothing
                 break;
         }
     }
@@ -426,11 +423,9 @@ public class UiControllerMain implements ServiceConnection {
             implements DeviceMotionDetector.Listener {
         private @NonNull final UiControllerBookList bookListController;
         private @NonNull final DeviceMotionDetector motionDetector;
-        private @NonNull final State prevState;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
             UiUtil.SnoozeDisplay.resume();
-            prevState = previousState;
             bookListController = mainController.showBookList(
                     !(previousState instanceof InitState) && !(previousState instanceof BookListState));
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);

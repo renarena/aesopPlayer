@@ -4,19 +4,29 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import androidx.appcompat.app.AlertDialog;
 
+import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
+import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.events.KioskModeChanged;
+import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import de.greenrobot.event.EventBus;
 
 @ActivityScope
@@ -25,16 +35,24 @@ public class KioskModeHandler {
     private static final String SCREEN_LOCK_PREFS = "ScreenLocker";
     private static final String PREF_SCREEN_LOCK_ENABLED = "screen_lock_enabled";
 
-    private final Activity activity;
-    private final GlobalSettings globalSettings;
-    private final EventBus eventBus;
+    private static final int PERMISSION_REQUEST_FOR_SIMPLE_KIOSK = 2;
+    private static final int PERMISSION_REQUEST_FOR_MANAGE_OVERLAYS = 3;
+
+    private final @NonNull Activity activity;
+    private final @NonNull GlobalSettings globalSettings;
+    private final @NonNull EventBus eventBus;
+    private final @NonNull AnalyticsTracker analyticsTracker;
     private boolean keepNavigation = false;
 
     @Inject
-    KioskModeHandler(Activity activity, GlobalSettings settings, EventBus eventBus) {
+    KioskModeHandler(@NonNull Activity activity,
+                     @NonNull GlobalSettings settings,
+                     @NonNull AnalyticsTracker analyticsTracker,
+                     @NonNull EventBus eventBus) {
         this.activity = activity;
         this.globalSettings = settings;
         this.eventBus = eventBus;
+        this.analyticsTracker = analyticsTracker;
     }
 
     public void setKeepNavigation(Boolean keepNavigation) {
@@ -45,14 +63,10 @@ public class KioskModeHandler {
         if (!globalSettings.isFullKioskModeEnabled() && isLockTaskEnabled())
             lockTask(false);
         setUiFlagsAndLockTask();
-        controlStatusBarExpansion(activity.getApplicationContext(),
-                globalSettings.isSimpleKioskModeEnabled());
         eventBus.register(this);
     }
 
     public void onActivityStop() {
-        controlStatusBarExpansion(activity.getApplicationContext(),
-                globalSettings.isSimpleKioskModeEnabled());
         eventBus.unregister(this);
     }
 
@@ -60,31 +74,124 @@ public class KioskModeHandler {
         setUiFlagsAndLockTask();
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Used on EventBus
     public void onEvent(KioskModeChanged event) {
         if (event.type == KioskModeChanged.Type.FULL) {
             lockTask(event.isEnabled);
         }
-        else {
-            getSimpleKioskPermissionsAsNeeded();
-            controlStatusBarExpansion(activity.getApplicationContext(), event.isEnabled);
-        }
         setNavigationVisibility(!event.isEnabled);
     }
 
-    private void getSimpleKioskPermissionsAsNeeded() {
+    public static void triggerSimpleKioskPermissionsIfNecessary(Activity activity) {
         PermissionUtils.checkAndRequestPermission(
                 activity,
                 new String[]{Manifest.permission.REORDER_TASKS,
-                             Manifest.permission.SYSTEM_ALERT_WINDOW},
-                UiControllerMain.PERMISSION_REQUEST_FOR_SIMPLE_KIOSK);
+                        Manifest.permission.SYSTEM_ALERT_WINDOW},
+                PERMISSION_REQUEST_FOR_SIMPLE_KIOSK);
     }
+
+    // This callback comes via Settings Activity
+    public void onRequestPermissionResult(
+            int code, final @NonNull String[] permissions, final @NonNull int[] grantResults) {
+        switch (code) {
+        case PERMISSION_REQUEST_FOR_SIMPLE_KIOSK:
+            //noinspection StatementWithEmptyBody
+            if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                // Have them now, will need them later but not right now.
+            } else {
+                boolean canRetry =
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                                activity, Manifest.permission.REORDER_TASKS) ||
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                                activity, Manifest.permission.SYSTEM_ALERT_WINDOW);
+                AlertDialog.Builder dialogBuilder = PermissionUtils.permissionRationaleDialogBuilder(
+                        activity, R.string.permission_rationale_simple_kiosk);
+                // The only live scenarios appear to be <=22, when the permissions are just
+                // granted, or >=23, where SYSTEM_ALERT_WINDOW is never granted (no chance of
+                // retry), thus this is never called. But this can't hurt if there's some middle.
+                if (canRetry) {
+                    dialogBuilder.setPositiveButton(
+                            R.string.permission_rationale_try_again,
+                            (dI, i) -> PermissionUtils.checkAndRequestPermission(
+                                    activity, permissions, PERMISSION_REQUEST_FOR_SIMPLE_KIOSK));
+                } else {
+                    analyticsTracker.onPermissionRationaleShown("simpleKioskEnable");
+                    dialogBuilder.setPositiveButton(
+                            R.string.permission_rationale_settings,
+                            (dI, i) -> PermissionUtils.openAppSettings(activity));
+                }
+                dialogBuilder.setNegativeButton(
+                        R.string.permission_rationale_exit,
+                        (dI, i) -> forceExit(activity));
+                dialogBuilder.create().show();
+            }
+            break;
+        }
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean canDrawOverlays(Context context)
+    {
+        if (android.os.Build.VERSION.SDK_INT <= 22) { // Lollipop
+            // Before API 23, there was no permission required (or even available)
+            return true;
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 26) { // Oreo
+            // Permission to paint over status bar never granted to ordinary processes
+            return false;
+        }
+        // Makes sense for only M and N
+        return Settings.canDrawOverlays(context);
+    }
+
+    @TargetApi(23)
+    static public void triggerOverlayPermissionsIfNecessary(Activity activity)
+    {
+        if (!canDrawOverlays(activity.getApplicationContext())) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + activity.getPackageName()));
+            activity.startActivityForResult(intent, PERMISSION_REQUEST_FOR_MANAGE_OVERLAYS);
+        }
+    }
+
+    // This callback chains from Settings Activity
+    @SuppressWarnings("unused")
+    public void onActivityResult(
+            int code, int resultCode, Intent data) {
+        switch (code) {
+        case PERMISSION_REQUEST_FOR_MANAGE_OVERLAYS:
+            Preconditions.checkState(android.os.Build.VERSION.SDK_INT >= 23); // Marshmallow
+
+            if (!canDrawOverlays(activity.getApplicationContext())) {
+                analyticsTracker.onPermissionRationaleShown("manageOverlays");
+                AlertDialog.Builder dialogBuilder = PermissionUtils.permissionRationaleDialogBuilder(
+                        activity, R.string.permission_rationale_simple_kiosk_overlay);
+                dialogBuilder.setPositiveButton(
+                        R.string.permission_rationale_try_again,
+                        (dI, i) -> triggerOverlayPermissionsIfNecessary(activity));
+                dialogBuilder.setNeutralButton(
+                        R.string.permission_rationale_ignore,
+                        (dI, i) -> {
+                            // Do nothing, the StatusBarCollapser in MainActivity will take over
+                        });
+                /*
+                dialogBuilder.setNegativeButton(
+                        R.string.permission_rationale_exit,
+                        (dI, i) -> forceExit(activity));
+                */
+                dialogBuilder.create().show();
+            }
+            break;
+        }
+    }
+
 
     private void setUiFlagsAndLockTask() {
         int visibilitySetting = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
         if (!keepNavigation) {
             visibilitySetting |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+                              |  View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
         }
 
         activity.getWindow().getDecorView().setSystemUiVisibility(visibilitySetting);
@@ -100,8 +207,8 @@ public class KioskModeHandler {
             return;
 
         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_FULLSCREEN |
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                    View.SYSTEM_UI_FLAG_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
         View decorView = activity.getWindow().getDecorView();
         int visibilitySetting = decorView.getSystemUiVisibility();
@@ -141,10 +248,12 @@ public class KioskModeHandler {
     // (After Andreas Schrade's article on Kiosks)
     private static CustomViewGroup suppressStatusView;
 
-    static private void controlStatusBarExpansion(Context context, boolean enable) {
-        if (Build.VERSION.SDK_INT > 23) {
-            // This requires a permission on Marshmallow and up. A different project but
-            // leave as is for older devices (that don't have Pinning/Kiosk.)
+    public void controlStatusBarExpansion(Context context, boolean enable) {
+
+        if (!canDrawOverlays(context)) {
+            // We don't have permission (see the function above for the rules)
+            // For API levels at or above 26 (Oreo) there's code in MainActivity that
+            // does the best it can do achieve the same goal.
             return;
         }
 
@@ -154,10 +263,6 @@ public class KioskModeHandler {
                 return;
             }
 
-            // TYPE_SYSTEM_ERROR below does what we need, but is deprecated. The suggested
-            // TYPE_APPLICATION_OVERLAY needs some sort of permissions setup, and may not
-            // work anyway (according to the docs). So for now we'll live with the warning.
-            // (Our target being older machines, that's not an issue as much.)
             WindowManager manager = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
             WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();
             //noinspection deprecation
@@ -180,7 +285,13 @@ public class KioskModeHandler {
                                                                    // the bar area is just black.
 
             suppressStatusView = new CustomViewGroup(context);
-            manager.addView(suppressStatusView, localLayoutParams);
+            try {
+                manager.addView(suppressStatusView, localLayoutParams);
+            }
+            catch (Exception e) {
+                // if for some reason we lose the permission to do this, just go on.
+                suppressStatusView = null;
+            }
         }
         else {
             if (suppressStatusView != null) {
@@ -206,5 +317,18 @@ public class KioskModeHandler {
             // Intercepted touch!
             return true;
         }
+    }
+
+    static public void forceExit(@NonNull Activity activity)
+    {
+        if (Build.VERSION.SDK_INT >= 21) { // Lollipop
+            // If it's already pinned, un-pin it.
+            activity.stopLockTask();
+        }
+        // First bring up "the usual android" screen. Then exit so we start a new process next
+        // time, rather than resuming.  (The recents window may well show the settings
+        // screen we just left, but it's just a snapshot.)
+        activity.moveTaskToBack(true);
+        System.exit(0);
     }
 }

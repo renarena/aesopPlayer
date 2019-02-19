@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.studio4plus.homerplayer.GlobalSettings;
+import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
 
 import dagger.Module;
 import dagger.Provides;
@@ -24,7 +25,7 @@ public class ActivityModule {
 
     @Provides @ActivityScope
     KioskModeHandler provideKioskModeHandler(
-            AppCompatActivity activity, GlobalSettings settings, EventBus eventBus) {
-        return new KioskModeHandler(activity, settings, eventBus);
+            AppCompatActivity activity, GlobalSettings settings, AnalyticsTracker analyticsTracker, EventBus eventBus) {
+        return new KioskModeHandler(activity, settings, analyticsTracker, eventBus);
     }
 }

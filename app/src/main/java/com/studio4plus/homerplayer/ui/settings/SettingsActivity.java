@@ -1,5 +1,6 @@
 package com.studio4plus.homerplayer.ui.settings;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
@@ -43,6 +44,7 @@ public class SettingsActivity
     @Inject public EventBus eventBus;
     @Inject public GlobalSettings globalSettings;
     @Inject public KioskModeHandler kioskModeHandler;
+    private static boolean enteringSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,7 @@ public class SettingsActivity
         blockEventsOnStart();
         eventBus.post(new SettingsEnteredEvent());
         kioskModeHandler.onActivityStart();
+        enteringSettings = true;
     }
 
     @Override
@@ -86,8 +89,14 @@ public class SettingsActivity
         DeviceMotionDetector.suspend();
     }
 
+    static public boolean getInSettings() {
+        return enteringSettings;
+    }
+
+
     @Override
     protected void onStop() {
+        enteringSettings = false;
         super.onStop();
         orientationDelegate.onStop();
         cancelBlockEventOnStart();
@@ -157,5 +166,15 @@ public class SettingsActivity
     private void cancelBlockEventOnStart() {
         if (unblockEventsTask != null)
             mainThreadHandler.removeCallbacks(unblockEventsTask);
+    }
+
+    @Override
+    protected void onActivityResult( int requestCode, int resultCode, Intent data) {
+        kioskModeHandler.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        kioskModeHandler.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 }

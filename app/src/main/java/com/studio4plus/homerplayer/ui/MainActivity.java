@@ -28,7 +28,9 @@ import com.studio4plus.homerplayer.concurrency.SimpleDeferred;
 import com.studio4plus.homerplayer.ui.classic.ClassicMainUiModule;
 import com.studio4plus.homerplayer.ui.classic.DaggerClassicMainUiComponent;
 import com.studio4plus.homerplayer.concurrency.SimpleFuture;
-import com.studio4plus.homerplayer.ui.settings.MainSettingsFragment;
+import com.studio4plus.homerplayer.ui.settings.SettingsActivity;
+
+import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 
@@ -66,7 +68,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     private PowerManager powerManager;
     private ActivityManager activityManager;
+    private StatusBarCollapser statusBarCollapser;
 
+    // Used for Oreo and up suppression of status bar.
+    private boolean isPaused = false;
 
     /* General comments:
        This section contains a lot of heuristically arrived at ad-hoc code to make the
@@ -132,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
+        statusBarCollapser = new StatusBarCollapser();
+
         View touchEventEater = findViewById(R.id.touchEventEater);
         touchEventEater.setOnTouchListener(new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
@@ -145,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onStart() {
+        isPaused = false;
         // If app is started with a black screen (thus, from the debugger) various bad things
         // appear to happen not under our control. At a minimum it will loop between start
         // and stop states (with all the intermediate stuff as expected) at a fairly high
@@ -163,11 +171,14 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         orientationDelegate.onStart();
         batteryStatusProvider.start();
         kioskModeHandler.onActivityStart();
+        kioskModeHandler.controlStatusBarExpansion(getApplicationContext(),
+                globalSettings.isSimpleKioskModeEnabled());
         handleIntent(getIntent());
     }
 
     @Override
     protected void onResume() {
+        isPaused = false;
         cancelRestore();
         postToastOnResume &= !recentlyDidStart;
         postToastOnResume &= !controller.justDidPauseActionAndReset();
@@ -178,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             toastKioskActive();
             postToastOnResume = false;
         }
+        kioskModeHandler.controlStatusBarExpansion(getApplicationContext(),
+                globalSettings.isSimpleKioskModeEnabled());
         super.onResume();
     }
 
@@ -205,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // When onPause is called, it might either be a "real" pause, or a synthetic one from
         // the system that will be immediately resumed.
 
-        if (globalSettings.isSimpleKioskModeEnabled() && isInteractive() ) {
+        if (globalSettings.isSimpleKioskModeEnabled() && isInteractive() && !SettingsActivity.getInSettings()  ) {
             // Work with onStop to ignore user presses of the home key when in kiosk mode.
 
             // The real work of ignoring the button.
@@ -229,8 +242,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // Call super.onPause() first. It may, among other things, call onResumeFragments(), so
         // calling super.onPause() before controller.onActivityPause() is necessary to ensure that
         // controller.onActivityResumeFragments() is called in the right order.
+        isPaused = true;
         super.onPause();
         controller.onActivityPause();
+        kioskModeHandler.controlStatusBarExpansion(getApplicationContext(), false);
     }
 
     @Override
@@ -250,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             kioskUndoStop |= recentPauseOverride;
 
             // But if we're entering settings, just let it stop.
-            kioskUndoStop &= !MainSettingsFragment.getInSettings();
+            kioskUndoStop &= !SettingsActivity.getInSettings();
 
             if (kioskUndoStop) {
                 // We have to let the stop proceed, but then force a restart
@@ -306,6 +321,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
             sendBroadcast(closeDialog);
         }
+
+        if (globalSettings.isSimpleKioskModeEnabled()) {
+            statusBarCollapser.closeStatusBar();
+        }
     }
 
     @Override
@@ -318,8 +337,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         // A call with no grantResults means the dialog has been closed without any user decision.
-        if (grantResults.length > 0)
+        if (grantResults.length > 0) {
+            // Book scan results:
             controller.onRequestPermissionResult(requestCode, permissions, grantResults);
+        }
     }
 
     protected void onActivityResult(
@@ -378,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 boolean enable = intent.getBooleanExtra(ENABLE_EXTRA, false);
                 if (globalSettings.isFullKioskModeEnabled() != enable) {
                     globalSettings.setFullKioskModeEnabledNow(enable);
-                    kioskModeSwitcher.onFullKioskModeEnabled(enable);
+                    kioskModeSwitcher.onFullKioskModeEnabled(enable, this);
 
                     // For some reason clearing the preferred Home activity only takes effect if the
                     // application exits (finishing the activity doesn't help).
@@ -430,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     // Restart this activity after stop shut it down.
     // (After Andreas Schrade's article on Kiosks)
     private void restoreAppWorker() {
-        if (MainSettingsFragment.getInSettings()) {
+        if (SettingsActivity.getInSettings()) {
             // A switch to settings mode looks like an unexpected pause, so
             // don't actually do anything. (This would be very hard to get
             // right in the main line, and is easy here.)
@@ -441,5 +462,92 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         Intent i = new Intent(context, this.getClass());
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
+    }
+
+    class StatusBarCollapser {
+        // On Oreo and above, it's not possible to disable the status bar in the ways that
+        // work on earlier releases. There's an arms-race between folks who want a solid
+        // Kiosk mode and the Android team's concerns about security. This is as good as
+        // can be done on Oreo. This might not always work.
+        // We'll just ignore any failure, and if the user doesn't like it, there are other
+        // Kiosk modes available.
+        StatusBarCollapser() {
+            getStatusBarCollapser();
+        }
+
+        private Object statusBarService;
+        private Method collapseStatusBar = null;
+
+        @SuppressLint({"WrongConstant", "PrivateApi"})
+        private void getStatusBarCollapser() {
+            // This bit of code is accessing a function not in the SDK, and thus isn't guaranteed
+            // to be supported forever.  However it's been this way since Lollipop.
+            //
+            // If collapseStatusBar doesn't get set, then we can't suppress the status bar this way,
+            // and we'll just ignore it.
+            //
+            // This requires EXPAND_STATUS_BAR permissions, which is granted from the manifest.
+
+            if (KioskModeHandler.canDrawOverlays(getApplicationContext())) {
+                // Don't bother - something else better is doing the job (if the user wants).
+                return;
+            }
+
+            // The string "statusbar" below is reporting an severe warning (but not an error); we
+            // will just ignore that.
+            statusBarService = getSystemService("statusbar"); // wrong constant warning
+            Class<?> statusBarManager;
+
+            try {
+                statusBarManager = Class.forName("android.app.StatusBarManager");
+                // Prior to API 17, the method to call is 'collapse()'
+                // API 17 onwards, the method to call is `collapsePanels()`
+                collapseStatusBar = statusBarManager.getMethod("collapsePanels"); // private api
+            }
+            catch (Exception e) { // possible ClassNotFound
+                // collapseStatusBar remains null
+                return;
+            }
+
+            collapseStatusBar.setAccessible(true);
+        }
+
+        private final Handler collapseNotificationHandler = new Handler();
+
+        private void forceCollapse() {
+            // Do the real work.
+            try {
+                collapseStatusBar.invoke(statusBarService);
+            }
+            catch (Exception e) {
+                collapseStatusBar = null;
+            }
+        }
+        private void redoCollapse() {
+            forceCollapse();
+            if (hasWindowFocus() || isPaused) return;
+            collapseNotificationHandler.postDelayed(this::redoCollapse, 1000);
+        }
+
+        private void closeStatusBar() {
+            if (collapseStatusBar == null) {
+                // Just ignore the situation
+                return;
+            }
+
+            // Not focused, but not Paused == status bar is active
+            if (!hasWindowFocus() && !isPaused) {
+                // Get it closed as quickly as possible, but on some releases (seen on API25)
+                // the sweet spot is out one second or so, but by that time the focus and paused
+                // test claims it's gone, and it really isn't. Yes, ugly. (On later releases
+                // it does work to keep checking focus and paused until that's done.)
+                // (It appears that focus is changed when the bar is only half removed, and
+                // it takes a second try to finish the job.)
+                collapseNotificationHandler.postDelayed(this::forceCollapse,  250);
+                collapseNotificationHandler.postDelayed(this::forceCollapse,  500);
+
+                collapseNotificationHandler.postDelayed(this::redoCollapse, 1000);
+            }
+        }
     }
 }
