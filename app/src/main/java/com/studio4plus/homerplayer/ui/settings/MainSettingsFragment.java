@@ -1,6 +1,9 @@
 package com.studio4plus.homerplayer.ui.settings;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.preference.Preference;
@@ -16,6 +19,8 @@ import com.studio4plus.homerplayer.ui.KioskModeHandler;
 import java.util.Objects;
 
 import javax.inject.Inject;
+
+import static android.app.ActivityManager.LOCK_TASK_MODE_PINNED;
 
 public class MainSettingsFragment extends BaseSettingsFragment {
 
@@ -137,6 +142,14 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             summaryStringId = R.string.pref_kiosk_mode_screen_summary_full;
         else if (globalSettings.isSimpleKioskModeEnabled())
             summaryStringId = R.string.pref_kiosk_mode_screen_summary_simple;
+        else if (Build.VERSION.SDK_INT >= 23) {
+            ActivityManager activityManager =
+                (ActivityManager) Objects.requireNonNull(getContext())
+                        .getSystemService(Context.ACTIVITY_SERVICE);
+            if (activityManager.getLockTaskModeState() == LOCK_TASK_MODE_PINNED) {
+                summaryStringId = R.string.pref_kiosk_mode_screen_summary_pinned;
+            }
+        }
         kioskModeScreen.setSummary(summaryStringId);
     }
 

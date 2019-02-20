@@ -322,7 +322,7 @@ public class KioskModeHandler {
     static public void forceExit(@NonNull Activity activity)
     {
         if (Build.VERSION.SDK_INT >= 21) { // Lollipop
-            // If it's already pinned, un-pin it.
+            // If it's already pinned, un-pin it. (Not strictly necessary)
             activity.stopLockTask();
         }
         // First bring up "the usual android" screen. Then exit so we start a new process next

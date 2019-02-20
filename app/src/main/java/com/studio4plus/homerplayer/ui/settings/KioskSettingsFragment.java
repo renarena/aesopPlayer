@@ -156,8 +156,11 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 (SwitchPreference) findPreference(GlobalSettings.KEY_KIOSK_MODE);
         {
             int summaryStringId;
+            boolean isLockedPermitted = kioskModeSwitcher.isLockTaskPermitted();
             if (Build.VERSION.SDK_INT < 21) {
                 summaryStringId = R.string.pref_kiosk_mode_full_summary_old_version;
+            } else if (!isLockedPermitted) {
+                summaryStringId = R.string.settings_device_owner_required_alert;
             } else {
                 summaryStringId = fullModePreference.isChecked()
                         ? R.string.pref_kiosk_mode_any_summary_on

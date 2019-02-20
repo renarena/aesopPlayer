@@ -46,6 +46,7 @@
     <string name="pref_kiosk_mode_screen_title">Zablokuj wyjście z aplikacji (tryb kiosku)…</string>
     <string name="pref_kiosk_mode_screen_summary_disabled">Wyłączone</string>
     <string name="pref_kiosk_mode_screen_summary_simple">Prosty tryb kiosku włączony</string>
+    <string name="pref_kiosk_mode_screen_summary_pinned">Przypinanie aplikacji jest włączone</string>
     <string name="pref_kiosk_mode_screen_summary_full">Pełny tryb kiosku włączony</string>
     <string name="pref_kiosk_mode_full_title">Tryb pełny - zablokuj wyjście z aplikacji (zalecane)</string>
     <string name="pref_kiosk_mode_simple_title">Tryb prosty - maksymalne wysiłki w ramach ograniczeń</string>
