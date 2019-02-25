@@ -229,4 +229,12 @@ public class UiUtil {
 
         return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
+
+    @SuppressLint("DefaultLocale")
+    static public String formatDurationShort(long currentMs) {
+        long hours = TimeUnit.MILLISECONDS.toHours(currentMs);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMs) % 60;
+
+        return String.format("%d:%02d", hours, minutes);
+    }
 }

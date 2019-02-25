@@ -53,11 +53,12 @@ public class GlobalSettings {
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
     public static final String KEY_STOP_ON_FACE_DOWN = "stop_on_face_down_preference";
+    public static final String KEY_SET_PROGRESS = "set_progress_preference";
     private static final String KEY_PROXIMITY_AWAKEN = "awaken_on_proximity_preference";
     public static final String KEY_SETTINGS_INTERLOCK = "settings_interlock_preference";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
-    private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
+    // --Commented out by Inspection (2/25/2019 2:47 PM):private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
     private static final String KEY_FLIPTOSTOP_HINT_SHOWN = "hints.fliptostop.hint_shown";
 
     private static final String KEY_BOOKS_EVER_INSTALLED = "action_history.books_ever_installed";
@@ -171,13 +172,17 @@ public class GlobalSettings {
         sharedPreferences.edit().putBoolean(KEY_BROWSING_HINT_SHOWN, true).apply();
     }
 
-    public boolean settingsHintShown() {
-        return sharedPreferences.getBoolean(KEY_SETTINGS_HINT_SHOWN, false);
-    }
+// --Commented out by Inspection START (2/25/2019 12:08 PM):
+//    public boolean settingsHintShown() {
+//        return sharedPreferences.getBoolean(KEY_SETTINGS_HINT_SHOWN, false);
+//    }
+// --Commented out by Inspection STOP (2/25/2019 12:08 PM)
 
-    public void setSettingsHintShown() {
-        sharedPreferences.edit().putBoolean(KEY_SETTINGS_HINT_SHOWN, true).apply();
-    }
+// --Commented out by Inspection START (2/25/2019 12:08 PM):
+//    public void setSettingsHintShown() {
+//        sharedPreferences.edit().putBoolean(KEY_SETTINGS_HINT_SHOWN, true).apply();
+//    }
+// --Commented out by Inspection STOP (2/25/2019 12:08 PM)
 
     public boolean flipToStopHintShown() {
         return sharedPreferences.getBoolean(KEY_FLIPTOSTOP_HINT_SHOWN, false);
