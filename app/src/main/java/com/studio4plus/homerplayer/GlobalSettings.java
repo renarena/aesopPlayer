@@ -212,4 +212,8 @@ public class GlobalSettings {
     public boolean isFFRewindSoundEnabled() {
         return sharedPreferences.getBoolean(KEY_FF_REWIND_SOUND, true);
     }
+
+    public SharedPreferences appSharedPreferences() {
+        return sharedPreferences;
+    }
 }

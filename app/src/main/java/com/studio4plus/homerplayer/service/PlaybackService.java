@@ -2,7 +2,9 @@ package com.studio4plus.homerplayer.service;
 
 import android.app.Notification;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.MediaRouter;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import android.app.Service;
@@ -99,6 +101,7 @@ public class PlaybackService
             requestAudioFocus();
             player = HomerPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
             player.setPlaybackSpeed(globalSettings.getPlaybackSpeed());
+            restoreSoundInfo();
 
             // Needed to notify the user of the service that's handling the Audio and to keep
             // (Oreo or greater) from shutting it down after a while.
@@ -113,7 +116,7 @@ public class PlaybackService
             if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION)
             findQuery: {
                 // There should be a query in progress.
-                // Repurpose it to start playback (almost always there's only one, but...)
+                // Re-purpose it to start playback (almost always there's only one, but...)
                 Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create DurationQuery");
                 for (DurationQuery q : queries) {
                     if (q.audioBook == book) {
@@ -196,8 +199,10 @@ public class PlaybackService
     public void stopPlayback() {
         if (durationQueryInProgress != null)
             durationQueryInProgress.stop();
-        else if (playbackInProgress != null)
+        else if (playbackInProgress != null) {
+            captureSoundInfo();
             playbackInProgress.stop();
+        }
 
         Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.stopPlayback");
         onPlaybackEnded();
@@ -465,5 +470,44 @@ public class PlaybackService
                 handler.postDelayed(this, STEP_INTERVAL_MS);
             }
         }
+    }
+
+    private void captureSoundInfo() {
+        // Since changing the sound level may be an issue for many users, and because it
+        // gets changed incidentally to other use of the device, let's save/restore the most
+        // recent value we were actually using.
+        // The key is derived from the MediaRouter's name for the current playback device,
+        // thus we collect (or update) a value for each device when it stops.
+        // (These are specific to the current device being used!)
+
+        // We'll not try to deal with changing audio devices while playing
+        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        MediaRouter mediaRouter = (MediaRouter)getApplicationContext().getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        SharedPreferences preferences = globalSettings.appSharedPreferences();
+
+        MediaRouter.RouteInfo routeInfo = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);
+        String levelKey = "Level:" + routeInfo.getName();
+        int levelValue = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        // No fixed keys... we'll deal with preferences directly
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(levelKey, levelValue);
+        editor.apply();
+    }
+
+    private void restoreSoundInfo() {
+        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        MediaRouter mediaRouter = (MediaRouter)getApplicationContext().getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        SharedPreferences preferences = globalSettings.appSharedPreferences();
+
+        MediaRouter.RouteInfo routeInfo = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);
+        String levelKey = "Level:" + routeInfo.getName();
+
+        int levelValue = preferences.getInt(levelKey, -1);
+        if (levelValue < 0) {
+            // Default value, do nothing
+            return;
+        }
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, levelValue, 0);
     }
 }
