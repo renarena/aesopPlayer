@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
        timeouts, but their values are not particularly critical to the design,
        although they may affect apparent responsiveness.
 
-       Expected results do include strange partial animations, temporary revisions to portrait
+       Expected results do include strange partial animations, temporary reversions to portrait
        mode, and black screens. I know of no way to make any of these "stick" - they'll always
        go away after several seconds. (But I don't claim it's impossible.)
 
@@ -99,24 +99,23 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
        See http://www.androidbeat.com/2014/05/disable-s-voice-galaxy-s5/ .
      */
 
+    // The decision on when to toast about exit being blocked can be tricky:
     // The "exit blocked" toast looks much better after the resume.
-    private boolean postToastOnResume;
+    private final Toaster toaster = new Toaster();
 
-    // If we did an onStart recently, we (probably) aren't seeing bad button pushing, don't toast.
-    private boolean recentlyDidStart;
+    private final Restorer restorer = new Restorer();
 
     // For pause overrides force some restarts that would otherwise hang.
-    private boolean recentPauseOverride;
+    private final PulsedBoolean recentPauseOverride = new PulsedBoolean(2000);
 
-    // These need to be on separate handler queues so they can be cleared.
-    // (I can't make removing specific run-ables from the common queue work!)
-    private final Handler recentPauseOverrideHandler = new Handler();
-    private final Handler recentStartHandler = new Handler();
+    // The value here should be greater than that in restoreAppWorker to get the Toast
+    // below to show when it should.
+    private final PulsedBoolean justCreated = new PulsedBoolean(2000);
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        cancelRestore();
+        restorer.cancelRestore();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
@@ -137,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
+        // (Needs above initialization)
         statusBarCollapser = new StatusBarCollapser();
 
         View touchEventEater = findViewById(R.id.touchEventEater);
@@ -148,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 return true;
             }
         });
+
+        justCreated.start();
     }
 
     @Override
@@ -158,12 +160,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // and stop states (with all the intermediate stuff as expected) at a fairly high
         // rate (about 1.2 sec interval on one machine: not even seconds). This does not
         // occur if the screen is on.
-        cancelRestore();
-
-        // Indicate that onStart just ran ...
-        recentlyDidStart = true;
-        recentStartHandler.removeCallbacksAndMessages(null);
-        recentStartHandler.postDelayed(()-> recentlyDidStart = false , 1000); //... but only for a second
+        restorer.cancelRestore();
 
         super.onStart();
         // onStart must be called before the UI controller can manipulate fragments.
@@ -179,16 +176,13 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Override
     protected void onResume() {
         isPaused = false;
-        cancelRestore();
-        postToastOnResume &= !recentlyDidStart;
-        postToastOnResume &= !controller.justDidPauseActionAndReset();
+        restorer.cancelRestore();
 
-        if (postToastOnResume) {
-            // onPause decided to restart the activity; tell the user here because it
-            // looks better when it does a full redraw.
-            toastKioskActive();
-            postToastOnResume = false;
+        if (!justCreated.get() && !controller.justDidPauseActionAndReset()) {
+            // We toast for kiosk active here because it looks better after the screen changes stop.
+            toaster.toastKioskActive();
         }
+
         kioskModeHandler.controlStatusBarExpansion(getApplicationContext(),
                 globalSettings.isSimpleKioskModeEnabled());
         super.onResume();
@@ -226,17 +220,14 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
             // This may later be suppressed if we're doing "real" starts where we get a
             // system-generated pause "just because".
-            postToastOnResume = !recentlyDidStart;
+            toaster.requestToast();
 
             // Tell onStop that we were just here, making sure it clears after a moment.
             // According to debug log, 1/2 second is enough, but let's assume
             // slower hardware and be generous since it's a human pressing the buttons.
             // Cancel any prior clear so a prior one doesn't clear recentPauseOverride too soon.
-            recentPauseOverride = true;
-            recentPauseOverrideHandler.removeCallbacksAndMessages(null);
-            recentPauseOverrideHandler.postDelayed(()-> recentPauseOverride = false , 2000);
-
-            restoreApp(); // In case something goes awry
+            recentPauseOverride.start();
+            restorer.restoreApp(); // In case something goes awry
         }
 
         // Call super.onPause() first. It may, among other things, call onResumeFragments(), so
@@ -251,7 +242,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Override
     protected void onStop() {
         if (globalSettings.isSimpleKioskModeEnabled()) {
-            postToastOnResume = !recentlyDidStart;
 
             // The user pressed buttons we're trying to ignore
             boolean kioskUndoStop = isInteractive() && hasWindowFocus();
@@ -262,17 +252,15 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             // it gets into a limbo of stopped but not restarting. Thus...
             // If home (pause) was just recently pressed (and we're in kiosk mode),
             // undo stop forcibly.
-            kioskUndoStop |= recentPauseOverride;
+            kioskUndoStop |= recentPauseOverride.get();
 
             // But if we're entering settings, just let it stop.
             kioskUndoStop &= !SettingsActivity.getInSettings();
 
             if (kioskUndoStop) {
                 // We have to let the stop proceed, but then force a restart
-                // This works better here (fewer chances of failing) than after all
-                // the other stop activity.
-                recentlyDidStart = false;
-                restoreApp();
+                toaster.requestToast();
+                restorer.restoreApp();
             }
         }
 
@@ -284,24 +272,45 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     }
 
-    private Toast lastToast = null;
-    private void toastKioskActive() {
+    // Defer posting a toast until onResume is called, but only for a little while after
+    // the request to do so.  The toast looks better after onResume. Reduce stuttering and
+    // pile-up of toast times.
+    private class Toaster {
+        private final Handler handler = new Handler();
+        boolean toastNeeded;
+        Toast lastToast = null;
 
-        if (lastToast != null) {
-            // Cancel prior one (that may prove a no-op) so the times don't accumulate.
-            // It'll clear LENGTH_SHORT after the last toast is posted.
-            lastToast.cancel();
-            lastToast = null;
+        void requestToast() {
+            toastNeeded = true;
+            handler.removeCallbacksAndMessages(null);
+            handler.postDelayed(() -> toastNeeded = false, 2000);
         }
 
-        lastToast = Toast.makeText(this, R.string.back_suppressed_by_kiosk, Toast.LENGTH_SHORT);
-        lastToast.show();
+        void toastKioskActive() {
+            if (toastNeeded)
+            {
+                doToast();
+                toastNeeded = false;
+            }
+        }
+
+        void doToast() {
+            if (lastToast != null) {
+                // Cancel prior one (that may prove a no-op) so the times don't accumulate.
+                // It'll clear LENGTH_SHORT after the last toast is posted.
+                lastToast.cancel();
+                lastToast = null;
+            }
+
+            lastToast = Toast.makeText(MainActivity.this, R.string.back_suppressed_by_kiosk, Toast.LENGTH_SHORT);
+            lastToast.show();
+        }
     }
 
     @Override
     public void onBackPressed() {
         if (globalSettings.isAnyKioskModeEnabled()) {
-            toastKioskActive();
+            toaster.doToast();
         } else {
             super.onBackPressed();
         }
@@ -310,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        //noinspection StatementWithEmptyBody
         if (hasFocus) {
             // Start animations.
             batteryStatusIndicator.startAnimations();
@@ -317,9 +327,13 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             kioskModeHandler.onFocusGained();
         }
         else {
+            /* The below works too well, making it difficult to deal with (at least) the
+               Application pinning dialog and "volume too loud" warnings. For future
+               reference if dialogs end up confusing users.
             // Close every kind of system dialog
             Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
             sendBroadcast(closeDialog);
+            */
         }
 
         if (globalSettings.isSimpleKioskModeEnabled()) {
@@ -329,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onDestroy() {
+        restorer.cancelRestore();
         batteryStatusIndicator.shutdown();
         controller.onActivityDestroy();
         super.onDestroy();
@@ -418,50 +433,52 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         }
     }
 
-    // The functions below serve as the last line of defense from too many button
-    // pushes. restoreApp is called whenever there's a chance that that's happened.
-    // cancelRestore is called when something "good" happens to indicate that normal
-    // processing has occurred, and this isn't needed. If the cancellation doesn't
-    // occur, a call to forcibly restore the app will occur after a delay. If a
-    // cancellation doesn't then occur, it will try one more time to force the issue
-    // after a longer delay. Note that the "counting" is done in the program state
-    // so there's no issue of local variables being reset in the process.
+    private class Restorer {
+        // The functions below serve as the last line of defense from too many button
+        // pushes. restoreApp is called whenever there's a chance that that's happened.
+        // cancelRestore is called when something "good" happens to indicate that normal
+        // processing has occurred, and this isn't needed. If the cancellation doesn't
+        // occur, a call to forcibly restore the app will occur after a delay. If a
+        // cancellation doesn't then occur, it will try one more time to force the issue
+        // after a longer delay. Note that the "counting" is done in the program state
+        // so there's no issue of local variables being reset in the process.
 
-    private static final int restoreDelay = 2000;
-    private static final Handler restoreHandler = new Handler();
+        private static final int restoreDelay = 1000;
+        private final Handler restoreHandler = new Handler();
 
-    // If the app hasn't started after the delay, force the issue.
-    private void restoreApp() {
-        cancelRestore(); // Only one restart should be active, so clean up.
-        restoreHandler.postDelayed(this::doRestoreApp, restoreDelay);
-    }
-
-    // All went well, cancel the forced restart
-    private void cancelRestore() {
-        restoreHandler.removeCallbacksAndMessages(null);
-    }
-
-    // Post another try at cleaning up that won't itself try again
-    // and then force the restore.
-    private void doRestoreApp() {
-        restoreHandler.postDelayed(this::restoreAppWorker, 2*restoreDelay);
-        restoreAppWorker();
-    }
-
-    // Restart this activity after stop shut it down.
-    // (After Andreas Schrade's article on Kiosks)
-    private void restoreAppWorker() {
-        if (SettingsActivity.getInSettings()) {
-            // A switch to settings mode looks like an unexpected pause, so
-            // don't actually do anything. (This would be very hard to get
-            // right in the main line, and is easy here.)
-            cancelRestore(); // The backup call is already posted.
-            return;
+        // If the app hasn't started after the delay, force the issue.
+        private void restoreApp() {
+            cancelRestore(); // Only one restart should be active, so clean up.
+            restoreHandler.postDelayed(this::doRestoreApp, restoreDelay);
         }
-        Context context = getApplicationContext();
-        Intent i = new Intent(context, this.getClass());
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);
+
+        // All went well, cancel the forced restart
+        private void cancelRestore() {
+            restoreHandler.removeCallbacksAndMessages(null);
+        }
+
+        // Post another try at cleaning up that won't itself try again
+        // and then force the restore.
+        private void doRestoreApp() {
+            restoreHandler.postDelayed(this::restoreAppWorker, 2 * restoreDelay);
+            restoreAppWorker();
+        }
+
+        // Restart this activity after stop shut it down.
+        // (After Andreas Schrade's article on Kiosks)
+        private void restoreAppWorker() {
+            if (SettingsActivity.getInSettings()) {
+                // A switch to settings mode looks like an unexpected pause, so
+                // don't actually do anything. (This would be very hard to get
+                // right in the main line, and is easy here.)
+                cancelRestore(); // The backup call is already posted.
+                return;
+            }
+            Context context = getApplicationContext();
+            Intent i = new Intent(context, MainActivity.this.getClass());
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
+        }
     }
 
     class StatusBarCollapser {
@@ -493,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 return;
             }
 
-            // The string "statusbar" below is reporting an severe warning (but not an error); we
+            // The string "statusbar" below is reporting a severe warning (but not an error); we
             // will just ignore that.
             statusBarService = getSystemService("statusbar"); // wrong constant warning
             Class<?> statusBarManager;
@@ -548,6 +565,31 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
                 collapseNotificationHandler.postDelayed(this::redoCollapse, 1000);
             }
+        }
+    }
+
+    class PulsedBoolean {
+        boolean mBool;
+        final long mDelay;
+        // These need to be on separate handler queues so they can be cleared.
+        // (I can't make removing specific run-ables from the common queue work!)
+        final Handler handler = new Handler();
+
+        @SuppressWarnings("SameParameterValue")
+        PulsedBoolean(long delay)
+        {
+            mDelay = delay;
+        }
+
+        void start() {
+            mBool = true;
+            // Reset the request each time, so there's only the most recent.
+            handler.removeCallbacksAndMessages(null);
+            handler.postDelayed(()->mBool = false, mDelay);
+        }
+
+        boolean get() {
+            return mBool;
         }
     }
 }
