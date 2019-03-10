@@ -246,7 +246,8 @@ public class UiControllerMain implements ServiceConnection {
         else if (playbackService.getState() == PlaybackService.State.PAUSED) {
             changeState(StateFactory.PAUSED);
         }
-        else if (hasAnyBooks()) {
+        else if (audioBookManager.isInitialized()) {
+            // This will end up in one of the two books states
             changeState(StateFactory.BOOK_LIST);
         }
         else {
