@@ -49,6 +49,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private AppCompatImageButton rewindButton;
     private AppCompatImageButton ffButton;
     private TextView elapsedTimeView;
+    private TextView volumeSpeedView;
     private TextView elapsedTimeRewindFFView;
     private TextView chapterInfoView;
     private RewindFFHandler rewindFFHandler;
@@ -83,6 +84,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         });
 
         elapsedTimeView = view.findViewById(R.id.elapsedTime);
+        volumeSpeedView= view.findViewById(R.id.Volume_speed);
         elapsedTimeRewindFFView = view.findViewById(R.id.elapsedTimeRewindFF);
         chapterInfoView = view.findViewById(R.id.chapterInfo);
 
@@ -426,6 +428,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     controller.setVolume(1.0f);
                     break;
                 }
+                volumeSpeedView.setVisibility(View.GONE);
             }
             else if (counter == 0) {
                 switch (direction) {
@@ -433,11 +436,15 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     newTarget = 15; // so ticks match current volume
                     speechRate = controller.getSpeed();
                     announce("Faster");
+                    volumeSpeedView.setVisibility(View.VISIBLE);
+                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
                     break;
                 case DOWN:
                     newTarget = 15; // so ticks match current volume
                     speechRate = controller.getSpeed();
                     announce("Slower");
+                    volumeSpeedView.setVisibility(View.VISIBLE);
+                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
                     break;
 
                 case LEFT:
@@ -449,6 +456,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     audioManager.setStreamVolume(tickStream, oldMax, 0);
                     controller.setVolume(scaleGain(oldCurr));
                     announce("Softer");
+                    volumeSpeedView.setVisibility(View.VISIBLE);
+                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
                     break;
                 case RIGHT:
                     oldMax = audioManager.getStreamMaxVolume(tickStream);
@@ -459,6 +468,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     audioManager.setStreamVolume(tickStream, oldMax, 0);
                     controller.setVolume(scaleGain(oldCurr));
                     announce("Louder");
+                    volumeSpeedView.setVisibility(View.VISIBLE);
+                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
                     break;
                 }
             }
@@ -483,6 +494,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                             deferChange = 2;
                         }
                     }
+                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
                     controller.setSpeed(speechRate);
                     break;
                 case DOWN:
@@ -503,6 +515,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                             deferChange = 2;
                         }
                     }
+                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
                     controller.setSpeed(speechRate);
                     break;
 
@@ -514,6 +527,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     }
                     newTarget--;
                     controller.setVolume(scaleGain(newTarget));
+                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
                     tick();
                     break;
                 }
@@ -524,6 +538,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     }
                     newTarget++;
                     controller.setVolume(scaleGain(newTarget));
+                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
                     tick();
                     break;
                 }
