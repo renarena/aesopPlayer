@@ -56,8 +56,16 @@ public class Player {
         exoPlayer.setPlaybackParameters(params);
     }
 
+    public float getPlaybackSpeed() {
+        return this.playbackSpeed;
+    }
+
     public void setPlaybackVolume(float volume) {
         exoPlayer.setVolume(volume);
+    }
+
+    public float getPlaybackVolume() {
+        return exoPlayer.getVolume();
     }
 
     private void prepareAudioFile(File file, long startPositionMs) {

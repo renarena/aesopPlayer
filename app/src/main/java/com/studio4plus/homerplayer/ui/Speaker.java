@@ -8,6 +8,7 @@ import com.studio4plus.homerplayer.concurrency.SimpleFuture;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.inject.Singleton;
 
@@ -34,13 +35,29 @@ public class Speaker implements TextToSpeech.OnInitListener {
 
     private String pendingUtterance = "";
 
-    static Speaker get(Context context, SpeakerProvider speakerProvider) {
+    public static Speaker get(Context context, SpeakerProvider speakerProvider) {
         if (thisSpeaker != null) {
             return thisSpeaker;
         }
 
         thisSpeaker = new Speaker(context, speakerProvider);
         return thisSpeaker;
+    }
+
+    @NonNull
+    public static Speaker get() {
+        Preconditions.checkState(thisSpeaker != null,
+                "Must call 2 argument Speaker.get first");
+        return thisSpeaker;
+    }
+
+    public float getVolume() {
+        String s = speechParams.get(TextToSpeech.Engine.KEY_PARAM_VOLUME);
+        return  Float.parseFloat(Objects.requireNonNull(s));
+    }
+
+    public void setVolume(float v) {
+        speechParams.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(v));
     }
 
     private Speaker(@NonNull Context context, @NonNull SpeakerProvider speakerProvider) {

@@ -3,7 +3,10 @@ package com.studio4plus.homerplayer.ui.classic;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,13 +28,19 @@ import com.studio4plus.homerplayer.ui.FFRewindTimer;
 import com.studio4plus.homerplayer.ui.HintOverlay;
 import com.studio4plus.homerplayer.ui.PressReleaseDetector;
 import com.studio4plus.homerplayer.ui.SimpleAnimatorListener;
+import com.studio4plus.homerplayer.ui.Speaker;
+import com.studio4plus.homerplayer.ui.TouchRateJoystick;
 import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerPlayback;
 import com.studio4plus.homerplayer.util.ViewUtils;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 import io.codetail.animation.ViewAnimationUtils;
+
+import static android.media.AudioManager.STREAM_MUSIC;
 
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
@@ -60,11 +69,14 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_playback, container, false);
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
+        AdjustmentsListener adjustmentsListener = new AdjustmentsListener();
 
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         stopButton = view.findViewById(R.id.stopButton);
+        stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
+                adjustmentsListener::handleSettings));
         stopButton.setOnClickListener(v -> {
             Preconditions.checkNotNull(controller);
             controller.stopPlayback();
@@ -315,6 +327,208 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             animator.setInterpolator(new AccelerateDecelerateInterpolator());
 
             return animator;
+        }
+    }
+
+    class AdjustmentsListener {
+        final AudioManager audioManager;
+        final Speaker speaker;
+
+        private final MediaPlayer mediaPlayerComplain;
+        private final MediaPlayer mediaPlayerTick;
+
+        // I looked at both AudioPlayer and SoundPool for playing the recorded ticking sounds.
+        // SoundPool appears to be a convenience class over AudioPlayer, but it renders the
+        // sounds at a somewhat lower amplitude, so we AudioPlayer for those.
+
+        final int tickStream = STREAM_MUSIC;
+
+        int oldMax;
+        int oldCurr;
+        int newTarget;
+        int deferChange = -1;
+
+        float speechRate;
+
+        AdjustmentsListener ()
+        {
+            audioManager = (AudioManager) Objects.requireNonNull(getContext()).getSystemService(Context.AUDIO_SERVICE);
+            mediaPlayerTick = MediaPlayer.create(getContext(), R.raw.tick);
+            mediaPlayerComplain = MediaPlayer.create(getContext(), R.raw.limit_hit);
+            speaker = Speaker.get();
+        }
+
+        // Convert from 0-max volume integers to 0.0-1.0 that tracks what the volume buttons
+        // do on Android.
+        float scaleGain(int x)
+        {
+            final float log2 = (float)Math.log(2);
+            if (x == 0) return 0.0f;
+            // The formula is arbitrary, and almost certainly isn't what Android actually uses,
+            // but I haven't been able to find that (in spite of many claims on Stackoverflow
+            // to the contrary). This matches pretty well (experimentally) but isn't perfect;
+            // the user will naturally "fix" any minor problems.
+            return (float) (
+                Math.pow(20, Math.log(x)/log2)
+                        /
+                Math.pow(20, Math.log(oldMax)/log2)
+            );
+        }
+
+        private void tick() {
+            final float vol = scaleGain(newTarget);
+            mediaPlayerTick.setVolume(vol, vol);
+            mediaPlayerTick.start();
+        }
+
+        private void complain() {
+            final float vol = scaleGain(newTarget);
+            mediaPlayerComplain.setVolume(vol, vol);
+            mediaPlayerComplain.start();
+        }
+
+        private void announce(String s)
+        {
+            // The volume is a property of each utterance, so we don't need to worry about
+            // tracking the volume ourselves.
+            float oldV = speaker.getVolume();
+            speaker.setVolume(scaleGain(newTarget));
+            speaker.speak(s);
+            speaker.setVolume(oldV);
+        }
+
+        // Handle volume and speed settings comping from the "joystick" interface.
+        //
+        // For level changes: On first call (counter == 0), set things up and emit message as to
+        // what will happen.  Hand off the volume from the audioManager (set it to max) to
+        // the (book) player, and adjust it's volume to match the current audioManager setting.
+        // Subsequent (counter >= 1) calls: emit tick sounds or limit-hit sounds while adjusting the
+        // volume. Final call (counter < 0), hand off volume control back to the audioManager (and
+        // the phone's buttons). Housekeeping along the way. scaleGain() contains some extra magic
+        // to make the hand-offs work well. (We "think" in 0-15 integers, converting the volume each time.)
+        //
+        // For speed changes: generally similar, but the volume issue isn't as tricky because
+        // that's not being changed. It simply works to change the speed on the fly.
+        private void handleSettings(TouchRateJoystick.Direction direction, int counter) {
+            Preconditions.checkNotNull(controller);
+            if (counter < 0) {
+                // Wrap up everything.
+                switch (direction) {
+                case UP:
+                case DOWN:
+                    controller.setSpeed(speechRate);
+                    break;
+
+                case LEFT:
+                case RIGHT:
+                    // Hand off volume control back to the system
+                    audioManager.setStreamVolume(tickStream, newTarget, 0);
+                    controller.setVolume(1.0f);
+                    break;
+                }
+            }
+            else if (counter == 0) {
+                switch (direction) {
+                case UP:
+                    newTarget = 15; // so ticks match current volume
+                    speechRate = controller.getSpeed();
+                    announce("Faster");
+                    break;
+                case DOWN:
+                    newTarget = 15; // so ticks match current volume
+                    speechRate = controller.getSpeed();
+                    announce("Slower");
+                    break;
+
+                case LEFT:
+                    oldMax = audioManager.getStreamMaxVolume(tickStream);
+                    oldCurr = audioManager.getStreamVolume(tickStream);
+                    newTarget = oldCurr;
+                    // Hand off volume control to the playback controller, setting the
+                    // device to maximum.
+                    audioManager.setStreamVolume(tickStream, oldMax, 0);
+                    controller.setVolume(scaleGain(oldCurr));
+                    announce("Softer");
+                    break;
+                case RIGHT:
+                    oldMax = audioManager.getStreamMaxVolume(tickStream);
+                    oldCurr = audioManager.getStreamVolume(tickStream);
+                    newTarget = oldCurr;
+                    // Hand off volume control to the playback controller, setting the
+                    // device to maximum.
+                    audioManager.setStreamVolume(tickStream, oldMax, 0);
+                    controller.setVolume(scaleGain(oldCurr));
+                    announce("Louder");
+                    break;
+                }
+            }
+            else {
+                // Individual change ticks
+                switch (direction) {
+                case UP:
+                    if (speechRate >= 4.45f) {
+                        complain();
+                        break;
+                    }
+                    tick();
+                    if (deferChange-- > 0) {
+                        // An audible detent, in effect
+                        announce("Normal");
+                        break;
+                    }
+                    speechRate += .1;
+                    if (Math.abs(speechRate - 1.0f) < .01f) {
+                        speechRate = 1.0f; // normalize
+                        if (deferChange < 0) {
+                            deferChange = 2;
+                        }
+                    }
+                    controller.setSpeed(speechRate);
+                    break;
+                case DOWN:
+                    if (speechRate <= 0.51f) {
+                        complain();
+                        break;
+                    }
+                    tick();
+                    if (deferChange-- > 0) {
+                        // An audible detent, in effect
+                        announce("Normal");
+                        break;
+                    }
+                    speechRate -= .1;
+                    if (Math.abs(speechRate - 1.0f) < .01f) {
+                        speechRate = 1.0f; // normalize
+                        if (deferChange < 0) {
+                            deferChange = 2;
+                        }
+                    }
+                    controller.setSpeed(speechRate);
+                    break;
+
+                case LEFT: {
+                    if (newTarget <= 2) {
+                        // Leave just a little playing so user isn't confused by total silence
+                        complain();
+                        break;
+                    }
+                    newTarget--;
+                    controller.setVolume(scaleGain(newTarget));
+                    tick();
+                    break;
+                }
+                case RIGHT: {
+                    if (newTarget >= oldMax) {
+                        complain();
+                        break;
+                    }
+                    newTarget++;
+                    controller.setVolume(scaleGain(newTarget));
+                    tick();
+                    break;
+                }
+                }
+            }
         }
     }
 }
