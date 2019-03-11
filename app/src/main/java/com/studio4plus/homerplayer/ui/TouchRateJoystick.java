@@ -1,5 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.view.MotionEvent;
@@ -61,6 +62,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
         minimumScrollMovement = configuration.getScaledTouchSlop();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getPointerCount() != 1)
@@ -94,21 +96,12 @@ public class TouchRateJoystick implements View.OnTouchListener {
     }
 
     private boolean onTouchUp() {
-        final long nanoT = System.nanoTime();
-
         handler.removeCallbacksAndMessages(null);
-
-        long deltaT = nanoT-startT;
 
         if (state != 0) {
             state = 0;
             listener.onTouchRate(direction, -1);
             return true; // not a tap
-        }
-
-        if (deltaT > TimeUnit.MILLISECONDS.toNanos(500)) {
-            // Not a tap, more likely fumbling
-            return true;
         }
 
         return false; // allow tap

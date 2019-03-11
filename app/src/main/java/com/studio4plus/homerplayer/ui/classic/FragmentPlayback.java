@@ -70,18 +70,20 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_playback, container, false);
         HomerPlayerApplication.getComponent(view.getContext()).inject(this);
-        AdjustmentsListener adjustmentsListener = new AdjustmentsListener();
 
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         stopButton = view.findViewById(R.id.stopButton);
-        stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
-                adjustmentsListener::handleSettings));
         stopButton.setOnClickListener(v -> {
             Preconditions.checkNotNull(controller);
             controller.stopPlayback();
         });
+        if (globalSettings.isScreenVolumeSpeedEnabled()) {
+            AdjustmentsListener adjustmentsListener = new AdjustmentsListener();
+            stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
+                    adjustmentsListener::handleSettings));
+        }
 
         elapsedTimeView = view.findViewById(R.id.elapsedTime);
         volumeSpeedView= view.findViewById(R.id.Volume_speed);
@@ -419,6 +421,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                 case UP:
                 case DOWN:
                     controller.setSpeed(speechRate);
+                    globalSettings.setPlaybackSpeed(speechRate);
                     break;
 
                 case LEFT:
@@ -435,16 +438,16 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                 case UP:
                     newTarget = 15; // so ticks match current volume
                     speechRate = controller.getSpeed();
-                    announce("Faster");
+                    announce(getString(R.string.audio_prompt_faster));
                     volumeSpeedView.setVisibility(View.VISIBLE);
-                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
                     break;
                 case DOWN:
                     newTarget = 15; // so ticks match current volume
                     speechRate = controller.getSpeed();
-                    announce("Slower");
+                    announce(getString(R.string.audio_prompt_slower));
                     volumeSpeedView.setVisibility(View.VISIBLE);
-                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
                     break;
 
                 case LEFT:
@@ -455,9 +458,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     // device to maximum.
                     audioManager.setStreamVolume(tickStream, oldMax, 0);
                     controller.setVolume(scaleGain(oldCurr));
-                    announce("Softer");
+                    announce(getString(R.string.audio_prompt_softer));
                     volumeSpeedView.setVisibility(View.VISIBLE);
-                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     break;
                 case RIGHT:
                     oldMax = audioManager.getStreamMaxVolume(tickStream);
@@ -467,9 +470,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     // device to maximum.
                     audioManager.setStreamVolume(tickStream, oldMax, 0);
                     controller.setVolume(scaleGain(oldCurr));
-                    announce("Louder");
+                    announce(getString(R.string.audio_prompt_louder));
                     volumeSpeedView.setVisibility(View.VISIBLE);
-                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     break;
                 }
             }
@@ -484,7 +487,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     tick();
                     if (deferChange-- > 0) {
                         // An audible detent, in effect
-                        announce("Normal");
+                        announce(getString(R.string.audio_prompt_normal));
                         break;
                     }
                     speechRate += .1;
@@ -494,7 +497,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                             deferChange = 2;
                         }
                     }
-                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
                     controller.setSpeed(speechRate);
                     break;
                 case DOWN:
@@ -505,7 +508,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     tick();
                     if (deferChange-- > 0) {
                         // An audible detent, in effect
-                        announce("Normal");
+                        announce(getString(R.string.audio_prompt_normal));
                         break;
                     }
                     speechRate -= .1;
@@ -515,7 +518,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                             deferChange = 2;
                         }
                     }
-                    volumeSpeedView.setText(String.format("Speed: %1.1f", speechRate));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
                     controller.setSpeed(speechRate);
                     break;
 
@@ -527,7 +530,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     }
                     newTarget--;
                     controller.setVolume(scaleGain(newTarget));
-                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     tick();
                     break;
                 }
@@ -538,7 +541,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     }
                     newTarget++;
                     controller.setVolume(scaleGain(newTarget));
-                    volumeSpeedView.setText(String.format("Volume: %2d", newTarget));
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     tick();
                     break;
                 }

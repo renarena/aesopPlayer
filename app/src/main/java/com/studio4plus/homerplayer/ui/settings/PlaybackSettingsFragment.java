@@ -93,10 +93,25 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
     }
 
     private void updatePlaybackSpeedSummary(@NonNull SharedPreferences sharedPreferences) {
-        updateListPreferenceSummary(
-                sharedPreferences,
-                GlobalSettings.KEY_PLAYBACK_SPEED,
-                R.string.pref_playback_speed_default_value);
+        String stringValue = sharedPreferences.getString(GlobalSettings.KEY_PLAYBACK_SPEED,
+                getString(R.string.pref_playback_speed_default_value));
+        Preconditions.checkNotNull(stringValue);
+        ListPreference preference =
+                (ListPreference) findPreference(GlobalSettings.KEY_PLAYBACK_SPEED);
+
+        // We're assuming that the string form of the speeds is always %1.1f
+        CharSequence[] standardValues = preference.getEntryValues();
+        int index;
+        for (index = 0; index<standardValues.length; index++) {
+            if (stringValue.compareTo(standardValues[index].toString()) >= 0) {
+                break;
+            }
+        }
+        if (index > standardValues.length-1) {
+            index = standardValues.length-1;
+        }
+
+        preference.setSummary(preference.getEntries()[index] + " (" + stringValue + ")");
     }
 
     private void updateJumpBackSummary(@NonNull SharedPreferences sharedPreferences) {
