@@ -56,6 +56,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private Animator elapsedTimeRewindFFViewAnimation;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private UiUtil.SnoozeDisplay snooze;
+    private AdjustmentsListener adjustmentsListener = null;
 
     private @Nullable UiControllerPlayback controller;
 
@@ -80,7 +81,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             controller.stopPlayback();
         });
         if (globalSettings.isScreenVolumeSpeedEnabled()) {
-            AdjustmentsListener adjustmentsListener = new AdjustmentsListener();
+            adjustmentsListener = new AdjustmentsListener();
             stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
                     adjustmentsListener::handleSettings));
         }
@@ -150,6 +151,12 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         ffButton.setOnTouchListener(null);
         rewindFFHandler.onPause();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (adjustmentsListener != null) adjustmentsListener.onDestroy();
+        super.onDestroy();
     }
 
     void onPlaybackStopping() {
@@ -362,6 +369,12 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             speaker = Speaker.get();
         }
 
+        void onDestroy()
+        {
+            mediaPlayerTick.release();
+            mediaPlayerComplain.release();
+        }
+
         // Convert from 0-max volume integers to 0.0-1.0 that tracks what the volume buttons
         // do on Android.
         float scaleGain(int x)
@@ -415,7 +428,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         // that's not being changed. It simply works to change the speed on the fly.
         private void handleSettings(TouchRateJoystick.Direction direction, int counter) {
             Preconditions.checkNotNull(controller);
-            if (counter < 0) {
+            if (counter == TouchRateJoystick.RELEASE || counter == TouchRateJoystick.REVERSE) {
                 // Wrap up everything.
                 switch (direction) {
                 case UP:
@@ -431,7 +444,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                     controller.setVolume(1.0f);
                     break;
                 }
-                volumeSpeedView.setVisibility(View.GONE);
+                if (counter == TouchRateJoystick.RELEASE) {
+                    volumeSpeedView.setVisibility(View.GONE);
+                }
             }
             else if (counter == 0) {
                 switch (direction) {
@@ -480,6 +495,12 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                 // Individual change ticks
                 switch (direction) {
                 case UP:
+                    // This ceiling seems large, but some studies indicate that there are a few
+                    // well-practiced people who can use it. See --
+                    //  Danielle Bragg, Cynthia Bennett, Katharina Reinecke, and Richard Ladner. 2018.
+                    //  A Large Inclusive Study of Human Listening Rates.
+                    //  In Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems
+                    //  (CHI '18). ACM, New York, NY, USA, Paper 444, 12 pages.
                     if (speechRate >= 4.45f) {
                         complain();
                         break;

@@ -14,8 +14,10 @@ public class TouchRateJoystick implements View.OnTouchListener {
         void onTouchRate(Direction direction, int counter);
     }
 
-    private final Listener listener;
     public enum Direction {UP,DOWN,LEFT,RIGHT}
+    static public final int RELEASE = -1;
+    static public final int REVERSE = -2;
+    private final Listener listener;
 
     private final int minimumScrollMovement;
     private final Handler handler = new Handler();
@@ -51,8 +53,8 @@ public class TouchRateJoystick implements View.OnTouchListener {
      The callbacks should provide audible feedback on the selected direction (when counter == 0)
      and on the progress (ticks) as well as having the actual effect.
 
-     A callback with -1 indicates user disengagement and should be used for cleanup.
-     A callback with -2 indicates a direction reversal.
+     A callback with RELEASE indicates user disengagement and should be used for cleanup.
+     A callback with REVERSE indicates a direction reversal.
      */
 
     public TouchRateJoystick (Context context, TouchRateJoystick.Listener listener) {
@@ -100,7 +102,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
 
         if (state != 0) {
             state = 0;
-            listener.onTouchRate(direction, -1);
+            listener.onTouchRate(direction, RELEASE);
             return true; // not a tap
         }
 
@@ -144,6 +146,9 @@ public class TouchRateJoystick implements View.OnTouchListener {
                     // movement has a dominant direction
                     startT = nanoT;
                     state = 1;
+
+                    prevX = x;
+                    prevY = y;
 
                     // convert direction to one of 4 ways.
                     if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -189,7 +194,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
                 if (y < prevY && direction == Direction.UP) {
                     // The user reversed
                     direction = Direction.DOWN;
-                    listener.onTouchRate(direction, -2);
+                    listener.onTouchRate(direction, REVERSE);
                     counter = -1;
                     startY = y;
                     deltaY = 0.0f;
@@ -197,7 +202,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
                 else if (y > prevY && direction == Direction.DOWN) {
                     // The user reversed
                     direction = Direction.UP;
-                    listener.onTouchRate(direction, -2);
+                    listener.onTouchRate(direction, REVERSE);
                     counter = -1;
                     startY = y;
                     deltaY = 0.0f;
@@ -216,7 +221,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
                 if (x < prevX && direction == Direction.RIGHT) {
                     // The user reversed
                     direction = Direction.LEFT;
-                    listener.onTouchRate(direction, -2);
+                    listener.onTouchRate(direction, REVERSE);
                     counter = -1;
                     startX = x;
                     deltaX = 0.0f;
@@ -224,7 +229,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
                 else if (x > prevX && direction == Direction.LEFT) {
                     // The user reversed
                     direction = Direction.RIGHT;
-                    listener.onTouchRate(direction, -2);
+                    listener.onTouchRate(direction, REVERSE);
                     counter = -1;
                     startX = x;
                     deltaX = 0.0f;
