@@ -5,14 +5,18 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.os.PowerManager;
 import androidx.annotation.NonNull;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
+import com.studio4plus.homerplayer.ui.TouchRateJoystick;
 
 import static android.content.Context.SENSOR_SERVICE;
+import static com.studio4plus.homerplayer.ui.TouchRateJoystick.RELEASE;
+
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -199,6 +203,10 @@ public class DeviceMotionDetector implements SensorEventListener {
             accDeltaSum += Math.abs(a - Math.abs(avgAcceleration[i]));
             sampleDeltaSum += Math.abs(a - Math.abs(previousValues[i]));
             previousValues[i] = event.values[i];
+        }
+
+        if (tiltListener != null) {
+            checkTiltAngle(x, y, z);
         }
 
         // accDeltaSum is the sum of the absolute deviations from g (still == 0)
@@ -477,6 +485,159 @@ public class DeviceMotionDetector implements SensorEventListener {
         if (detector.busy) {
             detector.motionDetectorStart();
             detector.proximityDetectorStart();
+        }
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public static DeviceMotionDetector getDeviceMotionDetector(TouchRateJoystick.Listener tiltListener) {
+        deviceMotionDetector.tiltState = TiltState.UNESTABLISHED;
+        deviceMotionDetector.counter = 0;
+        deviceMotionDetector.tiltListener = tiltListener;
+        return deviceMotionDetector;
+    }
+
+    private TouchRateJoystick.Listener tiltListener;
+    private final Handler handler = new Handler();
+    private static final int INTERVAL = 1000;
+    private long startT = 0;
+    private long delayNs = 0;
+    private int counter;
+    private TouchRateJoystick.Direction direction = TouchRateJoystick.Direction.UP; // arbitrary
+
+    // FSM state:
+    //   UNESTABLISHED: no direction established
+    //   ESTABLISHING: Direction known, no tick yet sent, but one (with counter==0) on next tick.
+    //   ESTABLISHED: direction established, sending ticks
+    //   CLEARING: direction lost... will send RELEASE on next tick
+    //   The objective is to slow the state changes to the clock tick rate to avoid glitchiness
+    //   particularly in volume up.
+    private enum TiltState {UNESTABLISHED, ESTABLISHING, ESTABLISHED, CLEARING}
+    private TiltState tiltState = TiltState.UNESTABLISHED;
+
+    private void checkTiltAngle(float x, float y, float z) {
+        // We rely on the fact that it's not physically possible to change directions
+        // without going through the UNESTABLISHED state.
+        float p = (float)Math.toDegrees(Math.atan2(x,z));
+        float q = (float)Math.toDegrees(Math.atan2(y,z));
+
+        p = Math.round(p);
+        q = Math.round(q);
+
+        final int DEFAULT_ANGLE = 40;
+        final int TOLERANCE = 10;
+
+        switch (tiltState) {
+        case UNESTABLISHED: {
+            // Is there enough difference in the angles to say which angle it is?
+            if (Math.abs(Math.abs(p) - Math.abs(q)) > DEFAULT_ANGLE / 2) {
+                if (p >= 0 && Math.abs(p - DEFAULT_ANGLE) < TOLERANCE) {
+                    direction = TouchRateJoystick.Direction.UP;
+                    tiltState = TiltState.ESTABLISHING;
+                }
+                else if (p < 0 && Math.abs(-p - DEFAULT_ANGLE) < TOLERANCE) {
+                    direction = TouchRateJoystick.Direction.DOWN;
+                    tiltState = TiltState.ESTABLISHING;
+                }
+                else if (q <= 0 && Math.abs(-q - DEFAULT_ANGLE) < TOLERANCE) {
+                    direction = TouchRateJoystick.Direction.LEFT;
+                    tiltState = TiltState.ESTABLISHING;
+                }
+                else if (q > 0 && Math.abs(q - DEFAULT_ANGLE) < TOLERANCE) {
+                    direction = TouchRateJoystick.Direction.RIGHT;
+                    tiltState = TiltState.ESTABLISHING;
+                }
+            }
+            if (tiltState == TiltState.ESTABLISHING) {
+                // Wait for 1/2 tick before calling onTouchRate - "just moving around"
+                // is thus ignored pretty well.
+                // A shorter initial interval the first time seems subjectively better
+                delayNs = INTERVAL/2;
+                handler.postDelayed(this::onTick, INTERVAL/2);
+                counter = 0;
+            }
+            break;
+        }
+
+        case ESTABLISHED:
+        case ESTABLISHING: {
+            TiltState newTiltState = TiltState.UNESTABLISHED;
+            if (Math.abs(Math.abs(p) - Math.abs(q)) <= DEFAULT_ANGLE / 2) {
+                // Too close to call, release
+                newTiltState = TiltState.CLEARING;
+            }
+            else {
+                switch (direction) {
+                case UP:
+                    if (p < 0 || Math.abs(p - DEFAULT_ANGLE) > 1.5 * TOLERANCE) {
+                        newTiltState = TiltState.CLEARING;
+                    }
+                    break;
+                case DOWN:
+                    if (p >= 0 || Math.abs(-p - DEFAULT_ANGLE) > 1.5 * TOLERANCE) {
+                        newTiltState = TiltState.CLEARING;
+                    }
+                    break;
+                case LEFT:
+                    if (q > 0 || Math.abs(-q - DEFAULT_ANGLE) > 1.5 * TOLERANCE) {
+                        newTiltState = TiltState.CLEARING;
+                    }
+                    break;
+                case RIGHT:
+                    if (q <= 0 || Math.abs(q - DEFAULT_ANGLE) > 1.5 * TOLERANCE) {
+                        newTiltState = TiltState.CLEARING;
+                    }
+                    break;
+                }
+            }
+            if (newTiltState == TiltState.CLEARING) {
+                if (tiltState == TiltState.ESTABLISHING) {
+                    // We never got to a tick. Just ignore everything.
+                    tiltState = TiltState.UNESTABLISHED;
+                }
+                else {
+                    // Clear the state on next tick
+                    tiltState = TiltState.CLEARING;
+                }
+            }
+            }
+            break;
+        case CLEARING:
+            // Do nothing, await a tick
+            break;
+        }
+    }
+
+    private void onTick() {
+        handler.removeCallbacksAndMessages(null); // in case of several
+        switch (tiltState) {
+        case UNESTABLISHED: {
+            // Happens when we momentarily enter ESTABLISHING but leave before a tick.
+            return;
+        }
+        case ESTABLISHING: {
+            tiltState = TiltState.ESTABLISHED;
+            break;
+        }
+        case ESTABLISHED: {
+            break;
+        }
+        case CLEARING: {
+            tiltState = TiltState.UNESTABLISHED;
+            tiltListener.onTouchRate(direction, RELEASE);
+            return;
+        }
+        }
+
+        handler.postDelayed(this::onTick, INTERVAL);
+
+        final long nanoT = System.nanoTime();
+        final long deltaT = nanoT-startT;
+
+        if (deltaT > delayNs) {
+            startT = nanoT;
+            tiltListener.onTouchRate(direction, counter);
+            delayNs = INTERVAL;
+            counter++;
         }
     }
 }

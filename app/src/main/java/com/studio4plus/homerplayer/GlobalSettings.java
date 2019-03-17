@@ -51,6 +51,7 @@ public class GlobalSettings {
     public static final String KEY_SCREEN_ORIENTATION = "screen_orientation_preference";
     private static final String KEY_FF_REWIND_SOUND = "ff_rewind_sound_preference";
     private static final String KEY_SCREEN_VOLUME_SPEED = "screen_volume_speed_preference";
+    private static final String KEY_TILT_VOLUME_SPEED = "tilt_volume_speed_preference";
     public static final String KEY_PLAYBACK_SPEED = "playback_speed_preference";
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
@@ -221,6 +222,10 @@ public class GlobalSettings {
 
     public boolean isScreenVolumeSpeedEnabled() {
         return sharedPreferences.getBoolean(KEY_SCREEN_VOLUME_SPEED, true);
+    }
+
+    public boolean isTiltVolumeSpeedEnabled() {
+        return sharedPreferences.getBoolean(KEY_TILT_VOLUME_SPEED, true);
     }
 
     public SharedPreferences appSharedPreferences() {

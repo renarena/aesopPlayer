@@ -61,6 +61,9 @@
     <string name="pref_screen_volume_speed">Adjust volume and speed from playback screen.</string>
     <string name="pref_screen_volume_speed_on">Enabled</string>
     <string name="pref_screen_volume_speed_off">Disabled</string>
+    <string name="pref_tilt_volume_speed">Adjust volume and speed by tilting the device.</string>
+    <string name="pref_tilt_volume_speed_on">Enabled</string>
+    <string name="pref_tilt_volume_speed_off">Disabled</string>
     <string name="pref_jump_back_default_value" translatable="false">5</string>
     <string name="pref_jump_back_entry_disabled">Disabled</string>
     <string name="pref_jump_back_title">Jump back when resuming playback</string>

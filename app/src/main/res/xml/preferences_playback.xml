@@ -25,6 +25,12 @@
         app:summaryOn="@string/pref_screen_volume_speed_on"
         app:summaryOff="@string/pref_screen_volume_speed_off"
         app:defaultValue="true"/>
+    <SwitchPreference
+        app:key="tilt_volume_speed_preference"
+        app:title="@string/pref_tilt_volume_speed"
+        app:summaryOn="@string/pref_tilt_volume_speed_on"
+        app:summaryOff="@string/pref_tilt_volume_speed_off"
+        app:defaultValue="true"/>
     <ListPreference
         app:key="stop_on_face_down_preference"
         app:defaultValue="@string/pref_stop_on_face_down_default_value"

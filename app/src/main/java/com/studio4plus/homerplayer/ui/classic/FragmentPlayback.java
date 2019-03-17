@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
+import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 import com.studio4plus.homerplayer.ui.FFRewindTimer;
 import com.studio4plus.homerplayer.ui.HintOverlay;
 import com.studio4plus.homerplayer.ui.PressReleaseDetector;
@@ -80,11 +81,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             Preconditions.checkNotNull(controller);
             controller.stopPlayback();
         });
-        if (globalSettings.isScreenVolumeSpeedEnabled()) {
-            adjustmentsListener = new AdjustmentsListener();
-            stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
-                    adjustmentsListener::handleSettings));
-        }
+        adjustmentsListener = new AdjustmentsListener();
 
         elapsedTimeView = view.findViewById(R.id.elapsedTime);
         volumeSpeedView= view.findViewById(R.id.Volume_speed);
@@ -138,6 +135,13 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         Crashlytics.log("UI: FragmentPlayback resumed");
         rewindButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         ffButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
+        if (globalSettings.isScreenVolumeSpeedEnabled()) {
+            stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
+                    adjustmentsListener::handleSettings));
+        }
+        if (globalSettings.isTiltVolumeSpeedEnabled()) {
+            DeviceMotionDetector.getDeviceMotionDetector(adjustmentsListener::handleSettings);
+        }
         UiUtil.startBlinker(view, globalSettings);
         showHintIfNecessary();
     }
@@ -150,12 +154,20 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         rewindButton.setOnTouchListener(null);
         ffButton.setOnTouchListener(null);
         rewindFFHandler.onPause();
+        if (globalSettings.isScreenVolumeSpeedEnabled()) {
+            stopButton.setOnTouchListener(null);
+        }
+        if (globalSettings.isTiltVolumeSpeedEnabled()) {
+            DeviceMotionDetector.getDeviceMotionDetector((TouchRateJoystick.Listener)null);
+        }
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        if (adjustmentsListener != null) adjustmentsListener.onDestroy();
+        if (adjustmentsListener != null) {
+            adjustmentsListener.onDestroy();
+        }
         super.onDestroy();
     }
 
@@ -350,12 +362,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
         // I looked at both AudioPlayer and SoundPool for playing the recorded ticking sounds.
         // SoundPool appears to be a convenience class over AudioPlayer, but it renders the
-        // sounds at a somewhat lower amplitude, so we AudioPlayer for those.
-
-        final int tickStream = STREAM_MUSIC;
+        // sounds at a somewhat lower amplitude, so use AudioPlayer for those.
 
         int oldMax;
-        int oldCurr;
         int newTarget;
         int deferChange = -1;
 
@@ -375,57 +384,26 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             mediaPlayerComplain.release();
         }
 
-        // Convert from 0-max volume integers to 0.0-1.0 that tracks what the volume buttons
-        // do on Android.
-        float scaleGain(int x)
-        {
-            final float log2 = (float)Math.log(2);
-            if (x == 0) return 0.0f;
-            // The formula is arbitrary, and almost certainly isn't what Android actually uses,
-            // but I haven't been able to find that (in spite of many claims on Stackoverflow
-            // to the contrary). This matches pretty well (experimentally) but isn't perfect;
-            // the user will naturally "fix" any minor problems.
-            return (float) (
-                Math.pow(20, Math.log(x)/log2)
-                        /
-                Math.pow(20, Math.log(oldMax)/log2)
-            );
-        }
-
         private void tick() {
-            final float vol = scaleGain(newTarget);
-            mediaPlayerTick.setVolume(vol, vol);
             mediaPlayerTick.start();
         }
 
         private void complain() {
-            final float vol = scaleGain(newTarget);
-            mediaPlayerComplain.setVolume(vol, vol);
             mediaPlayerComplain.start();
         }
 
         private void announce(String s)
         {
-            // The volume is a property of each utterance, so we don't need to worry about
-            // tracking the volume ourselves.
+            // The volume is a property of each utterance; we want to be fairly loud
+            // for the single word.
             float oldV = speaker.getVolume();
-            speaker.setVolume(scaleGain(newTarget));
+            speaker.setVolume(1.0f);
             speaker.speak(s);
             speaker.setVolume(oldV);
         }
 
-        // Handle volume and speed settings comping from the "joystick" interface.
-        //
-        // For level changes: On first call (counter == 0), set things up and emit message as to
-        // what will happen.  Hand off the volume from the audioManager (set it to max) to
-        // the (book) player, and adjust it's volume to match the current audioManager setting.
-        // Subsequent (counter >= 1) calls: emit tick sounds or limit-hit sounds while adjusting the
-        // volume. Final call (counter < 0), hand off volume control back to the audioManager (and
-        // the phone's buttons). Housekeeping along the way. scaleGain() contains some extra magic
-        // to make the hand-offs work well. (We "think" in 0-15 integers, converting the volume each time.)
-        //
-        // For speed changes: generally similar, but the volume issue isn't as tricky because
-        // that's not being changed. It simply works to change the speed on the fly.
+        // Handle volume and speed settings coming from the "joystick" interface.
+
         private void handleSettings(TouchRateJoystick.Direction direction, int counter) {
             Preconditions.checkNotNull(controller);
             if (counter == TouchRateJoystick.RELEASE || counter == TouchRateJoystick.REVERSE) {
@@ -433,15 +411,13 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                 switch (direction) {
                 case UP:
                 case DOWN:
-                    controller.setSpeed(speechRate);
+                    // Make sure it sticks
                     globalSettings.setPlaybackSpeed(speechRate);
                     break;
 
                 case LEFT:
                 case RIGHT:
-                    // Hand off volume control back to the system
-                    audioManager.setStreamVolume(tickStream, newTarget, 0);
-                    controller.setVolume(1.0f);
+                    // Nothing to do, since we've been setting the actual volume.
                     break;
                 }
                 if (counter == TouchRateJoystick.RELEASE) {
@@ -449,43 +425,25 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                 }
             }
             else if (counter == 0) {
+                // Initialize
                 switch (direction) {
                 case UP:
-                    newTarget = 15; // so ticks match current volume
-                    speechRate = controller.getSpeed();
-                    announce(getString(R.string.audio_prompt_faster));
-                    volumeSpeedView.setVisibility(View.VISIBLE);
-                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
-                    break;
                 case DOWN:
-                    newTarget = 15; // so ticks match current volume
+                    announce(direction == TouchRateJoystick.Direction.UP
+                            ? getString(R.string.audio_prompt_faster)
+                            : getString(R.string.audio_prompt_slower));
                     speechRate = controller.getSpeed();
-                    announce(getString(R.string.audio_prompt_slower));
                     volumeSpeedView.setVisibility(View.VISIBLE);
                     volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
                     break;
 
                 case LEFT:
-                    oldMax = audioManager.getStreamMaxVolume(tickStream);
-                    oldCurr = audioManager.getStreamVolume(tickStream);
-                    newTarget = oldCurr;
-                    // Hand off volume control to the playback controller, setting the
-                    // device to maximum.
-                    audioManager.setStreamVolume(tickStream, oldMax, 0);
-                    controller.setVolume(scaleGain(oldCurr));
-                    announce(getString(R.string.audio_prompt_softer));
-                    volumeSpeedView.setVisibility(View.VISIBLE);
-                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
-                    break;
                 case RIGHT:
-                    oldMax = audioManager.getStreamMaxVolume(tickStream);
-                    oldCurr = audioManager.getStreamVolume(tickStream);
-                    newTarget = oldCurr;
-                    // Hand off volume control to the playback controller, setting the
-                    // device to maximum.
-                    audioManager.setStreamVolume(tickStream, oldMax, 0);
-                    controller.setVolume(scaleGain(oldCurr));
-                    announce(getString(R.string.audio_prompt_louder));
+                    announce(direction == TouchRateJoystick.Direction.LEFT
+                            ? getString(R.string.audio_prompt_softer)
+                            : getString(R.string.audio_prompt_louder));
+                    oldMax = audioManager.getStreamMaxVolume(STREAM_MUSIC);
+                    newTarget = audioManager.getStreamVolume(STREAM_MUSIC);
                     volumeSpeedView.setVisibility(View.VISIBLE);
                     volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     break;
@@ -550,7 +508,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                         break;
                     }
                     newTarget--;
-                    controller.setVolume(scaleGain(newTarget));
+                    audioManager.setStreamVolume(STREAM_MUSIC, newTarget, 0);
                     volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     tick();
                     break;
@@ -561,7 +519,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                         break;
                     }
                     newTarget++;
-                    controller.setVolume(scaleGain(newTarget));
+                    audioManager.setStreamVolume(STREAM_MUSIC, newTarget, 0);
                     volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
                     tick();
                     break;

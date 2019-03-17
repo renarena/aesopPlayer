@@ -119,7 +119,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
         if (delta < minimumScrollMovement/2) return INTERVALNs * 1000; // "forever"
 
         // Convert distance to an interval
-        delta /= 4; // Adjusts the distance from 0 to max; larger divisors -> more distance
+        delta /= 10; // Adjusts the distance from 0 to max; larger divisors -> more distance
         int n = (int)((delta*SCALE)/minimumScrollMovement);
         if (n > 4*SCALE) n=(int)(4*SCALE);
         return (int)((INTERVALNs/SCALE)*(4*SCALE-n));
