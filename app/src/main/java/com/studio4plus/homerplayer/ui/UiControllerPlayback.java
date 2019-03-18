@@ -218,4 +218,20 @@ public class UiControllerPlayback {
             }
         }
     }
+
+    public void setVolume(float volume) {
+        playbackService.setVolume(volume);
+    }
+
+    public float getVolume() {
+        return playbackService.getVolume();
+    }
+
+    public void setSpeed(float speed) {
+        playbackService.setSpeed(speed);
+    }
+
+    public float getSpeed() {
+        return playbackService.getSpeed();
+    }
 }

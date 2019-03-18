@@ -8,4 +8,5 @@
     <color name="ffRewindFillBackground">@color/buttonFFRewindBackground</color>
     <color name="transparent">#00000000</color>
     <color name="greyOut">#80000000</color>
+    <color name="Ivory">#FAF5D6</color>
 </resources>

@@ -3,7 +3,10 @@ package com.studio4plus.homerplayer.ui.classic;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,17 +24,24 @@ import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
+import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 import com.studio4plus.homerplayer.ui.FFRewindTimer;
 import com.studio4plus.homerplayer.ui.HintOverlay;
 import com.studio4plus.homerplayer.ui.PressReleaseDetector;
 import com.studio4plus.homerplayer.ui.SimpleAnimatorListener;
+import com.studio4plus.homerplayer.ui.Speaker;
+import com.studio4plus.homerplayer.ui.TouchRateJoystick;
 import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.ui.UiControllerPlayback;
 import com.studio4plus.homerplayer.util.ViewUtils;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 import io.codetail.animation.ViewAnimationUtils;
+
+import static android.media.AudioManager.STREAM_MUSIC;
 
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
@@ -40,12 +50,14 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private AppCompatImageButton rewindButton;
     private AppCompatImageButton ffButton;
     private TextView elapsedTimeView;
+    private TextView volumeSpeedView;
     private TextView elapsedTimeRewindFFView;
     private TextView chapterInfoView;
     private RewindFFHandler rewindFFHandler;
     private Animator elapsedTimeRewindFFViewAnimation;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private UiUtil.SnoozeDisplay snooze;
+    private AdjustmentsListener adjustmentsListener = null;
 
     private @Nullable UiControllerPlayback controller;
 
@@ -69,8 +81,10 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             Preconditions.checkNotNull(controller);
             controller.stopPlayback();
         });
+        adjustmentsListener = new AdjustmentsListener();
 
         elapsedTimeView = view.findViewById(R.id.elapsedTime);
+        volumeSpeedView= view.findViewById(R.id.Volume_speed);
         elapsedTimeRewindFFView = view.findViewById(R.id.elapsedTimeRewindFF);
         chapterInfoView = view.findViewById(R.id.chapterInfo);
 
@@ -121,6 +135,13 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         Crashlytics.log("UI: FragmentPlayback resumed");
         rewindButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         ffButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
+        if (globalSettings.isScreenVolumeSpeedEnabled()) {
+            stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
+                    adjustmentsListener::handleSettings));
+        }
+        if (globalSettings.isTiltVolumeSpeedEnabled()) {
+            DeviceMotionDetector.getDeviceMotionDetector(adjustmentsListener::handleSettings);
+        }
         UiUtil.startBlinker(view, globalSettings);
         showHintIfNecessary();
     }
@@ -133,7 +154,21 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         rewindButton.setOnTouchListener(null);
         ffButton.setOnTouchListener(null);
         rewindFFHandler.onPause();
+        if (globalSettings.isScreenVolumeSpeedEnabled()) {
+            stopButton.setOnTouchListener(null);
+        }
+        if (globalSettings.isTiltVolumeSpeedEnabled()) {
+            DeviceMotionDetector.getDeviceMotionDetector((TouchRateJoystick.Listener)null);
+        }
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (adjustmentsListener != null) {
+            adjustmentsListener.onDestroy();
+        }
+        super.onDestroy();
     }
 
     void onPlaybackStopping() {
@@ -315,6 +350,182 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             animator.setInterpolator(new AccelerateDecelerateInterpolator());
 
             return animator;
+        }
+    }
+
+    class AdjustmentsListener {
+        final AudioManager audioManager;
+        final Speaker speaker;
+
+        private final MediaPlayer mediaPlayerComplain;
+        private final MediaPlayer mediaPlayerTick;
+
+        // I looked at both AudioPlayer and SoundPool for playing the recorded ticking sounds.
+        // SoundPool appears to be a convenience class over AudioPlayer, but it renders the
+        // sounds at a somewhat lower amplitude, so use AudioPlayer for those.
+
+        int oldMax;
+        int newTarget;
+        int deferChange = -1;
+
+        float speechRate;
+
+        AdjustmentsListener ()
+        {
+            audioManager = (AudioManager) Objects.requireNonNull(getContext()).getSystemService(Context.AUDIO_SERVICE);
+            mediaPlayerTick = MediaPlayer.create(getContext(), R.raw.tick);
+            mediaPlayerComplain = MediaPlayer.create(getContext(), R.raw.limit_hit);
+            speaker = Speaker.get();
+        }
+
+        void onDestroy()
+        {
+            mediaPlayerTick.release();
+            mediaPlayerComplain.release();
+        }
+
+        private void tick() {
+            mediaPlayerTick.start();
+        }
+
+        private void complain() {
+            mediaPlayerComplain.start();
+        }
+
+        private void announce(String s)
+        {
+            // The volume is a property of each utterance; we want to be fairly loud
+            // for the single word.
+            float oldV = speaker.getVolume();
+            speaker.setVolume(1.0f);
+            speaker.speak(s);
+            speaker.setVolume(oldV);
+        }
+
+        // Handle volume and speed settings coming from the "joystick" interface.
+
+        private void handleSettings(TouchRateJoystick.Direction direction, int counter) {
+            Preconditions.checkNotNull(controller);
+            if (counter == TouchRateJoystick.RELEASE || counter == TouchRateJoystick.REVERSE) {
+                // Wrap up everything.
+                switch (direction) {
+                case UP:
+                case DOWN:
+                    // Make sure it sticks
+                    globalSettings.setPlaybackSpeed(speechRate);
+                    break;
+
+                case LEFT:
+                case RIGHT:
+                    // Nothing to do, since we've been setting the actual volume.
+                    break;
+                }
+                if (counter == TouchRateJoystick.RELEASE) {
+                    volumeSpeedView.setVisibility(View.GONE);
+                }
+            }
+            else if (counter == 0) {
+                // Initialize
+                switch (direction) {
+                case UP:
+                case DOWN:
+                    announce(direction == TouchRateJoystick.Direction.UP
+                            ? getString(R.string.audio_prompt_faster)
+                            : getString(R.string.audio_prompt_slower));
+                    speechRate = controller.getSpeed();
+                    volumeSpeedView.setVisibility(View.VISIBLE);
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
+                    break;
+
+                case LEFT:
+                case RIGHT:
+                    announce(direction == TouchRateJoystick.Direction.LEFT
+                            ? getString(R.string.audio_prompt_softer)
+                            : getString(R.string.audio_prompt_louder));
+                    oldMax = audioManager.getStreamMaxVolume(STREAM_MUSIC);
+                    newTarget = audioManager.getStreamVolume(STREAM_MUSIC);
+                    volumeSpeedView.setVisibility(View.VISIBLE);
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
+                    break;
+                }
+            }
+            else {
+                // Individual change ticks
+                switch (direction) {
+                case UP:
+                    // This ceiling seems large, but some studies indicate that there are a few
+                    // well-practiced people who can use it. See --
+                    //  Danielle Bragg, Cynthia Bennett, Katharina Reinecke, and Richard Ladner. 2018.
+                    //  A Large Inclusive Study of Human Listening Rates.
+                    //  In Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems
+                    //  (CHI '18). ACM, New York, NY, USA, Paper 444, 12 pages.
+                    if (speechRate >= 4.45f) {
+                        complain();
+                        break;
+                    }
+                    tick();
+                    if (deferChange-- > 0) {
+                        // An audible detent, in effect
+                        announce(getString(R.string.audio_prompt_normal));
+                        break;
+                    }
+                    speechRate += .1;
+                    if (Math.abs(speechRate - 1.0f) < .01f) {
+                        speechRate = 1.0f; // normalize
+                        if (deferChange < 0) {
+                            deferChange = 2;
+                        }
+                    }
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
+                    controller.setSpeed(speechRate);
+                    break;
+                case DOWN:
+                    if (speechRate <= 0.51f) {
+                        complain();
+                        break;
+                    }
+                    tick();
+                    if (deferChange-- > 0) {
+                        // An audible detent, in effect
+                        announce(getString(R.string.audio_prompt_normal));
+                        break;
+                    }
+                    speechRate -= .1;
+                    if (Math.abs(speechRate - 1.0f) < .01f) {
+                        speechRate = 1.0f; // normalize
+                        if (deferChange < 0) {
+                            deferChange = 2;
+                        }
+                    }
+                    volumeSpeedView.setText(String.format(getString(R.string.display_speed), speechRate));
+                    controller.setSpeed(speechRate);
+                    break;
+
+                case LEFT: {
+                    if (newTarget <= 2) {
+                        // Leave just a little playing so user isn't confused by total silence
+                        complain();
+                        break;
+                    }
+                    newTarget--;
+                    audioManager.setStreamVolume(STREAM_MUSIC, newTarget, 0);
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
+                    tick();
+                    break;
+                }
+                case RIGHT: {
+                    if (newTarget >= oldMax) {
+                        complain();
+                        break;
+                    }
+                    newTarget++;
+                    audioManager.setStreamVolume(STREAM_MUSIC, newTarget, 0);
+                    volumeSpeedView.setText(String.format(getString(R.string.display_volume), newTarget));
+                    tick();
+                    break;
+                }
+                }
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ import android.content.res.Resources;
 
 import com.studio4plus.homerplayer.model.LibraryContentType;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -49,6 +50,8 @@ public class GlobalSettings {
     public static final String KEY_SLEEP_TIMER = "sleep_timer_preference";
     public static final String KEY_SCREEN_ORIENTATION = "screen_orientation_preference";
     private static final String KEY_FF_REWIND_SOUND = "ff_rewind_sound_preference";
+    private static final String KEY_SCREEN_VOLUME_SPEED = "screen_volume_speed_preference";
+    private static final String KEY_TILT_VOLUME_SPEED = "tilt_volume_speed_preference";
     public static final String KEY_PLAYBACK_SPEED = "playback_speed_preference";
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
@@ -99,6 +102,10 @@ public class GlobalSettings {
                 KEY_PLAYBACK_SPEED, resources.getString(R.string.pref_playback_speed_default_value));
         assert valueString != null;
         return Float.parseFloat(valueString);
+    }
+
+    public void setPlaybackSpeed(float speed) {
+        sharedPreferences.edit().putString(KEY_PLAYBACK_SPEED, String.format(Locale.US,"%1.1f",speed)).apply();
     }
 
     public int getSnoozeDelay() {
@@ -211,6 +218,14 @@ public class GlobalSettings {
 
     public boolean isFFRewindSoundEnabled() {
         return sharedPreferences.getBoolean(KEY_FF_REWIND_SOUND, true);
+    }
+
+    public boolean isScreenVolumeSpeedEnabled() {
+        return sharedPreferences.getBoolean(KEY_SCREEN_VOLUME_SPEED, true);
+    }
+
+    public boolean isTiltVolumeSpeedEnabled() {
+        return sharedPreferences.getBoolean(KEY_TILT_VOLUME_SPEED, true);
     }
 
     public SharedPreferences appSharedPreferences() {

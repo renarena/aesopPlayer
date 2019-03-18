@@ -66,6 +66,12 @@
     <string name="pref_ff_rewind_sound">Dźwięk przewijania</string>
     <string name="pref_ff_rewind_sound_summary_on">Zawarte</string>
     <string name="pref_ff_rewind_sound_summary_off">Wyłączony</string>
+    <string name="pref_screen_volume_speed">Regulacja głośności i prędkości odtwarzania z ekranu.</string>
+    <string name="pref_screen_volume_speed_on">Zawarte</string>
+    <string name="pref_screen_volume_speed_off">Wyłączony</string>
+    <string name="pref_tilt_volume_speed">Wyreguluj głośność i szybkość, przechylając urządzenie.</string>
+    <string name="pref_tilt_volume_speed_on">Zawarte</string>
+    <string name="pref_tilt_volume_speed_off">Wyłączony</string>
     <string name="pref_reset_all_book_progress">Przewiń wszystkie książki na początek…</string>
     <string name="pref_set_progress_message">Określić postęp dla \"%1$s\"</string>
     <string name="pref_reset_all_book_progress_dialog_title">Przewinąć książki na początek?</string>
@@ -77,6 +83,13 @@
     <string name="button_acc_fast_forward">przewiń do przodu</string>
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
+    <string name="audio_prompt_slower">Wolniej</string>
+    <string name="audio_prompt_faster">Szybciej</string>
+    <string name="audio_prompt_louder">Głośniej</string>
+    <string name="audio_prompt_softer">Ciszej</string>
+    <string name="audio_prompt_normal">Normalna</string>
+    <string name="display_volume">Głośność: %2d</string>
+    <string name="display_speed">Prędkość: %1.1f</string>
     <string name="multi_tap_prompt">Jeszcze %d</string>
     <string name="initial_multi_tap_prompt" tools:ignore="PluralsCandidate">Stuknij %d razy do ustawienia</string>
     <string name="press_other_gear_prompt">Przytrzymaj tę transmisję, a następnie stuknij pozycję nowej transmisji do ustawienia</string>

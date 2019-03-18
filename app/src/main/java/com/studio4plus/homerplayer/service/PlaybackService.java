@@ -219,6 +219,7 @@ public class PlaybackService
         }
     }
 
+
     public class ServiceBinder extends Binder {
         public PlaybackService getService() {
             return PlaybackService.this;
@@ -509,5 +510,21 @@ public class PlaybackService
             return;
         }
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, levelValue, 0);
+    }
+
+    public void setVolume(float volume) {
+        player.setPlaybackVolume(volume);
+    }
+
+    public float getVolume() {
+        return player.getPlaybackVolume();
+    }
+
+    public void setSpeed(float speed) {
+        player.setPlaybackSpeed(speed);
+    }
+
+    public float getSpeed() {
+        return player.getPlaybackSpeed();
     }
 }
