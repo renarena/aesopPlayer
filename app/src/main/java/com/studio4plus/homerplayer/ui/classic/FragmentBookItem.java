@@ -95,6 +95,10 @@ public class FragmentBookItem extends BookListChildFragment {
             String chapterName = book.getChapter();
             chapter.setText(chapterName);
 
+            // Completed
+            final TextView completed = view.findViewById(R.id.completed);
+            completed.setText(book.getCompleted() ? getText(R.string.bookCompleted) : "");
+
             final AppCompatButton startButton = view.findViewById(R.id.startButton);
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override

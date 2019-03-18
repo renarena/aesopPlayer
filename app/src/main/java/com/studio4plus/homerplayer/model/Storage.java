@@ -26,6 +26,7 @@ public class Storage implements AudioBook.UpdateObserver {
     private static final String FIELD_POSITION_FILEPATH_DEPRECATED = "filePath";
     private static final String FIELD_POSITION_FILE_INDEX = "fileIndex";
     private static final String FIELD_POSITION_SEEK = "seek";
+    private static final String FIELD_POSITION_COMPLETED = "completed";
     private static final String FIELD_FILE_DURATIONS = "fileDurations";
 
 
@@ -62,8 +63,10 @@ public class Storage implements AudioBook.UpdateObserver {
                         durations.add(jsonDurations.getLong(i));
                 }
 
+                boolean completed = jsonObject.optBoolean(FIELD_POSITION_COMPLETED, false);
+
                 if (fileIndex >= 0)
-                    audioBook.restore(colourScheme, fileIndex, seek, durations);
+                    audioBook.restore(colourScheme, fileIndex, seek, durations, completed);
                 else
                     audioBook.restoreOldFormat(colourScheme, fileName, seek, durations);
             } catch (JSONException e) {
@@ -83,6 +86,7 @@ public class Storage implements AudioBook.UpdateObserver {
             jsonAudioBook.put(FIELD_POSITION, jsonPosition);
             jsonAudioBook.putOpt(FIELD_COLOUR_SCHEME, audioBook.getColourScheme());
             jsonAudioBook.put(FIELD_FILE_DURATIONS, jsonDurations);
+            jsonAudioBook.put(FIELD_POSITION_COMPLETED, audioBook.getCompleted());
 
             SharedPreferences.Editor editor = preferences.edit();
             String key = getAudioBookPreferenceKey(audioBook.getId());

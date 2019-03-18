@@ -34,6 +34,7 @@ public class AudioBook {
     private ColourScheme colourScheme;
     private Position lastPosition;
     private long totalDuration = UNKNOWN_POSITION;
+    private boolean completed = false;
 
     private UpdateObserver updateObserver;
 
@@ -161,6 +162,14 @@ public class AudioBook {
         this.colourScheme = colourScheme;
     }
 
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean getCompleted() {
+        return this.completed;
+    }
+
     public boolean advanceFile() {
         DebugUtil.verifyIsOnMainThread();
         int newIndex = lastPosition.fileIndex + 1;
@@ -178,7 +187,8 @@ public class AudioBook {
     }
 
     void restore(
-            ColourScheme colourScheme, int fileIndex, long seekPosition, List<Long> fileDurations) {
+            ColourScheme colourScheme, int fileIndex, long seekPosition, List<Long> fileDurations,
+            boolean completed) {
         this.lastPosition = new Position(fileIndex, seekPosition);
         if (colourScheme != null)
             this.colourScheme = colourScheme;
@@ -187,6 +197,7 @@ public class AudioBook {
             if (fileDurations.size() == fileSet.files.length)
                 this.totalDuration = fileDurationSum(fileDurations.size());
         }
+        this.completed = completed;
     }
 
     void restoreOldFormat(
@@ -210,6 +221,7 @@ public class AudioBook {
         if (fileIndex >= 0) {
             lastPosition = new Position(fileIndex, seekPosition);
         }
+        this.completed = false; // Old won't have this
     }
 
     private long fileDurationSum(int fileCount) {

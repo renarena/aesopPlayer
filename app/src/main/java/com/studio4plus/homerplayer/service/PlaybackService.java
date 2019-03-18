@@ -359,6 +359,7 @@ public class PlaybackService
                 controller.start(position.file, position.seekPosition);
             } else {
                 audioBook.resetPosition();
+                audioBook.setCompleted(true);
                 PlaybackService.this.onPlaybackEnded();
                 controller.release();
             }

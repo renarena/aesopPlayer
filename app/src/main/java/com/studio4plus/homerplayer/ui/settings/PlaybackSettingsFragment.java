@@ -198,6 +198,7 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
             newBookPosition = lengthMs;
         }
         book.updateTotalPosition(newBookPosition);
+        book.setCompleted(false);
 
         updateSetProgressSummary();
     }

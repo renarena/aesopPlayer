@@ -185,6 +185,7 @@ public class AudioBookManager {
     public void resetAllBookProgress() {
         for (AudioBook book : audioBooks) {
             book.resetPosition();
+            book.setCompleted(false);
         }
     }
 

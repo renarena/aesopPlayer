@@ -103,6 +103,7 @@
     <string name="audio_prompt_normal">Normal</string>
     <string name="display_volume">Volume: %2d</string>
     <string name="display_speed">Speed: %1.1f</string>
+    <string name="bookCompleted">Completed</string>
     <string name="multi_tap_prompt" tools:ignore="PluralsCandidate">%d more to go</string>
     <string name="initial_multi_tap_prompt" tools:ignore="PluralsCandidate">Tap %d times for settings</string>
     <string name="press_other_gear_prompt">Hold this Gear, then tap the new Gear for Settings</string>

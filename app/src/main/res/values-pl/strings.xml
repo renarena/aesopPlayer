@@ -90,6 +90,7 @@
     <string name="audio_prompt_normal">Normalna</string>
     <string name="display_volume">Głośność: %2d</string>
     <string name="display_speed">Prędkość: %1.1f</string>
+    <string name="bookCompleted">Zakończona</string>
     <string name="multi_tap_prompt">Jeszcze %d</string>
     <string name="initial_multi_tap_prompt" tools:ignore="PluralsCandidate">Stuknij %d razy do ustawienia</string>
     <string name="press_other_gear_prompt">Przytrzymaj tę transmisję, a następnie stuknij pozycję nowej transmisji do ustawienia</string>

@@ -168,16 +168,34 @@
 
                 </ViewFlipper>
 
-                <TextView
-                    android:id="@+id/totalLength"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="2"
-                    android:gravity="left"
-                    android:textColor="#000000"
-                    app:autoSizeTextType="uniform"
-                    tools:text="1:23:45"
-                    tools:ignore="RtlHardcoded" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/totalLength"
+                        android:gravity="left"
+                        android:textColor="#000000"
+                        app:autoSizeTextType="uniform"
+                        android:layout_weight="1"
+                        tools:text="1:23:45"
+                        tools:ignore="NestedWeights,RtlHardcoded" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/completed"
+                        android:gravity="end"
+                        android:textColor="#000000"
+                        app:autoSizeTextType="uniform"
+                        android:layout_weight="1"
+                        tools:text="Completed" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
