@@ -1,6 +1,9 @@
 package com.studio4plus.homerplayer.model;
 
 import com.google.common.base.Preconditions;
+import com.mpatric.mp3agic.ID3v1;
+import com.mpatric.mp3agic.ID3v2;
+import com.mpatric.mp3agic.Mp3File;
 import com.studio4plus.homerplayer.filescanner.FileSet;
 import com.studio4plus.homerplayer.util.DebugUtil;
 
@@ -48,38 +51,115 @@ public class AudioBook {
         this.updateObserver = updateObserver;
     }
 
+    private String albumTitle;
+
     public String getTitle() {
-        return directoryToTitle(fileSet.directoryName);
+        if (albumTitle != null) {
+            return albumTitle;
+        }
+
+        String fileName = fileSet.files[lastPosition.fileIndex].getPath();
+
+        String author = null;
+        if (fileSet.directoryName.indexOf(' ') >= 0) {
+            // Spaces in the name -> it's supposed to be human-readable
+            albumTitle = directoryToTitle(fileSet.directoryName);
+            return albumTitle;
+        }
+        else {
+            // Get it from the metadata
+
+            // MediaMetadataRetriever (the obvious choice) simply doesn't work,
+            // not returning metadata that's clearly there.
+            // (StackOverflow rumor has it that it's a Samsung issue in part.)
+            // This is (apparently inherently) slow. Cache.
+            try {
+                Mp3File mp3file = new Mp3File(fileName);
+                if (mp3file.hasId3v2Tag()) {
+                    ID3v2 id3v2Tag = mp3file.getId3v2Tag();
+                    albumTitle = id3v2Tag.getAlbum();
+                    author = id3v2Tag.getArtist();
+                }
+                if (albumTitle == null || author == null) {
+                    if (mp3file.hasId3v1Tag()) {
+                        ID3v1 id3v1Tag = mp3file.getId3v1Tag();
+                        if (albumTitle == null) {
+                            albumTitle = id3v1Tag.getAlbum();
+                        }
+                        if (author == null) {
+                            author = id3v1Tag.getArtist();
+                        }
+                    }
+                }
+                if (author != null) {
+                    albumTitle += " - " + author;
+                }
+                // If any underscores get to here, get rid of them... they look
+                // (and worse, sound) awful.
+                albumTitle = directoryToTitle(albumTitle);
+            }
+            catch (Exception e) {
+                // Ignore any errors
+            }
+
+            if (albumTitle == null || albumTitle.length() <= 0) {
+                albumTitle = directoryToTitle(fileSet.directoryName);
+            }
+        }
+        return albumTitle;
     }
 
     public String getId() {
         return fileSet.id;
     }
 
-    private String chapter;
+    private String chapterTitle;
     private int lastFileIndex = -1;
 
     // Do the best we can for this format.
     public String getChapter() {
         // Do this only if we haven't done it before
         if (lastPosition.fileIndex != lastFileIndex) {
-            chapter = fileSet.files[lastPosition.fileIndex].getName();
-            // Get rid of ".mp3" (etc.)
-            chapter = chapter.substring(0, chapter.lastIndexOf("."));
-            // clean up _s
-            chapter = directoryToTitle(chapter);
+            String fileName = fileSet.files[lastPosition.fileIndex].getPath();
+            // Get it from the metadata
+            // See above about MediaMetadataRetriever.
+            try {
+                Mp3File mp3file = new Mp3File(fileName);
+                if (mp3file.hasId3v2Tag()) {
+                    ID3v2 id3v2Tag = mp3file.getId3v2Tag();
+                    chapterTitle = id3v2Tag.getTitle();
+                }
+                if (chapterTitle == null) {
+                    if (mp3file.hasId3v1Tag()) {
+                        ID3v1 id3v1Tag = mp3file.getId3v1Tag();
+                        chapterTitle = id3v1Tag.getTitle();
+                    }
+                }
+            }
+            catch (Exception e) {
+                // Ignore any errors
+            }
 
-            // Guess if the title is repeated in the chapter name and remove that
-            String title = getTitle();
-            int titleLoc = chapter.indexOf(title);
-            if (titleLoc >= 0) {
-                chapter = chapter.substring(0, titleLoc)
-                        + chapter.substring(titleLoc + title.length() + 1);
+            if (chapterTitle == null || chapterTitle.length() <= 0) {
+
+                // No metadata chapter title... fake it.
+                // Get rid of ".mp3" (etc.)
+                chapterTitle = fileName.substring(0, fileName.lastIndexOf("."));
+                // clean up _s
+                chapterTitle = directoryToTitle(chapterTitle);
+
+                // Guess if the title is repeated in the chapter name and remove that
+                String title = getTitle();
+                int titleLoc = chapterTitle.indexOf(title);
+                if (titleLoc >= 0) {
+                    chapterTitle = chapterTitle.substring(0, titleLoc)
+                                 + chapterTitle.substring(titleLoc + title.length() + 1);
+                }
             }
             lastFileIndex = lastPosition.fileIndex;
         }
 
-        return chapter;
+        return chapterTitle;
     }
 
     public Position getLastPosition() {
