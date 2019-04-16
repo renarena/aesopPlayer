@@ -60,13 +60,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 (ConfirmDialogPreference) findPreference(KEY_UNREGISTER_DEVICE_OWNER);
         if (Build.VERSION.SDK_INT >= 21) {
             preferenceUnregisterDeviceOwner.setOnConfirmListener(
-                    new ConfirmDialogPreference.OnConfirmListener() {
-                        @Override
-                        public void onConfirmed() {
-                            disableDeviceOwner();
-                        }
-                    });
-
+                    this::disableDeviceOwner);
             updateUnregisterDeviceOwner(HomerPlayerDeviceAdmin.isDeviceOwner(getActivity()));
         } else {
             getPreferenceScreen().removePreference(preferenceUnregisterDeviceOwner);
@@ -88,7 +82,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                         // The system provides a Toast when it does this.
                     } catch (Exception e) {
                         // I haven't seen this happen, but it can't hurt
-                        Toast.makeText(getActivity(), "Already unlocked", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.pref_kiosk_already_unlocked_toast), Toast.LENGTH_SHORT).show();
                     }
                     // Setting below won't stick on API 21-22... sigh.
                     Preference clearApplicationPinningPreference =

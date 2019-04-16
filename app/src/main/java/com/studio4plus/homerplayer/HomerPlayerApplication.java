@@ -26,6 +26,7 @@ public class HomerPlayerApplication extends Application {
 
     private ApplicationComponent component;
     private MediaStoreUpdateObserver mediaStoreUpdateObserver;
+    private static Context applicationContext;
 
     @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
@@ -34,6 +35,8 @@ public class HomerPlayerApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        applicationContext = getApplicationContext();
 
         CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
         Fabric.with(this, new Crashlytics.Builder().core(core).build());
@@ -64,5 +67,9 @@ public class HomerPlayerApplication extends Application {
 
     public static ApplicationComponent getComponent(Context context) {
         return ((HomerPlayerApplication) context.getApplicationContext()).component;
+    }
+
+    public static Context getAppContext() {
+        return applicationContext;
     }
 }

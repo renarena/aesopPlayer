@@ -300,7 +300,7 @@ public class PlaybackService
             controller.setObserver(this);
             AudioBook.Position position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
-            controller.start(position.file, startPositionMs);
+            controller.start(position.getFile(), startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }
@@ -321,7 +321,7 @@ public class PlaybackService
 
         void resumeFromRewind() {
             AudioBook.Position position = audioBook.getLastPosition();
-            controller.start(position.file, position.seekPosition);
+            controller.start(position.getFile(), position.seekPosition);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }
@@ -329,7 +329,7 @@ public class PlaybackService
         void resumeFromPause() {
             AudioBook.Position position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
-            controller.resume(position.file, startPositionMs);
+            controller.resume(position.getFile(), startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }
@@ -356,7 +356,7 @@ public class PlaybackService
                     (hasMoreToPlay ? "more to play" : "finished"));
             if (hasMoreToPlay) {
                 AudioBook.Position position = audioBook.getLastPosition();
-                controller.start(position.file, position.seekPosition);
+                controller.start(position.getFile(), position.seekPosition);
             } else {
                 audioBook.resetPosition();
                 audioBook.setCompleted(true);

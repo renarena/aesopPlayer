@@ -19,7 +19,8 @@ import androidx.annotation.NonNull;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.R;
-import com.studio4plus.homerplayer.ui.settings.SettingsActivity;
+import com.studio4plus.homerplayer.ui.provisioning.ProvisioningActivity;
+
 
 import java.util.concurrent.TimeUnit;
 
@@ -53,12 +54,9 @@ public class UiUtil {
             snoozeCounter = view.findViewById(R.id.snoozeCounter);
             Preconditions.checkNotNull(snoozeCounter);
 
-            snoozeCounter.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    // Don't let any events "through" the overlay.
-                    return true;
-                }
+            snoozeCounter.setOnTouchListener((v, event) -> {
+                // Don't let any events "through" the overlay.
+                return true;
             });
             snoozeOverlay.setVisibility(View.VISIBLE);
 
@@ -146,12 +144,9 @@ public class UiUtil {
 
         switch (globalSettings.getSettingsInterlock()) {
             case NONE: {
-                settingsButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        activity.startActivity(new Intent(context, SettingsActivity.class));
-                        settingsButton.setEnabled(false);
-                    }
+                settingsButton.setOnClickListener(v -> {
+                    activity.startActivity(new Intent(context, ProvisioningActivity.class));
+                    settingsButton.setEnabled(false);
                 });
                 break;
             }
@@ -161,12 +156,7 @@ public class UiUtil {
             }
             case MULTI_TAP: {
                 settingsButton.setOnTouchListener(new MultitapTouchListener(
-                        context, new MultitapTouchListener.Listener() {
-                    @Override
-                    public void onMultiTap() {
-                        activity.startActivity(new Intent(context, SettingsActivity.class));
-                    }
-                }));
+                        context, () -> activity.startActivity(new Intent(context, ProvisioningActivity.class))));
                 break;
             }
         }
@@ -196,15 +186,12 @@ public class UiUtil {
                     settingsButton2box.setVisibility(View.VISIBLE);
 
                     final AppCompatButton settingsButton2 = pressListener.findViewById(R.id.settingsButton2);
-                    settingsButton2.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            lastToast.cancel();
-                            if (event.getAction() == MotionEvent.ACTION_UP) {
-                                activity.startActivity(new Intent(context, SettingsActivity.class));
-                            }
-                            return true;
+                    settingsButton2.setOnTouchListener((v, event1) -> {
+                        lastToast.cancel();
+                        if (event1.getAction() == MotionEvent.ACTION_UP) {
+                            activity.startActivity(new Intent(context, ProvisioningActivity.class));
                         }
+                        return true;
                     });
                     break;
                 }

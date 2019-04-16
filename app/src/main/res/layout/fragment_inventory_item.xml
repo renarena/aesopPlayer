@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/un_writable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="10dp"
+        android:paddingStart="0dp"
+        app:srcCompat="@drawable/ic_sharp_lock_24px"
+        app:layout_constraintBottom_toBottomOf="@+id/selected"
+        app:layout_constraintEnd_toEndOf="@+id/selected"
+        app:layout_constraintStart_toStartOf="@+id/selected"
+        app:layout_constraintTop_toTopOf="@+id/selected"
+        android:contentDescription="@string/content_description_cannot_change" />
+
+    <CheckBox
+        android:id="@+id/selected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/book_directory"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/book_title" />
+
+    <TextView
+        android:id="@+id/book_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        tools:text="Book"
+        app:layout_constraintBottom_toTopOf="@+id/book_directory"
+        app:layout_constraintEnd_toStartOf="@+id/current_position"
+        app:layout_constraintStart_toEndOf="@+id/selected"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/current_position"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        tools:text="1:22:33"
+        app:layout_constraintBottom_toTopOf="@+id/total_length"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/book_title"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/book_directory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        tools:text="Directory"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/book_completed"
+        app:layout_constraintStart_toEndOf="@+id/selected"
+        app:layout_constraintTop_toBottomOf="@+id/book_title" />
+
+    <TextView
+        android:id="@+id/book_completed"
+        android:layout_width="wrap_content"
+        android:layout_height="13dp"
+        android:text="@string/book_is_completed"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/total_length"
+        app:layout_constraintStart_toEndOf="@+id/book_directory"
+        app:layout_constraintTop_toBottomOf="@+id/book_title" />
+
+    <TextView
+        android:id="@+id/total_length"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="end"
+        android:maxEms="4"
+        android:minEms="4"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        tools:text="1:22:33"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/book_completed" />
+
+    <Button
+        android:id="@+id/title_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/book_title"
+        app:layout_constraintStart_toEndOf="@+id/selected"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/position_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/current_position"
+        app:layout_constraintStart_toStartOf="@+id/current_position"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

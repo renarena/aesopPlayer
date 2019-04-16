@@ -8,12 +8,14 @@ public class FileSet {
 
     public final String id;
     public final String directoryName;
+    public final File path;
     public final File[] files;
     public final boolean isDemoSample;
 
     public FileSet(String id, File absolutePath, File[] files, boolean isDemoSample) {
         Preconditions.checkArgument(absolutePath.isDirectory());
         this.id = id;
+        this.path = absolutePath;
         this.directoryName = absolutePath.getName();
         this.files = files;
         this.isDemoSample = isDemoSample;

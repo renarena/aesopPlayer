@@ -1,18 +1,36 @@
 package com.studio4plus.homerplayer.model;
 
+import android.content.Context;
+
 import com.google.common.base.Preconditions;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.Mp3File;
+import com.studio4plus.homerplayer.R;
+import com.studio4plus.homerplayer.events.AudioBooksChangedEvent;
 import com.studio4plus.homerplayer.filescanner.FileSet;
+import com.studio4plus.homerplayer.filescanner.ScanFilesTask;
+import com.studio4plus.homerplayer.ui.UiUtil;
 import com.studio4plus.homerplayer.util.DebugUtil;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.text.WordUtils;
+
+import de.greenrobot.event.EventBus;
 
 public class AudioBook {
+
+    static public class TitleAndAuthor {
+        public final String title;
+        public final String author;
+        public TitleAndAuthor(String title, String author) {
+            this.title = title;
+            this.author = author;
+        }
+    }
 
     public final static long UNKNOWN_POSITION = -1;
 
@@ -23,16 +41,18 @@ public class AudioBook {
     public class Position {
         public final int fileIndex;
         public final long seekPosition;
-        public final File file;
 
         Position(int fileIndex, long seekPosition) {
             this.fileIndex = fileIndex;
             this.seekPosition = seekPosition;
-            this.file = fileSet.files[fileIndex];
+        }
+
+        public File getFile() {
+            return fileSet.files[fileIndex];
         }
     }
 
-    private final FileSet fileSet;
+    private FileSet fileSet;
     private List<Long> fileDurations;
     private ColourScheme colourScheme;
     private Position lastPosition;
@@ -51,59 +71,106 @@ public class AudioBook {
         this.updateObserver = updateObserver;
     }
 
+    void replaceFileSet(FileSet fileSet) {
+        this.fileSet = fileSet;
+        this.albumTitle = null;
+    }
+
     private String albumTitle;
+
+    static public TitleAndAuthor metadataTitle(String fileName) {
+        try {
+            Mp3File mp3file = new Mp3File(fileName, false);
+            return metadataTitle(mp3file);
+        }
+        catch (Exception e) {
+            // Ignore any errors
+            return new TitleAndAuthor(null, null);
+        }
+    }
+
+    static public TitleAndAuthor metadataTitle(File file) {
+        try {
+            // 65536 is the default... we need scanFile to be false.
+            Mp3File mp3file = new Mp3File(file, 65536, false);
+            return metadataTitle(mp3file);
+        }
+        catch (Exception e) {
+            // Ignore any errors
+            return new TitleAndAuthor(null, null);
+        }
+    }
+
+    private static TitleAndAuthor metadataTitle(Mp3File mp3file) {
+        // MediaMetadataRetriever (the obvious choice) simply doesn't work,
+        // not returning metadata that's clearly there.
+        // (StackOverflow rumor has it that it's a Samsung issue in part.)
+        // This is (apparently inherently) slow. Cache.
+
+        String author = null;
+        String newTitle = null;
+
+        try {
+            if (mp3file.hasId3v2Tag()) {
+                ID3v2 id3v2Tag = mp3file.getId3v2Tag();
+                newTitle = id3v2Tag.getAlbum();
+                author = id3v2Tag.getArtist();
+            }
+            if (newTitle == null || author == null) {
+                if (mp3file.hasId3v1Tag()) {
+                    ID3v1 id3v1Tag = mp3file.getId3v1Tag();
+                    if (newTitle == null) {
+                        newTitle = id3v1Tag.getAlbum();
+                    }
+                    if (author == null) {
+                        author = id3v1Tag.getArtist();
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            // Ignore any errors
+        }
+
+        return new TitleAndAuthor(newTitle, author);
+    }
+
+    static public String computeTitle (TitleAndAuthor title) {
+        String newTitle = title.title;
+        if (title.author != null) {
+            newTitle += " - " + title.author;
+        }
+
+        // If any underscores get to here, get rid of them... they look
+        // (and worse, sound) awful.
+        newTitle = titleCase(newTitle);
+
+        return newTitle;
+    }
+
+    public void setTitle(String title) {
+        albumTitle = title;
+    }
 
     public String getTitle() {
         if (albumTitle != null) {
             return albumTitle;
         }
 
-        String fileName = fileSet.files[lastPosition.fileIndex].getPath();
-
-        String author = null;
         if (fileSet.directoryName.indexOf(' ') >= 0) {
             // Spaces in the name -> it's supposed to be human-readable
-            albumTitle = directoryToTitle(fileSet.directoryName);
+            albumTitle = fileSet.directoryName;
             return albumTitle;
         }
         else {
+            String fileName = fileSet.files[lastPosition.fileIndex].getPath();
             // Get it from the metadata
+            TitleAndAuthor title = metadataTitle(fileName);
 
-            // MediaMetadataRetriever (the obvious choice) simply doesn't work,
-            // not returning metadata that's clearly there.
-            // (StackOverflow rumor has it that it's a Samsung issue in part.)
-            // This is (apparently inherently) slow. Cache.
-            try {
-                Mp3File mp3file = new Mp3File(fileName);
-                if (mp3file.hasId3v2Tag()) {
-                    ID3v2 id3v2Tag = mp3file.getId3v2Tag();
-                    albumTitle = id3v2Tag.getAlbum();
-                    author = id3v2Tag.getArtist();
-                }
-                if (albumTitle == null || author == null) {
-                    if (mp3file.hasId3v1Tag()) {
-                        ID3v1 id3v1Tag = mp3file.getId3v1Tag();
-                        if (albumTitle == null) {
-                            albumTitle = id3v1Tag.getAlbum();
-                        }
-                        if (author == null) {
-                            author = id3v1Tag.getArtist();
-                        }
-                    }
-                }
-                if (author != null) {
-                    albumTitle += " - " + author;
-                }
-                // If any underscores get to here, get rid of them... they look
-                // (and worse, sound) awful.
-                albumTitle = directoryToTitle(albumTitle);
-            }
-            catch (Exception e) {
-                // Ignore any errors
-            }
+            albumTitle = computeTitle(title);
 
             if (albumTitle == null || albumTitle.length() <= 0) {
-                albumTitle = directoryToTitle(fileSet.directoryName);
+                albumTitle = titleCase(fileSet.directoryName);
             }
         }
         return albumTitle;
@@ -146,7 +213,7 @@ public class AudioBook {
                 // Get rid of ".mp3" (etc.)
                 chapterTitle = fileName.substring(0, fileName.lastIndexOf("."));
                 // clean up _s
-                chapterTitle = directoryToTitle(chapterTitle);
+                chapterTitle = titleCase(chapterTitle);
 
                 // Guess if the title is repeated in the chapter name and remove that
                 String title = getTitle();
@@ -160,6 +227,16 @@ public class AudioBook {
         }
 
         return chapterTitle;
+    }
+
+    public String getDirectoryName()
+    {
+        return fileSet.directoryName;
+    }
+
+    public File getPath()
+    {
+        return fileSet.path;
     }
 
     public Position getLastPosition() {
@@ -188,8 +265,12 @@ public class AudioBook {
         // Only set the duration if unknown.
         if (index == fileDurations.size()) {
             fileDurations.add(durationMs);
-            if (fileDurations.size() == fileSet.files.length)
+            if (fileDurations.size() == fileSet.files.length) {
                 totalDuration = fileDurationSum(fileSet.files.length);
+                EventBus.getDefault().post(new AudioBooksChangedEvent(LibraryContentType.EMPTY));
+                // EMPTY is no-op
+            }
+            // Update the stored state (N.B. that can contain deleted books.)
             notifyUpdateObserver();
         }
     }
@@ -312,8 +393,67 @@ public class AudioBook {
         return totalPosition;
     }
 
-    private static String directoryToTitle(String directory) {
-        return directory.replace('_', ' ');
+    // Where we are in the current book
+    public String thisBookProgress(Context context) {
+        AudioBook.Position position = lastPosition;
+        long currentMs = getLastPositionTime(position.seekPosition);
+        String duration = UiUtil.formatDuration(currentMs);
+
+        long totalMs = getTotalDurationMs();
+        String progress = "?";
+        if (totalMs == UNKNOWN_POSITION) {
+            progress = "??";
+        }
+        else if (currentMs == 0) {
+            progress = "0";
+        }
+        else if (totalMs != 0) {
+            progress = (Long.valueOf((currentMs * 100) / totalMs)).toString();
+        }
+
+        return context.getString(R.string.playback_elapsed_time, duration, progress);
+    }
+
+    /* Remove /s and extensions */
+    public static String filenameCleanup(String name) {
+        if (name == null) {
+            return null;
+        }
+        name = name.replace('/', '-');
+
+        int dot = name.lastIndexOf('.');
+        if (dot>0 && name.length()-dot <= 4) {
+            name = name.substring(0,dot);
+        }
+        return name;
+    }
+
+    public boolean renameTo(String s) {
+        File newName = new File(fileSet.path.getParent(), s);
+        if (fileSet.path.renameTo(newName)) {
+            replaceFileSet(ScanFilesTask.createFileSet(newName));
+            return true;
+        }
+        return false;
+    }
+
+    public static String basename(String str) {
+        if (str == null) {
+            return null;
+        }
+        int slash = str.lastIndexOf('/');
+        return str.substring(slash+1);
+    }
+
+    public static String titleCase(String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return WordUtils.capitalizeFully(
+                str.replace('_', ' ')
+                   .replace('/', '-')
+                );
     }
 
     private void notifyUpdateObserver() {

@@ -13,11 +13,15 @@ import com.studio4plus.homerplayer.service.AudioBookPlayerModule;
 import com.studio4plus.homerplayer.service.DemoSamplesInstallerService;
 import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 import com.studio4plus.homerplayer.service.PlaybackService;
+import com.studio4plus.homerplayer.ui.provisioning.CandidateFragment;
+import com.studio4plus.homerplayer.ui.provisioning.InventoryItemFragment;
 import com.studio4plus.homerplayer.ui.classic.ClassicPlaybackUi;
 import com.studio4plus.homerplayer.ui.classic.FragmentBookItem;
 import com.studio4plus.homerplayer.ui.classic.ClassicBookList;
 import com.studio4plus.homerplayer.ui.classic.ClassicNoBooksUi;
 import com.studio4plus.homerplayer.ui.classic.ClassicInitUi;
+import com.studio4plus.homerplayer.ui.provisioning.Provisioning;
+import com.studio4plus.homerplayer.ui.provisioning.ProvisioningActivity;
 import com.studio4plus.homerplayer.ui.settings.KioskSettingsFragment;
 import com.studio4plus.homerplayer.ui.settings.MainSettingsFragment;
 import com.studio4plus.homerplayer.ui.settings.PlaybackSettingsFragment;
@@ -49,6 +53,12 @@ public interface ApplicationComponent {
     void inject(PlaybackService playbackService);
     void inject(DeviceMotionDetector deviceMotionDetector);
     void inject(PlaybackSettingsFragment fragment);
+    void inject(InventoryItemFragment fragment);
+    void inject(CandidateFragment fragment);
+    // --Commented out by Inspection (5/10/2019 8:35 PM):void inject(CandidateRecyclerViewAdapter fragment);
+    // --Commented out by Inspection (5/16/2019 2:30 PM):void inject(InventoryItemRecyclerViewAdapter fragment);
+    void inject(ProvisioningActivity fragment);
+    void inject(Provisioning fragment);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();

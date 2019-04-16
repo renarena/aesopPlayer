@@ -1,51 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.studio4plus.homerplayer">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
 
-    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
-    <uses-feature android:name="android.hardware.sensor.proximity" android:required="false" />
-    <uses-feature android:name="android.hardware.screen.landscape" android:required="true" />
-    <uses-feature android:name="android.software.home_screen" android:required="false" />
-    <uses-feature android:name="android.software.device_admin" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.proximity"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="true" />
+    <uses-feature
+        android:name="android.software.home_screen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.device_admin"
+        android:required="false" />
 
-    <supports-screens android:smallScreens="true"
-                      android:normalScreens="true"
-                      android:largeScreens="true"
-                      android:xlargeScreens="true"
-                      android:anyDensity="true"/>
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
 
-    <application android:allowBackup="true" android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme"
+    <!-- tools:replace below needed for DirectoryChooser activity -->
+    <application
         android:name=".HomerPlayerApplication"
+        tools:replace="android:theme"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
         <activity
-            android:label="@string/app_name"
             android:name=".ui.MainActivity"
-            android:launchMode="singleTask"
-            android:clearTaskOnLaunch="true">
+            android:clearTaskOnLaunch="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".ui.provisioning.ProvisioningActivity"
+            android:label="@string/title_activity_provisioning"
+            android:parentActivityName=".ui.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.studio4plus.homerplayer.ui.MainActivity" />
+        </activity>
         <activity
             android:name=".ui.settings.SettingsActivity"
-            android:label="@string/settings_title"
-            android:excludeFromRecents="true">
+            android:excludeFromRecents="true"
+            android:label="@string/settings_title">
         </activity>
-
         <activity
             android:name=".ui.HomeActivity"
             android:enabled="false"
@@ -57,27 +79,34 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
-        <service android:name=".service.PlaybackService" android:exported="false"/>
-        <service android:name=".service.DemoSamplesInstallerService" android:exported="false"/>
+        <service
+            android:name=".service.PlaybackService"
+            android:exported="false" />
+        <service
+            android:name=".service.DemoSamplesInstallerService"
+            android:exported="false" />
 
-        <receiver android:name=".HomerPlayerDeviceAdmin"
-            android:label="@string/device_admin_label"
-            android:description="@string/device_admin_description">
+        <receiver
+            android:name=".HomerPlayerDeviceAdmin"
+            android:description="@string/device_admin_description"
+            android:label="@string/device_admin_label">
             <meta-data
                 android:name="android.app.device_admin"
-                android:resource="@xml/device_admin_info"/>
+                android:resource="@xml/device_admin_info" />
 
             <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
-
-        <!-- The provider needs to be exported so that it is available to ADB shell.
-             It only provides some configuration settings which aren't very sensitive information. -->
+        <!--
+             The provider needs to be exported so that it is available to ADB shell.
+             It only provides some configuration settings which aren't very sensitive information.
+        -->
         <provider
-            android:authorities="com.studio4plus.homerplayer.config"
             android:name=".content.ConfigurationContentProvider"
+            android:authorities="com.studio4plus.homerplayer.config"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 

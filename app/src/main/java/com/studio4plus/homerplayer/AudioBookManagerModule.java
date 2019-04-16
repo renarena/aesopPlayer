@@ -11,17 +11,17 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-class AudioBookManagerModule {
+public class AudioBookManagerModule {
 
-    private final String audioBooksDirectoryName;
+    public static String audioBooksDirectoryName;
 
-    public AudioBookManagerModule(String audioBooksDirectoryName) {
-        this.audioBooksDirectoryName = audioBooksDirectoryName;
+    public AudioBookManagerModule(String audioBooksDirectoryNameParam) {
+        audioBooksDirectoryName = audioBooksDirectoryNameParam;
     }
 
     @Provides @Named("AUDIOBOOKS_DIRECTORY")
     String provideAudioBooksDirectoryName() {
-        return this.audioBooksDirectoryName;
+        return audioBooksDirectoryName;
     }
 
     @Provides @Singleton

@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -25,6 +24,7 @@ import com.studio4plus.homerplayer.KioskModeSwitcher;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.battery.BatteryStatusProvider;
 import com.studio4plus.homerplayer.concurrency.SimpleDeferred;
+import com.studio4plus.homerplayer.ui.provisioning.ProvisioningActivity;
 import com.studio4plus.homerplayer.ui.classic.ClassicMainUiModule;
 import com.studio4plus.homerplayer.ui.classic.DaggerClassicMainUiComponent;
 import com.studio4plus.homerplayer.concurrency.SimpleFuture;
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     // below to show when it should.
     private final PulsedBoolean justCreated = new PulsedBoolean(2000);
 
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         restorer.cancelRestore();
@@ -140,13 +140,9 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         statusBarCollapser = new StatusBarCollapser();
 
         View touchEventEater = findViewById(R.id.touchEventEater);
-        touchEventEater.setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // Tell the other views that the event has been handled.
-                return true;
-            }
+        touchEventEater.setOnTouchListener((v, event) -> {
+            // Tell the other views that the event has been handled.
+            return true;
         });
 
         justCreated.start();
@@ -212,7 +208,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // When onPause is called, it might either be a "real" pause, or a synthetic one from
         // the system that will be immediately resumed.
 
-        if (globalSettings.isSimpleKioskModeEnabled() && isInteractive() && !SettingsActivity.getInSettings()  ) {
+        if (globalSettings.isSimpleKioskModeEnabled() && isInteractive() &&
+                !SettingsActivity.getInSettings() &&
+                !ProvisioningActivity.getInProvisioning()
+        ) {
             // Work with onStop to ignore user presses of the home key when in kiosk mode.
 
             // The real work of ignoring the button.
@@ -255,7 +254,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             kioskUndoStop |= recentPauseOverride.get();
 
             // But if we're entering settings, just let it stop.
-            kioskUndoStop &= !SettingsActivity.getInSettings();
+            kioskUndoStop &= !SettingsActivity.getInSettings()
+                          && !ProvisioningActivity.getInProvisioning();
 
             if (kioskUndoStop) {
                 // We have to let the stop proceed, but then force a restart
@@ -421,12 +421,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                     // This issue doesn't happen when disabling the kiosk mode from the settings
                     // screen and I'm out of ideas.
                     if (!enable) {
-                        new Handler(getMainLooper()).postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                System.exit(0);
-                            }
-                        }, 500);
+                        new Handler(getMainLooper()).postDelayed(() -> System.exit(0), 500);
                     }
                 }
             }
@@ -467,8 +462,9 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // Restart this activity after stop shut it down.
         // (After Andreas Schrade's article on Kiosks)
         private void restoreAppWorker() {
-            if (SettingsActivity.getInSettings()) {
-                // A switch to settings mode looks like an unexpected pause, so
+            if (SettingsActivity.getInSettings()
+                || ProvisioningActivity.getInProvisioning() ) {
+                // A switch to settings or provisioning mode looks like an unexpected pause, so
                 // don't actually do anything. (This would be very hard to get
                 // right in the main line, and is easy here.)
                 cancelRestore(); // The backup call is already posted.

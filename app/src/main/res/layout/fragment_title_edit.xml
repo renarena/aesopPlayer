@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.provisioning.TitleEditFragment">
+
+    <EditText
+        android:id="@+id/final_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:background="#FFFFFF"
+        android:ems="10"
+        android:hint="@string/title_edit_hint_book_title"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/button_normalize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/linearLayout2"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        tools:targetApi="o"
+        tools:text="Final Title" />
+
+    <Button
+        android:id="@+id/button_normalize"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorButtonNormal"
+        android:text="@string/title_edit_button_fix_case"
+        android:textColor="?attr/editTextColor"
+        app:layout_constraintBottom_toTopOf="@+id/audio_filename"
+        app:layout_constraintEnd_toStartOf="@+id/button_add_author"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/final_title"
+        app:layout_constraintVertical_chainStyle="spread" />
+
+    <Button
+        android:id="@+id/button_add_author"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?attr/colorButtonNormal"
+        android:text="@string/title_edit_button_add_author"
+        android:textColor="?attr/editTextColor"
+        app:layout_constraintBottom_toBottomOf="@+id/button_normalize"
+        app:layout_constraintEnd_toStartOf="@+id/button_done"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toEndOf="@+id/button_normalize"
+        app:layout_constraintTop_toTopOf="@+id/button_normalize" />
+
+    <Button
+        android:id="@+id/button_done"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/buttonStartBackground"
+        android:text="@string/title_edit_accept_button"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="@+id/button_normalize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toEndOf="@+id/button_add_author"
+        app:layout_constraintTop_toTopOf="@+id/button_normalize" />
+
+    <TextView
+        android:id="@+id/audio_filename"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:ems="10"
+        android:enabled="true"
+        android:focusable="true"
+        android:gravity="start"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/directory_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_normalize"
+        app:layout_constraintVertical_chainStyle="spread"
+        tools:text="Audio Filename" />
+
+    <TextView
+        android:id="@+id/audio_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:ems="10"
+        android:focusable="true"
+        android:gravity="start"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/directory_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/audio_filename"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        tools:text="Audio Title" />
+
+    <TextView
+        android:id="@+id/directory_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:ems="10"
+        android:focusable="true"
+        android:gravity="start"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/space3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/audio_title"
+        app:layout_constraintVertical_chainStyle="spread"
+        tools:text="Directory Name" />
+
+    <Space
+        android:id="@+id/space3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_cancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/directory_name"
+        app:layout_constraintVertical_chainStyle="spread" />
+
+
+    <Button
+        android:id="@+id/button_cancel"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/buttonStopBackground"
+        android:text="@string/button_cancel_editing"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/button_normalize"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/space3"
+        app:layout_constraintVertical_chainStyle="spread" />
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:clickable="true"
+        android:ems="10"
+        android:enabled="true"
+        android:focusable="true"
+        android:gravity="start"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="@+id/button_cancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button_cancel"
+        app:layout_constraintTop_toTopOf="@+id/button_cancel"
+        tools:text="Author" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

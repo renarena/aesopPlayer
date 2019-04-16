@@ -37,6 +37,11 @@ public enum ColourScheme {
         return availableColourSchemes.get(getRandom().nextInt(availableColourSchemes.size()));
     }
 
+
+    public static ColourScheme get(int i) {
+        return ColourScheme.values()[i % ColourScheme.values().length];
+    }
+
     private static Random getRandom() {
         if (random == null)
             random = new Random();

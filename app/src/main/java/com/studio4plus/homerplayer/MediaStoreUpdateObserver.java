@@ -21,7 +21,7 @@ class MediaStoreUpdateObserver extends ContentObserver {
 
     private final Handler mainThreadHandler;
 
-    public MediaStoreUpdateObserver(Handler mainThreadHandler) {
+    MediaStoreUpdateObserver(Handler mainThreadHandler) {
         super(mainThreadHandler);
         this.mainThreadHandler = mainThreadHandler;
     }
@@ -32,10 +32,5 @@ class MediaStoreUpdateObserver extends ContentObserver {
         mainThreadHandler.postDelayed(delayedRescanTask, RESCAN_DELAY_MS);
     }
 
-    private final Runnable delayedRescanTask = new Runnable() {
-        @Override
-        public void run() {
-            EventBus.getDefault().post(new MediaStoreUpdateEvent());
-        }
-    };
+    private final Runnable delayedRescanTask = () -> EventBus.getDefault().post(new MediaStoreUpdateEvent());
 }

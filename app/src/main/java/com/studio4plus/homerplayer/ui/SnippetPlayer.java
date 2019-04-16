@@ -35,7 +35,7 @@ public class SnippetPlayer implements PlaybackController.Observer {
         AudioBook.Position position = audioBook.getLastPosition();
 
         isPlaying = true;
-        playbackController.start(position.file, position.seekPosition);
+        playbackController.start(position.getFile(), position.seekPosition);
     }
 
     public void stop() {

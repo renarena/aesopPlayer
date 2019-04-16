@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/check_all"
+        android:title=""
+        app:actionViewClass="androidx.appcompat.widget.AppCompatCheckBox"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/install_books"
+        android:title="@string/candidate_action_bar_install"
+        android:icon="@drawable/copy_book"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item android:id="@+id/retain"
+        android:title="@string/candidate_action_bar_retain_policy"
+        android:checkable="true"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/search_dir"
+        android:title="@string/candidate_action_bar_new_directory"
+        app:showAsAction="never"/>
+
+</menu>

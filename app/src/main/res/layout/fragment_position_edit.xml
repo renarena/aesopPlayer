@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/editPosition"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_constraintHorizontal_chainStyle="spread"
+    tools:context=".ui.provisioning.PositionEditFragment">
+
+    <TextView
+        android:id="@+id/book_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textSize="30sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Book Title" />
+
+    <TextView
+        android:id="@+id/old_duration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:maxLines="1"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@+id/edit_duration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/book_title"
+        app:layout_constraintTop_toTopOf="@+id/edit_duration"
+        tools:text="(1:23)" />
+
+    <EditText
+        android:id="@+id/edit_duration"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:hint="@string/pref_progress_hint"
+        android:imeOptions="flagNoExtractUi|flagNoFullscreen|actionDone"
+        android:importantForAutofill="no"
+        android:inputType="time"
+        android:maxLines="1"
+        android:textSize="30sp"
+        android:windowSoftInputMode="stateAlwaysVisible|adjustResize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/book_title"
+        tools:targetApi="o" />
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_duration" />
+
+    <Button
+        android:id="@+id/button_cancel"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/buttonStopBackground"
+        android:text="@string/button_cancel_editing"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toStartOf="@+id/button_done"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/space" />
+
+    <Button
+        android:id="@+id/button_done"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/buttonStartBackground"
+        android:text="@string/position_edit_accept_button"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toEndOf="@+id/button_cancel"
+        app:layout_constraintTop_toBottomOf="@+id/space" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

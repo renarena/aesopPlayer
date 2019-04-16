@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/check_all"
+        android:checkable="true"
+        android:title=""
+        app:actionViewClass="androidx.appcompat.widget.AppCompatCheckBox"
+        app:showAsAction="always" />
+    <item android:id="@+id/delete_books"
+        android:title="@string/inventory_action_bar_delete"
+        android:icon="@drawable/ic_baseline_delete_forever_24px"
+        app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/reset_books"
+        android:title="@string/inventory_action_bar_reset"
+        android:icon="@drawable/ic_baseline_first_page_24px"
+        app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/archive_books"
+        android:title="@string/inventory_action_bar_archive_policy"
+        android:checkable="true"
+        app:showAsAction="never"/>
+</menu>

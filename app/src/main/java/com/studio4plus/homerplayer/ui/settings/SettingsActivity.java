@@ -1,5 +1,6 @@
 package com.studio4plus.homerplayer.ui.settings;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,9 +12,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
@@ -25,6 +31,7 @@ import com.studio4plus.homerplayer.ui.ActivityModule;
 import com.studio4plus.homerplayer.ui.DaggerActivityComponent;
 import com.studio4plus.homerplayer.ui.KioskModeHandler;
 import com.studio4plus.homerplayer.ui.OrientationActivityDelegate;
+import com.studio4plus.homerplayer.ui.provisioning.ProvisioningActivity;
 
 import javax.inject.Inject;
 
@@ -40,12 +47,14 @@ public class SettingsActivity
     private Handler mainThreadHandler;
     private Runnable unblockEventsTask;
     private OrientationActivityDelegate orientationDelegate;
+    private BottomNavigationView navigation;
 
     @Inject public EventBus eventBus;
     @Inject public GlobalSettings globalSettings;
     @Inject public KioskModeHandler kioskModeHandler;
     private static boolean enteringSettings;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.settings_activity);
@@ -62,6 +71,11 @@ public class SettingsActivity
         Preconditions.checkNotNull(actionBar);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        navigation = findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(this::onNavigationItemSelectedListener);
+        navigation.setItemIconTintList(null); // enable my control of icon color
+        navigation.setSelectedItemId(R.id.navigation_settings); // for side-effect of item size change
+
         kioskModeHandler.setKeepNavigation(true);
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
@@ -71,6 +85,37 @@ public class SettingsActivity
                 .commit();
 
         mainThreadHandler = new Handler(getMainLooper());
+
+        // So we can get out to fix things without too much pain. A very long press.
+        BottomNavigationItemView quickExit = navigation.findViewById(R.id.navigation_quick_exit);
+        quickExit.setClickable(true);
+        quickExit.setOnTouchListener(this::quickExitTouchListenerThunk);
+    }
+
+    private final Handler h = new Handler();
+
+    private boolean onNavigationItemSelectedListener (MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.navigation_inventory:
+        case R.id.navigation_candidates:
+            Intent intent = new Intent(getApplicationContext(), ProvisioningActivity.class);
+            intent.putExtra(ProvisioningActivity.EXTRA_TARGET_FRAGMENT,item.getItemId());
+            setResult(RESULT_OK,intent);
+            finish();
+            return true;
+
+        case R.id.navigation_settings:
+            // No-op
+            return true;
+
+        case R.id.navigation_quick_exit:
+            // Delayed so "currently active" icon/text size is restored. Support caches seem to interfere;
+            // 200ms works only intermittently.
+            h.postDelayed(()->navigation.setSelectedItemId(R.id.navigation_settings), 500);
+            ProvisioningActivity.quickExitDialog(this);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -178,10 +223,15 @@ public class SettingsActivity
     @Override
     protected void onActivityResult( int requestCode, int resultCode, Intent data) {
         kioskModeHandler.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         kioskModeHandler.onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    private boolean quickExitTouchListenerThunk(View v, MotionEvent e) {
+        return ProvisioningActivity.quickExitTouchListener(v, e);
     }
 }

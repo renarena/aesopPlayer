@@ -81,7 +81,7 @@ public class FragmentBookItem extends BookListChildFragment {
 
             // Show the progress in time and percentage
             final TextView progress = view.findViewById(R.id.currentPosition);
-            String progressMessage = thisBookProgress(book);
+            String progressMessage = book.thisBookProgress(getContext());
             progress.setText(progressMessage);
 
             // Total time
@@ -100,13 +100,10 @@ public class FragmentBookItem extends BookListChildFragment {
             completed.setText(book.getCompleted() ? getText(R.string.bookCompleted) : "");
 
             final AppCompatButton startButton = view.findViewById(R.id.startButton);
-            startButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Preconditions.checkNotNull(controller);
-                    controller.playCurrentAudiobook();
-                    startButton.setEnabled(false);
-                }
+            startButton.setOnClickListener(v -> {
+                Preconditions.checkNotNull(controller);
+                controller.playCurrentAudiobook();
+                startButton.setEnabled(false);
             });
         }
 
@@ -115,21 +112,6 @@ public class FragmentBookItem extends BookListChildFragment {
         UiUtil.startBlinker(view, globalSettings);
 
         return view;
-    }
-
-    // Where we are in the current book
-    private String thisBookProgress(AudioBook book) {
-        AudioBook.Position position = book.getLastPosition();
-        long currentMs = book.getLastPositionTime(position.seekPosition);
-        String duration = UiUtil.formatDuration(currentMs);
-
-        long totalMs = book.getTotalDurationMs();
-        long progress = 0;
-        if (totalMs != 0) {
-            progress = (currentMs * 100) / totalMs;
-        }
-
-        return getString(R.string.playback_elapsed_time, duration, progress);
     }
 
     public String getAudioBookId() {

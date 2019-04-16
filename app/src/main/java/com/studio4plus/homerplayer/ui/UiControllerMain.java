@@ -3,7 +3,6 @@ package com.studio4plus.homerplayer.ui;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -48,7 +47,7 @@ public class UiControllerMain implements ServiceConnection {
     private static final int PERMISSION_REQUEST_FOR_BOOK_SCAN = 1;
     private static final String TAG = "UiControllerMain";
 
-    private @Nullable PlaybackService playbackService;
+    private static @Nullable PlaybackService playbackService;
 
     @SuppressWarnings("NullableProblems")
     private @NonNull State currentState;
@@ -117,6 +116,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void onActivityDestroy() {
+        playbackService = null;
         activity.unbindService(this);
         eventBus.unregister(this);
     }
@@ -179,31 +179,16 @@ public class UiControllerMain implements ServiceConnection {
                     if (canRetry) {
                         dialogBuilder.setPositiveButton(
                                 R.string.permission_rationale_try_again,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        PermissionUtils.checkAndRequestPermission(
-                                                activity, permissions, PERMISSION_REQUEST_FOR_BOOK_SCAN);
-                                    }
-                                });
+                                (dialogInterface, i) -> PermissionUtils.checkAndRequestPermission(
+                                        activity, permissions, PERMISSION_REQUEST_FOR_BOOK_SCAN));
                     } else {
                         analyticsTracker.onPermissionRationaleShown("audiobooksScan");
                         dialogBuilder.setPositiveButton(
                                 R.string.permission_rationale_settings,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        PermissionUtils.openAppSettings(activity);
-                                    }
-                                });
+                                (dialogInterface, i) -> PermissionUtils.openAppSettings(activity));
                     }
                     dialogBuilder.setNegativeButton(
-                            R.string.permission_rationale_exit, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    activity.finish();
-                                }
-                            })
+                            R.string.permission_rationale_exit, (dialogInterface, i) -> activity.finish())
                             .create().show();
                 }
                 break;
@@ -609,5 +594,11 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         StateFactory stateId() { return StateFactory.PAUSED; }
+    }
+
+    @Nullable
+    public static PlaybackService getPlaybackService()
+    {
+        return playbackService;
     }
 }

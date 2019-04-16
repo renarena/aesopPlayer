@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_candidates"
+        android:icon="@drawable/move_book"
+        android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/navigation_inventory"
+        android:icon="@mipmap/ic_launcher"
+        android:title="@string/title_dashboard" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings_white_24dp"
+        android:title="@string/title_settings" />
+
+    <item
+        android:id="@+id/navigation_quick_exit"
+        android:icon="@drawable/x_red"
+        android:title="@string/title_quick_exit" />
+
+
+</menu>

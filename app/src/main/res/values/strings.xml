@@ -47,6 +47,7 @@
     <string name="pref_kiosk_mode_unregister_device_owner_dialog_message">This action will disable the full kiosk mode and cannot be easily undone.\nProceed?</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Not a "device owner"</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privilege granted</string>
+    <string name="pref_kiosk_already_unlocked_toast">Already unlocked</string>
     <string name="pref_no_browser_toast">Cannot open website: no web browser found.</string>
     <string name="pref_playback_options_screen_title">Playback settings…</string>
     <string name="pref_playback_speed_title">Playback speed</string>
@@ -91,7 +92,7 @@
     <string name="pref_clear_application_pinning">Clear application pinning.</string>
     <string name="pref_clear_application_pinning_dialog_title">Clear application pinning? (Allow other applications to run?)</string>
     <string name="pref_version_title">Version</string>
-    <string name="playback_elapsed_time" translatable="false">%1$s - %2$2d%%</string>
+    <string name="playback_elapsed_time" translatable="false">%1$s - %2$s%%</string>
     <string name="button_acc_rewind">rewind</string>
     <string name="button_acc_fast_forward">fast-forward</string>
     <string name="button_start">Start</string>
@@ -117,4 +118,91 @@
     <string name="samplesDownloadErrorMessage">Download and installation failed.</string>
     <string name="samplesDownloadProgressTitle">Downloading…</string>
     <string name="samplesDownloadNotificationTitle">Audiobook samples for Homer Player</string>
+    <string name="content_description_fragment_init_logo">This application\'s logo during startup</string>
+
+    <!-- Below are for provisioning activity -->
+    <string name="title_activity_provisioning">Update Books</string>
+    <string name="title_home">New Books</string>
+    <string name="title_dashboard">Current Books</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_quick_exit">Quick Exit</string>
+    <string name="dialog_title_install_books">Install Books</string>
+    <string name="dialog_ok_to_install">Do you want to install %s?</string>
+    <string name="dialog_title_set_archive_policy">Book Archiving Policy</string>
+    <string name="dialog_archive_by_copy">Copy, rather than move (if permitted), books? (Not recommended; does not recover space.)</string>
+    <string name="dialog_policy_yes">Yes</string>
+    <string name="dialog_policy_no">No</string>
+    <string name="warning_toast_directory_not_available">Unable to access selected directory, no change made.</string>
+    <string name="warning_toast_using_default_source">Invalid Book Source Directory, using default</string>
+    <string name="fragment_title_add_books">Add Books</string>
+    <string name="action_bar_word_all">All</string>
+    <string name="error_dialog_title_file_system_full">File System is Full</string>
+    <string name="error_dialog_file_system_full">All file systems are >90% full; delete some old books to finish copying.</string>
+    <string name="error_all_file_systems_full">All file systems are full: delete some old books</string>
+    <string name="error_specific_file_system_full">Filesystem %s is full; consider deleting old books</string>
+    <string name="error_duplicate_book_name">Duplicate Book Name %s</string>
+    <string name="error_could_not_delete_book">Could not delete old book %s</string>
+    <string name="info_book_installed">Book %s installed</string>
+    <string name="info_book_removed">Book %s removed</string>
+    <string name="error_could_not_copy_book_with_exception">Could not copy %1$s: %2$s</string>
+    <string name="fragment_title_errors_new_books">Errors while Installing New Books</string>
+    <string name="error_unzip_single_file_with_exception">Unzip single file failed: %1$s: %2$s</string>
+    <string name="error_unzip_all_files_with_exception">Unzip all files failed: %1$s: %2$s</string>
+    <string name="error_could_not_create_directory">Could not create directory %s</string>
+    <string name="error_could_not_create_directory_with_exception">Could not create directory %1$s: %2$s</string>
+    <string name="error_could_not_rename">Could not rename %1$s to %2$s</string>
+    <string name="error_could_not_rename_with_exception">Could not rename %1$s to %2$s: %3$s</string>
+    <string name="error_could_not_create_books">Could not create Book directory %s</string>
+    <string name="error_copy_single_failed">Copy single file failed: %1$s %2$s</string>
+    <string name="error_delete_failed_with_exception">Delete failed for %1$s: %2$s</string>
+    <string name="content_description_name_collision">New book name conflicts with installed book.</string>
+    <string name="content_description_cannot_change">Book cannot be modified or deleted.</string>
+    <string name="fragment_title_inventory">Inventory/Delete Books:</string>
+    <string name="fragment_subtitle_total_length">Total: %1$s%2$s</string>
+    <!-- below item indicates when total length is under-estimated == the single character > -->
+    <string name="fragment_subtitle_total_length_greater_than"><![CDATA[>]]></string>
+    <string name="dialog_title_reset_books_position">Reset Books Position</string>
+    <string name="dialog_ok_to_rewind">Do you really want to reset %s to the beginning.</string>
+    <string name="dialog_title_delete_books">Delete Books</string>
+    <string name="dialog_title_archive_books">Archive Books</string>
+    <string name="dialog_ok_to_move">Do you want to move %1$s to %2$s.old?</string>
+    <string name="dialog_ok_to_delete">Do you want to permanently delete %s.</string>
+    <string name="dialog_title_archive_policy">Archive Books Policy</string>
+    <string name="dialog_archive_policy">Archive old books in %s.old instead of deleting? (Not recommended; does not recover space.)</string>
+    <string name="error_archive_target_not_writable">Cannot write existing directory %1$s, %2$s not moved.</string>
+    <string name="fragment_title_errors_deleting_books">Errors while Deleting old books</string>
+    <string name="fragment_subtitle_adjust_position">Adjust Book Position</string>
+    <string name="fragment_subtitle_edit_book_title">Edit Book Title</string>
+    <string name="user_error_bad_book_name">Unusable book name or permission denied</string>
+    <string name="user_error_duplicate_book_name">Duplicate book name</string>
+    <string name="user_error_title_cannot_be_empty">Title cannot be empty</string>
+    <string name="user_error_title_too_long">Title too long</string>
+    <string name="user_error_title_cannot_be_blank">Title cannot be all blank</string>
+    <string name="title_edit_accept_button">Accept</string>
+    <string name="toast_warning_character_fixed">\'/\' replaced by \'-\' (illegal in name)</string>
+    <string name="book_is_completed">Completed</string>
+    <string name="button_cancel_editing">Cancel</string>
+    <string name="position_edit_accept_button">Accept</string>
+    <string name="candidate_action_bar_install">Install</string>
+    <string name="candidate_action_bar_retain_policy">Retain after copy</string>
+    <string name="candidate_action_bar_new_directory">Select Directory containing New Books</string>
+    <string name="inventory_action_bar_delete">Delete</string>
+    <string name="inventory_action_bar_reset">Reset</string>
+    <string name="inventory_action_bar_archive_policy">Archive</string>
+    <string name="title_edit_hint_book_title">Displayable Book Title</string>
+    <string name="title_edit_button_fix_case">Fix Case</string>
+    <string name="title_edit_button_add_author">Add Author</string>
+    <string name="dialog_title_quick_exit">Quick Exit</string>
+    <string name="dialog_message_quick_exit">Hold button for 3 seconds for quick exit.\nOn restart, Kiosk/pinning will be restored if possible.</string>
+    <string name="no_such_directory">Directory %s does not exist, trying next.</string>
+    <string name="directory_not_writable">Directory %s is not writable, trying next.</string>
+    <string name="status_name_info">Info: </string>
+    <string name="status_name_check">Check: </string>
+    <string name="status_name_error">Error: </string>
+
+    <plurals name="numberOfBooks">
+        <item quantity="one">this %d book</item>
+        <item quantity="other">these %d books</item>
+    </plurals>
+
 </resources>

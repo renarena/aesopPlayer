@@ -37,7 +37,7 @@ public class FileScanner {
 
     public SimpleFuture<List<FileSet>> scanAudioBooksDirectories() {
         ensureDefaultAudioBooksDirectory();
-        ScanFilesTask task = new ScanFilesTask(applicationContext, audioBooksDirectoryName);
+        ScanFilesTask task = new ScanFilesTask(applicationContext);
         return ioExecutor.postTask(task);
     }
 
@@ -54,12 +54,9 @@ public class FileScanner {
 
     private void ensureDefaultAudioBooksDirectory() {
         final File defaultAudiobooksPath = getDefaultAudioBooksDirectory();
-        ioExecutor.postTask(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                ensureAudioBooksDirectory(applicationContext, defaultAudiobooksPath);
-                return null;
-            }
+        ioExecutor.postTask((Callable<Void>) () -> {
+            ensureAudioBooksDirectory(applicationContext, defaultAudiobooksPath);
+            return null;
         });
     }
 

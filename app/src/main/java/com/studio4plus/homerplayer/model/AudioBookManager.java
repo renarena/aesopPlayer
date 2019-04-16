@@ -17,7 +17,6 @@ import com.studio4plus.homerplayer.filescanner.FileSet;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,7 +48,6 @@ public class AudioBookManager {
         scanFiles();
     }
 
-    @MainThread
     public List<AudioBook> getAudioBooks() {
         return audioBooks;
     }
@@ -143,12 +141,20 @@ public class AudioBookManager {
         LibraryContentType contentType = LibraryContentType.EMPTY;
 
         for (FileSet fileSet : fileSets) {
-            if (getById(fileSet.id) == null) {
+            AudioBook book = getById(fileSet.id);
+            if (book == null) {
                 AudioBook audioBook = new AudioBook(fileSet);
                 storage.readAudioBookState(audioBook);
                 audioBook.setUpdateObserver(storage);
                 audioBooks.add(audioBook);
                 audioBooksChanged = true;
+            }
+            else {
+                if (!book.getDirectoryName().equals(fileSet.directoryName)) {
+                    // A rename outside of Homer
+                    book.replaceFileSet(fileSet);
+                    audioBooksChanged = true;
+                }
             }
             LibraryContentType newContentType = fileSet.isDemoSample
                     ? LibraryContentType.SAMPLES_ONLY : LibraryContentType.USER_CONTENT;
@@ -157,12 +163,7 @@ public class AudioBookManager {
         }
 
         if (audioBooks.size() > 0) {
-            Collections.sort(audioBooks, new Comparator<AudioBook>() {
-                @Override
-                public int compare(AudioBook lhs, AudioBook rhs) {
-                    return lhs.getTitle().compareToIgnoreCase(rhs.getTitle());
-                }
-            });
+            Collections.sort(audioBooks, (lhs, rhs) -> lhs.getTitle().compareToIgnoreCase(rhs.getTitle()));
 
             assignColoursToNewBooks();
         }
@@ -175,8 +176,9 @@ public class AudioBookManager {
                 setCurrentBook(id);
         }
 
-        if (audioBooksChanged || isFirstScan > 0)
+        if (audioBooksChanged || isFirstScan > 0) {
             EventBus.getDefault().post(new AudioBooksChangedEvent(contentType));
+        }
 
         isFirstScan = 0;
     }
