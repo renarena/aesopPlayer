@@ -185,9 +185,13 @@ public class PositionEditFragment extends Fragment {
             return;
         }
 
-        long durationMs = timeToMillis(durationString);
+        long lengthMs = book.getTotalDurationMs();
+        long newBookPosition = timeToMillis(durationString);
+        if (newBookPosition > lengthMs) {
+            newBookPosition = lengthMs;
+        }
 
-        book.updatePosition(durationMs);
+        book.updateTotalPosition(newBookPosition);
         book.setCompleted(false);
 
         FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();

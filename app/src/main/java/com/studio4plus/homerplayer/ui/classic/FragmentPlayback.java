@@ -42,6 +42,8 @@ import javax.inject.Inject;
 import io.codetail.animation.ViewAnimationUtils;
 
 import static android.media.AudioManager.STREAM_MUSIC;
+import static com.studio4plus.homerplayer.HomerPlayerApplication.getAppContext;
+import static com.studio4plus.homerplayer.model.AudioBook.UNKNOWN_POSITION;
 
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
@@ -196,13 +198,19 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         Preconditions.checkNotNull(controller);
         String duration = UiUtil.formatDuration(elapsedMs);
 
-        long total = controller.getAudioBookBeingPlayed().getTotalDurationMs();
-        long progress = 0;
-        if (total != 0) {
-            progress = (100 * elapsedMs) / total;
+        long totalMs = controller.getAudioBookBeingPlayed().getTotalDurationMs();
+        String progress = "?";
+        if (totalMs == UNKNOWN_POSITION) {
+            progress = "??";
         }
-
-        return getString(R.string.playback_elapsed_time, duration, progress);
+        else if (elapsedMs == 0) {
+            progress = "0";
+        }
+        else if (totalMs != 0) {
+            progress = (Long.valueOf((elapsedMs * 100) / totalMs)).toString();
+        }
+        // Change below is for sleep bug hacking, but consider with respect to other use of this resource
+        return getAppContext().getString(R.string.playback_elapsed_time, duration, progress);
     }
 
     private void showHintIfNecessary() {

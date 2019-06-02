@@ -137,7 +137,7 @@
     <string name="fragment_title_add_books">Add Books</string>
     <string name="action_bar_word_all">All</string>
     <string name="error_dialog_title_file_system_full">File System is Full</string>
-    <string name="error_dialog_file_system_full">All file systems are >90% full; delete some old books to finish copying.</string>
+    <string name="error_dialog_file_system_full" tools:ignore="StringFormatInvalid" >All file systems are >90% full; delete some old books to finish copying.</string>
     <string name="error_all_file_systems_full">All file systems are full: delete some old books</string>
     <string name="error_specific_file_system_full">Filesystem %s is full; consider deleting old books</string>
     <string name="error_duplicate_book_name">Duplicate Book Name %s</string>
@@ -199,6 +199,7 @@
     <string name="status_name_info">Info: </string>
     <string name="status_name_check">Check: </string>
     <string name="status_name_error">Error: </string>
+
 
     <plurals name="numberOfBooks">
         <item quantity="one">this %d book</item>
