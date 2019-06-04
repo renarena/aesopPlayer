@@ -118,13 +118,12 @@
 
                 <TextView
                     android:id="@+id/chapterInfo"
-                    android:layout_weight="1"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    app:autoSizeTextType="uniform"
-                    tools:text="Chapter Info"
-                    android:gravity="center">
-                </TextView>
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    app:autoSizeMaxTextSize="14sp"
+                    tools:text="Chapter Info" />
 
                 <Space
                     android:layout_width="match_parent"

@@ -81,8 +81,6 @@ public class UiControllerMain implements ServiceConnection {
         activity.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
 
         currentState = new InitState(this);
-
-        DeviceMotionDetector.initDeviceMotionDetector(activity);
     }
 
     void onActivityStart() {

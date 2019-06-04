@@ -15,6 +15,7 @@ import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.ui.TouchRateJoystick;
 
 import static android.content.Context.SENSOR_SERVICE;
+import static com.studio4plus.homerplayer.HomerPlayerApplication.getAppContext;
 import static com.studio4plus.homerplayer.ui.TouchRateJoystick.RELEASE;
 
 import java.util.concurrent.TimeUnit;
@@ -90,20 +91,17 @@ public class DeviceMotionDetector implements SensorEventListener {
 
     @NonNull
     public static DeviceMotionDetector getDeviceMotionDetector(@NonNull Listener listener) {
+        getDeviceMotionDetector();
         deviceMotionDetector.listener = listener;
         return deviceMotionDetector;
     }
 
-    public static void initDeviceMotionDetector(Context context) {
-        if (deviceMotionDetector == null) {
-            deviceMotionDetector = new DeviceMotionDetector(context);
-            deviceMotionDetector.listener = null;
-        }
-    }
-
     @NonNull
     private static DeviceMotionDetector getDeviceMotionDetector() {
-        Preconditions.checkNotNull(deviceMotionDetector);
+        if (deviceMotionDetector == null) {
+            deviceMotionDetector = new DeviceMotionDetector(getAppContext());
+            deviceMotionDetector.listener = null;
+        }
         return deviceMotionDetector;
     }
 

@@ -210,6 +210,7 @@ public class AudioBook {
             if (chapterTitle == null || chapterTitle.length() <= 0) {
 
                 // No metadata chapter title... fake it.
+                fileName = fileSet.files[lastPosition.fileIndex].getName(); // name, not path
                 // Get rid of ".mp3" (etc.)
                 chapterTitle = fileName.substring(0, fileName.lastIndexOf("."));
                 // clean up _s
