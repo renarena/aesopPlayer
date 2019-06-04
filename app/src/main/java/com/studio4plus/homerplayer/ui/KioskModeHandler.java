@@ -2,7 +2,6 @@ package com.studio4plus.homerplayer.ui;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,18 +14,20 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.R;
-import com.studio4plus.homerplayer.events.KioskModeChanged;
 import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
+import com.studio4plus.homerplayer.events.KioskModeChanged;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import de.greenrobot.event.EventBus;
 
 @ActivityScope
@@ -38,14 +39,15 @@ public class KioskModeHandler {
     private static final int PERMISSION_REQUEST_FOR_SIMPLE_KIOSK = 2;
     private static final int PERMISSION_REQUEST_FOR_MANAGE_OVERLAYS = 3;
 
-    private final @NonNull Activity activity;
+    private final @NonNull
+    AppCompatActivity activity;
     private final @NonNull GlobalSettings globalSettings;
     private final @NonNull EventBus eventBus;
     private final @NonNull AnalyticsTracker analyticsTracker;
     private boolean keepNavigation = false;
 
     @Inject
-    KioskModeHandler(@NonNull Activity activity,
+    KioskModeHandler(@NonNull AppCompatActivity activity,
                      @NonNull GlobalSettings settings,
                      @NonNull AnalyticsTracker analyticsTracker,
                      @NonNull EventBus eventBus) {
@@ -82,7 +84,7 @@ public class KioskModeHandler {
         setNavigationVisibility(!event.isEnabled);
     }
 
-    public static void triggerSimpleKioskPermissionsIfNecessary(Activity activity) {
+    public static void triggerSimpleKioskPermissionsIfNecessary(AppCompatActivity activity) {
         PermissionUtils.checkAndRequestPermission(
                 activity,
                 new String[]{Manifest.permission.REORDER_TASKS,
@@ -146,7 +148,7 @@ public class KioskModeHandler {
     }
 
     @TargetApi(23)
-    static public void triggerOverlayPermissionsIfNecessary(Activity activity)
+    static public void triggerOverlayPermissionsIfNecessary(AppCompatActivity activity)
     {
         if (!canDrawOverlays(activity.getApplicationContext())) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -235,11 +237,11 @@ public class KioskModeHandler {
     }
     @TargetApi(21)
     private static class API21 {
-        static void startLockTask(Activity activity) {
+        static void startLockTask(AppCompatActivity activity) {
             activity.startLockTask();
         }
 
-        static void stopLockTask(Activity activity) {
+        static void stopLockTask(AppCompatActivity activity) {
             activity.stopLockTask();
         }
     }
@@ -319,7 +321,7 @@ public class KioskModeHandler {
         }
     }
 
-    static public void forceExit(@NonNull Activity activity)
+    static public void forceExit(@NonNull AppCompatActivity activity)
     {
         if (Build.VERSION.SDK_INT >= 21) { // Lollipop
             // If it's already pinned, un-pin it. (Not strictly necessary)

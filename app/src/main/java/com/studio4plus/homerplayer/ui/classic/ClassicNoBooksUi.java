@@ -1,19 +1,20 @@
 package com.studio4plus.homerplayer.ui.classic;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.fragment.app.Fragment;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.fragment.app.Fragment;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
@@ -21,8 +22,8 @@ import com.studio4plus.homerplayer.ApplicationComponent;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.R;
-import com.studio4plus.homerplayer.ui.UiControllerNoBooks;
 import com.studio4plus.homerplayer.ui.NoBooksUi;
+import com.studio4plus.homerplayer.ui.UiControllerNoBooks;
 import com.studio4plus.homerplayer.ui.UiUtil;
 
 import javax.inject.Inject;

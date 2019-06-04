@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import android.widget.Toast;
 
@@ -168,7 +169,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private void setupQuickExit() {
         Preference preference = findPreference(KEY_QUICK_EXIT);
         preference.setOnPreferenceClickListener( (pref) -> {
-            KioskModeHandler.forceExit(Objects.requireNonNull(getActivity()));
+            KioskModeHandler.forceExit(Objects.requireNonNull((AppCompatActivity)getActivity()));
             return true;
         });
     }

@@ -1,7 +1,6 @@
 package com.studio4plus.homerplayer;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.events.KioskModeChanged;
@@ -42,7 +42,7 @@ public class KioskModeSwitcher {
         return Build.VERSION.SDK_INT >= 21 && API21.isLockTaskPermitted(context);
     }
 
-    public void onFullKioskModeEnabled(boolean fullKioskEnabled, Activity activity) {
+    public void onFullKioskModeEnabled(boolean fullKioskEnabled, AppCompatActivity activity) {
         Preconditions.checkState(!fullKioskEnabled || isLockTaskPermitted());
 
         if (globalSettings.isSimpleKioskModeEnabled())
@@ -56,7 +56,7 @@ public class KioskModeSwitcher {
             API21.clearPreferredHomeActivity(context);
     }
 
-    public void onSimpleKioskModeEnabled(boolean enable, Activity activity) {
+    public void onSimpleKioskModeEnabled(boolean enable, AppCompatActivity activity) {
         if (globalSettings.isFullKioskModeEnabled() & enable)
             return;
 
@@ -86,7 +86,7 @@ public class KioskModeSwitcher {
         eventBus.post(new KioskModeChanged(KioskModeChanged.Type.SIMPLE, enable));
     }
 
-    private void triggerHomeAppSelectionIfNecessary(Activity activity) {
+    private void triggerHomeAppSelectionIfNecessary(AppCompatActivity activity) {
         // This creates a new Intent with the effect of restarting the main activity,
         // with the side-effect of setting it (with user approval) as the default
         // activity/app. That means we'll be yanked out of Settings in the process.

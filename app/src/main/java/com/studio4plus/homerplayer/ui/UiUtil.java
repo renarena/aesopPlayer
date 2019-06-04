@@ -1,10 +1,6 @@
 package com.studio4plus.homerplayer.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
@@ -14,13 +10,16 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.ui.provisioning.ProvisioningActivity;
-
 
 import java.util.concurrent.TimeUnit;
 
@@ -139,7 +138,7 @@ public class UiUtil {
         settingsButton2box.setVisibility(View.GONE);
 
         final Context context = view.getContext();
-        final Activity activity = (Activity)context;
+        final AppCompatActivity activity = (AppCompatActivity)context;
         final AppCompatButton settingsButton = view.findViewById(R.id.settingsButton);
 
         switch (globalSettings.getSettingsInterlock()) {
@@ -165,12 +164,12 @@ public class UiUtil {
     static private class PressListener implements View.OnTouchListener {
         private final View pressListener;
         private final @NonNull Context context;
-        final Activity activity;
+        final AppCompatActivity activity;
         private Toast lastToast;
 
         PressListener(@NonNull View view){
             context = view.getContext();
-            activity = (Activity)context;
+            activity = (AppCompatActivity)context;
             pressListener = view;
         }
 

@@ -10,20 +10,6 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.annotation.WorkerThread;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Environment;
 import android.os.Handler;
 import android.os.storage.StorageManager;
@@ -34,6 +20,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
@@ -163,7 +163,7 @@ public class CandidateFragment extends Fragment {
         this.optionsMenu = menu;
 
         MenuItem all = menu.findItem(R.id.check_all);
-        AppCompatCheckBox allCheckBox = (AppCompatCheckBox) all.getActionView();
+        AppCompatCheckBox allCheckBox = (AppCompatCheckBox) MenuItemCompat.getActionView(all);
         allCheckBox.setText(getString(R.string.action_bar_word_all));
 
         allCheckBox.setOnCheckedChangeListener((v, b)-> {

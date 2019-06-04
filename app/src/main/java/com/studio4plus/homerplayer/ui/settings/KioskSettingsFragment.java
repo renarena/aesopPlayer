@@ -2,15 +2,16 @@ package com.studio4plus.homerplayer.ui.settings;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.preference.SwitchPreference;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
+import androidx.preference.SwitchPreference;
 
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
@@ -139,7 +140,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 onKioskModeSwitched(sharedPreferences);
                 break;
             case GlobalSettings.KEY_SIMPLE_KIOSK_MODE:
-                kioskModeSwitcher.onSimpleKioskModeEnabled(sharedPreferences.getBoolean(key, false), getActivity());
+                kioskModeSwitcher.onSimpleKioskModeEnabled(sharedPreferences.getBoolean(key, false), (AppCompatActivity)getActivity());
                 updateKioskModeSummaries();
                 break;
         }
@@ -218,7 +219,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             return;
         }
         if (isLockedPermitted)
-            kioskModeSwitcher.onFullKioskModeEnabled(newKioskModeEnabled, getActivity());
+            kioskModeSwitcher.onFullKioskModeEnabled(newKioskModeEnabled, (AppCompatActivity)getActivity());
         updateKioskModeSummaries();
     }
 }

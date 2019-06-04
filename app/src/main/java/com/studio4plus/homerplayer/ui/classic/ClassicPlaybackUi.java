@@ -1,8 +1,8 @@
 package com.studio4plus.homerplayer.ui.classic;
 
-import android.app.Activity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
@@ -28,7 +28,7 @@ public class ClassicPlaybackUi implements PlaybackUi {
     private @Nullable SoundBank.Sound ffRewindSound;
 
     ClassicPlaybackUi(
-            @NonNull Activity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit) {
+            @NonNull AppCompatActivity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit) {
         this.fragment = new FragmentPlayback();
         this.mainUi = mainUi;
         this.animateOnInit = animateOnInit;

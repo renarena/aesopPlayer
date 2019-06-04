@@ -1,9 +1,5 @@
 package com.studio4plus.homerplayer.ui.provisioning;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,6 +7,11 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.core.view.MenuItemCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.ColourScheme;
@@ -59,7 +60,7 @@ public class CandidateRecyclerViewAdapter
             holder.aCandidate.isSelected = b;
             if (!b) {
                 MenuItem all = parentFragment.optionsMenu.findItem(R.id.check_all);
-                AppCompatCheckBox allCheckBox = (AppCompatCheckBox) all.getActionView();
+                AppCompatCheckBox allCheckBox = (AppCompatCheckBox) MenuItemCompat.getActionView(all);
                 allCheckBox.setChecked(false);
             }
             // Not needed on later releases, but 4.4.4 needs it.
