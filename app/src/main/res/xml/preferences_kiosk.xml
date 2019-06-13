@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/foo"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <SwitchPreference
-        app:key="kiosk_mode_preference"
-        app:title="@string/pref_kiosk_mode_full_title"
-        app:defaultValue="false"/>
-    <SwitchPreference
-        app:key="simple_kiosk_mode_preference"
-        app:title="@string/pref_kiosk_mode_simple_title"
-        app:defaultValue="false"/>
+    <!--suppress AndroidElementNotAllowed -->
+    <com.studio4plus.homerplayer.ui.settings.KioskSelectionPreference
+        app:key="kiosk_choice_preference"
+        app:title="@string/pref_kiosk_mode_screen_selection"
+        app:entries="@array/kiosk_selection_entries"
+        app:entryValues="@array/kiosk_selection_values"
+        app:defaultValue="@string/pref_kiosk_mode_selection_default_value"/>`
     <!--suppress AndroidElementNotAllowed -->
     <com.studio4plus.homerplayer.ui.settings.ConfirmDialogPreference
         app:key="unregister_device_owner_preference"

@@ -192,11 +192,19 @@ public class SettingsActivity
             dialogFragment.show(getSupportFragmentManager(), "DURATION_DIALOG");
             return true;
         }
+        if (preference instanceof KioskSelectionPreference) {
+            DialogFragment dialogFragment =
+                    KioskSelectionFragmentCompat.newInstance(preference.getKey());
+            dialogFragment.setTargetFragment(preferenceFragmentCompat, 0);
+            dialogFragment.show(getSupportFragmentManager(), "LIST_DIALOG");
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch(item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();

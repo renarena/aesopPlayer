@@ -1,12 +1,13 @@
 package com.studio4plus.homerplayer.events;
 
-public class KioskModeChanged {
-    public enum Type { FULL, SIMPLE }
+import com.studio4plus.homerplayer.GlobalSettings;
 
-    public final Type type;
+public class KioskModeChanged {
+
+    public final GlobalSettings.SettingsKioskMode type;
     public final boolean isEnabled;
 
-    public KioskModeChanged(Type type, boolean isEnabled) {
+    public KioskModeChanged(GlobalSettings.SettingsKioskMode type, boolean isEnabled) {
         this.type = type;
         this.isEnabled = isEnabled;
     }

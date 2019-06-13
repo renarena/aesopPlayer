@@ -101,4 +101,16 @@
         <item>500</item>
         <item>200</item>
     </string-array>
+    <string-array name="kiosk_selection_entries">
+        <item>None</item>
+        <item>Simple Kiosk</item>
+        <item>Application Pinning</item>
+        <item>Full Kiosk</item>
+    </string-array>
+    <string-array name="kiosk_selection_values" translateable="false">
+        <item>NONE</item>
+        <item>SIMPLE</item>
+        <item>PINNING</item>
+        <item>FULL</item>
+    </string-array>
 </resources>

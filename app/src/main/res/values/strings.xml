@@ -33,10 +33,15 @@
     <string name="pref_help_faq_summary">Go to website: %s</string>
     <string name="pref_quick_exit">Exit this application now.</string>
     <string name="pref_kiosk_mode_screen_title">Prevent exiting the application (kiosk mode)…</string>
+    <string name="pref_kiosk_mode_screen_selection">Preferred Kiosk Mode</string>
+    <string name="pref_kiosk_mode_selection_default_value" translatable="false">NONE</string>
     <string name="pref_kiosk_mode_screen_summary_disabled">Disabled</string>
     <string name="pref_kiosk_mode_screen_summary_simple">Simple kiosk mode enabled</string>
     <string name="pref_kiosk_mode_screen_summary_pinned">Application Pinning enabled</string>
     <string name="pref_kiosk_mode_screen_summary_full">Full kiosk mode enabled</string>
+    <string name="pref_kiosk_mode_screen_summary_2_disables">Disables Current Selection</string>
+    <string name="pref_kiosk_mode_screen_summary_2_pinning">Asks for permission on each startup</string>
+    <string name="pref_kiosk_mode_screen_summary_2_full">Automatically locks device on startup</string>
     <string name="pref_kiosk_mode_full_title">Full mode - prevent exiting the application (recommended)</string>
     <string name="pref_kiosk_mode_simple_title">Simple mode - best effort within constraints</string>
     <string name="pref_kiosk_mode_any_summary_off">Disabled</string>
@@ -199,7 +204,6 @@
     <string name="status_name_info">Info: </string>
     <string name="status_name_check">Check: </string>
     <string name="status_name_error">Error: </string>
-
 
     <plurals name="numberOfBooks">
         <item quantity="one">this %d book</item>

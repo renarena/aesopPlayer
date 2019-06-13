@@ -22,6 +22,7 @@ import com.studio4plus.homerplayer.ui.classic.ClassicNoBooksUi;
 import com.studio4plus.homerplayer.ui.classic.ClassicInitUi;
 import com.studio4plus.homerplayer.ui.provisioning.Provisioning;
 import com.studio4plus.homerplayer.ui.provisioning.ProvisioningActivity;
+import com.studio4plus.homerplayer.ui.settings.KioskSelectionPreference;
 import com.studio4plus.homerplayer.ui.settings.KioskSettingsFragment;
 import com.studio4plus.homerplayer.ui.settings.MainSettingsFragment;
 import com.studio4plus.homerplayer.ui.settings.PlaybackSettingsFragment;
@@ -59,6 +60,7 @@ public interface ApplicationComponent {
     // --Commented out by Inspection (5/16/2019 2:30 PM):void inject(InventoryItemRecyclerViewAdapter fragment);
     void inject(ProvisioningActivity fragment);
     void inject(Provisioning fragment);
+    void inject(KioskSelectionPreference fragment);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();

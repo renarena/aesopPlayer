@@ -156,6 +156,9 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // and stop states (with all the intermediate stuff as expected) at a fairly high
         // rate (about 1.2 sec interval on one machine: not even seconds). This does not
         // occur if the screen is on.
+        if (globalSettings.isPinningKioskModeEnabled()) {
+            kioskModeSwitcher.startAppPinning(this);
+        }
         restorer.cancelRestore();
 
         super.onStart();
@@ -413,8 +416,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             if (kioskModeSwitcher.isLockTaskPermitted()) {
                 boolean enable = intent.getBooleanExtra(ENABLE_EXTRA, false);
                 if (globalSettings.isFullKioskModeEnabled() != enable) {
-                    globalSettings.setFullKioskModeEnabledNow(enable);
-                    kioskModeSwitcher.onFullKioskModeEnabled(enable, this);
+                    kioskModeSwitcher.onKioskModeChanged(GlobalSettings.SettingsKioskMode.FULL, this);
 
                     // For some reason clearing the preferred Home activity only takes effect if the
                     // application exits (finishing the activity doesn't help).

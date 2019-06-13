@@ -44,10 +44,14 @@
     <string name="pref_proximity_awaken_summary_on">Włączone</string>
     <string name="pref_proximity_awaken_summary_off">Wyłączone</string>
     <string name="pref_kiosk_mode_screen_title">Zablokuj wyjście z aplikacji (tryb kiosku)…</string>
+    <string name="pref_kiosk_mode_screen_selection">Preferowany tryb kiosku</string>
     <string name="pref_kiosk_mode_screen_summary_disabled">Wyłączone</string>
     <string name="pref_kiosk_mode_screen_summary_simple">Prosty tryb kiosku włączony</string>
     <string name="pref_kiosk_mode_screen_summary_pinned">Przypinanie aplikacji jest włączone</string>
     <string name="pref_kiosk_mode_screen_summary_full">Pełny tryb kiosku włączony</string>
+    <string name="pref_kiosk_mode_screen_summary_2_disables">Wyłącza bieżący wybór</string>
+    <string name="pref_kiosk_mode_screen_summary_2_full">Automatycznie blokuje urządzenie podczas uruchamiania</string>
+    <string name="pref_kiosk_mode_screen_summary_2_pinning">Prosi o zgodę na każde uruchomienie</string>
     <string name="pref_kiosk_mode_full_title">Tryb pełny - zablokuj wyjście z aplikacji (zalecane)</string>
     <string name="pref_kiosk_mode_simple_title">Tryb prosty - maksymalne wysiłki w ramach ograniczeń</string>
     <string name="pref_kiosk_mode_any_summary_off">Wyłączone</string>

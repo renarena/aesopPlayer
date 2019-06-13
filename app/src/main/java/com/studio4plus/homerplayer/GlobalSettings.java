@@ -42,10 +42,16 @@ public class GlobalSettings {
         MULTI_TAP
     }
 
+    public enum SettingsKioskMode {
+        NONE,
+        SIMPLE,
+        PINNING,
+        FULL
+    }
+
     // TODO: figure out if these constants can somehow be shared with the keys in xml files.
     public static final String KEY_KIOSK_MODE_SCREEN = "kiosk_mode_screen";
-    public static final String KEY_KIOSK_MODE = "kiosk_mode_preference";
-    public static final String KEY_SIMPLE_KIOSK_MODE = "simple_kiosk_mode_preference";
+    private static final String KEY_KIOSK_MODE_SELECTION = "kiosk_mode_selection_preference";
     public static final String KEY_JUMP_BACK = "jump_back_preference";
     public static final String KEY_SLEEP_TIMER = "sleep_timer_preference";
     public static final String KEY_SCREEN_ORIENTATION = "screen_orientation_preference";
@@ -201,21 +207,32 @@ public class GlobalSettings {
         sharedPreferences.edit().putBoolean(KEY_FLIPTOSTOP_HINT_SHOWN, true).apply();
     }
 
+    public SettingsKioskMode getKioskMode() {
+        final String stringValue = sharedPreferences.getString(
+                GlobalSettings.KEY_KIOSK_MODE_SELECTION,
+                resources.getString(R.string.pref_kiosk_mode_selection_default_value));
+        return SettingsKioskMode.valueOf(stringValue);
+    }
+
     public boolean isFullKioskModeEnabled() {
-        return sharedPreferences.getBoolean(KEY_KIOSK_MODE, false);
+        return getKioskMode() == SettingsKioskMode.FULL;
+    }
+
+    public boolean isPinningKioskModeEnabled() {
+        return getKioskMode() == SettingsKioskMode.PINNING;
     }
 
     @SuppressLint("ApplySharedPref")
-    public void setFullKioskModeEnabledNow(boolean enabled) {
-        sharedPreferences.edit().putBoolean(KEY_KIOSK_MODE, enabled).commit();
+    void setKioskModeNow(SettingsKioskMode kioskMode) {
+        sharedPreferences.edit().putString(KEY_KIOSK_MODE_SELECTION, kioskMode.toString()).commit();
     }
 
     public boolean isSimpleKioskModeEnabled() {
-        return sharedPreferences.getBoolean(KEY_SIMPLE_KIOSK_MODE, false);
+        return getKioskMode() == SettingsKioskMode.SIMPLE;
     }
 
     public boolean isAnyKioskModeEnabled() {
-        return isSimpleKioskModeEnabled() || sharedPreferences.getBoolean(KEY_KIOSK_MODE, false);
+        return getKioskMode() != SettingsKioskMode.NONE;
     }
 
     public boolean isFFRewindSoundEnabled() {
@@ -245,7 +262,6 @@ public class GlobalSettings {
     public void setArchiveBooks(boolean b) {
         sharedPreferences.edit().putBoolean(KEY_ARCHIVE_BOOKS, b).apply();
     }
-
 
     public SharedPreferences appSharedPreferences() {
         return sharedPreferences;

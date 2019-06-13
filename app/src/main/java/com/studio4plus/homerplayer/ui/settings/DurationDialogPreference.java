@@ -16,12 +16,11 @@ class DurationDialogPreference extends DialogPreference
         return durationMs;
     }
 
-    public void setValue(long value)
-    {
+    public void setValue(long value) {
         durationMs = value;
     }
 
-    public interface OnNewValueListener {
+    interface OnNewValueListener {
         void onNewValue(long newValue);
     }
 

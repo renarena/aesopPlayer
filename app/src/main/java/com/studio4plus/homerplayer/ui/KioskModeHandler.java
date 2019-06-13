@@ -78,7 +78,7 @@ public class KioskModeHandler {
 
     @SuppressWarnings("unused") // Used on EventBus
     public void onEvent(KioskModeChanged event) {
-        if (event.type == KioskModeChanged.Type.FULL) {
+        if (event.type == GlobalSettings.SettingsKioskMode.FULL) {
             lockTask(event.isEnabled);
         }
         setNavigationVisibility(!event.isEnabled);
@@ -95,6 +95,7 @@ public class KioskModeHandler {
     // This callback comes via Settings Activity
     public void onRequestPermissionResult(
             int code, final @NonNull String[] permissions, final @NonNull int[] grantResults) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch (code) {
         case PERMISSION_REQUEST_FOR_SIMPLE_KIOSK:
             //noinspection StatementWithEmptyBody
@@ -161,6 +162,7 @@ public class KioskModeHandler {
     @SuppressWarnings("unused")
     public void onActivityResult(
             int code, int resultCode, Intent data) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch (code) {
         case PERMISSION_REQUEST_FOR_MANAGE_OVERLAYS:
             Preconditions.checkState(android.os.Build.VERSION.SDK_INT >= 23); // Marshmallow
@@ -267,7 +269,6 @@ public class KioskModeHandler {
 
             WindowManager manager = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
             WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();
-            //noinspection deprecation
             localLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
             localLayoutParams.gravity = Gravity.TOP;
             localLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE

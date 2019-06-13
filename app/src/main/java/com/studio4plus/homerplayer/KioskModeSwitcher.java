@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,58 +33,138 @@ public class KioskModeSwitcher {
 
     @Inject
     KioskModeSwitcher(Context applicationContext, GlobalSettings globalSettings,
-                             EventBus eventBus) {
+                      EventBus eventBus) {
         this.context = applicationContext;
         this.globalSettings = globalSettings;
         this.eventBus = eventBus;
+    }
+
+    public void onKioskModeChanged(GlobalSettings.SettingsKioskMode newMode,
+                                   AppCompatActivity activity) {
+
+        // Turn off the old mode.
+        GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
+        eventBus.post(new KioskModeChanged(oldMode, false));
+        switch (oldMode) {
+            case NONE: {
+                break;
+            }
+            case SIMPLE: {
+                try {
+                    HomeActivity.setEnabled(context, false);
+                } catch (Exception e) {
+                    // ignore (just in case)
+                }
+                break;
+            }
+            case PINNING: {
+                // Normally, exit from pinning is achieved by simultaneously pressing
+                // the Back and Recents (triangle and square) keys, but that's not possible
+                // remotely. So this provides a way to do it for remote administrators.
+                // (Remember, this case can't be reached for <21 because the choice is not offered
+                try {
+                    stopAppPinning(activity);
+                } catch (Exception e) {
+                    // ignore (just in case)
+                }
+                break;
+            }
+            case FULL: {
+                try {
+                    API21.clearPreferredHomeActivity(context);
+                } catch (Exception e) {
+                    // ignore (just in case)
+                }
+                break;
+            }
+        }
+
+        // ...And turn on the new. Note call to trigger... below
+        globalSettings.setKioskModeNow(newMode);
+        eventBus.post(new KioskModeChanged(newMode, true));
+        switch (newMode) {
+            case NONE: {
+                break;
+            }
+            case SIMPLE: {
+                HomeActivity.setEnabled(context, true);
+                // These requests pile up over the top of the Settings window until the user disposes
+                // of them. API level matters for the Status Bar.
+                if (android.os.Build.VERSION.SDK_INT <= 22) { // Lollipop and below
+                    // Get REORDER_TASKS and SYSTEM_ALERT_WINDOW
+                    KioskModeHandler.triggerSimpleKioskPermissionsIfNecessary(activity);
+                } else if (android.os.Build.VERSION.SDK_INT <= 25) { // Marshmallow and Nougat
+                    // At API23 we need SYSTEM_ALERT_WINDOW permission; as of 26, the permission is
+                    // useless because it's too weak. MainActivity has an alternate solution.
+                    //
+                    // This gets us SYSTEM_ALERT_WINDOW implicitly, but that's not a normal
+                    // permission at API 23. (Asking for SYSTEM_ALERT_WINDOW in the old way will
+                    // never succeed, creating a loop for the user.)
+                    KioskModeHandler.triggerOverlayPermissionsIfNecessary(activity);
+                }
+                //else { // Oreo and up
+                // Nothing (yet)
+                //}
+
+                // Should be last as it exits Settings forcibly when it happens
+                triggerHomeAppSelectionIfNecessary(activity);
+                break;
+            }
+            case PINNING: {
+                startAppPinning(activity);
+                break;
+            }
+            case FULL: {
+                Preconditions.checkState(isLockTaskPermitted());
+                API21.setPreferredHomeActivity(context, MainActivity.class);
+                break;
+            }
+        }
     }
 
     public boolean isLockTaskPermitted() {
         return Build.VERSION.SDK_INT >= 21 && API21.isLockTaskPermitted(context);
     }
 
-    public void onFullKioskModeEnabled(boolean fullKioskEnabled, AppCompatActivity activity) {
-        Preconditions.checkState(!fullKioskEnabled || isLockTaskPermitted());
-
-        if (globalSettings.isSimpleKioskModeEnabled())
-            onSimpleKioskModeEnabled(!fullKioskEnabled, activity);
-
-        eventBus.post(new KioskModeChanged(KioskModeChanged.Type.FULL, fullKioskEnabled));
-
-        if (fullKioskEnabled)
-            API21.setPreferredHomeActivity(context, MainActivity.class);
-        else
-            API21.clearPreferredHomeActivity(context);
+    public void startAppPinning(AppCompatActivity activity) {
+        Preconditions.checkState(Build.VERSION.SDK_INT >= 21);
+        //noinspection ConstantConditions
+        if(Build.VERSION.SDK_INT >= 21) { // L
+            try {
+                activity.startLockTask();
+                // The system provides a Toast when it does this.
+            } catch (Exception e) {
+                // Shouldn't be possible
+            }
+        }
     }
 
-    public void onSimpleKioskModeEnabled(boolean enable, AppCompatActivity activity) {
-        if (globalSettings.isFullKioskModeEnabled() & enable)
-            return;
-
-        HomeActivity.setEnabled(context, enable);
-        if (enable) {
-            // These requests pile up over the top of the Settings window until the user disposes
-            // of them. API level matters for the Status Bar.
-            if (android.os.Build.VERSION.SDK_INT <= 22) { // Lollipop and below
-                // Get REORDER_TASKS and SYSTEM_ALERT_WINDOW
-                KioskModeHandler.triggerSimpleKioskPermissionsIfNecessary(activity);
+    public void stopAppPinning(AppCompatActivity activity) {
+        Preconditions.checkState(Build.VERSION.SDK_INT >= 21);
+        //noinspection ConstantConditions
+        if(Build.VERSION.SDK_INT >= 21) { // L
+            try {
+                activity.stopLockTask();
+                // The system provides a Toast when it does this.
+            } catch (Exception e) {
+                // I haven't seen this happen, but it can't hurt
+                Toast.makeText(activity, R.string.pref_kiosk_already_unlocked_toast, Toast.LENGTH_SHORT).show();
             }
-            else if (android.os.Build.VERSION.SDK_INT <= 25) { // Marshmallow and Nougat
-                // At API23 we need SYSTEM_ALERT_WINDOW permission; as of 26, the permission is
-                // useless because it's too weak. MainActivity has an alternate solution.
-                //
-                // This gets us SYSTEM_ALERT_WINDOW implicitly, but that's not a normal
-                // permission at API 23. (Asking for SYSTEM_ALERT_WINDOW in the old way will
-                // never succeed, creating a loop for the user.)
-                KioskModeHandler.triggerOverlayPermissionsIfNecessary(activity);
-            }
-            //else { // Oreo and up
-                // Nothing (yet)
-            //}
-            // Should be last as it exits Settings forcibly when it happens
-            triggerHomeAppSelectionIfNecessary(activity);
         }
-        eventBus.post(new KioskModeChanged(KioskModeChanged.Type.SIMPLE, enable));
+    }
+
+    public int getKioskModeSummary() {
+        switch (globalSettings.getKioskMode()) {
+            default:
+            case NONE:
+                return R.string.pref_kiosk_mode_screen_summary_disabled;
+            case SIMPLE:
+                return R.string.pref_kiosk_mode_screen_summary_simple;
+            case PINNING:
+                return R.string.pref_kiosk_mode_screen_summary_pinned;
+            case FULL:
+                return R.string.pref_kiosk_mode_screen_summary_full;
+        }
     }
 
     private void triggerHomeAppSelectionIfNecessary(AppCompatActivity activity) {

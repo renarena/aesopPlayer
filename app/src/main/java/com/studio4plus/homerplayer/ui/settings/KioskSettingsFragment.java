@@ -1,17 +1,13 @@
 package com.studio4plus.homerplayer.ui.settings;
 
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
-import androidx.preference.SwitchPreference;
 
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
@@ -32,9 +28,43 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
     private static final String KEY_UNREGISTER_DEVICE_OWNER = "unregister_device_owner_preference";
     private static final String KEY_CLEAR_PINNING = "clear_application_pinning";
+    private static final String KEY_FILTERED_LIST = "kiosk_choice_preference";
 
-    @Inject public KioskModeSwitcher kioskModeSwitcher;
-    @Inject public EventBus eventBus;
+    @Inject
+    public KioskModeSwitcher kioskModeSwitcher;
+    @Inject
+    public EventBus eventBus;
+    @Inject
+    public GlobalSettings globalSettings;
+
+    // These have to match the row numbers in the RadioButton list
+    private static final int NONE_ = 0;
+    private static final int SIMPLE_ = 1;
+    private static final int PINNING_ = 2;
+    private static final int FULL_ = 3;
+
+    // This really should be an array with enum subscripts that we can guarantee the ordinal
+    // of, but Java just won't do that. (Radio buttons are array-based.)
+    class KioskPolicy {
+        boolean available;
+        boolean possible;
+        int subTitle;
+        final GlobalSettings.SettingsKioskMode kioskMode;
+        final int slot;
+
+        KioskPolicy(GlobalSettings.SettingsKioskMode kioskMode, int slot) {
+            this.kioskMode = kioskMode;
+            this.slot = slot;
+            this.available = false;
+            this.possible = false;
+        }
+    }
+
+    private final KioskPolicy[] kioskPolicies = new KioskPolicy[]{
+            new KioskPolicy(GlobalSettings.SettingsKioskMode.NONE, NONE_),
+            new KioskPolicy(GlobalSettings.SettingsKioskMode.SIMPLE, SIMPLE_),
+            new KioskPolicy(GlobalSettings.SettingsKioskMode.PINNING, PINNING_),
+            new KioskPolicy(GlobalSettings.SettingsKioskMode.FULL, FULL_)};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,26 +75,62 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         setPreferencesFromResource(R.xml.preferences_kiosk, rootKey);
+        updateKioskModeSummary();
+    }
 
-        if (Build.VERSION.SDK_INT < 21) {
-            Preference kioskModePreference = findPreference(GlobalSettings.KEY_KIOSK_MODE);
-            kioskModePreference.setEnabled(false);
-        }
-        if (Build.VERSION.SDK_INT < 19) {
-            Preference simpleKioskModePreference =
-                    findPreference(GlobalSettings.KEY_SIMPLE_KIOSK_MODE);
-            simpleKioskModePreference.setEnabled(false);
-        }
-        updateKioskModeSummaries();
+    private void updateKioskModeSummary() {
+        kioskPolicies[NONE_].possible = true;
+        kioskPolicies[NONE_].available = true;
+        kioskPolicies[NONE_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_disables;
 
+        // Simple Mode
+        if (Build.VERSION.SDK_INT < 19) { //K
+            kioskPolicies[SIMPLE_].possible = false;
+            kioskPolicies[SIMPLE_].available = false;
+            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_summary_old_version;
+        }
+        else {
+            kioskPolicies[SIMPLE_].possible = true;
+            kioskPolicies[SIMPLE_].available = true;
+            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title;
+        }
+
+        // App Pinning and Full.
         ConfirmDialogPreference preferenceUnregisterDeviceOwner =
                 (ConfirmDialogPreference) findPreference(KEY_UNREGISTER_DEVICE_OWNER);
-        if (Build.VERSION.SDK_INT >= 21) {
-            preferenceUnregisterDeviceOwner.setOnConfirmListener(
-                    this::disableDeviceOwner);
-            updateUnregisterDeviceOwner(HomerPlayerDeviceAdmin.isDeviceOwner(getActivity()));
-        } else {
+        ConfirmDialogPreference preferenceClearPinning =
+                (ConfirmDialogPreference) findPreference(KEY_CLEAR_PINNING);
+
+        if (Build.VERSION.SDK_INT < 21) { // L
+            getPreferenceScreen().removePreference(preferenceClearPinning);
             getPreferenceScreen().removePreference(preferenceUnregisterDeviceOwner);
+
+            kioskPolicies[PINNING_].possible = false;
+            kioskPolicies[PINNING_].available = false;
+            kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_full_summary_old_version;
+
+            kioskPolicies[FULL_].possible = false;
+            kioskPolicies[FULL_].available = false;
+            kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_full_summary_old_version;
+        }
+        else {
+            preferenceUnregisterDeviceOwner.setOnConfirmListener(this::disableDeviceOwner);
+            updateUnregisterDeviceOwner(HomerPlayerDeviceAdmin.isDeviceOwner(getActivity()));
+
+            kioskPolicies[PINNING_].possible = true;
+            kioskPolicies[PINNING_].available = true;
+            kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning;
+
+            if (HomerPlayerDeviceAdmin.isDeviceOwner(getActivity())) {
+                kioskPolicies[FULL_].possible = true;
+                kioskPolicies[FULL_].available = true;
+                kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_full;
+            }
+            else {
+                kioskPolicies[FULL_].possible = true;
+                kioskPolicies[FULL_].available = false;
+                kioskPolicies[FULL_].subTitle = R.string.settings_device_owner_required_alert;
+            }
         }
 
         // Application pinning is not the same as Kiosk mode according to Google (see the
@@ -72,43 +138,42 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         // they are very similar. Normally, exit is achieved by simultaneously pressing
         // the Back and Recents (triangle and square) keys, but that's not possible
         // remotely. So provide a way to do it for remote administrators.
-        ConfirmDialogPreference preferenceClearPinning =
-                (ConfirmDialogPreference) findPreference(KEY_CLEAR_PINNING);
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) { // L
             // Set up the listener
             preferenceClearPinning.setOnConfirmListener(
-                () -> {
-                    try {
-                        Objects.requireNonNull(getActivity()).stopLockTask();
-                        // The system provides a Toast when it does this.
-                    } catch (Exception e) {
-                        // I haven't seen this happen, but it can't hurt
-                        Toast.makeText(getActivity(), getString(R.string.pref_kiosk_already_unlocked_toast), Toast.LENGTH_SHORT).show();
+                    () -> {
+                        kioskModeSwitcher.stopAppPinning((AppCompatActivity)getActivity());
+                        // Setting below won't stick on API 21-22... sigh.
+                        Preference clearApplicationPinningPreference =
+                                findPreference(KEY_CLEAR_PINNING);
+                        clearApplicationPinningPreference.setEnabled(false);
                     }
-                    // Setting below won't stick on API 21-22... sigh.
-                    Preference clearApplicationPinningPreference =
-                            findPreference(KEY_CLEAR_PINNING);
-                    clearApplicationPinningPreference.setEnabled(false);
-                }
-                );
+            );
             // If we don't need it after all, disable it. Ugly, but anything else is worse
             // given the disparate version levels.
-            if (Build.VERSION.SDK_INT >= 23) {
+            // (Only at API23 can we tell if we're pinned.)
+            // (Effectively: say if we're pinned.)
+            if (Build.VERSION.SDK_INT >= 23) { // M
                 ActivityManager activityManager =
                         (ActivityManager) Objects.requireNonNull(getContext())
                                 .getSystemService(Context.ACTIVITY_SERVICE);
-                if (activityManager.getLockTaskModeState() != LOCK_TASK_MODE_PINNED)
-                {
+                if (activityManager.getLockTaskModeState() != LOCK_TASK_MODE_PINNED) {
                     Preference clearApplicationPinningPreference =
                             findPreference(KEY_CLEAR_PINNING);
                     clearApplicationPinningPreference.setEnabled(false);
                 }
             }
         }
-        else {
-            getPreferenceScreen().removePreference(preferenceClearPinning);
-        }
 
+        KioskSelectionPreference preferenceFilteredList =
+                (KioskSelectionPreference) findPreference(KEY_FILTERED_LIST);
+        preferenceFilteredList.setPolicies(kioskPolicies);
+        preferenceFilteredList.setOnNewValueListener((mode) ->
+                kioskModeSwitcher.onKioskModeChanged(mode,(AppCompatActivity)getActivity()));
+
+        Preference kioskModeScreen = findPreference(KEY_FILTERED_LIST);
+        int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
+        kioskModeScreen.setSummary(summaryStringId);
     }
 
     @Override
@@ -130,54 +195,12 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
     @SuppressWarnings("UnusedDeclaration")
     public void onEvent(DeviceAdminChangeEvent deviceAdminChangeEvent) {
-        updateUnregisterDeviceOwner(deviceAdminChangeEvent.isEnabled);
+        updateKioskModeSummary();
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        switch (key) {
-            case GlobalSettings.KEY_KIOSK_MODE:
-                onKioskModeSwitched(sharedPreferences);
-                break;
-            case GlobalSettings.KEY_SIMPLE_KIOSK_MODE:
-                kioskModeSwitcher.onSimpleKioskModeEnabled(sharedPreferences.getBoolean(key, false), (AppCompatActivity)getActivity());
-                updateKioskModeSummaries();
-                break;
-        }
-    }
-
-    private void updateKioskModeSummaries() {
-        SwitchPreference fullModePreference =
-                (SwitchPreference) findPreference(GlobalSettings.KEY_KIOSK_MODE);
-        {
-            int summaryStringId;
-            boolean isLockedPermitted = kioskModeSwitcher.isLockTaskPermitted();
-            if (Build.VERSION.SDK_INT < 21) {
-                summaryStringId = R.string.pref_kiosk_mode_full_summary_old_version;
-            } else if (!isLockedPermitted) {
-                summaryStringId = R.string.settings_device_owner_required_alert;
-            } else {
-                summaryStringId = fullModePreference.isChecked()
-                        ? R.string.pref_kiosk_mode_any_summary_on
-                        : R.string.pref_kiosk_mode_any_summary_off;
-            }
-            fullModePreference.setSummary(summaryStringId);
-        }
-
-        SwitchPreference simpleModePreference =
-                (SwitchPreference) findPreference(GlobalSettings.KEY_SIMPLE_KIOSK_MODE);
-        {
-            int summaryStringId;
-            if (Build.VERSION.SDK_INT < 19) {
-                summaryStringId = R.string.pref_kiosk_mode_simple_summary_old_version;
-            } else {
-                summaryStringId = simpleModePreference.isChecked()
-                        ? R.string.pref_kiosk_mode_any_summary_on
-                        : R.string.pref_kiosk_mode_any_summary_off;
-            }
-            simpleModePreference.setSummary(summaryStringId);
-            simpleModePreference.setEnabled(!fullModePreference.isChecked());
-        }
+        updateKioskModeSummary();
     }
 
     private void updateUnregisterDeviceOwner(boolean isEnabled) {
@@ -189,37 +212,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     }
 
     private void disableDeviceOwner() {
-        SwitchPreference kioskModePreference =
-                (SwitchPreference) findPreference(GlobalSettings.KEY_KIOSK_MODE);
-        kioskModePreference.setChecked(false);
         HomerPlayerDeviceAdmin.clearDeviceOwner(getActivity());
-    }
-
-    @SuppressLint({"CommitPrefEdits", "ApplySharedPref"}) // editor.commit() seems safer in this case
-    private void onKioskModeSwitched(SharedPreferences sharedPreferences) {
-        boolean newKioskModeEnabled =
-                sharedPreferences.getBoolean(GlobalSettings.KEY_KIOSK_MODE, false);
-        boolean isLockedPermitted = kioskModeSwitcher.isLockTaskPermitted();
-        if (newKioskModeEnabled && !isLockedPermitted) {
-            AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                    .setMessage(getResources().getString(
-                            R.string.settings_device_owner_required_alert))
-                    .setNeutralButton(android.R.string.ok, null)
-                    .create();
-            dialog.show();
-
-            SwitchPreference switchPreference =
-                    (SwitchPreference) findPreference(GlobalSettings.KEY_KIOSK_MODE);
-            switchPreference.setChecked(false);
-            // Beware: the code below causes this function to be recursively entered again.
-            // It should be the last thing the function does.
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(GlobalSettings.KEY_KIOSK_MODE, false);
-            editor.commit();
-            return;
-        }
-        if (isLockedPermitted)
-            kioskModeSwitcher.onFullKioskModeEnabled(newKioskModeEnabled, (AppCompatActivity)getActivity());
-        updateKioskModeSummaries();
+        updateKioskModeSummary();
     }
 }
