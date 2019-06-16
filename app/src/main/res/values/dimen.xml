@@ -2,7 +2,7 @@
 <resources>
     <dimen name="bookListTextSize">30sp</dimen>
     <dimen name="bookElapsedTimeTextSize">70sp</dimen>
-    <dimen name="bookListItemPaddingHoriz">10dp</dimen>
+    <dimen name="bookListItemPaddingHorizontal">10dp</dimen>
     <dimen name="bookListItemPaddingVertical">30dp</dimen>
     <dimen name="copyBooksInstructionTextSize">15sp</dimen>
     <dimen name="hintTextSize">30sp</dimen>
@@ -10,7 +10,7 @@
     <dimen name="verticalScreenMargin">60dp</dimen>
     <dimen name="buttonCornerRadius">3dp</dimen>
     <dimen name="buttonStrokeWidth">1dp</dimen>
-    <dimen name="buttonPaddingHoriz">30dp</dimen>
-    <dimen name="buttonDistanceHoriz">5dp</dimen>
-    <dimen name="batteryIndicatorPaddingHoriz">10dp</dimen>
+    <dimen name="buttonPaddingHorizontal">30dp</dimen>
+    <dimen name="buttonDistanceHorizontal">5dp</dimen>
+    <dimen name="batteryIndicatorPaddingHorizontal">10dp</dimen>
 </resources>

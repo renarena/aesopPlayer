@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ff000000"
@@ -9,7 +11,7 @@
     <View
         android:id="@+id/touchEventEater"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <!-- TODO: make the margins configurable. -->
     <FrameLayout
@@ -23,10 +25,29 @@
 
     <ImageView
         android:id="@+id/batteryStatusIndicator"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:paddingEnd="@dimen/batteryIndicatorPaddingHorizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/mainContainer"
+        app:layout_constraintTop_toTopOf="@+id/mainContainer"
+        app:srcCompat="@drawable/battery_0"
+        tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry" />
+    <!-- Battery status doesn't work with Accessibility or Rtl -->
+
+    <TextView
+        android:id="@+id/maintenance_warning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingEnd="@dimen/batteryIndicatorPaddingHoriz"
-        android:visibility="gone"
-        android:layout_gravity="top|end"
-        tools:ignore="RtlSymmetry,ContentDescription" /> <!-- Battery status doesn't work with Accessibility -->
-</FrameLayout>
+        android:ems="30"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center_horizontal"
+        android:text="@string/title_maintenance"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/buttonStopBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mainContainer"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,10 +3,7 @@ package com.studio4plus.homerplayer.ui.settings;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
-
-import android.widget.Toast;
 
 import com.studio4plus.homerplayer.BuildConfig;
 import com.studio4plus.homerplayer.GlobalSettings;
@@ -14,7 +11,6 @@ import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.KioskModeSwitcher;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.AudioBookManager;
-import com.studio4plus.homerplayer.ui.KioskModeHandler;
 
 import java.util.Objects;
 
@@ -22,10 +18,8 @@ import javax.inject.Inject;
 
 public class MainSettingsFragment extends BaseSettingsFragment {
 
-    private static final String KEY_RESET_ALL_BOOK_PROGRESS = "reset_all_book_progress_preference";
     private static final String KEY_FAQ = "faq_preference";
     private static final String KEY_VERSION = "version_preference";
-    private static final String KEY_QUICK_EXIT = "quick_exit_preference";
 
     private static final String FAQ_URL = "https://goo.gl/1RVxFW";
 
@@ -42,21 +36,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey);
-
-        ConfirmDialogPreference preferenceResetProgress =
-                (ConfirmDialogPreference) findPreference(KEY_RESET_ALL_BOOK_PROGRESS);
-        preferenceResetProgress.setOnConfirmListener(new ConfirmDialogPreference.OnConfirmListener() {
-            @Override
-            public void onConfirmed() {
-                audioBookManager.resetAllBookProgress();
-                Toast.makeText(
-                        getActivity(),
-                        R.string.pref_reset_all_book_progress_done,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
         setupFaq();
-        setupQuickExit();
         updateVersionSummary();
     }
 
@@ -139,19 +119,8 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private void setupFaq() {
         Preference preference = findPreference(KEY_FAQ);
         preference.setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
-        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                openUrl(FAQ_URL);
-                return true;
-            }
-        });
-    }
-
-    private void setupQuickExit() {
-        Preference preference = findPreference(KEY_QUICK_EXIT);
-        preference.setOnPreferenceClickListener( (pref) -> {
-            KioskModeHandler.forceExit(Objects.requireNonNull((AppCompatActivity)getActivity()));
+        preference.setOnPreferenceClickListener(preference1 -> {
+            openUrl(FAQ_URL);
             return true;
         });
     }

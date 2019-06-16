@@ -4,8 +4,8 @@
     <style name="buttonStartOverlay" parent="ThemeOverlay.AppCompat">
         <item name="colorAccent">@color/buttonStartBackground</item>
         <item name="colorButtonNormal">@color/buttonStartBackground</item>
-        <item name="android:paddingLeft">@dimen/buttonPaddingHoriz</item>
-        <item name="android:paddingRight">@dimen/buttonPaddingHoriz</item>
+        <item name="android:paddingLeft">@dimen/buttonPaddingHorizontal</item>
+        <item name="android:paddingRight">@dimen/buttonPaddingHorizontal</item>
     </style>
 
     <style name="buttonStopOverlay" parent="ThemeOverlay.AppCompat">

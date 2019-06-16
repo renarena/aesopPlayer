@@ -14,9 +14,4 @@
         app:key="unregister_device_owner_preference"
         app:title="@string/pref_kiosk_mode_unregister_device_owner"
         android:dialogTitle="@string/pref_kiosk_mode_unregister_device_owner_dialog_message"/>
-    <!--suppress AndroidElementNotAllowed -->
-    <com.studio4plus.homerplayer.ui.settings.ConfirmDialogPreference
-        app:key="clear_application_pinning"
-        app:title="@string/pref_clear_application_pinning"
-        android:dialogTitle="@string/pref_clear_application_pinning_dialog_title"/>
 </PreferenceScreen>

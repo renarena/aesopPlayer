@@ -17,9 +17,8 @@
         android:title="@string/title_settings" />
 
     <item
-        android:id="@+id/navigation_quick_exit"
-        android:icon="@drawable/x_red"
-        android:title="@string/title_quick_exit" />
-
+        android:id="@+id/navigation_maintenance"
+        android:title="@string/title_maintenance" />
+    <!-- icon is set programmatically always -->
 
 </menu>

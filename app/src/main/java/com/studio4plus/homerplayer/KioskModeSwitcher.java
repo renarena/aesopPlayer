@@ -41,9 +41,21 @@ public class KioskModeSwitcher {
 
     public void onKioskModeChanged(GlobalSettings.SettingsKioskMode newMode,
                                    AppCompatActivity activity) {
+        GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
+        // See note in Active... must do changeActiveKioskMode last
+        globalSettings.setKioskModeNow(newMode);
+        if (!globalSettings.isMaintenanceMode()) {
+            changeActiveKioskMode(oldMode, newMode, activity);
+        }
+    }
+
+    private void changeActiveKioskMode(GlobalSettings.SettingsKioskMode oldMode,
+                                       GlobalSettings.SettingsKioskMode newMode,
+                                       AppCompatActivity activity) {
+
+        // Be very careful here - this doesn't always return - see trigger... below.
 
         // Turn off the old mode.
-        GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
         eventBus.post(new KioskModeChanged(oldMode, false));
         switch (oldMode) {
             case NONE: {
@@ -80,7 +92,6 @@ public class KioskModeSwitcher {
         }
 
         // ...And turn on the new. Note call to trigger... below
-        globalSettings.setKioskModeNow(newMode);
         eventBus.post(new KioskModeChanged(newMode, true));
         switch (newMode) {
             case NONE: {
@@ -164,6 +175,20 @@ public class KioskModeSwitcher {
                 return R.string.pref_kiosk_mode_screen_summary_pinned;
             case FULL:
                 return R.string.pref_kiosk_mode_screen_summary_full;
+        }
+    }
+
+    public void setKioskMaintenanceMode(AppCompatActivity activity, boolean enable) {
+        GlobalSettings.SettingsKioskMode realKioskMode = globalSettings.getKioskMode();
+        if (enable) {
+            // Turn it on - disable Kiosk mode
+            changeActiveKioskMode(realKioskMode,
+                    GlobalSettings.SettingsKioskMode.NONE, activity);
+        }
+        else {
+            // Turn it off - re-enable actual kiosk mode
+            changeActiveKioskMode(GlobalSettings.SettingsKioskMode.NONE,
+                    realKioskMode, activity);
         }
     }
 

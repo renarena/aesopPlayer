@@ -29,7 +29,6 @@
     <string name="permission_rationale_home_screen_more3">\nZostanie wyświetlony ekran lista książek.</string>
     <string name="pref_help_faq_title">Pomoc: FAQ</string>
     <string name="pref_help_faq_summary">Otwórz stronę: %s</string>
-    <string name="pref_quick_exit">Zamknij aplikację teraz.</string>
     <string name="pref_jump_back_title">Cofnij przy wznawianiu odtwarzania</string>
     <string name="pref_jump_back_entry_disabled">Wyłączone</string>
     <string name="pref_jump_back_summary">Cofnij o %d sekund</string>
@@ -77,12 +76,6 @@
     <string name="pref_tilt_volume_speed">Wyreguluj głośność i szybkość, przechylając urządzenie.</string>
     <string name="pref_tilt_volume_speed_on">Zawarte</string>
     <string name="pref_tilt_volume_speed_off">Wyłączony</string>
-    <string name="pref_reset_all_book_progress">Przewiń wszystkie książki na początek…</string>
-    <string name="pref_set_progress_message">Określić postęp dla \"%1$s\"</string>
-    <string name="pref_reset_all_book_progress_dialog_title">Przewinąć książki na początek?</string>
-    <string name="pref_reset_all_book_progress_done">Książki przewinięte</string>
-    <string name="pref_clear_application_pinning">Wyczyść przypinanie aplikacji.</string>
-    <string name="pref_clear_application_pinning_dialog_title">Wyczyść przypinanie aplikacji? (Zezwalaj na uruchamianie innych aplikacji?)</string>
     <string name="pref_version_title">Wersja</string>
     <string name="button_acc_rewind">przewiń do tyłu</string>
     <string name="button_acc_fast_forward">przewiń do przodu</string>
@@ -114,7 +107,7 @@
     <string name="title_home">Nowych Książek</string>
     <string name="title_dashboard">Aktualne Książki</string>
     <string name="title_settings">Konfiguracja</string>
-    <string name="title_quick_exit">Szybkie Wyjście</string>
+    <string name="title_maintenance">Tryb Konserwacji</string>d
     <string name="dialog_title_install_books">Ustawić Książki</string>
     <string name="dialog_ok_to_install">Chcesz zainstalować %s?</string>
     <string name="dialog_archive_by_copy">Skopiuj, i nie przesyłaj (jeśli dozwolone) książek? (Niezalecane, nie odzyskuje miejsca.)</string>
@@ -180,8 +173,6 @@
     <string name="inventory_action_bar_archive_policy">Archiwum</string>
     <string name="title_edit_button_fix_case">Napraw duże i małe litery</string>
     <string name="title_edit_button_add_author">Dodaj autora</string>
-    <string name="dialog_title_quick_exit">Szybkie wyjście</string>
-    <string name="dialog_message_quick_exit">Przytrzymaj przycisk przez 3 sekundy, aby szybko wyjść.\nPo restarcie, Kiosk/przypinanie zostanie przywrócone, jeśli to możliwe.</string>
     <string name="no_such_directory">Katalog %s nie istnieje, próbując dalej.</string>
     <string name="directory_not_writable">Katalog %s nie jest zapisywalny, próbuje dalej.</string>
     <string name="status_name_info">Informacje:</string>

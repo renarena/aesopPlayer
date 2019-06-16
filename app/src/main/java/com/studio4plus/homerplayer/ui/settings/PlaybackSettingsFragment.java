@@ -14,7 +14,6 @@ import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.model.AudioBook;
 import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.ui.SnippetPlayer;
-import com.studio4plus.homerplayer.ui.UiUtil;
 
 import java.util.Objects;
 
@@ -49,15 +48,10 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
                     return false;
                 });
 
-        DurationDialogPreference progressPreference =
-                (DurationDialogPreference) findPreference(GlobalSettings.KEY_SET_PROGRESS);
-        progressPreference.setOnNewValueListener(this::setNewBookPosition);
-
         updatePlaybackSpeedSummary(sharedPreferences);
         updateJumpBackSummary(sharedPreferences);
         updateStopOnFaceDownSummary(sharedPreferences);
         updateSleepTimerSummary();
-        updateSetProgressSummary();
     }
 
     @Override
@@ -86,9 +80,6 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
             case GlobalSettings.KEY_STOP_ON_FACE_DOWN:
                 updateStopOnFaceDownSummary(sharedPreferences);
                 break;
-            case GlobalSettings.KEY_SET_PROGRESS:
-                updateSetProgressSummary();
-            break;
         }
     }
 
@@ -159,48 +150,6 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
 
             snippetPlayer.play(book);
         }
-    }
-
-    private void updateSetProgressSummary() {
-        DurationDialogPreference preference
-                = (DurationDialogPreference) findPreference(GlobalSettings.KEY_SET_PROGRESS);
-
-        AudioBook book = audioBookManager.getCurrentBook();
-        String progress;
-        if (book != null) {
-            preference.setEnabled(true);
-            String progressMessage = getString(R.string.pref_set_progress_message, book.getTitle());
-
-            // The title in the edit box: will be ellipsized at end of second line.
-            preference.setDialogTitle(progressMessage);
-
-            // The title in the preferences list.
-            preference.setTitle(progressMessage);
-
-            AudioBook.Position position = book.getLastPosition();
-            long currentMs = book.getLastPositionTime(position.seekPosition);
-            progress = UiUtil.formatDurationShort(currentMs);
-            preference.setSummary(progress);
-            preference.setValue(currentMs);
-        }
-        else {
-            preference.setEnabled(false);
-            preference.setDialogTitle(R.string.noBooksMessage);
-            preference.setTitle(R.string.noBooksMessage); // list
-            preference.setSummary("");
-        }
-    }
-
-    private void setNewBookPosition(long newBookPosition) {
-        AudioBook book = audioBookManager.getCurrentBook();
-        long lengthMs = book.getTotalDurationMs();
-        if (newBookPosition > lengthMs) {
-            newBookPosition = lengthMs;
-        }
-        book.updateTotalPosition(newBookPosition);
-        book.setCompleted(false);
-
-        updateSetProgressSummary();
     }
 
     @Override

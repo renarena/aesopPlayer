@@ -64,9 +64,9 @@ public class GlobalSettings {
     public static final String KEY_SNOOZE_DELAY = "snooze_delay_preference";
     public static final String KEY_BLINK_RATE = "blink_rate_preference";
     public static final String KEY_STOP_ON_FACE_DOWN = "stop_on_face_down_preference";
-    public static final String KEY_SET_PROGRESS = "set_progress_preference";
     private static final String KEY_PROXIMITY_AWAKEN = "awaken_on_proximity_preference";
     public static final String KEY_SETTINGS_INTERLOCK = "settings_interlock_preference";
+    private static final String KEY_MAINTENANCE_MODE = "settings_maintenance_mode";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     // --Commented out by Inspection (2/25/2019 2:47 PM):private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -117,6 +117,9 @@ public class GlobalSettings {
     }
 
     public int getSnoozeDelay() {
+        if (isMaintenanceMode()) {
+            return 0;
+        }
         final String valueString = sharedPreferences.getString(
                 KEY_SNOOZE_DELAY, resources.getString(R.string.pref_snooze_time_default_value));
         assert valueString != null;
@@ -142,6 +145,9 @@ public class GlobalSettings {
     }
 
     public SettingsInterlockMode getSettingsInterlock() {
+        if (isMaintenanceMode()) {
+            return SettingsInterlockMode.NONE;
+        }
         final String stringValue = sharedPreferences.getString(
                 GlobalSettings.KEY_SETTINGS_INTERLOCK,
                 resources.getString(R.string.pref_settings_interlock_default_value));
@@ -207,6 +213,16 @@ public class GlobalSettings {
         sharedPreferences.edit().putBoolean(KEY_FLIPTOSTOP_HINT_SHOWN, true).apply();
     }
 
+    @SuppressLint("ApplySharedPref")
+    public void setMaintenanceMode(boolean mode) {
+        sharedPreferences.edit().putBoolean(KEY_MAINTENANCE_MODE, mode).commit();
+    }
+
+    // True->certain features temporarily disabled (actual settings NOT changed).
+    public boolean isMaintenanceMode() {
+        return sharedPreferences.getBoolean(KEY_MAINTENANCE_MODE, false);
+    }
+
     public SettingsKioskMode getKioskMode() {
         final String stringValue = sharedPreferences.getString(
                 GlobalSettings.KEY_KIOSK_MODE_SELECTION,
@@ -215,10 +231,16 @@ public class GlobalSettings {
     }
 
     public boolean isFullKioskModeEnabled() {
+        if (isMaintenanceMode()) {
+            return false;
+        }
         return getKioskMode() == SettingsKioskMode.FULL;
     }
 
     public boolean isPinningKioskModeEnabled() {
+        if (isMaintenanceMode()) {
+            return false;
+        }
         return getKioskMode() == SettingsKioskMode.PINNING;
     }
 
@@ -228,10 +250,16 @@ public class GlobalSettings {
     }
 
     public boolean isSimpleKioskModeEnabled() {
+        if (isMaintenanceMode()) {
+            return false;
+        }
         return getKioskMode() == SettingsKioskMode.SIMPLE;
     }
 
     public boolean isAnyKioskModeEnabled() {
+        if (isMaintenanceMode()) {
+            return false;
+        }
         return getKioskMode() != SettingsKioskMode.NONE;
     }
 

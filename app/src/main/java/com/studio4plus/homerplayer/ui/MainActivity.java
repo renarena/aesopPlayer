@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.studio4plus.homerplayer.GlobalSettings;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private PowerManager powerManager;
     private ActivityManager activityManager;
     private StatusBarCollapser statusBarCollapser;
+    private TextView maintenanceMessage;
 
     // Used for Oreo and up suppression of status bar.
     private boolean isPaused = false;
@@ -136,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
+        maintenanceMessage = findViewById(R.id.maintenance_warning);
+
         // (Needs above initialization)
         statusBarCollapser = new StatusBarCollapser();
 
@@ -176,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     protected void onResume() {
         isPaused = false;
         restorer.cancelRestore();
+        maintenanceMessage.setVisibility(globalSettings.isMaintenanceMode() ? View.VISIBLE : View.GONE);
 
         if (!justCreated.get() && !controller.justDidPauseActionAndReset()) {
             // We toast for kiosk active here because it looks better after the screen changes stop.

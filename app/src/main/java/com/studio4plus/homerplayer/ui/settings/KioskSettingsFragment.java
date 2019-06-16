@@ -1,7 +1,5 @@
 package com.studio4plus.homerplayer.ui.settings;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,13 +20,10 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-import static android.app.ActivityManager.LOCK_TASK_MODE_PINNED;
-
 public class KioskSettingsFragment extends BaseSettingsFragment {
 
     private static final String KEY_UNREGISTER_DEVICE_OWNER = "unregister_device_owner_preference";
-    private static final String KEY_CLEAR_PINNING = "clear_application_pinning";
-    private static final String KEY_FILTERED_LIST = "kiosk_choice_preference";
+    private static final String KEY_KIOSK_SELECTION = "kiosk_choice_preference";
 
     @Inject
     public KioskModeSwitcher kioskModeSwitcher;
@@ -98,11 +93,8 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         // App Pinning and Full.
         ConfirmDialogPreference preferenceUnregisterDeviceOwner =
                 (ConfirmDialogPreference) findPreference(KEY_UNREGISTER_DEVICE_OWNER);
-        ConfirmDialogPreference preferenceClearPinning =
-                (ConfirmDialogPreference) findPreference(KEY_CLEAR_PINNING);
 
         if (Build.VERSION.SDK_INT < 21) { // L
-            getPreferenceScreen().removePreference(preferenceClearPinning);
             getPreferenceScreen().removePreference(preferenceUnregisterDeviceOwner);
 
             kioskPolicies[PINNING_].possible = false;
@@ -133,45 +125,13 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             }
         }
 
-        // Application pinning is not the same as Kiosk mode according to Google (see the
-        // distinction made for getLockTaskModeState() made below), but
-        // they are very similar. Normally, exit is achieved by simultaneously pressing
-        // the Back and Recents (triangle and square) keys, but that's not possible
-        // remotely. So provide a way to do it for remote administrators.
-        if (Build.VERSION.SDK_INT >= 21) { // L
-            // Set up the listener
-            preferenceClearPinning.setOnConfirmListener(
-                    () -> {
-                        kioskModeSwitcher.stopAppPinning((AppCompatActivity)getActivity());
-                        // Setting below won't stick on API 21-22... sigh.
-                        Preference clearApplicationPinningPreference =
-                                findPreference(KEY_CLEAR_PINNING);
-                        clearApplicationPinningPreference.setEnabled(false);
-                    }
-            );
-            // If we don't need it after all, disable it. Ugly, but anything else is worse
-            // given the disparate version levels.
-            // (Only at API23 can we tell if we're pinned.)
-            // (Effectively: say if we're pinned.)
-            if (Build.VERSION.SDK_INT >= 23) { // M
-                ActivityManager activityManager =
-                        (ActivityManager) Objects.requireNonNull(getContext())
-                                .getSystemService(Context.ACTIVITY_SERVICE);
-                if (activityManager.getLockTaskModeState() != LOCK_TASK_MODE_PINNED) {
-                    Preference clearApplicationPinningPreference =
-                            findPreference(KEY_CLEAR_PINNING);
-                    clearApplicationPinningPreference.setEnabled(false);
-                }
-            }
-        }
-
         KioskSelectionPreference preferenceFilteredList =
-                (KioskSelectionPreference) findPreference(KEY_FILTERED_LIST);
+                (KioskSelectionPreference) findPreference(KEY_KIOSK_SELECTION);
         preferenceFilteredList.setPolicies(kioskPolicies);
         preferenceFilteredList.setOnNewValueListener((mode) ->
                 kioskModeSwitcher.onKioskModeChanged(mode,(AppCompatActivity)getActivity()));
 
-        Preference kioskModeScreen = findPreference(KEY_FILTERED_LIST);
+        Preference kioskModeScreen = findPreference(KEY_KIOSK_SELECTION);
         int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
         kioskModeScreen.setSummary(summaryStringId);
     }

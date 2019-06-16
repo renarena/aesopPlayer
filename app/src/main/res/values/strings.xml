@@ -31,7 +31,6 @@
     <string name="permission_rationale_home_screen_more3">\nThis will return to the Books List screen.</string>
     <string name="pref_help_faq_title">Help: Frequently Asked Questions</string>
     <string name="pref_help_faq_summary">Go to website: %s</string>
-    <string name="pref_quick_exit">Exit this application now.</string>
     <string name="pref_kiosk_mode_screen_title">Prevent exiting the application (kiosk mode)…</string>
     <string name="pref_kiosk_mode_screen_selection">Preferred Kiosk Mode</string>
     <string name="pref_kiosk_mode_selection_default_value" translatable="false">NONE</string>
@@ -88,14 +87,8 @@
     <string name="pref_proximity_awaken_summary_off">Disabled</string>
     <string name="pref_screen_orientation">Screen orientation</string>
     <string name="pref_screen_orientation_default_value" translatable="false">LANDSCAPE_AUTO</string>
-    <string name="pref_reset_all_book_progress">Rewind all books to the beginning…</string>
-    <string name="pref_reset_all_book_progress_dialog_title">Reset listening progress on all books?</string>
-    <string name="pref_reset_all_book_progress_done">Book progress reset</string>
-    <string name="pref_set_progress_message">Set Progress for \"%1$s\"</string>
     <string name="pref_current_position_note" translatable="false">(%1$s)</string>
     <string name="pref_progress_hint" translatable="false">[hh:]mm</string>
-    <string name="pref_clear_application_pinning">Clear application pinning.</string>
-    <string name="pref_clear_application_pinning_dialog_title">Clear application pinning? (Allow other applications to run?)</string>
     <string name="pref_version_title">Version</string>
     <string name="playback_elapsed_time" translatable="false">%1$s - %2$s%%</string>
     <string name="button_acc_rewind">rewind</string>
@@ -130,7 +123,7 @@
     <string name="title_home">New Books</string>
     <string name="title_dashboard">Current Books</string>
     <string name="title_settings">Settings</string>
-    <string name="title_quick_exit">Quick Exit</string>
+    <string name="title_maintenance">Maintenance Mode</string>
     <string name="dialog_title_install_books">Install Books</string>
     <string name="dialog_ok_to_install">Do you want to install %s?</string>
     <string name="dialog_title_set_archive_policy">Book Archiving Policy</string>
@@ -197,8 +190,6 @@
     <string name="title_edit_hint_book_title">Displayable Book Title</string>
     <string name="title_edit_button_fix_case">Fix Case</string>
     <string name="title_edit_button_add_author">Add Author</string>
-    <string name="dialog_title_quick_exit">Quick Exit</string>
-    <string name="dialog_message_quick_exit">Hold button for 3 seconds for quick exit.\nOn restart, Kiosk/pinning will be restored if possible.</string>
     <string name="no_such_directory">Directory %s does not exist, trying next.</string>
     <string name="directory_not_writable">Directory %s is not writable, trying next.</string>
     <string name="status_name_info">Info: </string>

@@ -2,6 +2,7 @@ package com.studio4plus.homerplayer.ui.settings;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
@@ -12,17 +13,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
+import com.studio4plus.homerplayer.KioskModeSwitcher;
 import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.events.SettingsEnteredEvent;
 import com.studio4plus.homerplayer.service.DeviceMotionDetector;
@@ -52,6 +54,7 @@ public class SettingsActivity
     @Inject public EventBus eventBus;
     @Inject public GlobalSettings globalSettings;
     @Inject public KioskModeHandler kioskModeHandler;
+    @Inject public KioskModeSwitcher kioskModeSwitcher;
     private static boolean enteringSettings;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -85,14 +88,7 @@ public class SettingsActivity
                 .commit();
 
         mainThreadHandler = new Handler(getMainLooper());
-
-        // So we can get out to fix things without too much pain. A very long press.
-        BottomNavigationItemView quickExit = navigation.findViewById(R.id.navigation_quick_exit);
-        quickExit.setClickable(true);
-        quickExit.setOnTouchListener(this::quickExitTouchListenerThunk);
     }
-
-    private final Handler h = new Handler();
 
     private boolean onNavigationItemSelectedListener (MenuItem item) {
         switch (item.getItemId()) {
@@ -108,11 +104,13 @@ public class SettingsActivity
             // No-op
             return true;
 
-        case R.id.navigation_quick_exit:
-            // Delayed so "currently active" icon/text size is restored. Support caches seem to interfere;
-            // 200ms works only intermittently.
-            h.postDelayed(()->navigation.setSelectedItemId(R.id.navigation_settings), 500);
-            ProvisioningActivity.quickExitDialog(this);
+        case R.id.navigation_maintenance:
+            boolean enabled = !globalSettings.isMaintenanceMode();
+            setMenuItemProperties(this, item,
+                    enabled ? R.drawable.ic_settings_red_24dp : R.drawable.ic_settings_redish_24dp,
+                    enabled ? android.R.color.white : R.color.medium_dark_grey);
+            kioskModeSwitcher.setKioskMaintenanceMode(this, enabled);
+            globalSettings.setMaintenanceMode(enabled);
             return true;
         }
         return false;
@@ -131,13 +129,18 @@ public class SettingsActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        boolean enabled = globalSettings.isMaintenanceMode();
+        setMenuItemProperties(this, navigation.getMenu().getItem(3),
+                enabled ? R.drawable.ic_settings_red_24dp : R.drawable.ic_settings_redish_24dp,
+                enabled ? android.R.color.white : R.color.medium_dark_grey);
+
         DeviceMotionDetector.suspend();
     }
 
     static public boolean getInSettings() {
         return enteringSettings;
     }
-
 
     @Override
     protected void onStop() {
@@ -239,7 +242,19 @@ public class SettingsActivity
         kioskModeHandler.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
-    private boolean quickExitTouchListenerThunk(View v, MotionEvent e) {
-        return ProvisioningActivity.quickExitTouchListener(v, e);
+    static public void setMenuItemProperties(AppCompatActivity activity,
+                                             MenuItem item,
+                                             int resIconDrawable, int resColor) {
+        int id = item.getItemId();
+
+        BottomNavigationItemView m = activity.findViewById(id);
+        TextView t1 = m.findViewById(R.id.smallLabel);
+        TextView t2 = m.findViewById(R.id.largeLabel);
+        t1.setTextColor(activity.getResources().getColor(resColor));
+        t2.setTextColor(activity.getResources().getColor(resColor));
+
+        Drawable d = VectorDrawableCompat.create(activity.getResources(), resIconDrawable, null);
+        //Drawable d = activity.getResources().getDrawable(resIconDrawable);
+        item.setIcon(d);
     }
 }
