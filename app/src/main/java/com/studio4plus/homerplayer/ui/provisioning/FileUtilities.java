@@ -200,7 +200,9 @@ public class FileUtilities {
                             .getString(R.string.error_could_not_create_books), t.getPath()));
                     return false;
                 }
-                return treeCopy(f,t,progress, logError);
+                if (!treeCopy(f,t,progress, logError)) {
+                    return false;
+                }
             }
             else {
                 progress.Callback(file);
