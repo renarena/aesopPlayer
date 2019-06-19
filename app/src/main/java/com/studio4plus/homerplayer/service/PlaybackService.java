@@ -300,9 +300,9 @@ public class PlaybackService
             controller.setObserver(this);
             AudioBook.Position position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
+            resetSleepTimer();
             controller.start(position.getFile(), startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
-            resetSleepTimer();
         }
 
         void stop() {

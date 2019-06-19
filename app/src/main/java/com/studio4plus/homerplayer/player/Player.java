@@ -114,6 +114,7 @@ public class Player {
             Preconditions.checkNotNull(observer);
             this.currentFile = currentFile;
             // Change position then resume to avoid audio glitch
+            startUpdateProgress();
             prepareAudioFile(currentFile, startPositionMs);
             exoPlayer.setPlayWhenReady(true);
         }
@@ -129,7 +130,6 @@ public class Player {
         @Override
         public void resume(File currentFile, long startPositionMs) {
             start(currentFile, startPositionMs);
-            updateProgress();
         }
 
         public void stop() {
@@ -157,7 +157,6 @@ public class Player {
             switch(playbackState) {
                 case com.google.android.exoplayer2.Player.STATE_READY:
                     observer.onDuration(currentFile, exoPlayer.getDuration());
-                    updateProgress();
                     break;
                 case com.google.android.exoplayer2.Player.STATE_ENDED:
                     handler.removeCallbacks(updateProgressTask);
@@ -191,9 +190,31 @@ public class Player {
             observer.onPlaybackError(currentFile);
         }
 
+        float oldVolume;
+        int firstSecondSilent;
+
+        private void startUpdateProgress() {
+            // To avoid audio glitches, run at volume 0 for a second or so and then turn up
+            // the level. This is particularly for when the device is face-down paused, and
+            // remote access is used for maintenance. We don't want it glitching loudly when
+            // it goes temporarily through playing state when playback is resumed after
+            // maintenance is done. (Don't want to awaken sleeping users.)
+            oldVolume = exoPlayer.getVolume();
+            exoPlayer.setVolume(0.0f);
+            firstSecondSilent = 1;
+            updateProgress();
+        }
+
         private void updateProgress() {
             long positionMs = exoPlayer.getCurrentPosition();
             observer.onPlaybackProgressed(positionMs);
+
+            if (firstSecondSilent>=0) {
+                if (firstSecondSilent == 0) {
+                    exoPlayer.setVolume(oldVolume);
+                }
+                firstSecondSilent--;
+            }
 
             // Aim a moment after the expected second change. It's necessary because the actual
             // playback speed may be slightly different than playbackSpeed when it's different
@@ -203,8 +224,8 @@ public class Player {
                 delayMs += (long) (1000 * playbackSpeed);
 
             if (exoPlayer.getPlayWhenReady()) {
-                // clearing updateProgress from the handler doesn't always work (I think that the
-                // runnable, once posted, isn't removed). That can cause this to run away, so
+                // Clearing updateProgressTask from the handler doesn't always work (I think that
+                // the runnable, once posted, isn't removed). That can cause this to run away, so
                 // belt and suspenders...
                 handler.postDelayed(updateProgressTask, delayMs);
             }
