@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
+import com.studio4plus.homerplayer.R;
 import com.studio4plus.homerplayer.analytics.AnalyticsTracker;
 import com.studio4plus.homerplayer.events.PlaybackProgressedEvent;
 import com.studio4plus.homerplayer.events.PlaybackStoppingEvent;
@@ -107,6 +108,7 @@ public class UiControllerPlayback {
     }
 
     public void pauseForPause() {
+        ui.onChangeStopPause(R.string.button_pause);
         playbackService.pauseForPause();
     }
 
@@ -115,6 +117,7 @@ public class UiControllerPlayback {
     }
 
     public void resumeFromPause() {
+        ui.onChangeStopPause(R.string.button_stop);
         eventBus.register(this);
         playbackService.resumeFromPause();
     }

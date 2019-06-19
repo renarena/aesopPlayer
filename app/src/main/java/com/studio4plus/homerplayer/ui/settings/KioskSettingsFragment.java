@@ -95,7 +95,10 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 (ConfirmDialogPreference) findPreference(KEY_UNREGISTER_DEVICE_OWNER);
 
         if (Build.VERSION.SDK_INT < 21) { // L
-            getPreferenceScreen().removePreference(preferenceUnregisterDeviceOwner);
+            if (preferenceUnregisterDeviceOwner != null) {
+                // Already did it
+                getPreferenceScreen().removePreference(preferenceUnregisterDeviceOwner);
+            }
 
             kioskPolicies[PINNING_].possible = false;
             kioskPolicies[PINNING_].available = false;

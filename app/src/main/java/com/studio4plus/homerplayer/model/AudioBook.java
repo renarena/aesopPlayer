@@ -2,6 +2,8 @@ package com.studio4plus.homerplayer.model;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Preconditions;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
@@ -460,5 +462,11 @@ public class AudioBook {
     private void notifyUpdateObserver() {
         if (updateObserver != null)
             updateObserver.onAudioBookStateUpdated(this);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return getTitle() + " " + super.toString();
     }
 }

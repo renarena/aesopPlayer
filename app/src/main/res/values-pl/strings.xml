@@ -81,6 +81,7 @@
     <string name="button_acc_fast_forward">przewiń do przodu</string>
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
+    <string name="button_pause">Wstrzymany</string>
     <string name="audio_prompt_slower">Wolniej</string>
     <string name="audio_prompt_faster">Szybciej</string>
     <string name="audio_prompt_louder">Głośniej</string>

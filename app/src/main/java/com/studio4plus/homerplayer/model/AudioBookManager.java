@@ -190,15 +190,15 @@ public class AudioBookManager {
         int count = audioBooks.size();
         int lastIndex = count - 1;
         for (int i = 0; i < count; ++i) {
-            AudioBook currentBook = audioBooks.get(i);
-            if (currentBook.getColourScheme() == null) {
+            AudioBook book = audioBooks.get(i);
+            if (book.getColourScheme() == null) {
                 int startNeighbourIndex = i - MAX_NEIGHBOUR_DISTANCE;
                 int endNeighbourIndex = i + MAX_NEIGHBOUR_DISTANCE;
                 List<ColourScheme> coloursToAvoid = getColoursInRange(
                         Math.max(0, startNeighbourIndex),
                         Math.min(lastIndex, endNeighbourIndex));
-                currentBook.setColourScheme(ColourScheme.getRandom(coloursToAvoid));
-                storage.writeAudioBookState(currentBook);
+                book.setColourScheme(ColourScheme.getRandom(coloursToAvoid));
+                storage.writeAudioBookState(book);
             }
         }
     }

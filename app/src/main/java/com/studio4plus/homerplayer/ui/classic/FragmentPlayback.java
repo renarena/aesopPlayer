@@ -54,6 +54,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private TextView elapsedTimeView;
     private TextView volumeSpeedView;
     private TextView elapsedTimeRewindFFView;
+    private TextView stopText;
     private TextView chapterInfoView;
     private RewindFFHandler rewindFFHandler;
     private Animator elapsedTimeRewindFFViewAnimation;
@@ -89,6 +90,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         volumeSpeedView= view.findViewById(R.id.Volume_speed);
         elapsedTimeRewindFFView = view.findViewById(R.id.elapsedTimeRewindFF);
         chapterInfoView = view.findViewById(R.id.chapterInfo);
+        stopText = view.findViewById(R.id.stop_text);
 
         elapsedTimeView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -181,6 +183,10 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     void onPlaybackProgressed(long playbackPositionMs) {
         onTimerUpdated(playbackPositionMs);
         enableUiOnStart();
+    }
+
+    void onChangeStopPause(int title) {
+        stopText.setText(title);
     }
 
     private void enableUiOnStart() {

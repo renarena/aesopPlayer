@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import androidx.annotation.NonNull;
 
-import com.google.common.base.Preconditions;
 import com.studio4plus.homerplayer.GlobalSettings;
 import com.studio4plus.homerplayer.HomerPlayerApplication;
 import com.studio4plus.homerplayer.ui.TouchRateJoystick;
@@ -36,6 +35,7 @@ public class DeviceMotionDetector implements SensorEventListener {
     public interface Listener {
         void onSignificantMotion();
         void onFaceDownStill();
+        @SuppressWarnings("EmptyMethod")
         void onFaceUpStill();
     }
 
@@ -261,6 +261,7 @@ public class DeviceMotionDetector implements SensorEventListener {
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
@@ -408,11 +409,13 @@ public class DeviceMotionDetector implements SensorEventListener {
             reawaken();
         }
 
+        @SuppressWarnings("EmptyMethod")
         @Override
         public void onFaceDownStill() {
             /* ignore */
         }
 
+        @SuppressWarnings("EmptyMethod")
         @Override
         public void onFaceUpStill() {
             /* ignore */

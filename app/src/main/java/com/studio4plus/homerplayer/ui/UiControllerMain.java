@@ -27,6 +27,8 @@ import com.studio4plus.homerplayer.model.AudioBookManager;
 import com.studio4plus.homerplayer.service.PlaybackService;
 import com.studio4plus.homerplayer.service.DeviceMotionDetector;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
@@ -85,8 +87,7 @@ public class UiControllerMain implements ServiceConnection {
 
     void onActivityStart() {
         Crashlytics.log(Log.DEBUG, TAG,"UI: onActivityStart");
-        if (!audioBookManager.isInitialized())
-        {
+        if (!audioBookManager.isInitialized()) {
             scanAudioBookFiles();
         }
         maybeSetInitialState();
@@ -121,8 +122,8 @@ public class UiControllerMain implements ServiceConnection {
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void onEvent(AudioBooksChangedEvent event) {
-        currentState.onBooksChanged(this);
-    }
+            currentState.onBooksChanged(this);
+        }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void onEvent(PlaybackStoppedEvent event) {
@@ -214,6 +215,13 @@ public class UiControllerMain implements ServiceConnection {
         playbackService.computeDuration(book);
     }
 
+    private void proceedToPaused() {
+        // Paused state requires that it's reached only with a prior Playback state.
+        changeState(StateFactory.PLAYBACK);
+        Objects.requireNonNull(State.playbackController).pauseForPause();
+        changeState(StateFactory.PAUSED);
+    }
+
     private void maybeSetInitialState() {
         if (playbackService == null)
         {
@@ -227,7 +235,7 @@ public class UiControllerMain implements ServiceConnection {
             changeState(StateFactory.PLAYBACK);
         }
         else if (playbackService.getState() == PlaybackService.State.PAUSED) {
-            changeState(StateFactory.PAUSED);
+            proceedToPaused();
         }
         else if (audioBookManager.isInitialized()) {
             // This will end up in one of the two books states
@@ -431,15 +439,19 @@ public class UiControllerMain implements ServiceConnection {
             mainController.changeState(StateFactory.BOOK_LIST);
         }
 
+        @SuppressWarnings("EmptyMethod")
         @Override
         public void onFaceDownStill() { /* ignore */ }
 
+        @SuppressWarnings("EmptyMethod")
         @Override
         public void onFaceUpStill() { /* ignore*/ }
 
+        @SuppressWarnings("EmptyMethod")
         @Override
         public void onSignificantMotion() { /* ignore */ }
 
+        @SuppressWarnings("SameReturnValue")
         @Override
         StateFactory stateId() { return StateFactory.BOOK_LIST; }
     }
@@ -570,6 +582,7 @@ public class UiControllerMain implements ServiceConnection {
             }
         }
 
+        @SuppressWarnings("EmptyMethod")
         @Override
         public void onFaceDownStill() {
             /* nothing */
@@ -590,6 +603,7 @@ public class UiControllerMain implements ServiceConnection {
             playbackController.playbackService.resetSleepTimer();
         }
 
+        @SuppressWarnings("SameReturnValue")
         @Override
         StateFactory stateId() { return StateFactory.PAUSED; }
     }

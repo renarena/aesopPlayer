@@ -202,7 +202,12 @@ public class Player {
             if (delayMs < 100)
                 delayMs += (long) (1000 * playbackSpeed);
 
-            handler.postDelayed(updateProgressTask, delayMs);
+            if (exoPlayer.getPlayWhenReady()) {
+                // clearing updateProgress from the handler doesn't always work (I think that the
+                // runnable, once posted, isn't removed). That can cause this to run away, so
+                // belt and suspenders...
+                handler.postDelayed(updateProgressTask, delayMs);
+            }
         }
 
         private String getFormatDescription() {

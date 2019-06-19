@@ -95,6 +95,7 @@
     <string name="button_acc_fast_forward">fast-forward</string>
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
+    <string name="button_pause">Paused</string>
     <string name="audio_prompt_slower">Slower</string>
     <string name="audio_prompt_faster">Faster</string>
     <string name="audio_prompt_louder">Louder</string>

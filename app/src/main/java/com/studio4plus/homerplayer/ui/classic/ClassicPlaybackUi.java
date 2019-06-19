@@ -68,6 +68,10 @@ public class ClassicPlaybackUi implements PlaybackUi {
         }
     }
 
+    public void onChangeStopPause(int title) {
+        fragment.onChangeStopPause(title);
+    }
+
     private static final EnumMap<SpeedLevel, Integer> SPEED_LEVEL_SOUND_RATE =
             new EnumMap<>(SpeedLevel.class);
 
