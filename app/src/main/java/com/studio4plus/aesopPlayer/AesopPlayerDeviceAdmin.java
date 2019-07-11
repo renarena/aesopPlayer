@@ -1,0 +1,64 @@
+package com.studio4plus.aesopPlayer;
+
+import android.annotation.TargetApi;
+import android.app.admin.DeviceAdminReceiver;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
+import com.studio4plus.aesopPlayer.events.DeviceAdminChangeEvent;
+
+import de.greenrobot.event.EventBus;
+
+public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
+
+    @Override
+    public void onEnabled(Context context, Intent intent) {
+        if (Build.VERSION.SDK_INT >= 21)
+            API21.enableLockTask(context);
+        EventBus.getDefault().post(new DeviceAdminChangeEvent(true));
+    }
+
+    @Override
+    public void onDisabled(Context context, Intent intent) {
+        EventBus.getDefault().post(new DeviceAdminChangeEvent(false));
+    }
+
+    public static boolean isDeviceOwner(Context context) {
+        return Build.VERSION.SDK_INT >= 21 && API21.isDeviceOwner(context);
+    }
+
+    public static void clearDeviceOwner(Context context) {
+        if (Build.VERSION.SDK_INT >= 21)
+            API21.clearDeviceOwnerAndAdmin(context);
+    }
+
+    @TargetApi(21)
+    private static class API21 {
+
+        static boolean isDeviceOwner(Context context) {
+            DevicePolicyManager dpm =
+                    (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            return dpm.isDeviceOwnerApp(context.getPackageName());
+        }
+
+        static void clearDeviceOwnerAndAdmin(Context context) {
+            DevicePolicyManager dpm =
+                    (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            dpm.clearDeviceOwnerApp(context.getPackageName());
+            ComponentName adminComponentName = new ComponentName(context, AesopPlayerDeviceAdmin.class);
+            dpm.removeActiveAdmin(adminComponentName);
+        }
+
+        static void enableLockTask(Context context) {
+            DevicePolicyManager dpm =
+                    (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            ComponentName adminComponentName = new ComponentName(context, AesopPlayerDeviceAdmin.class);
+            if (dpm.isAdminActive(adminComponentName) &&
+                   dpm.isDeviceOwnerApp(context.getPackageName()))
+                dpm.setLockTaskPackages(adminComponentName, new String[]{context.getPackageName()});
+        }
+    }
+}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.studio4plus.homerplayer">
+    package="com.studio4plus.aesopPlayer">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -38,7 +38,7 @@
 
     <!-- tools:replace below needed for DirectoryChooser activity -->
     <application
-        android:name=".HomerPlayerApplication"
+        android:name="com.studio4plus.aesopPlayer.AesopPlayerApplication"
         tools:replace="android:theme"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -46,7 +46,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".ui.MainActivity"
+            android:name="com.studio4plus.aesopPlayer.ui.MainActivity"
             android:clearTaskOnLaunch="true"
             android:label="@string/app_name"
             android:launchMode="singleTask">
@@ -56,20 +56,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.provisioning.ProvisioningActivity"
+            android:name="com.studio4plus.aesopPlayer.ui.provisioning.ProvisioningActivity"
             android:label="@string/title_activity_provisioning"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName="com.studio4plus.aesopPlayer.ui.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.studio4plus.homerplayer.ui.MainActivity" />
+                android:value="com.studio4plus.aesopPlayer.ui.MainActivity" />
         </activity>
         <activity
-            android:name=".ui.settings.SettingsActivity"
+            android:name="com.studio4plus.aesopPlayer.ui.settings.SettingsActivity"
             android:excludeFromRecents="true"
             android:label="@string/settings_title">
         </activity>
         <activity
-            android:name=".ui.HomeActivity"
+            android:name="com.studio4plus.aesopPlayer.ui.HomeActivity"
             android:enabled="false"
             android:excludeFromRecents="true"
             android:noHistory="true">
@@ -82,14 +82,14 @@
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
         <service
-            android:name=".service.PlaybackService"
+            android:name="com.studio4plus.aesopPlayer.service.PlaybackService"
             android:exported="false" />
         <service
-            android:name=".service.DemoSamplesInstallerService"
+            android:name="com.studio4plus.aesopPlayer.service.DemoSamplesInstallerService"
             android:exported="false" />
 
         <receiver
-            android:name=".HomerPlayerDeviceAdmin"
+            android:name="com.studio4plus.aesopPlayer.AesopPlayerDeviceAdmin"
             android:description="@string/device_admin_description"
             android:label="@string/device_admin_label">
             <meta-data
@@ -105,8 +105,8 @@
              It only provides some configuration settings which aren't very sensitive information.
         -->
         <provider
-            android:name=".content.ConfigurationContentProvider"
-            android:authorities="com.studio4plus.homerplayer.config"
+            android:name="com.studio4plus.aesopPlayer.content.ConfigurationContentProvider"
+            android:authorities="com.studio4plus.aesopPlayer.config"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 

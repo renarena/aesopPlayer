@@ -1,12 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">Homer Player</string>
+    <string name="app_name" translatable="false">Aesop Player</string>
     <string name="demo_samples_service_notification_download">Downloading sample audiobooks</string>
     <string name="demo_samples_service_notification_install">Installing sample audiobooks</string>
     <string name="playback_service_notification">Audiobook playing</string>
     <string name="noBooksMessage">There are no audio books on the device.</string>
     <string name="copyBooksInstructionMessage">Copy audio books to folder &lt;b>/%s&lt;/b></string>
-    <string name="device_admin_label" translatable="false">Homer Player</string>
-    <string name="device_admin_description" translatable="false">Homer Player</string>
+    <string name="device_admin_label" translatable="false">Aesop Player</string>
+    <string name="device_admin_description" translatable="false">Aesop Player</string>
     <string name="hint_browsing">Swipe\nto browse titles</string>
     <string name="hint_settings">Tap 5x\nfor settings</string>
     <string name="hint_flip_to_stop">Put the device with screen down to stop</string>
@@ -20,12 +20,12 @@
     <string name="permission_rationale_settings">Open settings</string>
     <string name="permission_rationale_exit">Exit app</string>
     <string name="permission_rationale_ignore">Skip (Kiosk less effective)</string>
-    <string name="permission_rationale_download_samples">Storage permission is needed by Homer Player to save downloaded audiobook samples.</string>
-    <string name="permission_rationale_scan_audiobooks">Storage permission is needed by Homer Player to access the audiobook files.</string>
+    <string name="permission_rationale_download_samples">Storage permission is needed by Aesop Player to save downloaded audiobook samples.</string>
+    <string name="permission_rationale_scan_audiobooks">Storage permission is needed by Aesop Player to access the audiobook files.</string>
     <string name="permission_rationale_simple_kiosk">Simple Kiosk mode requires these permissions.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Overlay permissions avoid accidental use of the status bar.</string>
     <string name="permission_rationale_simple_default_app">Simple Kiosk Mode Must Set the Default App.</string>
-    <string name="permission_rationale_home_screen">One-time setup for Default App.\nSelect "OK" below, then on next screen&#8230;\nSelect "Homer Player", then "Always"</string>
+    <string name="permission_rationale_home_screen">One-time setup for Default App.\nSelect "OK" below, then on next screen&#8230;\nSelect "Aesop Player", then "Always"</string>
     <string name="permission_rationale_home_screen_more1">&#8230;\nThen on final screen "OK".</string> <!-- 8230 is "ellipsis" "..." -->
     <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
     <string name="permission_rationale_home_screen_more3">\nThis will return to the Books List screen.</string>
@@ -111,12 +111,12 @@
     <string name="noBooksOrMessage">or</string>
     <string name="noBooksDownloadSamplesButton">Download book samples</string>
     <string name="scanning_books">Scanning available books</string>
-    <string name="scanning_title">Homer Player logo</string>
+    <string name="scanning_title">Aesop Player logo</string>
     <string name="playbackErrorToast">Unable to play file:\n%s</string>
     <string name="samplesDownloadErrorTitle">Error</string>
     <string name="samplesDownloadErrorMessage">Download and installation failed.</string>
     <string name="samplesDownloadProgressTitle">Downloading…</string>
-    <string name="samplesDownloadNotificationTitle">Audiobook samples for Homer Player</string>
+    <string name="samplesDownloadNotificationTitle">Audiobook samples for Aesop Player</string>
     <string name="content_description_fragment_init_logo">This application\'s logo during startup</string>
 
     <!-- Below are for provisioning activity -->

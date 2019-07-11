@@ -1,6 +1,6 @@
 # Privacy Policy
 
-By using the Homer Player app (the "App") you consent to the collection and
+By using the Aesop Player app (the "App") you consent to the collection and
 processing of data concerning your use of the App in accordance with this
 privacy policy.
 

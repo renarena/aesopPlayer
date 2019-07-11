@@ -18,12 +18,12 @@
     <string name="permission_rationale_settings">Otwórz ustawienia</string>
     <string name="permission_rationale_exit">Zamknij aplikację</string>
     <string name="permission_rationale_ignore">Pomiń (kiosk jest mniej skuteczna)</string>
-    <string name="permission_rationale_download_samples">Pozwolenie na dostęp do pamięci jest potrzebne aby Homer Player mógł zapisać pobrane przykładowe książki.</string>
-    <string name="permission_rationale_scan_audiobooks">Pozwolenie na dostęp do pamięci jest potrzebne aby Homer Player mógł odczytać pliki audiobooków.</string>
+    <string name="permission_rationale_download_samples">Pozwolenie na dostęp do pamięci jest potrzebne aby Aesop Player mógł zapisać pobrane przykładowe książki.</string>
+    <string name="permission_rationale_scan_audiobooks">Pozwolenie na dostęp do pamięci jest potrzebne aby Aesop Player mógł odczytać pliki audiobooków.</string>
     <string name="permission_rationale_simple_kiosk">Prosty tryb kiosku wymaga tych uprawnień.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Zgodę na powołanie uniknąć przypadkowego użycia paska stanu</string>
     <string name="permission_rationale_simple_default_app">Prosty tryb kiosku, musi ustawić domyślną aplikację.</string>
-    <string name="permission_rationale_home_screen">Jednorazowa konfiguracja aplikacji domyślnie.\nWybierz "OK" poniżej, następnie na kolejnym ekranie&#8230;\nWybierz "Homer Player", a następnie "wszystkie"</string>
+    <string name="permission_rationale_home_screen">Jednorazowa konfiguracja aplikacji domyślnie.\nWybierz "OK" poniżej, następnie na kolejnym ekranie&#8230;\nWybierz "Aesop Player", a następnie "wszystkie"</string>
     <string name="permission_rationale_home_screen_more1">&#8230;\nNastępnie na ostatnim ekranie "OK".</string> ,<!-- 8230 is "ellipsis" "..." -->
     <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
     <string name="permission_rationale_home_screen_more3">\nZostanie wyświetlony ekran lista książek.</string>
@@ -96,12 +96,12 @@
     <string name="noBooksDownloadSamplesButton">Pobierz przykładowe ksiązki</string>
     <string name="noBooksOrMessage">lub</string>
     <string name="scanning_books">Skanowanie książek</string>
-    <string name="scanning_title">Logo dla Homer Playera</string>
+    <string name="scanning_title">Logo dla Aesop Playera</string>
     <string name="playbackErrorToast">Nie można odtworzyć pliku:\n%s</string>
     <string name="samplesDownloadErrorMessage">Nie udało się pobrać i zainstalować przykładowych audiobooków.</string>
     <string name="samplesDownloadErrorTitle">Błąd</string>
     <string name="samplesDownloadProgressTitle">Pobieranie…</string>
-    <string name="samplesDownloadNotificationTitle">Przykładowe audiobooki dla Homer Playera</string>
+    <string name="samplesDownloadNotificationTitle">Przykładowe audiobooki dla Aesop Playera</string>
 
     <string name="content_description_fragment_init_logo">Logo tej aplikacji podczas uruchamiania</string>
     <string name="title_activity_provisioning">Aktualizacja Książek</string>

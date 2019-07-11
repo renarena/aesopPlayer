@@ -23,7 +23,7 @@
 
 # Settings fragments that are referenced with the app:fragment property on preferences
 # are not recognized by ProGuard as being used and are removed. Keep them.
--keep class com.studio4plus.homerplayer.ui.settings.**
+-keep class com.studio4plus.aesopPlayer.ui.settings.**
 
 # Guava
 -dontwarn sun.misc.Unsafe

@@ -1,9 +1,9 @@
-Homer Player [![Code Climate](https://codeclimate.com/github/msimonides/homerplayer/badges/gpa.svg)](https://codeclimate.com/github/msimonides/homerplayer)
+Aesop Player [![Code Climate](https://codeclimate.com/github/donnKey/aesopPlayer/badges/gpa.svg)](https://codeclimate.com/github/donnKey/aesopPlayer)
 ============
 
 An audio book player for the elderly and visually impaired.
 
-[Go to the project website](http://msimonides.github.io/homerplayer/)
+[Go to the project website](http://donnKey.github.io/aesopPlayer/)
 or
 [watch the video](https://www.youtube.com/watch?v=RfLkoLtxzng).
 
@@ -25,9 +25,9 @@ Assumptions
 Status
 ------
 The main functionality has been implemented and the app is available in the
-[Play Store](https://play.google.com/store/apps/details?id=com.studio4plus.homerplayer).
+[Play Store](https://play.google.com/store/apps/details?id=com.studio4plus.aesopPlayer).
 
-See the [website](http://msimonides.github.io/homerplayer/features.html) for details
+See the [website](http://donnKey.github.io/aesopPlayer/features.html) for details
 on the main features.
 
 Contributions
@@ -37,8 +37,9 @@ Stefan Rotermund, Magdalena Wodyńska.
 
 Contact
 -------
-marcin@studio4plus.com
+DonnTerry@gmail.com
 
 License
 -------
 Copyright (c) 2015-2017 Marcin Simonides Licensed under the MIT license.
+Copyright (c) 2018-2019 Donn Terry Licensed under the MIT license.
