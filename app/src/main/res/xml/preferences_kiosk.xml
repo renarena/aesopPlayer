@@ -3,14 +3,14 @@
     android:id="@+id/foo"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <!--suppress AndroidElementNotAllowed -->
-    <com.studio4plus.aesopPlayer.ui.settings.KioskSelectionPreference
+    <com.donnKey.aesopPlayer.ui.settings.KioskSelectionPreference
         app:key="kiosk_choice_preference"
         app:title="@string/pref_kiosk_mode_screen_selection"
         app:entries="@array/kiosk_selection_entries"
         app:entryValues="@array/kiosk_selection_values"
         app:defaultValue="@string/pref_kiosk_mode_selection_default_value"/>`
     <!--suppress AndroidElementNotAllowed -->
-    <com.studio4plus.aesopPlayer.ui.settings.ConfirmDialogPreference
+    <com.donnKey.aesopPlayer.ui.settings.ConfirmDialogPreference
         app:key="unregister_device_owner_preference"
         app:title="@string/pref_kiosk_mode_unregister_device_owner"
         android:dialogTitle="@string/pref_kiosk_mode_unregister_device_owner_dialog_message"/>

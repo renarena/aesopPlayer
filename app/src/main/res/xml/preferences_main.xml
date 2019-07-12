@@ -3,7 +3,7 @@
     <Preference
         app:key="playback_options_screen"
         app:title="@string/pref_playback_options_screen_title"
-        app:fragment="com.studio4plus.aesopPlayer.ui.settings.PlaybackSettingsFragment"/>
+        app:fragment="com.donnKey.aesopPlayer.ui.settings.PlaybackSettingsFragment"/>
     <ListPreference
         app:key="snooze_delay_preference"
         app:defaultValue="@string/pref_snooze_time_default_value"
@@ -25,7 +25,7 @@
     <PreferenceScreen
         app:key="kiosk_mode_screen"
         app:title="@string/pref_kiosk_mode_screen_title"
-        app:fragment="com.studio4plus.aesopPlayer.ui.settings.KioskSettingsFragment"/>
+        app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"/>
     <SwitchPreference
         app:key="awaken_on_proximity_preference"
         app:title="@string/pref_proximity_awaken"
