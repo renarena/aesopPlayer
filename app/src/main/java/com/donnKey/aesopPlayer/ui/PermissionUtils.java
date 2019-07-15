@@ -42,7 +42,7 @@ public class PermissionUtils {
         return new AlertDialog.Builder(activity)
                 .setMessage(rationaleMessage)
                 .setTitle(R.string.permission_rationale_title)
-                .setIcon(R.mipmap.ic_launcher);
+                .setIcon(R.drawable.ic_launcher);
     }
 
     public static void openAppSettings(AppCompatActivity activity) {

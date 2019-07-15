@@ -256,7 +256,7 @@ public class ProvisioningActivity extends AppCompatActivity
         case FILESYSTEMS_FULL: {
             new AlertDialog.Builder(getAppContext())
                     .setTitle(getString(R.string.error_dialog_title_file_system_full))
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.drawable.ic_launcher)
                     .setMessage(getString(R.string.error_dialog_file_system_full))
                     .setPositiveButton(android.R.string.ok, null)
                     .show();

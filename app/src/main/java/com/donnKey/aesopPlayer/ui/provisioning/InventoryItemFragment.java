@@ -151,7 +151,7 @@ public class InventoryItemFragment extends Fragment {
             String books = res.getQuantityString(R.plurals.numberOfBooks, count, count);
             new AlertDialog.Builder(Objects.requireNonNull(this.getContext()))
                     .setTitle(getString(R.string.dialog_title_reset_books_position))
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.drawable.ic_launcher)
                     .setMessage(String.format(getString(R.string.dialog_ok_to_rewind), books))
                     .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> rewindAllSelected())
                     .setNegativeButton(android.R.string.no, null)
@@ -174,7 +174,7 @@ public class InventoryItemFragment extends Fragment {
             }
             new AlertDialog.Builder(Objects.requireNonNull(this.getContext()))
                     .setTitle(title)
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.drawable.ic_launcher)
                     .setMessage(message)
                     .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> deleteAllSelected())
                     .setNegativeButton(android.R.string.no, null)
@@ -184,7 +184,7 @@ public class InventoryItemFragment extends Fragment {
         case R.id.archive_books: {
             new AlertDialog.Builder(Objects.requireNonNull(this.getContext()))
                     .setTitle(getString(R.string.dialog_title_archive_policy))
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.drawable.ic_launcher)
                     .setMessage(String.format(getString(R.string.dialog_archive_policy), audioBooksDirectoryName))
                     .setPositiveButton(getString(R.string.dialog_policy_yes), (dialog, whichButton) -> {
                         item.setChecked(true);

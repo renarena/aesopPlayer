@@ -194,7 +194,7 @@ public class CandidateFragment extends Fragment {
             String books = res.getQuantityString(R.plurals.numberOfBooks, count, count);
             new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                     .setTitle(getString(R.string.dialog_title_install_books))
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.drawable.ic_launcher)
                     .setMessage(String.format(getString(R.string.dialog_ok_to_install), books))
                     .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> moveAllSelected())
                     .setNegativeButton(android.R.string.no, null)
@@ -204,7 +204,7 @@ public class CandidateFragment extends Fragment {
         case R.id.retain:
             new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                     .setTitle(getString(R.string.dialog_title_set_archive_policy))
-                    .setIcon(R.mipmap.ic_launcher)
+                    .setIcon(R.drawable.ic_launcher)
                     .setMessage(getString(R.string.dialog_archive_by_copy) )
                     .setPositiveButton(getString(R.string.dialog_policy_yes), (dialog, whichButton) -> {
                         item.setChecked(true);

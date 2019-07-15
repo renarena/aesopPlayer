@@ -229,7 +229,7 @@ public class KioskModeSwitcher {
                         context.startActivity(homeIntent);
                     }
                 )
-                .setIcon(R.mipmap.ic_launcher)
+                .setIcon(R.drawable.ic_launcher)
                 .show();
         }
     }

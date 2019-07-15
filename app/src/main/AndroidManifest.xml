@@ -38,7 +38,7 @@
 
     <!-- tools:replace below needed for DirectoryChooser activity -->
     <application
-        android:name="com.donnKey.aesopPlayer.AesopPlayerApplication"
+        android:name=".AesopPlayerApplication"
         tools:replace="android:theme"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -46,7 +46,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name="com.donnKey.aesopPlayer.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:clearTaskOnLaunch="true"
             android:label="@string/app_name"
             android:launchMode="singleTask">
@@ -56,20 +56,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.donnKey.aesopPlayer.ui.provisioning.ProvisioningActivity"
+            android:name=".ui.provisioning.ProvisioningActivity"
             android:label="@string/title_activity_provisioning"
-            android:parentActivityName="com.donnKey.aesopPlayer.ui.MainActivity">
+            android:parentActivityName=".ui.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.donnKey.aesopPlayer.ui.MainActivity" />
         </activity>
         <activity
-            android:name="com.donnKey.aesopPlayer.ui.settings.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:excludeFromRecents="true"
             android:label="@string/settings_title">
         </activity>
         <activity
-            android:name="com.donnKey.aesopPlayer.ui.HomeActivity"
+            android:name=".ui.HomeActivity"
             android:enabled="false"
             android:excludeFromRecents="true"
             android:noHistory="true">
@@ -82,14 +82,14 @@
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
         <service
-            android:name="com.donnKey.aesopPlayer.service.PlaybackService"
+            android:name=".service.PlaybackService"
             android:exported="false" />
         <service
-            android:name="com.donnKey.aesopPlayer.service.DemoSamplesInstallerService"
+            android:name=".service.DemoSamplesInstallerService"
             android:exported="false" />
 
         <receiver
-            android:name="com.donnKey.aesopPlayer.AesopPlayerDeviceAdmin"
+            android:name=".AesopPlayerDeviceAdmin"
             android:description="@string/device_admin_description"
             android:label="@string/device_admin_label">
             <meta-data
@@ -105,7 +105,7 @@
              It only provides some configuration settings which aren't very sensitive information.
         -->
         <provider
-            android:name="com.donnKey.aesopPlayer.content.ConfigurationContentProvider"
+            android:name=".content.ConfigurationContentProvider"
             android:authorities="com.donnKey.aesopPlayer.config"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
