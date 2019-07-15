@@ -25,7 +25,7 @@ Assumptions
 Status
 ------
 The main functionality has been implemented and the app is available in the
-[Play Store](https://play.google.com/store/apps/details?id=com.studio4plus.aesopPlayer).
+[Play Store](https://play.google.com/store/apps/details?id=com.donnKey.aesopPlayer).
 
 See the [website](http://donnKey.github.io/aesopPlayer/features.html) for details
 on the main features.
