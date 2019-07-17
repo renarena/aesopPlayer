@@ -1,6 +1,6 @@
 ---
 layout: page
-meta_title: "Homer Player: setting up full kiosk mode"
+meta_title: "Aesop Player: setting up full kiosk mode"
 title: "Make a Dedicated Player - Full Kiosk Mode"
 heading: "Making a Dedicated Player"
 header-img: img/header-install.jpg
@@ -45,10 +45,10 @@ enabled on a Kindle Fire. Older devices and Kindle Fire are limited to the
 You will need:
 
 <ol>
-<li>A tablet or smartphone with Homer Player already installed and
+<li>A tablet or smartphone with Aesop Player already installed and
 <a href="install-configure.html">configured</a>.
 <li>A PC or Mac computer with Internet access.
-<li>A USB cable to connect the Homer Player tablet to your computer.
+<li>A USB cable to connect the Aesop Player tablet to your computer.
 </ol>
 
 Let's start!
@@ -132,10 +132,10 @@ step. The software installed here can be uninstalled later.
 </div>
 
 
-<h2>4. Make Homer Player a privileged application</h2>
+<h2>4. Make Aesop Player a privileged application</h2>
 
 <p>
-In order for Homer Player to take full control of the UI it needs to be given
+In order for Aesop Player to take full control of the UI it needs to be given
 special privilege - it needs to be made a so-called <em>device owner</em>.
 This doesn't change the software in any way, it does <strong>not</strong>
 void the warranty and it can be easily reversed.
@@ -147,14 +147,14 @@ void the warranty and it can be easily reversed.
 (Windows).
 <li>Execute the following command (on one line):
 <blockquote>
-<code>adb shell dpm set-device-owner com.studio4plus.homerplayer/.HomerPlayerDeviceAdmin</code>
+<code>adb shell dpm set-device-owner com.donnKey.aesopPlayer/.AesopPlayerDeviceAdmin</code>
 </blockquote>
 </ol>
 
 <p>
 You should see:
 <pre>
-Success: Device owner set to package com.studio4plus.homerplayer
+Success: Device owner set to package com.donnKey.aesopPlayer
 </pre>
 
 In case of errors see
@@ -202,7 +202,7 @@ In case of errors see
 Now you can enable and disable the full kiosk mode at will.
 
 <ol>
-<li>Start Homer Player.
+<li>Start Aesop Player.
 <li>Tap 5 times on the screen to enter settings.
 <li>Tap <strong>Prevent from exiting the application (kiosk mode)</strong>.
 <li>Enable <strong>Full mode...</strong>

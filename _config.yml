@@ -1,5 +1,5 @@
 header-img: img/header-default.jpg
-baseurl: /homerplayer
+baseurl: /aesopPlayer
 plugins:
  - jekyll-sitemap
  - jekyll-redirect-from

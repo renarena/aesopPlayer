@@ -26,7 +26,7 @@
         it lasts longer on a single battery charge.
         </p>
 
-    - question: I would like to make a Homer Player tablet but will I be able to do this with a Mac?
+    - question: I would like to make a Aesop Player tablet but will I be able to do this with a Mac?
       answer: >
         <p>Yes, you can use a Mac or a PC with Windows or Linux.</p>
 
@@ -34,7 +34,7 @@
       answer: >
         <p>There is a function to reset progress on <strong>all</strong> audiobooks to the beginning.</p>
         <ol>
-        <li>Start Homer Player.
+        <li>Start Aesop Player.
         <li>Tap the screen 5 times to open Settings.
         <li>Choose "Rewind all books to the beginning…" and then confirm.
         </ol>
@@ -53,7 +53,7 @@
     - question: What audiobook formats are supported?
       answer: >
         <p>
-        Homer Player supports DRM-free MP3 files.<br>
+        Aesop Player supports DRM-free MP3 files.<br>
         Each book may comprise of a number of files that are played in alphabetical
         order. The files may also be nested in subdirectories (useful when copying
         books that come on multiple CDs).
@@ -65,7 +65,7 @@
         dedicated application are unlikely to work.
         </p>
 
-    - question: Where do I get books to listen to with Homer Player?
+    - question: Where do I get books to listen to with Aesop Player?
       answer: >
         <p>
         There should be a number of sources available to you:</p>
@@ -169,7 +169,7 @@
         <ul>
         <li><a href="mailto:marcin@studio4plus.com">send me your feedback</a> so
         that I know what needs improvement,
-        <li><a href="https://play.google.com/store/apps/details?id=com.studio4plus.homerplayer" target="_blank">rate the app</a> to make it easier to find by others,
+        <li><a href="https://play.google.com/store/apps/details?id=com.donnKey.aesopPlayer" target="_blank">rate the app</a> to make it easier to find by others,
         <li>translate the Google Play Store description to your language, it's just a
         few paragraphs long and may help others learn about the app (<a
         href="mailto:marcin@studio4plus.com">e-mail me</a> for the English text),
