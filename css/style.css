@@ -100,8 +100,8 @@ footer a {
 .anchor-target:before {
 	display: block;
 	content: "";
-	height: 100px;  /* navbar height in Bootstrap + 50 */
-	margin-top: -100px;
+	height: 90px;  /* navbar height in Bootstrap + 40 */
+	margin-top: -90px; 
 }
 
 .page-heading {
@@ -171,6 +171,11 @@ a.framed-link:hover {
 	font-weight: 600;
 }
 
+p.smaller {
+    line-height: 85%;
+    font-size: 70%;
+}
+
 .tab-content-framed {
 	border: 1px solid #ddd;
 	border-top: 0px;
@@ -221,6 +226,11 @@ ul.social a:hover {
 	margin-bottom: 2em;
 	border-left: 4px solid;
 	border-radius: 4px;
+}
+
+.boxed {
+	padding: 5px 10px;
+	border: 2px solid black;
 }
 
 .info {

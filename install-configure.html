@@ -1,8 +1,8 @@
 ---
 layout: page
 meta_title: "Aesop Player: configuration guide"
-title: "Make a Dedicated Player - Configuration Guide"
-heading: "Making a Dedicated Player"
+title: "Configuration"
+heading: "Configuring Your Player"
 description: "Configuration guide"
 header-img: img/header-install.jpg
 meta_description: "Configure Aesop Player to make an audiobook player for seniors."
@@ -13,156 +13,182 @@ extra_js:
  - video.js
 ---
 
+<p>
 Now that Aesop Player is installed on your tablet (see <a
 href="getting-started.html">Getting started</a>) it's time to fine-tune the
 configuration to make a simple audiobook player.
+</p>
+
+<p>
+Some considerations before you start:
+<ul>
+    <li>
+	If you're "just playing" to learn, you can simply start playing with the settings.
+    <li>
+	If you intend to use Aesop as just another application on your phone,
+	you might find some of the settings useful.
+    <li>
+    	If you are creating a player for another user you'll want to look into creating a 
+	<a href="install-dedicated.html">Dedicated Player</a>
+	and you'll also want (even if you don't use all the Dedicated Player features)
+	to read the material about security at the beginning of the Dedicated Player section.
+    <li>Adding new books is discussed under
+	<a href="provisioning.html">Provisioning</a>
+</ul>
+</p>
 
 <h2>Contents</h2>
 <ol class="toc">
+<li><a href="#accessing-settings">Accessing Settings</a>
+<li><a href="#configure-ui-features">Configure user interface features</a>
 <li><a href="#configure-playback-features">Configure playback features</a>
-<li><a href="#disable-lock-screen">Disable the lock screen</a>
-<li><a href="#easy-switch-on">Easy switch on</a>
-<li><a href="#disable-wifi-to-preserve-battery">Disable WiFi to preserve battery</a>
-<li><a href="#enable-kiosk-mode">Enable kiosk mode</a>
+<li><a href="#android-settings">Configure Android System settings</a>
 </ol>
 
-<h2 id="configure-playback-features" class="anchor-target">Configure playback features</h2>
-
+<h2 id="accessing-settings" class="anchor-target">Accessing Settings</h2>
 <p>
-Aesop Player offers several settings that allow useful customization: playback
-speed may be decreased for those hard of hearing, sleep timer may be set up to
-automatically pause after a short time of inactivity and so on.
+When Aesop is first installed, you can access its settings by simply tapping the Settings ("gear") icon.
+Since one of the objectives of Aesop is simplicity for users with physical limitations, accidentally
+and unexpectedly entering Settings mode is not desireable. 
+One of the settings discussed in detail in the Dedicated Player section is 
+<a href="install-dedicated.html#access-to-settings">Settings Mode Access Interlock</a>.
+It changes what must be done to access Settings mode.
+If the interlock is enabled, when you tap the settings icon there will be popups on the screen 
+guiding you on what needs to be done to access settings.
+</p>
+<p>
+Look also at
+<a href="install-dedicated.html#maintenance-mode">Maintenance Mode</a>
+if you expect to be temporarily entering and exiting Settings frequently.
 </p>
 
+<h2 id="configure-ui-features" class="anchor-target">Configure User Interface Features</h2>
 <p>
-Open Aesop Player and tap the screen 5 times to enter the Settings screen.
+Once you have entered Settings (above), you'll see an Android Settings screen. Besides
+the Playback Settings (a subscreen) you'll see several items, each discussed below.
+These are either on/off or radio buttons.
+<p>
+Some of the features exist to make the device easier to use for certain users. Individual 
+users will have different limitations, and thus customizing these settings may help them
+better use Aesop.
+<h3 id="button-delay" class="anchor-target">Button Delay</h3>
+<p>
+Button Delay desensitizes the Start and Stop functions for a selectable interval after they
+are tapped. For users with shaky hands, this keeps accidental presses from being interpreted
+as additional presses of the buttons. A countdown (in seconds) is displayed for the longer
+delays. The default is "Normal", which is 2 seconds.
+<h3 id="blink-speed" class="anchor-target">Blink Speed</h3>
+Some users can see motion or change where they can't perceive a static image. This
+setting causes the Start and Stop buttons to blink their text. The default is "Normal", 
+a sedate but noticeable blink rate.
+<h3 id="awake-proximity" class="anchor-target">Awaken on Proximity Detector</h3>
+The display is by far the largest drain on the battery, so it's a good idea to set a short
+display timeout when runnning on battery.
+However some users find the light from the display helpful, so with this
+feature enabled, the display will light when the user passes a hand near the device, no tap
+is required.
+<h3>Screen Orientation</h3>
+Aesop always uses a "landscape" (horizontal) layout on user screens.
+The default of "Landscape Auto" is usually
+what's needed - it will align itself to the orientation of the device. The display can also be 
+locked into either of the two possible landscape alignments, which is particularly useful
+on devices with smart covers, so the display aligns with the cover conveniently.
+
+<h2 id="configure-playback-features" class="anchor-target">Configure Playback Features</h2>
+<p>
+Aesop Player offers several settings that allow useful customization such as playback
+speed, volume, sleep timer and the like on this subscreen.
+
+<h3 id="jump-back" class="anchor-target">Jump Back When Resuming Playback</h3>
+When playback is paused or stopped, it's easy to lose context of the story.
+Aesop will automatically back up 5, 15, 30 or 45 seconds (default is 5) when restarting.
+
+<h3 id="sleep-timer" class="anchor-target">Sleep Timer</h3>
+It's easy to fall asleep while listening to a story. You can have Aesop stop playing (and fade
+out, not just stop) after a selectable interval between 30 seconds and 20 minutes.
+The timer is reset each time the device is shaken enough.
+This works nicely with the jump back feature.
+
+<h3>Playback Speed</h3>
+This is an alternative (but somewhat limited) access to the Playback Speed setting discussed
+<a href="user-interface.html#playback-speed">here</a>.
+Short snippets of the current book will be played for each speed 
+(the book position will not change).
+
+<h3 id="volume-speed" class="anchor-target">Adjust Volume and Speed Switches</h3>
+These are used to enable or disable the volume and speed controls that can be used while
+a book is playing. They are discussed in detail
+<a href="user-interface.html#playback-volume-speed">here</a>.
+
+<h3 id="face-down" class="anchor-target">Pause on Face Down</h3>
+Playback, once started, can be paused or stopped by turning the device face-down, which is an easy
+gesture to learn. If this presents a problem, it can be disabled here.
+</p>
+Many users also find it nice to be able to resume playback by turning the device face-up again
+(if it was stopped by turning it face-down). That option is also enabled here.
+
+<h3>Fast-forward/rewind sound</h3>
+The sound associated with using the fast-forward and rewind feature can be disabled here if
+the sound is irritating.
+
+<h2 id="android-settings" class="anchor-target">Android System Settings</h2>
+<p>
+There are also several settings for the Android System that affect the use of Aesop.
+These are discussed below. Unfortunately, various Android releases, and Android vendor
+customizations, cause the exact process of changing specific settings to be different on different
+devices. These descriptions are "typical". Many Android systems offer a "Search" option (with
+a magnifying glass) to search settings if you can't easily find where the provider has
+put a specific setting.
+</p>
+<p>
+The section on creating a Dedicated Player talks about the setting specific to that.
 </p>
 
-<h2 id="disable-lock-screen" class="anchor-target">Disable the lock screen</h2>
+<h3 id="easy-switch-on" class="anchor-target">Easy switch on</h3>
 
 <p>
-In an audio player the lock screen is just an impediment. Let's disable it so
-that when the screen is switched on the apps are displayed right away.
-</p>
-
-<div class="additional-info info"><strong>Kindle Fire:</strong>
-There is no way to disable the lock screen on a Kindle Fire. Setting it to
-"Swipe" is the best that can be done.
-</div>
-
-<p>
-Go to <strong>Settings</strong> &rarr; <strong>Lock screen</strong> &rarr;
-<strong>Screen lock</strong> and choose <strong>None</strong>.
-</p>
-
-<img class="center-block img-responsive" src="img/disable-lock.png">
-
-<div class="additional-info info">The <strong>None</strong> option not
-available? See the
-<a href="faq.html#i-want-to-disable-screen-lock-on-my-device-but-the-none-option-is-not-available">FAQ</a>
-for solutions.</div>
-
-<h2 id="easy-switch-on" class="anchor-target">Easy switch on</h2>
-
-<p>
-The screen on buttons on the side of tablets are usually quite small and may be
+The screen-on buttons on the side of tablets are usually quite small and may be
 difficult to locate and press by people with poor vision or motor skills.
 </p>
 
 <p>
-There are several other ways for switching the screen on. The availability of
-each option depends on the device's sensors and available accessories so you
+There are several other ways to switch the screen on. The availability of
+each option depends on the device's sensors and available accessories, so you
 need to figure out what's best.
 
-<dl>
-<dt>"Smart" cover</dt>
-<dd>a "smart" cover is a cover that enables the screen when it's open. It
-usually requires support from the tablet itself. The screen orientation may be
-locked in Aesop Player settings to align with the cover.</dd>
-<dt>Double-tap screen-off gesture</dt>
-<dd>some devices offer screen-off gestures, they can be configured to switch on
-after double-tapping the screen.</dt>
-<dt>Wave to switch on</dt>
-<dd>there are apps that switch the screen on when they detect a hand being
-swiped over the priximity sensor. They often work with regular, non-smart
-covers as well. The device needs to be equipped with a proximity sensor.
-<dt>Tactile Home button</dt>
-<dd>some devices, notably those from Samsung, have a tactile Home button at the
-front below the screen. This button may be easier to use than the power
-button.</dd>
+<dl style="PADDING-LEFT: 2em">
+    Proximity Detector 
+    <dd>The Aesop feature to use the Proximity Detector to turn on the screen
+        is a simple solution presuming the device has a Proximity Detector. Most
+	devices have at least some capability since it also is used to turn off the screen
+	when using the device as a phone.</dd>
+    "Smart" cover
+    <dd>A "smart" cover is a cover that enables the screen when it's open. It
+	usually requires support from the tablet itself. The screen orientation may be
+	locked in Aesop Player settings to align with the cover.</dd>
+    Double-tap screen-off gesture
+    <dd>Some devices offer screen-off gestures; they can be configured to switch on
+	after double-tapping the screen.</dd>
+    Tactile Home button
+    <dd>Some devices, notably those from Samsung, have a tactile Home button at the
+	front below the screen. This button may be easier to use than the power
+	button.</dd>
 </dl>
 
-Configure the best available method of swiching the screen on so that the
+Choose the best available method of swiching the screen on so that the
 device is easy to use.
 </p>
 
-<h2 id="disable-wifi-to-preserve-battery" class="anchor-target">Disable WiFi to preserve battery</h2>
+<h3 id="disable-wifi-to-preserve-battery" class="anchor-target">Disable WiFi to preserve battery</h3>
 
-<p>Aesop Player doesn't need Internet access therefore you can disable WiFi and
-cellular connection (in phones) so that the battery lasts longer.</p>
+<p>Aesop Player doesn't need Internet access while playing books.
+However, it does need Internet access when downloading books, if you do that (see 
+<a href="#provisioning">Provisioning</a>
+for details). 
+WiFi (or cellular) access is needed if remotely controlling the device.
+If it's not needed, you can disable WiFi and cellular connection (in phones) so that 
+the battery lasts longer.</p>
 
-<p>The easiest way is probably to enable the "airplane mode".</p>
+<p>The easiest way is probably to enable the "airplane mode". Many devices will allow you to
+re-enable WiFi after entering "airplane mode", if that's convenient.</p>
 
-<h2 id="enable-kiosk-mode" class="anchor-target">Enable the "kiosk" mode</h2>
-
-<p>
-To make a simple audio player all the apps and Android functionality need to
-be hidden so that they don't confuse the non-tech-savvy user. This is achieved
-by hiding the system bars and making it difficult to leave the Aesop Player
-application.<br>
-This is called a "kiosk mode".
-</p>
-
-<div class="center-block photo" style="max-width: 420px">
-<img class="img-responsive" src="img/gallery/kiosk mode.png">
-Kiosk mode hides Android system bars and apps.
-</div>
-
-<div class="additional-info info"><strong>Two kiosk modes:</strong>
-the app provides two types of kiosk mode. The simple mode has some flaws but
-is easy to enable and is described below; the full kiosk mode is more robust
-but is also more difficult to set up.<br>
-See <a href="install-full-kiosk.html">the full kiosk mode</a> for more info
-(you can skip this step and go for the full mode right away).</div>
-
-<p>Enabling the simple kiosk mode requires several steps:</p>
-
-<p>
-Open Aesop Player &rarr; tap the screen 5 times &rarr; <strong>Prevent exiting
-the application (kiosk mode)</strong> &rarr; enable the <strong>Simple
-mode...</strong> &rarr; choose <strong>Aesop Player</strong> at the prompt that
-shows up.
-</p>
-
-<p>
-Notice that the navigation bar at the bottom of the screen is hidden.
-</p>
-
-<p>
-<strong>Swipe your finger up</strong> from below the edge of the screen. The
-navigation bar shows up.<br>
-Now tap the <strong>&bigcirc; (Home) button</strong>. The tablet will again
-show a prompt asking which app to use to complete the action. You need to
-choose <strong>Aesop Player</strong> and tap <strong>Always</strong>.
-</p>
-
-<div class="center-block img-responsive video-poster">
-<a href="https://youtube.com/embed/ivu9EeZ2qHA?vq=hd720&autoplay=1&autohide=1&border=0&egm=0&showinfo=0"
-    data-event-label="simple-kiosk-mode" class="overlay"><i
-      class="fa fa-play-circle fa-5x"></i></a>
-<img class="img-responsive" src="img/simple-kiosk-mode-poster.png">
-</div>
-
-<p>
-Now when the tablet is switched on or resterted it will go directly to Aesop
-Player.
-</p>
-
-<div class="additional-info info"><strong>Kindle Fire:</strong> There is no
-easy way to set Aesop Player as the home app on a Kindle Fire. The steps above
-don't work fully as expected.</div>
-
-<p>
-The regular behaviour is restored by disabling the kiosk mode in Aesop Player
-settings.
-</p>

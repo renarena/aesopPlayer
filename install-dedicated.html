@@ -1,39 +1,493 @@
 ---
 layout: page
 meta_title: "Aesop Player: making a dedicated audiobook player"
-title: "Make a Dedicated Player"
+title: "Dedicated<br>Player"
 heading: "Making a Dedicated Player"
-header-img: img/header-install.jpg
 description: "Install Aesop Player on a dedicated device"
+header-img: img/header-install.jpg
 meta_description: "How to convert a tablet into a dedicated audiobook player for the elderly."
 redirect_from: "/install-dedicated-steps.html"
 ---
-
 <p>
-Aesop Player can be used to turn a tablet into a dedicated audiobook player.
-With the right configuration all the other apps can be hidden from the user.
-All that is left on the surface is the simple functionality of playing
-audiobooks.
+Aesop Player can be used to turn a device into a dedicated audiobook player that prevents
+accidental changes of mode that would confuse a non-tech-savvy user.
+With the right configuration all the other apps are hidden from the user.
+All that is left on the surface is the simple functionality of playing audiobooks.
+</p>
+<p>
+A Dedicated Player need not run on the latest hardware. 
+<a href="#hardware-selection">Hardware Considerations</a> below discusses
+the issues you might want to consider in using "previously owned" hardware.
+</p>
+<p>
+When making a dedicated player, it's important to consider security, but from an unusual
+point of view. An effective dedicated player should generally be <em>UNsecure</em>, because
+the objective is ease of use. That means that it should not have any personal information on it,
+in case it should fall into the wrong hands.
+</p>
+<p>
+If you intend use the Aesop Player on your personal phone or tablet because you like it as a 
+audiobook player (and we're glad you do), you may want to stop here.
+However, you might find some of these features helpful if you find the player starting or 
+stopping when you don't want it to.
+</p>
+<p>
+If you want a dedicated player that is very good at being a book player, the steps
+below will get you there. (As a note, these settings can make the device hard to use for anything
+else, even for installing books, so they can be temporarily suspended by 
+<a href="#maintenance-mode">Maintenance Mode</a>).
 </p>
 
+<h2>Contents</h2>
+<ol class="toc">
+<li><a href="#initial-setup">Initial Device Setup</a>
+<li><a href="#install-aesop">Install Aesop</a>
+<li><a href="#disable-lock-screen">Disable the Lock Screen</a>
+<li><a href="#screen-timeout">Set Screen Timeout</a>
+<li><a href="#power-settings">Other Power Settings</a>
+<li><a href="#access-to-settings">Controlling Unintended Access to Settings</a>
+<li><a href="#kiosk-mode">Kiosk Mode</a>
+<li><a href="#maintenance-mode">Maintenance Mode</a>
+<li><a href="#hardware-selection">Hardware Considerations</a>
+</ol>
+
+<h2 id="initial-setup" class="anchor-target">Initial Device Setup</h2>
 <p>
-This documentation is divided in three sections:
+Although it is possible to start from a device that's been used as a personal one, it's difficult to
+completely remove all the personal information from it, and there's a better way. 
+It's called <em>factory reset</em>.
+Factory reset removes <em>all</em> information from the device, including any apps that have been added, and restores it
+to a "like new" condition. In many cases it's a little too much "like new", because it will 
+usually install an "old" (that is, the one that was current when it left the factory)
+version of Android that hasn't received any updates.
+</p>
+<p>
+If the device is either brand new, or you otherwise know that it's had a recent factory reset, you can skip this step,
+but if not, seriously consider doing it for your own protection, both to clear any old data, and to eliminate any
+potential malware. You don't <em>have to</em> do a factory reset, but it's a good idea.
+</p>
+<h3>Here's How</h3>
+<p>
+Every device manufacturer has their own procedure for doing a factory reset, although they're generally similar.
+It typically involves a long press of the power key (often in combination with a key like "Volume Up"), 
+followed by selecting factory reset (or "you're sure?"), usually several times
+to prevent accidents, and then a long wait (1/2 to one hour) while it does it.
+Both the device manufacturer and various "help" websites describe the procedure if you can't figure it out 
+- search the web for your device model number and "factory reset". 
+</p>
+<div class="boxed">
+    <strong>Caution:</strong>
+    Factory reset is permanent: there's no way to recover any data after the device is reset, so be sure you've saved
+    anything important first.
+</div>
+<br>
+<div class="boxed">
+    <strong>Caution:</strong>
+    You should do this while the phone is powered externally (charging).
+    Having the battery fail while updating can "brick" the device (turn it into something that's only usable as a doorstop).
+</div>
+</p>
+<p>
+Once the device has been reset, the first time it's connected to the Internet it will probably recognize that it's 
+out of date with respect to current releases, and it will continue to nag you about making updates until you do so.
+If it does that, in the long run it will be easier to let it update. You should do that when connected to an
+unmetered WiFi connection because the updates are large. (There's nothing wrong with using a cellular connection
+either, but it should be unmetered, and in many cases it simply won't update over cellular connections.)
+Sometimes it will want to update more than once as it works through a history of updates. It's easiest to
+start an update, go do something else, and come back to click through things (defaults are just fine for Aesop,
+so you don't need to think hard). 
+Unfortunately this process can take as much as a day or two before it "catches up", but it doesn't require much thought or attention.
+(But it frequently does require some persistence.)
+</p>
+
+<h2 id="install-aesop" class="anchor-target">Install Aesop</h2>
+
+<p>You'll next need to install Aesop as described in 
+<a href="getting-started.html#installing">Getting Started</a>, but keep reading first.
+</p>
+<p>
+If the device has been factory reset (or otherwise thoroughly wiped), there aren't any user accounts on it, 
+and Google Play Store will want to authenticate you. 
+Since you're creating an intentionally unsecured device, your best alternative is to create
+a new eMail address that has minimal personal information associated with it and connect to Play Store using that.
+Since the Aesop Player is free, you can skip the step where it asks for payment information (there's a somewhat
+obscure "Skip for Now" button when it asks.)
+</p>
+<p>
+Definitely don't create any device users or accounts to install the Aesop Player. 
+In fact you may find later that you need to remove any that might exist.
+</p>
+<p>
+<small>
+For experts: &hellip;or install the APK directly.
+</small>
+</p>
+
+<h2 id="disable-lock-screen" class="anchor-target">Disable the Lock Screen</h2>
+
+<p>
+In an audio player the lock screen is just an impediment. It should be disabled.
+If you just did a factory reset, it will be already be disabled. Otherwise, you'll
+need to disable it.
+</p>
+
+<div class="additional-info info"><strong>Kindle Fire:</strong>
+There is no way to disable the lock screen on a Kindle Fire. Setting it to
+"Swipe" is the best that can be done.
+</div>
+
+<h3>Here's How</h3>
+
+<p>
+Go to <strong>Android Settings</strong> &rarr; <strong>Lock screen</strong> &rarr;
+<strong>Screen lock</strong> and choose <strong>None</strong>.
+</p>
+
+<img class="center-block img-responsive" src="img/disable-lock.png">
+
+<div class="additional-info info">The <strong>None</strong> option not
+available? See the
+<a href="faq.html#i-want-to-disable-screen-lock-on-my-device-but-the-none-option-is-not-available">FAQ</a>
+for solutions.</div>
+
+<h2 id="screen-timeout" class="anchor-target">Set Screen Timeout</h2>
+
+<p>
+The display uses the most power.
+Particularly when running on battery, you don't want the display on when it isn't being used, so a short
+timeout is a good idea. If it will always be running plugged-in, this isn't an issue and you can skip this.
+(Note: if you're using 
+<a href="install-configure.html#awake-proximity">Awaken on Proximity Detector</a>,
+it will inevitably be awakened unintentionally, so a short timeout is 
+particularly useful.)
+</p>
+
+<h3>Here's How</h3>
+
+<p>
+Go to <strong>Android Settings</strong> &rarr; <strong>Display</strong> &rarr;
+<strong>Screen Timeout</strong> and choose a very short timeout. (15 seconds is great.)
+</p>
+
+<!-- ??????? graphic here? -->
+
+<h2 id="power-settings" class="anchor-target">Other Power Settings</h2>
+<p>If you aren't using a cellular connection, you can turn on Airplane Mode.
+If you will be using WiFi and/or Bluetooth, you can then turn them back on.
+There may be other power settings you can use as well; it can't hurt to try them
+and see how they affect Aesop.
+</p>
+
+<h3>Here's How</h3>
+<p>
+Go to <strong>Android Settings</strong> &rarr; 
+<br>
+The location of Airplane Mode differs between Android versions. Sometimes it's directly
+available on this screen, sometimes it's under "Network and Internet", and possibly elsewhere.
+The settings for WiFi and Bluetooth are usually nearby.
+</p>
+
+<h2 id="access-to-settings" class="anchor-target">Controlling Unintended Access to Settings</h2>
+<p>
+The end user of the player may have physical limitations that cause unintended button presses.
+There needs to be a way to both give the end user an experience that does not include losing control of the device
+because it is in Settings mode, and yet allow the caregiver or technical person to change books or other settings. 
+Different end-users and their environments may need differing solutions.
+(Note: we're creating an unsecured device; this isn't a security feature.
+The goal is to provide a highly reliable experience for individuals with certain classes of physical limitations.)
+</p>
+<p>
+The initial mode of the Aesop Player is that a tap of the Settings ("gear") icon will cause it to enter Settings mode.
+For experimentation, and for a user who is unlikely to hit that accidentally, that works well.
+However, if there is a risk of accidentally pressing the gear icon and entering settings when the user cannot deal with that, 
+one of the Aesop Settings allows two other choices.
+One choice is to require that the gear icon be tapped sequentially (and in a fairly short period) five times.
+The other requires simultaneous pressing in two places on the screen.
+(A second gear icon appears while pressing the first.)
+In both cases, the application will remind you what to do if you press the gear icon.
+</p>
+<p>
+If you intend to use any of the Kiosk modes, you'll also want to set this.
+</p>
+<p>
+<small>
+There are applications (<em>Team Viewer</em> is one) that allow remote access to a phone, usually over WiFi. 
+This can be very useful for remote administration, particularly installing new books. 
+However such applications usually do not provide for simultaneous screen-button presses.
+In this case using the simultaneous-press option to enter Settings will make it impossible to enter Settings 
+(and thus leave Aesop Player) remotely, and should not be used.
+</small>
+</p>
+
+<h3>Here's How</h3>
+<p>
+Go to <strong>Aesop Settings</strong> (the "gear" icon) &rarr;
+<strong>Settings mode access interlock</strong> &rarr; choose the appropriate mode.
+</p>
+
+<h2 id="kiosk-mode" class="anchor-target">Kiosk Mode</h2>
+<p>
+One of the objectives of the Android system is to make sure that all the applications work well together and share the screen. 
+For an application like this we want to overcome that so that unintended or misunderstood use of the "system" buttons does 
+not leave the user unable to use the player. 
+To do that there are three choices, each with advantages and disadvantages that fit different circumstances.
+</p>
+<ol class="toc">
+    <li>
+	Simple Kiosk mode:
+	<dl>
+	Advantages:
+	<dd>
+	<ul>
+	    <li>Works on older Androids (4.4/API 19 and above), including the Kindle Fire.
+	    <!-- ??????? check API 17 -->
+	    <li>Doesn't require any setup outside the app. (Does require granting permissions when selecting this mode for the first time. It will guide you.)
+	    <li>Doesn't interfere with the phone's normal use when not running.
+	</ul>
+	</dd>
+	Disadvantages:
+	<dd>
+	<ul>
+	    <li>Can be ugly and slow at times.
+	    <li>Not guaranteed to be always effective.  (99.9%, but there are probably ways around it.)
+	    <li>Does not return to Aesop after device restart.
+	</ul>
+	</dd>
+	</dl>
+	<p>
+	    Simple mode is the only choice for older devices. On newer devices where Kiosk mode or 
+	    Application Pinning is available, it still can be useful when the device cannot be dedicated to a single
+	    use full-time, and for some reason Application Pinning is a problem.
+	</p>
+	<p>
+	    Whether Simple Kiosk mode will continue to be effective as new versions of Android are released is unclear 
+	    (it has been tested successfully on 9.0/API28). 
+	    However since either of the other modes should be available on newer systems, this is not a big concern.
+	</p>
+    </li>
+    <li>
+	Application pinning:
+	<br>
+	There are two ways of accessing application pinning, externally to the Aesop Player, and internally. 
+	This discusses the internal mode, since it is far simpler to use than the external one. (Look it up
+	on the Internet to see how it's used externally to an application.)
+	<dl>
+	Advantages:
+	<dd>
+	<ul>
+	    <li>Works well and smoothly.
+	    <li>Highly reliable.
+	    <li>Doesn't interfere with the phone's normal use when not running.
+	</ul>
+	</dd>
+	Disadvantages:
+	<dd>
+	<ul>
+	    <li>Requires Android 5.0 or above.
+	    <li>Isn't designed to be as resistant to intentional misuse as Full Kiosk mode.
+	    <li>Requires a few extra clicks to ignore recurrent popups.
+	    <li>Does not return to Aesop after device restart.
+	</ul>
+	</dd>
+	</dl>
+	<p>
+	    Application pinning is preferred if you have the appropriate hardware unless actual use shows you need Full Kiosk mode
+	    for its stricter controls.
+	</p>
+    </li>
+    <li>
+	Full Kiosk mode:
+	<dl>
+	Advantages:
+	<dd>
+	<ul>
+	    <li>Works well and smoothly.
+	    <li>Highly reliable once app and device is fully configured.
+	    <li>Automatically returns to Aesop after device restart and other major changes.
+	</ul>
+	</dd>
+	Disadvantages:
+	<dd>
+	<ul>
+	    <li>Requires Android 5.0 or above.
+	    <li>Requires computer and cable to for one-time setup, and a technical person to use them.
+	    <li>Requires significant one-time setup including removal of any accounts.
+	    <li>Leaves device in a state where it's not very usable for any other purpose.
+	    <li>Upgrading to a new version of the player should be done with great care (see below).
+	</ul>
+	</dd>
+	</dl>
+	<p>
+	    Full Kiosk mode requires a technical person with a strong background and extra equipment on a one-time basis, 
+	    but requires little if any expertise from the care-giver, and is highly resistant to misuse by the user.
+	</p>
+	<p>
+	    See the <a href="install-full-kiosk.html">Full Kiosk Mode</a> for the process of setting up Full Kiosk mode.
+	</p>
+	<p>
+	    There is a Settings option to "Drop the privilege required for the full kiosk mode", which is only available
+	    if the above process has been completed. This is for expert use, clicking it will require completely redoing
+	    the Full Kiosk process.
+	</p>
+	<p class=boxed>
+	    <small>
+	    Caution: Normal use and automatic app and system upgrades will be fine with Full Kiosk mode, 
+	    but if you will be doing anything unusual with the Aesop Player (specifically, running any private versions of the player), 
+	    be sure to both disable Full Kiosk mode and also click on "Drop the privilege required for the full kiosk mode"
+	    before changing the software. 
+	    And at that there is a slight risk that you will be stuck in a halfway state that can only be fixed by a factory reset.
+	    </small>
+	</p>
+    </li>
+</ol>
 <p>
 
-<dl class="install-dedicated-sections">
-<dt><a href="getting-started.html">Getting started</a></dt>
-<dd>Tells you how to install Aesop Player, how to start using it and how to
-copy audiobooks to your tablet. This let's you thoroughly test the app before
-investing more time into configuring everything.
+<h3>Here's How</h3>
+<p>
+The Aesop player will only offer those modes that are actually available on the hardware.
+On older devices, Application Pinning and Full Kiosk mode won't be visible, 
+and Full Kiosk mode will be unclickable until it's set up as described above.
+</p>
+<p>
+Simple Kiosk and Application Pinning are your two best choices initially.
+You can always change the mode later to one that works better for you.
+</p>
+Go to <strong>Aesop Settings</strong> (the "gear" icon) &rarr;
+<strong>Prevent exiting the application (kiosk mode)…</strong> &rarr; 
+<strong>Preferred Kiosk Mode</strong> &rarr;
+choose the appropriate radio button, then "OK".
+</p>
+<p>
+After clicking "OK", there may be more to do:
+</p>
+<div style="margin-left: 2em;">
+<p>
+<dl>
+Simple Kiosk Mode:
+<dd>
+    <ul>
+	<li>On some devices (depending on Android version) it will ask for the permissions necessary to control the status 
+	    bar so it cannot be accidentally pulled down. Grant it.
+	<li>On all devices it will ask to set the Home Application; the procedure varies slightly depending on the device revision, 
+	    but in general it involves clicking OK on the message warning what will happen, selecting Aesop Player from a few alternatives, 
+	    clicking "Always", and possibly clicking on another OK. 
+	    It will then return to the main Aesop (Book List) screen, and on some devices display a message about "Full Screen" mode. Click OK on that.
+	    (The Full Screen message talks about pulling down the status bar; that is disabled by the Aesop player when in this mode.)
+	</p>
+	<p>
+	<div class="additional-info info"><strong>Kindle Fire:</strong> There is no
+	easy way to set Aesop Player as the "home app" on a Kindle Fire. The steps above
+	don't work fully as expected.
+	</div>
+	</p>
+    </ul>
 </dd>
-<dt><a href="install-configure.html">Configuration</a></dt>
-<dd>This section shows how to best configure a tablet for Aesop Player
-including: disabling the lock screen, making Aesop Player the "main" app and
-several other settings.
-</dd>
-<dt><a href="install-full-kiosk.html">Setting up the <em>full kiosk mode</em> (optional)</a></dt>
-<dd>The previous section shows how to make Aesop Player the "main" app on your
-tablet by enabling a so-called <em>simple kiosk mode</em>.<br>
-This section shows how to set up the <em>full kiosk mode</em> that is more
-robust but also more difficult to configure.</dd>
+Application Pinning Mode:
+    <dd>
+    <div style="margin-left: 2em;">
+    When you first click OK, and each time you start the player application thereafter, it will ask you to confirm application pinning.
+    Click "Got It" (or "OK" or something similar depending on Android model). 
+    The double-button-press it describes in that popup will work to exit pinning, but Application Pinning will be restored next time you start the player.
+    (Some older devices may not pop up the "Got it" message but will pin Aesop anyway (there will be a Toast.))
+    </div>
+    </dd>
 </dl>
+</div>
+
+<h2 id="maintenance-mode" class="anchor-target">Maintenance Mode</h2>
+<p>
+Several of the features we just enabled, particularly any of the Kiosk Modes, can make it difficult to administer the device, 
+particularly if you're changing books in unusual ways.
+Maintenance Mode temporarily turns off Kiosk mode, button delay, and settings interlock. 
+Turning off Maintenance Mode restores the pror settings. 
+The effect is immediate: you can leave the player any time you wish when Maintenance mode is on, as with any ordinary application.
+The setting for Maintenance Mode is not affected by application or device restarts - Aesop will stay in Maintenance Mode until you
+turn it off.
+</p>
+
+<h3>Here's How</h3>
+<p>
+Go to <strong>Aesop Settings</strong> (the "gear" icon) &rarr;
+Click the greyed-out "gear" button at the bottom right of the Settings screen.
+</p>
+Turn it off (click the now-bright icon in the same location) before resuming normal use.
+The bright red "gear" icon is your reminder that it's on in Settings mode, and it displays "Maintenance Mode" on the playback screen.
+</p>
+<p>
+When maintaining the player remotely, it's useful to be reminded as to whether it's in face-down-paused mode since you cannot see the physical device.
+When it is in that state, the word "Paused" is displayed instead of "Stop".
+Tapping that button will put it back in the Book List state.
+("Paused" isn't really different than playing other than nothing is actually playing, and it works exactly as "Stop" does.) 
+When maintenance is complete, you can return to that book (or any other) and tap Start, and it will immediately (and silently)
+move to the Paused state if the device is still face-down.
+</p>
+<h2 id="hardware-selection" class="anchor-target">Hardware Considerations</h2>
+<p>
+Any reasonably new Android phone or tablet (4.2.x or later) will work. There are
+many no-longer-current "orphaned" devices out there (even some with minor flaws) that can serve just
+as well as brand new hardware. Here are some considerations. Since older devices
+with even purely cosmetic flaws are not much in demand, you may be able to find a bargain
+at a place that recycles older hardware.
+
+<ul>
+    <li>Version: Android versions 5.0 and later will be somewhat easier to set up than 4.2.x up. For the
+	actual user, there will be little perceived difference. Note that "factory reset" (above) may change the
+	installed version downward, but typically it can be updated back to the latest available version
+	after the reset.  (Devices that have been "rooted" might be running versions that can't be easily
+	reinstalled, so check what the device's manufacturer supports, not what's installed, if you intend
+	to reset the device.) 
+    </li>
+    <li>Audio: obviously this must be fully functional, and the heaphone jack should be functional and
+	not too worn, as headphones may well be used. The mechanical volume control buttons are convenient
+	but not strictly required (but definitely try this before spending any money).
+    <li>Display: since this is an audio player, the quality of the display is of little consequence,
+	assuming it can be read enough to adjust the settings. Moderate burn-in and occasional bad pixels
+	should not be a problem. A slightly cracked screen that does not expose any sharp edges (or which is covered
+	by a screen protector) should not be a problem. The touch screen needs to work well.
+    </li>
+    <li>Cellular/SIM are simply not needed except to the degree that it provides your Internet connection. 
+	The device may complain about not being able to find the SIM card, but it should still work for Aesop. 
+	A broken SIM card slot or damaged cellular capability may be the key to a real bargain if the WiFi
+	still works.
+	(Be sure the phone will boot up to full Android without the SIM; some may refuse to start.)
+    </li>
+    <li>WiFi: Some form of Internet connection is needed for initial setup.
+	WiFi is a better choice (likely to cost less) for system upgrades (and may be required for that).
+	A temporary WiFi connection (if one is possible) will work. 
+	After initial setup the Internet is not needed if USB works, although an Internet connection 
+	may be very helpful for Provisioning.
+	If you intend to control the device remotely, then some sort of Internet connection 
+	(as supported by the remote-control app) will be needed, and that may well be WiFi.
+    </li>
+    <li>Accelerometer/motion detector: this is used by the flip-to-start, sleep (to prevent sleep) and tip-to-adjust
+	volume and speed features. Not needed if those features won't be used (but that seems unlikely).
+    <li>Bluetooth: Not required unless using Bluetooth headphones or speakers. Aesop will use those audio channels
+	if the device is connected
+    <li>NFC: unused.
+    <li>USB: the physical connector for USB is also used for power, so that should be in good shape. If it is
+	marginal, consider "permanantly" attaching an extender cable to save wear and tear. The USB itself is
+	not strictly required unless you intend to use Full Kiosk mode. Provisioning can be
+	done via WiFi if USB is broken. <i>One</i> of an Interned connection (WiFi or cellular) or USB is required 
+	to install books.
+	<br>
+	If you intend to use USB for Provisioning (see
+	<a href="provisioning.html#usb">here</a>) be sure USB drives are supported. 
+	Support for them is spotty on older (particularly Android 4) devices.
+    </li>
+    <li>Proximity Detector: The proximity detector is primarily used to turn off the display when talking on 
+	the phone, but Aesop also uses it to (optionally) wake the display as the user is reaching for the device.
+	This is not critical functionality, but depending on the user it may be helpful.
+    </li>
+    <li>SD card/slot: Although Aesop can take advantage of an SD card if present, it isn't required. All but the
+	very oldest Android hardware will have room for at least a few books without extra storage. (Most books are
+	250Mb or less, and usually there's at least a few Gb free on any device after it's been reset.) More than
+	a dozen or so books on a device is likely to be confusing to the user.
+    </li>
+    <li>Battery: If the device will be plugged in all the time, an old "tired" battery may be sufficient. Consider
+	replacing the battery if the device will be used without external power.
+    </li>
+
+</ul>
+<p>
+Some brands of phones (e.g. Samsung) have a hardware test mode that may help you determine the health of the device.
+</p>

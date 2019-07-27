@@ -1,10 +1,10 @@
 ---
 layout: page
 meta_title: "Aesop Player: getting started"
-title: "Getting Started"
-heading: "Getting Started"
-header-img: img/header-test.jpg
+title: "Getting<br>Started"
+heading: "Getting<br>Started"
 description: "Test Aesop Player on your Android phone or tablet"
+header-img: img/header-test.jpg
 meta_description: "Install Aesop Player on your Android device to try it out."
 redirect_from: /install-test.html
 ---
@@ -12,31 +12,43 @@ redirect_from: /install-test.html
 <h2>1. Requirements</h2>
 
 <p>
-You need a smartphone or a tablet running the Android 5.0 system or newer.
+You need a smartphone or a tablet ("device") running Android, preferably Android 5.0 or newer.
 <br>
-You can also run the app on Android 4.3+ and the Kindle Fire tablets but there
-will be some <a href="install-full-kiosk.html">limitations when making a dedicated
-player</a>.
+You can also run the app on Android 4.2+ and the Kindle Fire tablets but there
+will be some limitations when making a <i>dedicated player</i>.
+</p>
+<p>
+The Aesop Player has features for making a 
+<a href="install-dedicated.html">dedicated player</a>,
+one that will do nothing but be an audiobook player.
+That's completely optional and unless you set that up it's just like any other application.
 </p>
 
 <p>
-An internet connection is needed during installation but it is not necessary
-when listening to audiobooks.
+An Internet connection is needed during installation but it is not necessary
+when listening to audiobooks. See 
+<a href="install-dedicated.html#hardware-selection">Hardware Considerations</a>
+for more on hardware requirements, particularly if you are making a dedicated player.
 </p>
 
-<h2>2. Install Aesop Player</h2>
-
+<h2 id=installing class="anchor-target">2. Install Aesop Player</h2>
 <p>
-Open the <a href="https://play.google.com/store/apps/details?id=com.donnKey.aesopPlayer&referrer=utm_source%3Dwebsite%26utm_term%3Dtest"
-	onclick="gaLinkClick('Play Store')">Play Store</a> app on your tablet,
+<!-- fix link below to work ??????????  Or rewrite to do it on a 'phone! -->
+Open the 
+	<a href="https://play.google.com/store/apps/details?id=com.donnKey.aesopPlayer&referrer=utm_source%3Dwebsite%26utm_term%3Dtest"
+	onclick="gaLinkClick('Play Store')">Play Store</a> 
+app on your device,
 search for "Aesop Player" and tap "Install".
+It will ask for various permissions (so it can access books and adjust its settings). Grant them.
+<!-- ??????????????? href here -->
 </p>
 <p>
-If your tablet doesn't have the Google Play Store (e.g. Kindle Fire), you can
-download the installation APK file directly from <a
+If your device doesn't have the Google Play Store (e.g. Kindle Fire), you can
+download the Aesop installation APK file directly from <a
 	href="https://goo.gl/XJhKX7" onclick="gaLinkClick('github
 	releases')">https://goo.gl/XJhKX7</a>.
-Open the downloaded file on your phone or tablet to install.
+Open the downloaded file on your device to install.
+<!-- fix above link to be for Aesop ?????????? -->
 </p>
 
 <h2>3. Open Aesop Player</h2>
@@ -57,14 +69,18 @@ href="faq.html#when-i-browse-books-the-titles-are-not-read-aloud-how-do-i-fix-it
 
 <h2>4. Play with the app</h2>
 <p>
-You can download sample audiobook excerpts from within the app so that you can
-start testing it right away.
+Aesop will prompt you to download sample audiobook excerpts from within the app so that you can
+start testing it right away. These are short and will only take a few moments to download and install.
 </p>
 
 <p>
 Play, pause, swipe left and right to change books, test flip-to-stop and <a
-  href="features.html">other features</a>, tap the screen 5 times (while
-paused) to enter settings.
+  href="features.html">other features</a>.
+Settings is entered by tapping the "gear" icon. There is a setting (disabled when first installed) to
+make it hard to accidentally enter settings. See the 
+<a href="install-dedicated.html#access-to-settings">Controlling Unintended Access to Settings</a>
+for details.
+See <a href="install-configure.html">Configuation Guide</a> for other configuration information.
 </p>
 
 <div class="center-block photo" style="max-width: 419px">
@@ -72,26 +88,54 @@ paused) to enter settings.
 Flip to stop playback.
 </div>
 
-<h2>5. Copy your audiobooks to the device</h2>
+<h2 id=provisioning class="anchor-target">5. Install audiobooks to the device</h2>
 
-<p>First prepare the audiobooks on your computer:</p>
-<ul>
-<li>The books must be in the form of MP3 files (DRM-free). You can get them
-from <a href="faq.html#where-do-i-get-books-to-listen-to-with-aesop-player"
-onclick="gaLinkClick('FAQ getting-books')">stores and libraries (either online
-downloads or on CDs)</a>.
-<li>Each audiobook needs to be in its own folder. The folder name should be the
-book title (it is displayed and read by the player).
-<li>The files will be played in alphabetic order.
-</ul>
+<p>
+There are a number of ways to install audiobooks on Aesop. Some involve the use of a computer,
+some involve using the Internet, and there are other ways. As an example, here's a way that 
+doesn't require anything but your device and an Internet connection.
+There's a detailed discussion of other alternatives
+<a href="provisioning.html">here</a>. 
+(If you have a very slow or expensive Internet connection, look at one of the other alternatives,
+audiobooks tend to be fairly large.)
 </p>
 
-<p>Then copy the folders with audiobooks to the tablet:</p>
-<ol>
-<li>Connect the tablet to your Mac or PC with a USB cable. If you're using a
-Mac, you may need the <a href="https://www.android.com/filetransfer/">Android
-file transfer tool</a>.
-<li>Copy your audiobooks to the tablet. Put them inside the <code>AudioBooks</code>
-folder. The folder should have been automatically created when the Aesop Player
-app was started for the first time.
-</ol>
+<ul>
+    <li>
+	Choose a free (no DRM) Internet audiobook provider as suggested in the
+	<a href="faq.html#where-do-i-get-books-to-listen-to-with-aesop-player"
+	onclick="gaLinkClick('FAQ getting-books')">FAQ</a>,
+	or anywhere you happen to know of.
+	For now, choose one that downloads whole books as zip files, which is most of them.
+    </li>
+    <li>
+	Start your favorite Web browser on the device and navigate to that provider. Pick a book 
+	you want to read and download it. For most browsers, take the defaults, but in any case 
+	download the zip file into the Android default <code>Downloads</code> directory.
+    </li>
+    <li>
+	Return to Aesop, then go to Settings (the "gear" icon) and click on the New Books
+	button along the bottom edge of the Settings screen.
+    </li>
+    <li>
+	You will be presented with a list of candidates that look roughly like book downloads to Aesop.
+	Among them you should find the book you downloaded.
+	Aesop will have tried to figure out the proper title and will display it.
+	(If you have a lot of clutter in <code>Downloads</code>, be patient while Aesop digs through the clutter.)
+    </li>
+    <li>
+	Click on the checkbox to the left of the entry for your new book, and then, 
+	at the upper right, the INSTALL button. 
+	(For now, be careful not to check on any of the clutter.)
+    </li>
+    <li>
+	The Aesop player will display the names of the subfiles in the zip file as it unpacks 
+	them. (Sometimes the zip file has them "in order", sometimes not. It doesn't matter.)
+	The entry will disappear from <code>Downloads</code>. (See here
+	<a href="install-configure.html#Provisioning">for why</a>.) 
+    </li>
+    <li>
+	Return to the main Aesop screen and navigate (swipe left or right) to your new book.
+    </li>
+
+</ul>

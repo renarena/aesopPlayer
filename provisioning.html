@@ -1,0 +1,684 @@
+---
+layout: page
+meta_title: "Aesop Player: provisioning"
+title: "Provisioning"
+heading: "Provisioning"
+description: "Providing books on the Aesop player."
+header-img: img/header-test.jpg
+meta_description: "Understanding how to install and remove books."
+redirect_from: /install-test.html
+---
+<h2>"Provisioning" Books</h2>
+<p>
+For a book reader to be useful, it must have books to read.
+<em>Provisioning</em> is the process of making those books available.
+For most users, books will either be downloaded from a Internet browser or some form of shared Internet access.
+We'll start with a simple example.
+You can just use the parts you need, and come back later for more.
+</p>
+<p class="smaller">
+(This material would get really tedious if it said "technical support person or caregiver" a lot.
+Thus it uses "you", and you can take the meaning that's appropriate to your circumstances.)
+</p>
+<h3>Example 1</h3>
+<p>
+We'll use the example in 
+<a href="getting-started.html#provisioning">Getting Started</a>.
+If you haven't done it, it's the best way to become familiar with the process.
+<br>
+<small>
+(If you're trying to skip doing a download on your device, we'll get to that in Example 2.)
+</small>
+</p>
+<h3>What happened in the example</h3>
+<p>
+Three things happened in the example:
+<ol>
+<li>You got a book onto the device (from the Internet in this case).
+<li>You "formatted" the book in a way that Aesop will understand.
+<li>You put the book where Aesop would find it, so it could play it.
+(This happened automatically in this case, but that isn't always the case.)
+</ol>
+<p>
+In a bit more detail (and there's more detail in 
+<a href="#terms-concepts">Terms and Concepts</a>):
+</p>
+<ol>
+<li>You have to get the book onto the device, somehow. 
+There are lots of places books can be obtained.
+The original places usually are the Internet and physical media like CDs.
+The book can also be (for example) on a PC or USB drive on its way to your device.
+<li>Aesop expects the book to be organized in a particular way so it can play it.
+Books actually come organized in several ways.
+Aesop will convert several of the most common book types into the format it needs.
+Sometimes the book is already that way.
+<li>Aesop expects to find the books in the <code>AudioBooks</code> directory (folder) on your device.
+You need to be sure it's there.
+</ol>
+<p>
+Depending on where you will be getting your books and how you'll be installing them, you'll 
+need to know bits and pieces of the information below, but you probably won't need to know
+all of it to begin with.
+Skim the section titles and read up on what looks useful to you.
+</p>
+<h2>Cleaning up</h2>
+<p>
+<!-- ????? graphic -->
+After you've read your books, and want some new ones, you may find either that having the old ones around makes it hard to find your new books,
+or that you've run out of space on the device.
+(Or, likely, both.)
+It's easy to clean up.
+Go to Settings and then click on "Inventory" (the Aesop icon) at the bottom of the screen.
+This will list all your books.
+Check the checkbox for the ones you no longer want to read, then the "delete" (trash can) button at the upper right, and they will be deleted.
+(Be sure to scroll all the way to the bottom.)
+</p>
+<p>
+You probably noted that some books were already checked.
+If you look closely, on the right, the word "Completed" will appear for those books.
+It will also give the total time, current position in the book, and percent completed.
+You can check books you didn't like, and uncheck books that you want to reread before clicking delete.
+You can use the "All" button to check (or uncheck) all the books if that makes things easier.
+Just don't click the delete button until you're sure all the checks are correct, 
+because the books will be completely removed and you'll have to reload them from wherever you got them to get them back.
+</p>
+<h2>Example 2</h2>
+<p>
+There are a large number of ways you can provision books in Aesop.
+The provisioning process consists of a lot of pieces you can fit together to meet your particular needs,
+and it would be impractical to try to explain all the combinations.
+Here's another example, chosen to be different in most ways from the previous one, but it's also likely
+to be a common way of getting books.
+After this example we'll explain the pieces separately in more
+detail, and you can fit them together to match your needs.
+<p>
+This example uses a PC (or Mac) to do most of the work.
+This is actually not very difficult, but if the steps aren't clear, you may want to have a friend who
+is familiar with devices and PCs help you the first time. 
+There's a lot of variation in Android devices, so you'll need to adapt to what happens with your device. 
+Some of the variation shows up in the way the PC acts.
+<br>
+<small>
+If you're using a
+Mac, you may need the 
+<a href="https://www.android.com/filetransfer/">Android file transfer tool</a>.
+</small>
+<ol>
+<li>Obtain a "USB" cable to connect your PC to your device and connect it.
+<br>
+<small>
+Your device charging cable will probably do if it unplugs from the transformer.
+</small>
+<!-- ???? -->
+<li>Typically a File Manager window will pop up on the PC, looking like this(!). 
+<br>
+<small>Some devices may want you to download a support application.
+You don't need to as long as you have a File Manager window, but if it isn't there (which can happen),
+you'll have to download the application.
+Be sure you download from the device manufacturer's Internet site.</small>
+<li>Depending on the Android device, you may be presented with a popup on the device asking what you want want to
+do with the connection. 
+Alternatively a notification may be displayed that you will click on from Android Settings.
+In any case, you want to set it up to Transfer Files (or be a "Media Device" if that isn't an option).
+<li>On the PC, click on <code>Phone</code> in the File Manager's window for the device, then on <code>AudioBooks</code>.
+<li>On the PC, use the Internet Browser to Download a book from one of the places suggested in
+<a href="getting-started.html#provisioning">Getting Started</a>.
+For our example we'll use <b style="font-weight:600">The Hound of the Baskervilles</b> from <code>librivox.org</code>
+<a href="https://librivox.org/search?q=Hound%20of%20the%20Baskervilles&search_form=advanced">found here</a>.
+(We've chosen the first of several performances.)
+We'll assume that it ends up in the PC browser's <code>Downloads</code> directory (<code>C:\Downloads</code>), 
+which is the default.
+<li>On the PC, in a new File Manager Window, go to <code>Downloads</code> and find the book.
+The name of the book will probably be a single word (no spaces) that contains elements
+of the actual title separated by underscores.
+(In our case, <code>hound_baskervilles_librivox_64kb_mp3.zip</code>.)
+<li>Right click on the book name. Choose "Extract All&hellip;". 
+A new window will pop up.
+It's helpful but not necessary to click on "Show Extracted Files When Complete".
+Click the "Extract" button.
+<li>A new folder will appear with the name without <code>.zip</code>.
+<li>In it you'll find several <code>.mp3</code> files, one for each chapter. 
+Chapter titles may be shown. 
+<br>
+<small>Note how the individual files are named with leading zeros in the chapter numbers.</small>
+<li>If we were to install the book into Aesop right now, the spoken title could be the name of the
+folder, which would cause the spoken title to be painful to listen to.
+<br>
+<small>In our specific example it'd actually work out, but you can't count on it. See 
+<a href="#meta-data">metadata</a>.
+</small>
+<li>Rename the directory: double click on the directory name and type a new book title that
+would be suitable to be read aloud. In this case "Hound of the Baskervilles - Arthur Conan Doyle"
+would be fine.
+<br>
+<small>
+You can skip this step if the metadata is OK, but be sure to check the Album Title shown for each <code>.mp3</code> file.
+</small>
+<li>Drag the directory you just renamed from the File Manager window it is in to the <code>AudioBooks</code> directory
+on the device. 
+This will copy the directory (leaving the original behind, since it's a different file system.)
+<li>After several seconds, Aesop (if it's running) will notice there's a new book, and you can select it
+in the books window. After a little while longer the length of the book will be shown.
+<li>The book is ready to be played.
+<li>The new folder on the PC and the <code>.zip</code> file are no longer needed and can be deleted.
+</ol>
+<h3>What happened in Example 2</h3>
+The same three steps as in Example 1 are the primary things that happened here.
+<ol>
+<li>You got the book. This time via the PC's Internet browser.
+<li>You formatted it. You converted it from <code>.zip</code> format to a directory of <code>.mp3</code> files.
+<li>You installed it. You renamed and then copied it from the PC to <code>AudioBooks</code>
+</ol>
+<p>
+There were many more intermediate steps, and for books from Internet sources like these, it's not necessary
+to involve a PC, but some of the other sources of books will require a PC (and more steps) prior to 
+moving the folder to <code>AudioBooks</code>.
+<h2 id="terms-concepts" class="anchor-target">Terms and Concepts</h2>
+<p>
+There are several terms and concepts that make explaining the pieces of the process of getting books easier.
+It's time to deal with those.
+It will make explaining the other pieces easier.
+<br>
+<h3 id="meta-data" class="anchor-target">Metadata</h3>
+<p>
+Many, but far from all, books include metadata.
+Metadata is additional information about the book beyond the basic audio.
+Audio files can contain metadata directly, and some Audio Books contain additional files of metadata.
+The items of interest in the audio file are the book title, author, and the individual chapter titles.
+The Aesop Player will make the best use it can of that information if it is present.
+<br>
+The fields found in audio file metadata have standard names.
+The <em>Album Title</em> and <em>Contributing Artists</em> are combined to form the book title.
+The <em>Title</em> (that's the song title for music) is treated as the chapter title.
+If the metadata is absent the player makes educated guesses from file names.
+There's more on handling books without metadata 
+<a href="#fix-titles">here</a>.
+</p>
+<p>
+If the directory name of the book contains at least one space, 
+Aesop will assume that the title it should use for display and for speech is that directory name.
+Typically the directory name, as downloaded (usually in a <code>.zip</code> file) does not have spaces and is not very user friendly.
+The policy of looking for a space avoids forcing you to rename all directories, 
+but allows a simple rename if the metadata is absent or otherwise unhelpful.
+</p>
+<p>
+Most books on CD (and all on tape) do not have metadata.
+The directory name is the best choice for providing a title.
+It would be possible to create your own metadata in those cases, but that topic is outside the scope of this document.
+</p>
+</p>
+<h3 id="book-format" class="anchor-target">Aesop Book Format</h3>
+<p>
+A book for Aesop consists of a collection of chapters (usually a convenient size) 
+organized in a container called a directory (or "folder").
+</p>
+<p>
+The Aesop player can play chapters that are recorded in the 
+<code>.mp3</code>, <code>.mp4</code> and <code>.ogg</code> "audio file" formats,
+which covers most of the books that are available online.
+If you find a book in some other format, it usually can be transformed 
+with applications found on the Internet that you can run on a PC.
+</p>
+<p>
+The chapters are collected into a directory.
+For anything found on the Internet, the chapters are carefully named so that when 
+sorted by the device they will be played in the proper order.
+Other sources, not always.
+Some book formats consist not only of the audio chapters but other metadata, 
+including the book content as text,
+indexing information, and sometimes covers or other graphics.
+Aesop quietly ignores (but preserves) that additional information.
+</p>
+<p>
+For a short story, there might be only one "chapter", and thus it might come to you without a directory.
+For a very long book the chapters may be organized into sub-directories which then appear in a containing directory.
+(Some versions of <b style="font-weight:600">War and Peace</b> have a directory for each of the author's "Books", 
+which are then collected into a parent directory for the whole of the book.)
+Aesop requires that each book is in its own directory (so short stories may be a directory with a single audio file).
+Directories may be nested to any depth; it will play the chapters in the order specified by the sub-directory and chapter names (in the usual order).
+</p>
+<p>
+The book title is arrived at as described in <a href="#meta-data">metadata</a>.
+If the title derived from the metadata is acceptable, the name of the directory can be anything that doesn't contain a space,
+and frequently it's the name of the <code>.zip</code> file it was delivered in.
+If you want to control the title explicitly, any name with at least one space will be treated as the title.
+</p>
+<p>
+If there is no metadata, the title will be the directory name.
+That can be ugly or hard to listen to; the fix is to 
+<a href="#fix-titles">change the title</a>.
+</p>
+<h3>Other Book Formats</h3>
+<p>
+Many (most?) online books are kept as a <code>.zip</code> file.
+A zip file is a representation of a directory and its contents packed tightly together, and are much easier to handle on the Internet.
+But they need to be unpacked to be played.
+The installer takes care of that&hellip; usually.
+There are a number of zip file formats, and Aesop can handle most of them, but new ones appear periodically.
+Should that happen you'll have to unpack it yourself.
+(Do let us know about the problem.)
+</p>
+<p>
+The installer will convert a single audio file into a directory containing an Audio file, and knows how to handle directories of any depth.
+</p>
+<h3 id="audiobooks-directories" class="anchor-target">Alternate Directories</h3>
+<p>
+<small>
+This is an advanced topic, you can ignore it until you need it. See the box about terminology on Android 
+<a href="#sd">here</a> for some clarifying notes.
+</small>
+</p>
+<p>
+Normally Aesop finds books in the directory <code>AudioBooks</code> in the root directory on the built-in storage of the device.
+However, particularly on older devices, there may not be much space available.
+Some devices have the ability to add a "SD" (Secure Digital) card to add more storage.
+(Note that on Android these names are case sensitive: <code>audiobooks</code> and <code>AudioBooks</code> are different things.)
+</p>
+<p>
+In addition to the usual place, Aesop will also look for, and play, books found in the <code>AudioBooks</code> 
+directory in the root of any SD card it discovers.
+The content of the <code>AudioBooks</code> directory in the built-in storage is readable and writable by anyone.
+The <code>AudioBooks</code> directory at the root of an SD card (if it even exists) 
+may or may not be writable (or even accessible) by Aesop.
+Aesop will use it if it can, and use it in provisioning if it can, 
+but more often than not Aesop will be unable to write (or change) anything in that directory.
+</p>
+<p>
+It will frequently be the case that you can create and add (or delete) books in the <code>AudioBooks</code> directory at the root of an SD card from your PC 
+connected by a cable to the device, and if you remove the SD card and plug it into your PC (appropriate adapters are available), 
+it should always be possible.
+The rules (whatever they may be) that apply to Aesop apply to most other applications, 
+although there are some (vendor-supplied) file managers that have special permissions 
+and can modify SD root <code>AudioBooks</code> (if your device is new enough).
+</p>
+<p>
+This doesn't mean you can't use the space on the SD card for your books, it just means you can't put your books in (the root) <code>AudioBooks</code>.
+Aesop can also use the directory 
+<code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code>.
+(Where <code>Android</code> is at the root of the SD card (or the root file system).)
+All the provisioning stuff will "just work" on this directory.
+The downside of this is that no other app can get to these books (but again, you can get to them using a PC).
+(The name <code>Android/media/com.donnKey.aesopPlayer</code> follows some "magic" rules defined for Android and cannot be changed by the application.)
+Either of the <code>AudioBooks</code> directories on the SD card works out of the same physical storage, so there's no space advantage one over the other.
+</p>
+<p>
+The directory <code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on the built-in storage will be used if you create it.
+This would only be useful if you have a device where Android/&hellip; files are put on physically different storage.
+This is theoretically possible but rare.
+</p>
+<p>
+The directory (and content of) <code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on either the built-in storage or SD card
+will be deleted if you uninstall Aesop Player.
+The <code>AudioBooks</code> at the root of the device or a SD card will not be deleted.
+(This is Android policy, not anything we control.)
+</p>
+<p>
+When installing books, Aesop first installs them in the device root <code>AudioBooks</code> directory until it is 90% or more full, then 
+<code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on the device root, if it exists, and there's space.
+Then it will then use <code>AudioBooks</code> on the SD card, if it exists, until it is 90% or more full, then 
+<code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on the SD card, if it exists and there's space.
+It will use additional SD cards if it finds them and the directories exist and there's space.
+</p>
+<p>
+It will always install "whole" books in a single directory. If something goes wrong (out of space is most likely) an error
+log will be popped up with details showing what it did and what failed.
+</p>
+<h2>Getting Books</h2>
+<p>
+This is a good place to remind you that many books are copyrighted, and that you should respect the rights of the copyright owners.
+Most Internet sites have some statement of copyright, or you will encounter one in the process of gaining access.
+Take a moment to read it.
+The free Internet sites usually have very permissive copyrights, 
+the paid ones (and usually public libraries) have limitations, 
+but frequently copying on to a player like Aesop (for a limited duration) is allowed.
+Other media may have other constraints.
+</p>
+<p>
+Some book sources, such as Audible, use <em>DRM</em> (Digital Rights Management) to protect their books.
+Aesop (being free) doesn't have DRM support and thus cannot be used on those books.
+</p>
+<h3>...from the Internet</h3>
+<p>
+The simplest case is that you have found a Internet site that allows you to download books as you did in the Examples.
+<p>
+Usually, just do as you did in Example 1, or if you don't want to use the Internet from the device, follow Example 2.
+There are too many Internet Sites many to go into depth on them here, but the Internet sites want you to download;
+it's supposed to be obvious.
+The books from these sites typically have
+<a href="#meta-data">metadata</a>,
+so titles won't usually be a problem.
+If the book title and such don't look right, you can fix that 
+<a href="#fix-title">here</a>.
+</p>
+<p>
+When working directly on the device, typically you'd do a bunch of downloads as in the first part of Example 1,
+and when they all complete, do the INSTALL step all at once.
+(Just because that would be fewer clicks.)
+If your Internet browser makes it easy, you can do some simultaneous downloads.
+Don't start a lot simultaneously, but 2 or 3 could go at once without interfering with each other too much.
+<br>
+<small>
+(Advanced) Or use a download manager application to manage a queue of downloads.
+There are several to choose from in the store.
+</small>
+</p>
+<p>
+Once the downloads are completed (which takes time depending on the book length and your Internet speed),
+you use Aesop's built in provisioning tools to reformat (depending on the file type) and install the books.
+It will automatically handle books already in the Aesop book format described above, <code>.zip</code> files 
+that yield the same format, and single audio files.
+From "New Books", click the check boxes for the books you want (scroll to see if there are more), 
+then the "INSTALL" button.
+It will figure out how to reformat the book, handle the metadata and install it where you can play it.
+It will move (not copy) the book from <code>Download</code> to the library - 
+it does it that way to save space and clear up clutter in <code>Download</code>.
+See 
+<a href="#more-books-copying">Copy vs. Delete</a>
+for more on that.
+</p>
+<h3>...from Other Book Sources on your Device</h3>
+</p>
+<p>
+If you have books on your device that aren't already in <code>Download</code>, you can direct the installer to get books from there instead.
+The most common reasons are that you are using Cloud storage (more on that 
+<a href="#cloud">here</a>), 
+or you are using physically external storage (see
+<a href="#usb">here</a>).
+To select a new place to load books from, simply click on the three vertical dots on the upper right of the screen 
+(&vellip;)(called "More" in Android-speak).
+You will see "Select Directory containing New Books"; click that and a new screen will be displayed.
+Use it to find the directory you want, select "Comfirm" or "Select" and it will return you to the Add Books screen, with the new list of books displayed.
+You can then proceed as you previously have.
+</p>
+<p>
+You may have noticed a second option "Retain after copy" when you did the above.
+Normally the player will move (not copy) books, but if you select "Retain after copy", it will leave the original alone and make a copy.
+See <a href="#more-books-copying">below</a>.
+</p>
+<h3 id="sd" class="anchor-target">...from SD Drives</h3>
+<div class="boxed">
+<p class="smaller">
+The terminology used for different types of storage varies with the Android revision and is quite confusing due to history.
+We'll always refer to addable (and thus removable) storage as the "SD" or "SD card".
+In Android literature, "external" storage frequently does NOT refer to anything removable or physically external to the device.
+</p>
+<p class="smaller">
+Also due to history, the locations that can be modified on the SD card are messy and confusing.
+We'll try to keep it simple, a consequence of which is that it can appear unreasonably arbitrary.
+Since we want Aesop to run on older devices that have been retired as phones, we can't use some of the newer possible solutions.
+</p>
+<p class="smaller">
+The large variety of Android manufacturers combined with the many Android revisions is a source of inconsistency in this area.
+You may end up with a device that doesn't work exactly as described.
+There's probably a way to make it work, but it may take a couple of tries.
+</p>
+</div>
+<p>
+The same tools to select a directory to copy from apply to removable physical storage.
+<p>
+Use the same "Select Directory" screen to select a directory on removable storage.
+The exact selection process varies depending on the Android version: on some devices the removable devices are visible as a panel on the screen, 
+on some you may have to move upward through the directory hierarchy and then back down to the storage device.
+It can't hurt to simply try experiment if it isn't obvious, just don't click Select or Confirm until you see your new books.
+</p>
+<h3 id="usb" class="anchor-target">...from USB Drives</h3>
+<p>
+External physical storage can also be a USB drive ("stick", "thumb drive") that is connected to the device using an "On The Go" cable.
+This is useful because you can load the USB drive on a PC, and then install books when you have the player in hand, likely at
+a location without either a computer or Internet connection.
+Just plug the USB drive into the device using the cable, then start the "Select Directory&hellip;" activity and find the drive.
+When done, you can unplug the USB drive and the player will detect that and revert to <code>Download</code>.
+Support for USB drives is spotty on older (particularly Android 4) devices. You should test it if you will want to use it.
+<br>
+The same idea applies to easily physically removable SD cards, but these are very rare - it usually requires powering down the device to change SD cards.
+</p>
+<p>
+<small>
+Some Android file manager applications may take over from Aesop if you plug in a USB drive.
+That's a "feature" of the file manager you may want to disable.
+</small>
+</p>
+<h3 id="cloud" class="anchor-target">...from the Cloud</h3>
+<p>
+In the case of Cloud storage, it's mostly a matter of selecting a directory (as for the cases above) on your device. 
+One that is maintained by the Cloud, once you have it set up.
+However, getting Cloud storage set up to do what you want can be tricky. 
+Here are some tips.
+<p>
+Putting books on to the Cloud and having them automatically downloaded (ready to install) is particularly convenient when dealing 
+with a remotely administered book reader.
+<br>
+<small>
+Technically&hellip; If they're already in Aesop Book format, they can be put directly into <code>AudioBooks</code> - Aesop will handle that correctly.
+However, depending on the specific Cloud provider, you might find that books appear and disappear unexpectedly, and if you try to play an
+incomplete download it may yield confusing results. Your tradeoff: convenience vs. consistent behavior. 
+</small>
+</p>
+<p>
+There are actually a fairly large number (at least 100) of "Clouds" out there, and they're all subtly different.
+And frequently access to the Cloud from a PC and from an Android device are inconsistent.
+You may want to spend some time considering your choice of Cloud provider.
+We can't cover all the cases, but here are some things to consider.
+</p>
+<ul>
+    <li>Frequently a Cloud interface on a PC will work through a Internet browser, which is fairly convenient on the PC, 
+	but not what you want on the Android device.
+    <li>Particularly when loading files to a physically remote device, 
+	you want the Cloud to simply copy the books you have provided on your PC and create an image of that on your Android device, 
+	in a place where Aesop can install them in the usual way.
+	Many Clouds don't actually copy the files locally automatically, and although some special applications can access 
+	a file that hasn't actually been downloaded, typically Aesop can't.
+	(If it could, it would not always work well because Audio Books are usually larger than the Cloud providers consider "typical",
+	and performance would suffer badly, reflected as choppy sound.)
+    <li>To address the need for local copies, there are several applications in the PlayStore for "synchronizing" a particular Cloud, 
+        or in some cases, many different Clouds, on to your device where Aesop can use the books.
+	Try ones that seem reasonable for your choice of Cloud.
+	Look for names that contain "Sync" and either the name of your Cloud or something like "universal" or "ultimate".
+	These will need to be running (in the background) whenever you have books to sync.
+	Test them - not all of them work as you would expect, or reliably.
+	They often will be slow: updating your books overnight makes a lot of sense.
+    <li>If you don't see your books downloaded, be sure they actually got uploaded into the Cloud.
+	It may be that the upload hasn't happened (yet).
+    <li>It's probably best to have a dedicated directory in both the Cloud and on the device for your books, 
+	and set up to synchronize only that one directory (and any directories it contains) for Aesop support.
+	Frequently the deletion policy you want for audio books is different than for documents.
+    <li>Different Clouds and synchronization tools handle file deletions differently.
+	Some don't delete files on the device when you delete them from the Cloud, and some do (and some have options).
+	You may want to delete files on the device yourself.
+    <li>Deleting a file on the device might, or might not, cause it to be deleted in the Cloud, depending on the Cloud policies.
+	You should understand the particular policy so you know whether you need to manually delete your files.
+	In particular, if you set Aesop up to move (not copy) files, 
+	some Cloud sync tools will see the that the file is gone (because Aesop moved it) as something they need to "fix", and re-download the file.
+	(There are a lot of opinions about what's "right" here, but "right" varies with your assumptions about intended use of the files.)
+    <li>Be patient: things happen slowly with large book files.
+</ul>
+<h3 id="CDs" class="anchor-target">...from Sources Other Than the Internet</h3>
+<p>
+Again, a reminder about honoring copyright.
+</p>
+<p>
+Audio books are also available on CDs and (historically) tape.
+These can be converted to a form Aesop can handle, but it's technically more difficult.
+</p>
+<p>
+All books on CD share the common CD audio format, and most PCs that have a CD (usually also DVD and BluRay) 
+drive have an application that can "rip" the CD into a directory on disk.
+And there is quite a selection of similar tools on the Internet.
+Actually, most books on CD take a number of disks (at least two or three, and frequently many more).
+Once the data has been ripped, it needs to be reformatted to some degree or other, because the format you get varies widely from book to book.
+See <a href="#book-format">Book Format</a> as discussed above.
+</p>
+<p>
+In the ideal case, the CD contains book and chapter titles, and file names, 
+and the result is something already in the required format.
+This seems to be rare.
+</p>
+<p>
+Slightly more commonly, the metadata is found on the Internet.
+For music titles, this is very common, but it seems to be rare for books.
+Many ripping applications will automatically make the Internet search, although not all the applications apply the names well.
+(One, unnamed here, applies the names (if it finds any) to all except the first track on the disk.)
+</p>
+<p>
+More frequently there will be no metadata available, and the ripping application will "make up" names from the sequence of tracks on the CD,
+the current date, and other information it thinks relevant.
+In the process of doing so, it's likely to include something like <code>Track 1</code> in the title for the first track, 
+<code>Track 2</code> for the second track, etc.
+That works fine until you get to <code>Track 10</code>, which according to computer sorting rules sorts right next to Track 1, 
+which doesn't work out well for an audio book.
+Most ripping tools do insert the track number as metadata in a way that can be sorted correctly (but Aesop uses filenames!), 
+but you will have to manually fix the file names to get correct sorting order.
+(Downloaded books rely on titles, not embedded track numbers for proper ordering, and may not even have the track number metadata filled in.)
+You want the track numbers to be the first thing that's different in each file name, 
+and to be numbered <code>01</code> ...  <code>09</code> <code>10</code> <code>11</code> etc.
+so they'll sort correctly.
+</p>
+<p>
+Ripping tools don't do a very good job of recognizing "albums" of more than one CD, treating each disk individually.
+You'll need to rip each disk separately, and it's easier to put each CD's content in it's own directory.
+Here naming each directory as something like <code>Disc01</code> <code>Disc02</code> will give correct results.
+(Be sure to use two (or three) digit numbers with leading zeros.)
+</p>
+<p>
+As a warning, many of the CD books we have looked at, if they have any metadata at all, 
+are inconsistent across the length of the book as to how it is applied.
+The pattern frequently varies from one physical disc to the next.
+It's best to look at what you get after ripping.
+If your PC treats the books as a music directory it will show track numbers (if present) 
+and you can make sure that the order of the individual files matches the track numbers.
+</p>
+<p>
+As for books on tape: it's certainly possible to capture the audio stream from a tape, digitize it, 
+split it into comfortable-sized chapters using an audio editor, 
+and then provide titles and other metadata, 
+but it's a significant effort for an expert with the right equipment and software.
+</p>
+<h3 id="fix-titles" class="anchor-target">Fixing Book Titles</h3>
+<p>
+Assuming the book as you get it has metadata, the odds are that the player will figure out a perfectly adequate title.
+However, if the metadata is absent, or (particularly with very old recordings) the metadata is unhelpful, 
+you can easily fix an ugly book title.
+(Occasionally a title is inconveniently long when spoken; fix that the same way.)
+</p>
+<p>
+On either the New Books or Book Inventory screen, click on the book title (the text).
+The player will enter a new screen.
+The top line, in white, is what it will use for the title.
+You can click on that to bring up a keyboard and edit it in the usual way.
+Further down the screen (below the buttons) up to three additional bits of text are presented that might be a start on a better choice.
+You can click on those if they look better to you, and they will replace the current text.
+</p>
+<p>
+The Fix Case button will convert underscores ("_") to spaces and convert everything to Title Case (each word capitalized).
+</p>
+<p>
+The Add Author button will add a space, a hyphen, another space and the Author name that appears to the right of the cancel button (if there's an author in the metadata).
+</p>
+<p>
+Clicking Cancel or the back button will exit the window making no changes.
+</p>
+<p>
+Clicking Accept will make the change permanent (although you can of course re-enter this screen).
+When you click Accept it will trim off any leading or trailing spaces, and check to see if at least one space remains (and if not, it will add it at the end).
+(The space is used to indicate a user defined book title.) 
+(Adding an author is a nice way to add the spaces.)
+A title cannot contain the character "/" - it will be silently converted to "-".
+</p>
+<p>
+If you change the title in the New Books screen, it will be applied when the book is actually installed, which will
+make the name change permanent.
+Leaving and returning to the New Books screen prior to doing an install will undo that title change.
+<p>
+<small>
+Technical Note: the title created in this way is the directory name.
+If you are creating books from another computer, you can simply change the directory name to control the title.
+As long as there's a space somewhere in the name, it will be used as the title.
+</small>
+</p>
+<h3 id="more-delete-books" class="anchor-target">More on Deleting Books</h3>
+<p>
+Normally, completely deleting books you no longer want is the best solution, but on occasion keeping them is useful.
+If you click the three vertical dots (&vellip;) ("More") at the upper right of the Inventory screen, you can select "Archive",
+and it will put any books you delete in the directory <code>AudioBooks.old</code> adjacent to the <code>AudioBooks</code>
+directory they were previously contained in.
+You can then copy or move them from there to meet your needs.
+Generally this is not recommended since you want the space they occupy for new books, but is available if needed.
+The delete icon changes from "Delete Permanently" (with an "X" over the trash can) to just "Delete" (no "X").
+</p>
+<p>
+<small>
+If you have more than one <code>AudioBooks</code> directory, there's an <code>AudioBooks.old</code> for each writeable
+one. See <a href="#audiobooks-directories">AudioBooks Directories</a>.
+</small
+</p>
+<h2>More things you can do</h2>
+<p>
+The next several topics are a collection of things you can do if simply getting books from the Internet, reading, 
+and deleting them doesn't meet your needs completely.
+Pick and choose what's helpful to you.
+Don't attach much meaning to the order of things below, because everyone's needs are different.
+</p>
+<h3 id="more-books" class="anchor-target">Keeping More Books</h3>
+<p>
+<small>
+This is an advanced topic, and requires (minor) use of a PC or file manager application.
+It's best to come back to this should you find you need extra space for your books.
+</small>
+</p>
+<p>
+First, review 
+<a href="#audiobooks-directories">AudioBooks Directories</a> discussion above.
+Given that,
+if you want to use an SD card for additional book storage, you must decide if allowing other applications 
+to read your books is more important than using the provisioning tools:
+</p>
+<ol>
+<li>
+    If the provisioning tools are more important, use your PC (or file manager application) to make the directory 
+    <code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on the SD card, and proceed using provisioning tools.
+</li>
+<li>
+    If shared access is more important, make <code>AudioBooks</code> at the root of the SD card.
+    You (probably) won't be able to use the provisioning tools, but will rather have to maintain the content using a PC.
+</li>
+</ol>
+<p>
+Be sure to test that this works as expected (there's a lot of variation between devices here).
+Nothing prevents you from using both <code>AudioBooks</code> directories on the SD card, 
+although it's likely to be confusing to do so.
+</p>
+<p>
+<!-- ??????? graphic? ---> 
+Books that cannot be deleted using the book inventory screen will be shown with a "padlock" icon, 
+and attempts to delete (or archive) them will be ignored.
+</p>
+<p>
+<h4 id="more-books-copying" class="anchor-target">Copy vs. Delete</h4>
+When installing new books, if the directory you are loading the books from is writable, 
+the default is to move, rather than copy, from that directory to Aesop.
+The assumption is that you are installing books from the <code>Download</code> directory, 
+and moving things out of the <code>Download</code> directory is usually the intent.
+There is an option to change that behavior under More (&vellip;), 
+and if the directory you are copying from is read-only it will just copy rather than move.
+The copy versus move status is reflected in the icon for "INSTALL".
+The download icon will have a line above it (mnemonically, the book left in place) when a copy rather than move will occur.
+</p>
+<h3>Book Progress</h3>
+<p>
+The player keeps two pieces of information about progress reading a book: 
+the current position (which it needs for restarting after a pause) and whether the book has been read to the end.
+The progress shows up as a time and percentage on the player screen and on the book inventory screen, 
+and the word "Completed" is show in both places when the book has been read to the end.
+Occasionally a book may be left playing accidentally, or you need to move from one device to another.
+Should that happen, you can click on the time displayed in the book inventory screen and enter a new time.
+That can be in minutes (even more than an hours worth) or hours and minutes (as hh:mm)).
+Setting it to zero rewinds the book completely.
+Changing the time also resets the "Completed" flag.
+</p>
+<p>
+You can also reset any books to the beginning by checking them in the book inventory screen and then clicking the "Reset" button at the upper right.
+(Check "All" if you want to reset everything.)
+This also resets the "Completed" flag.
+(This is particularly useful if you are using the player as a "library book" shared between users.)
+</p>
+<p>

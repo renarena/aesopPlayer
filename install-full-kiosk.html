@@ -14,30 +14,9 @@ extra_js:
 
 <h2>Simple vs Full kiosk mode</h2>
 
-<p>
-Both modes aim at confining the user to within the app to protect him or
-her from the complexity of the Android system and other apps.
-</p>
-
-<p>
-The full kiosk mode is much more robust than
-<a href="install-configure.html#enable-kiosk-mode">the simple one</a> (see the
-video below) but it is also more difficult to set up, the exact steps are
-described below.
-</p>
-
-<div class="center-block img-responsive video-poster">
-<a href="https://www.youtube.com/embed/7ZaA-sfsL0w?vq=hd720&autoplay=1&autohide=1&border=0&egm=0&showinfo=0"
-    class="overlay" data-event-label="kiosk-modes"><i
-      class="fa fa-play-circle fa-5x"></i></a>
-<img class="img-responsive" src="img/gallery/kiosk mode.png">
-</div>
-
-<div class="additional-info info"><strong>Requirements:</strong>
-The full kiosk mode requires Android version 5.0 or newer and it cannot be
-enabled on a Kindle Fire. Older devices and Kindle Fire are limited to the
-<a href="install-configure.html#enable-kiosk-mode">simple mode</a> only.
-</div>
+The criteria for selecting a Kiosk Mode are discussed in depth
+<a href="install-configure.html#kiosk-mode">here</a>.
+If you determine you need Full Kiosk Mode, proceed as described below.
 
 <h2>Preparation</h2>
 
@@ -50,16 +29,18 @@ You will need:
 <li>A PC or Mac computer with Internet access.
 <li>A USB cable to connect the Aesop Player tablet to your computer.
 </ol>
-
-Let's start!
 </p>
 
 <h2>1. Remove all accounts</h2>
 
 <p>
 In order for step 4 to succeed, you need to remove all the accounts registered
-in the system.
+in the system. 
+If you've recently done a Factory Reset or are using a brand new devoce, 
+and not created any accounts, that's already done and you can skip to step 2.
 </p>
+
+<h3>Here's How</h3>
 
 <p>
 Go to <strong>Settings</strong> &rarr; <strong>Accounts</strong> and remove all
@@ -73,6 +54,9 @@ the accounts.
 <p>
 You need to enable USB debugging on the tablet so that it accepts commands from
 your computer.
+
+
+<h3>Here's How</h3>
 
 <ol>
 <li>Go to <strong>Settings</strong> &rarr; <strong>About tablet</strong> and
@@ -92,6 +76,8 @@ activate <strong>USB debugging</strong>.
 The <code>adb</code> command is needed on your computer to perform the next
 step. The software installed here can be uninstalled later.
 </p>
+
+<h3>Here's How</h3>
 
 <ul id="adb-install-tabs" class="nav nav-tabs" data-tabs="adb-install-tab-content">
   <li class="active"><a href="#adb-install-windows" data-toggle="tab">Windows</a></li>
@@ -141,6 +127,7 @@ This doesn't change the software in any way, it does <strong>not</strong>
 void the warranty and it can be easily reversed.
 </p>
 
+<h3>Here's How</h3>
 <ol>
 <li>Attach the device with a USB cable to your computer.
 <li>On your computer start a terminal (Linux/Mac) or the command prompt
@@ -201,16 +188,26 @@ In case of errors see
 <p>
 Now you can enable and disable the full kiosk mode at will.
 
+<h3>Here's How</h3>
+
 <ol>
 <li>Start Aesop Player.
-<li>Tap 5 times on the screen to enter settings.
-<li>Tap <strong>Prevent from exiting the application (kiosk mode)</strong>.
-<li>Enable <strong>Full mode...</strong>
+<li>Enter (Aesop) settings via the "gear" icon.
+<li>Click <strong>Prevent from exiting the application (kiosk mode)</strong>.
+<li>Click <strong>Preferred Kiosk Mode</strong>.
+<li>Click the radio button for <strong>Full Kiosk</strong> (It will be enabled if you have done the above correctly.)
 <li>Go back to leave the settings screen.
 </ol>
 
+<!-- ??????????? Update Image below -->
+
 <img class="img-responsive center-block" src="img/full-kiosk-mode.png">
 
-Now it's impossible to leave the player application (you can revert this by
-disabling the "Full mode..." option).
+Now it's impossible to leave the player application. 
+<br>
+You can revert this by selecting one of the other Kiosk Modes. 
+<p>
+If you want to temporarily leave
+Full Kiosk mode to do other work on the device, put Aesop into 
+<a href="install-dedicated.html#maintenance-mode">Maintenance Mode</a>.
 </p>

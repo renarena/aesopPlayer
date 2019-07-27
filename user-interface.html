@@ -1,0 +1,233 @@
+---
+layout: page
+meta_title: "Aesop Player: user interface"
+title: "User<br>Interface"
+heading: "User<br>Interface"
+description: "The Aesop end-user interface"
+header-img: img/header-test.jpg
+meta_description: "Understanding how the end user will interact with the Aesop Player."
+redirect_from: /install-test.html
+---
+<p>
+The Aesop Player's focus is on providing a simple user inteface for audio books.
+Now that Aesop Player is installed on your tablet (see 
+<a href="getting-started.html">Getting started</a>)
+let's explore the user interface to see how it does that.
+Be sure that at least the sample books are installed - it will display a special screen
+asking you to do that if there aren't any books. There's more on how to add books in
+<a href="provisioning.html">Provisioning</a>.
+</p>
+<p>
+For the user (see 
+<a href="features.html#roles">Roles</a>
+for what we mean by "user") there are only two screens to consider, the Book Selection screen and the Playback
+screen. The caregiver and technical person will need to use other screens, which are discussed under 
+<a href="install-configure.html">Configuration</a>
+and elsewhere.
+</p>
+<p>
+The sections below are separated into a description of the displayed screen and a section on each
+of the gestures (motions the user applies to the screen).
+There are only a few gestures, with simple meanings.
+</p>
+
+<h2>The Frame</h2>
+<p>
+Both screens for the user are displayed in a simple frame. It's mostly black and exists to give
+a larger edge for holding the device when it's held by the edge. It has no touch function.
+In the upper right corner there's a fairly conventional battery status display giving charge state (blinking
+while charging). It turns red when the charge is low. 
+"Maintenance Mode" is displayed across the bottom when the device is in 
+<a href="install-dedicated.html#maintenance-mode">maintenance mode</a>,
+which is associated with a Dedicated Player.
+</p>
+
+<h2>Book Selection Screen</h2>
+<h3>The Screen</h3>
+<p>
+Whenever a book is not playing, the title of the current book will be displayed.
+Each time a book title is freshly displayed (e.g., when coming back from sleep or when changing books) it will also speak the
+current book title.
+(Sometimes it doesn't speak a title if it's done so very recently.)
+</p>
+<p>
+The word "START" is displayed. It blinks. The blink rate can be changed 
+<a href="install-configure.html#blink-speed">here</a>
+if that helps the user see it.
+</p>
+<p>
+The "gear" icon at the upper left corner is used to enter the Settings screen.
+By default it works with
+a single tap, but it can be set 
+<a href="install-dedicated.html#access-to-settings">here</a>
+to make it hard to accidentally enter Settings mode.
+</p>
+<p>
+Also displayed at the top are the the progress in the book in both time and percentage, and in a small font, the
+chapter title. 
+At the lower left of the colored area is the total length of the book. 
+The word "Completed" will be displayed at the lower right when the player has played to the end of the book.
+(The book length information is computed the first time the book is displayed, so it may appear as "??" for
+a while when a new book is looked at.)
+</p>
+<p>
+The Provisioning section discusses book titles in more depth. 
+It is possible to change the displayed book title, which might be necessary if it is too "computerish" or excessively long for
+a spoken title.
+<p>
+The book position and the "Completed" flag can be reset via the Provisioning screens.
+</p>
+<p>
+The chapter title is a "best guess", and really is the title found in (or the name of) the currently playing .mp3 file.
+The chapter title is not used anywhere else, but may be helpful for the caregiver.
+</p>
+<h3>Changing the Book Gesture</h3>
+<p>
+Books are changed by "swiping" the display (almost anywhere on the screen) to the left or right. 
+It will change to the next book (in alphabetical order, forwards or backwards), and the screen color will change.
+The title will be announced. 
+<!-- Translators: please fix the first and last letters -->
+This selection is "circular", so it will go from <b>z</b> back to <b>a</b>, and vice-versa.
+</p>
+<h3>Playing the Book Gesture</h3>
+<p>
+Tapping anywhere near the middle of the screen (most of the screen is the button) will start the currently displayed book 
+at the point where it was stopped.
+The default setting is to back up 5 seconds to help restore mental context (that can be changed
+<a href="install-configure.html#jump-back">here</a>).
+</p>
+<h3>Device Awaken Gesture</h3>
+<p>
+If the proximity detector is enabled (see
+<a href="install-configure.html#awake-proximity">here</a>)
+waving a hand over the screen will awaken the device, and announce the book title.
+The device's usual awaken procedures also will work.
+</p>
+<h3>Desensitizing</h3>
+<p>
+The device is set to ignore the start gesture (and when playing, the stop gesture) for a selectable timeout after it is made.
+This keeps accidental touches from shaky hands from being interpreted as repeated gestures.
+The timeout can be selected 
+<a href="install-configure.html#button-delay">here</a>.
+</p>
+
+<h2>Playback Screen</h2>
+<h3>The Screen</h3>
+<p>
+The playback screen is similar to the Book Selection screen. 
+It has the same title and time information as the Books Screen.
+It displays "STOP", blinking similarly to Book Selection, and the blinking setting for "START" applies to it.
+</p>
+<p>
+It has conventional "Rewind" and "Fast Forward" push-and-hold buttons that block the Stop operation while activated.
+By default it will generate a "tape-recorder" like sound while Rewind or Fast Forward are engaged.
+<h3>Stop the Book Gesture</h3>
+<p>
+Tapping anywhere near the middle of the screen will stop the current book, similarly to start.
+<h3>Pause the Book Gesture</h3>
+<p>
+Flipping the whole device face-down will pause or stop playback.
+A setting 
+<a href="install-configure.html#face-down">here</a>
+allows returning the device face-up to continue playing (the gesture is then a "pause").
+The same setting can be used to disable the feature.
+<h3>Defer Sleep Gesture</h3>
+<p>Aesop can be 
+<a href="install-configure.html#sleep-timer">set</a>
+to stop playback if it concludes the user has fallen asleep.
+Shaking or moving the device enough restets the timer used to determine that the user might be asleep.
+There's no specific pattern of motion, simply that the device has moved enough.
+Tapping Start is needed to resume if the timeout occurs.
+<h3>Device Awaken Gesture</h3>
+<p>
+The same as the Books screen.
+<h3>Desensitizing</h3>
+<p>
+The same as the Books screen.
+
+
+<h2>Audio Volume and Speed</h2>
+<p>
+Audio volume (loudness) is normally (for Android) controlled through small buttons on the side of the device, 
+which can be difficult to use/feel.
+Aesop also uses gestures for that, described below.
+<p>
+If the device is used for other purposes than Aesop, the volume could be changed accidentally.
+The Homer Player saves the audio volume in use each tim the player is stopped and restores the volume when it is restarted.
+It saves separate values for each kind of audio device.
+All wired headphones count as a single device type.
+Each Bluetooth device is different.
+The built-in (device) speaker is distinct fron the headphones.
+
+<p>
+For some devices, particularly Bluetooth, there is a volume control on the headset in addition to the one on the player.
+That volume control is independent of the volume set in the player.
+The volume for that Bluetooth headset will be restored, but if the volume setting on the headset itself has changed, it may need to be adjusted.
+
+<p>
+Generally users need not concern themselves with saving the volume, Aesop should just do the right thing.
+
+<p>
+Some users may find that they want the book read slower or faster than the original recording.
+The speed can be adjusted to fit the user's ability, either faster than or slower than the original,
+with no pitch change. The gesture-based speed controls for the Aesop player are similer to the volume controls.
+
+<h2 id="playback-volume-speed" class="anchor-target">Gestures for Audio Volume and Speed (Playback Screen)</h2>
+<p>
+Adjusting volume and speed without caregiver involvement makes the device easier to use.
+Since books vary somewhat by audio loudness, and performers differ in their pace, users may wish to make the sound louder or softer,
+or play faster or slower, themselves, without involving a caregiver.
+
+<p>
+It is possible to control the volume and playback speed with the same sort of simple gestures used above,
+ones that don't require vision or much tactile ability.
+
+<p>
+If 
+<a href="install-configure.html#volume-speed">enabled</a>,
+pressing and then dragging (and then holding) anywhere near the center of the screen 
+<em>while the book is playing</em> allows the user to adjust the volume and speed.
+Press and drag to the right for volume up, to the left for volume down, up for faster, and down for slower.
+The audio will continue playing, and you'll immediately hear the effect.
+<p>
+Once the direction of the drag is recognized, a series of "tick"s will be heard overlaying the audio,
+and with each tick the volume or speed will be raised or lowered by one step.
+When a limit is reached, the tick will be replaced by a double-beep, and there will be no effect.
+Reversing the drag will reverse the direction (either faster&harr;lower or louder&harr;softer).
+Ending the drag (lifting the finger for a moment) and reestablishing direction is needed to change between volume and speed.
+(This sounds more complicated than it is: give it a try.)
+Aesop will also say one of "Faster", "Slower", "Louder" or "Softer", or when adjusting speed, "Normal" for no change in speed (1.0x).
+(These can be localized to other languages.)
+<p>
+While these adjustments are being made, the volume level or speed factor will be displayed instead of the time.
+
+<p>
+The volume and speed are limited. 
+The volume is limited by the hardware to (usually) 15 steps, and the lowest steps are nearly inaudible, so Aesop stops with slight sound remaining. 
+Speed ranges from half normal (which is quite slow) to 4.5x normal (which sounds excessively fast). 
+For most listeners speed from slightly below normal to around 1.8x normal will be comfortable. 
+The extremely high rates are allowed because formal research<sup><a href="#bragg" id="ret_bragg">1</a></sup> shows that some individuals 
+can understand at that speed. 
+As the speed increases the sound may become choppy; using a higher bit rate (quality) recording may help with that.
+
+<h2>Alternate Audio Volume and Speed (Tilting)</h2>
+
+<p>
+For users that have trouble with the drag option above, 
+there is a similar set of controls that are activated by tilting the whole device at about a 45-degree angle and holding it there for a few moments.
+Tilting to the left is equivalent to dragging left (etc.)
+It takes a moment of (relative) stillness at one of the 45-degree angles to engage, so simply moving the device will not usually trigger it.
+The audio prompts are the same.
+This can be enabled independently of the dragging version. 
+If the user prefers to keep the player on a lap or in a pocket, this may not be useful.
+<p>
+The initial state of the dragging Audio control options is enabled, and tilting is disabled.
+Experiment with them to determine which works best for the user.
+</p>
+<hr style="height: 1px; background: #ccc; margin-left: 0; width: 5em">
+<p>
+<sup id="bragg" class="anchor-target">1. Danielle Bragg, Cynthia Bennett, Katharina Reinecke, and Richard Ladner. 2018.
+                    A Large Inclusive Study of Human Listening Rates.
+                    In Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems
+                    (CHI '18). ACM, New York, NY, USA, Paper 444, 12 pages.
+		    <a href="#ret_bragg" title="Back to citation">↩</a></sup>

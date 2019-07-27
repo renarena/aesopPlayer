@@ -1,29 +1,46 @@
 - section: General questions
   questions:
-    - question: Is it necessary to purchase an Android tablet to try the app?
+    - question: Is it necessary to purchase an Android tablet or phone to try the app?
       answer: >
         <p>
         No, you can install the application on any smartphone or tablet with Android
-        4.2 or newer. You can also ask a friend who has an Android phone to install it so
-        you can test it. The app can then be removed in a matter of seconds (like any
-        other app).
+        4.2.2 or newer. You can also ask a friend who has an Android phone to install it so
+        you can test it. 
+        The app can then be removed in a matter of seconds (like any other app).
         </p>
         <p>
         If there is absolutely no way for you to have access to an Android device you
-        can install an app player on your PC or Mac, for example <a
-        href="http://www.bluestacks.com">Bluestacks</a>.
+        can install an app player on your PC or Mac, for example 
+        <a href="http://www.bluestacks.com">Bluestacks</a>.
+        </p>
+        <p>
+        A new tablet or phone ("device") isn't necessary.
+        An older device, even one without a cellular connection, is quite usable.
+        See <a href="install-configure.html#hardware-selection">Hardware Considerations</a> about "previously owned" devices.
         </p>
 
     - question: Is it necessary for the user to have WiFi or Internet connection after installing the app?
       answer: >
         <p>
-        No. Internet connection is not necessary for running the application. The
-        books are transferred from a computer over a USB cable so the device
+        It depends on how you want to use it. 
+        <p>
+        An Internet connection is not ever necessary for playing books.
+        Books can be transferred from a computer over a USB cable, so the device
         works more or less like any portable audio player.
+        You can also install from a USB "Thumb Drive", which allows you to install books
+        at a location that has neither a computer nor an Internet connection.
         </p>
         <p>
-        In fact I encourage disabling WiFi when "building" a dedicated player so that
-        it lasts longer on a single battery charge.
+        Books can also be installed via an Internet connection; in that case you will need some form of
+        Internet connection, either cellular or WiFi.
+        <p>
+        The player can also be remotely administered if you have an Internet connection.
+        <p>
+        If you don't intend on using WiFi on a Dedicated Player, turn it off to save battery.
+        <p>
+        There's a lot more on these topics in the 
+        <a href="http:provisioning.html">Provisioning</a>
+        article.
         </p>
 
     - question: I would like to make a Aesop Player tablet but will I be able to do this with a Mac?
@@ -32,12 +49,15 @@
 
     - question: How can I start a book from the beginning? While I was testing the book advanced 10 minutes and now I want it to play from start when I give the tablet to my uncle.
       answer: >
-        <p>There is a function to reset progress on <strong>all</strong> audiobooks to the beginning.</p>
+        <p>This can be done from Settings &rarr; Current Books.
         <ol>
         <li>Start Aesop Player.
-        <li>Tap the screen 5 times to open Settings.
-        <li>Choose "Rewind all books to the beginning…" and then confirm.
+        <li>Enter Settings.
+        <li>Select Current Books at the Bottom.
+        <li>Find that book, and click on the time displayed at the right.
+        <li>You can then set a new time (in minutes or hh:mm), including 0.
         </ol>
+        You can also reset selected books to the beginning as a group from that screen.
 
     - question: Can I put the audiobook files on a microSD card in the device?
       answer: >
@@ -45,7 +65,10 @@
         The application scans all available storage types (both internal memory
         and any available SD cards). When it finds a folder <code>AudioBooks</code> in
         the top directory it adds all audiobooks to the list. This way books from an SD
-        card and the internal storage are both available to the user.
+        card and the internal storage are both available to the user. 
+        <p>
+        For advanced use, it can look in other places. See 
+            <a href="http:provisioning.html#audiobooks-directories">AudioBook Directories</a> for more.
         </p>
 
 - section: Audiobooks compatibility
@@ -53,13 +76,13 @@
     - question: What audiobook formats are supported?
       answer: >
         <p>
-        Aesop Player supports DRM-free MP3 files.<br>
+        Aesop Player supports DRM-free <code>.mp3</code>, <code>.mp4</code> and <code>.ogg</code> files.<br>
         Each book may comprise of a number of files that are played in alphabetical
         order. The files may also be nested in subdirectories (useful when copying
         books that come on multiple CDs).
         </p>
         <p>
-        This means that most audiobooks thay you <strong>buy</strong> will
+        This means that most audiobooks that you <strong>buy</strong> will
         work fine.<br>
         However, subscription and rental services that only work with their
         dedicated application are unlikely to work.
@@ -75,7 +98,7 @@
             <a href="http://audiobookstore.com">audiobookstore.com</a> or
             <a href="http://www.downpour.com">Downpour</a>
             (you probably know the best ones in your country).<br>
-            Look for DRM-free MP3 downloads.</li>
+            Look for DRM-free (usually) MP3 downloads.</li>
         <li>Libraries: it's often possible to borrow audiobooks at the local
             library.</li>
         <li>Free classics: there are many services and non-profit projects that
@@ -83,16 +106,21 @@
             Here are a few that provide books in English:
             <ul>
             <li><a href="http://freeclassicaudiobooks.com/">FreeClassicAudioBooks.com</a>
-            <li><a href="https://librivox.org/">LibriVox</a>
+            (choose the .zip format to get the complete book)
+            <li><a href="https://librivox.org/">LibriVox</a> (uses .zip format)
             <li><a href="http://etc.usf.edu/lit2go/">Lit2Go</a>
-                (go to each chapter to download it in an MP3 file).
+                (go to each chapter to download it in an MP3 file - you'll need to manually collate into a complete book).
+            <li><a href="http://www.gutenberg.org/browse/categories/2">Project Gutenberg</a>
+                (Computer read - click on "More Files" to find a .zip of the whole book.)
+            <li><a href="https://www.overdrive.com/">Overdrive</a>
+                (If your local library is connected to Overdrive, this is a source for current books.)
             </ul>
         </ul>
 
     - question: Can I use audiobooks from Audible?
       answer: >
         <p>
-        Unfortunately subscription services like Audible are not supported and they
+        Unfortunately subscription services like Audible that use DRM are not supported and they
         don't provide MP3 files for download.
         </p>
         <p>See the previous question on some tips where to get books.</b>
@@ -109,7 +137,7 @@
         <li>no TTS is installed on your device.
         </ul>
 
-        <p>Go to <strong>Settings &rarr; Language &amp; input &rarr;
+        <p>Go to <strong>(Android) Settings &rarr; Language &amp; input &rarr;
         Text-to-speech output</strong><br>
         Here you can choose the preferred engine, change its settings (e.g.
         download more voices) and play an example sentence.</p>
@@ -123,18 +151,19 @@
         One engine with a large number of supported languages is Vocalizer (paid). You
         can also find TTS apps for specific languages.<p>
 
-    - question: Copying books to the device doesn't work or aborts during the process.
+    - question: Copying books to the device over USB doesn't work or aborts during the process.
       answer: >
         <p>
         A small number of users have reported issues with copying files to their devices.
         Here are a few things to try:
         <ul>
-        <li>disable the kiosk mode for the time of copying files,
-        <li>if the device doesn't show up in your computer after it is
-        connected, swipe down the top of the screen (with kiosk mode disabled). There
-        should be a notification about the USB connection. If it says "USB for
-        charging" then tap it and choose "Transfer files".
-        <li>if copying stops at a certain moment, try keeping the screen on
+        <li>use <a href="install-dedicated.html#maintenance-mode">Maintenance Mode</a>
+        mode while copying files,
+        <li>if the device doesn't show up on your computer after it is
+        connected, swipe down from the top of the screen (in Maintenance Mode).
+        There should be a notification about the USB connection. 
+        If it says "USB for charging" then tap it and choose "Transfer files".
+        <li>if copying stops after a fixed interval, try keeping the screen on
         until all files are copied.
         </ul>
         </p>
@@ -149,14 +178,14 @@
         </p>
         <p>
         Removing a user account differs slightly between devices, but usually one needs
-        to switch to the account to delete, go to <strong>Settings</strong> &rarr;
+        to switch to the account to delete, go to <strong>(Android)Settings</strong> &rarr;
         <strong>Users</strong> and remove the current account.<br>
         If you need more specific information for your device Google for: <a
         href="https://www.google.com/search?q=android+remove+guest+account" target="_blank">Android
         remove guest account <em>your phone make</em></a>.
         </p>
         <p>
-        If the issue is not caused by multiple user accounts check out the following
+        If the issue is not caused by multiple user accounts, check out the following
         <a href="https://appuals.com/disabled-by-administrator-encryption-policy-or-credential-storage/">
         article about other ways of fixing the problem</a>.
         </p>
@@ -167,12 +196,15 @@
       answer: >
         <p>There's a number of ways you can help:</p>
         <ul>
-        <li><a href="mailto:marcin@studio4plus.com">send me your feedback</a> so
-        that I know what needs improvement,
-        <li><a href="https://play.google.com/store/apps/details?id=com.donnKey.aesopPlayer" target="_blank">rate the app</a> to make it easier to find by others,
+        <li><a href="mailto:aesopPlayer@gmail.com">send me your feedback</a> 
+        so that I know what needs improvement,
+        <li><a href="https://play.google.com/store/apps/details?id=com.donnKey.aesopPlayer" target="_blank"> rate the app</a> 
+        to make it easier to find by others,
         <li>translate the Google Play Store description to your language, it's just a
-        few paragraphs long and may help others learn about the app (<a
-        href="mailto:marcin@studio4plus.com">e-mail me</a> for the English text),
+        few paragraphs long and may help others learn about the app
+        (<a href="mailto:aesopPlayer@gmail.com">e-mail me</a> for the English text),
+        <li>localize (translate) the app's messages,
+        <li>translate this Web page (for the very ambitious),
         <li>tell others who might have a use for it.
         </ul>
         <p>Any help is appreciated, thank you!</p>
@@ -180,13 +212,19 @@
     - question: Can I donate money to the project?
       answer: >
         <p>
-        Thank you, but there is no need. The project doesn't require much funds, it
-        mostly needs my time and motivation.
+        Thank you, but there is no need.
+        The project doesn't require much money; it mostly needs my time and motivation.
         </p>
         <p>
-        If you want to show your appreciation the best way is to send me a postcard from
-        where you live.<br>
-        Here's my P.O. Box address:
+        However, the various volunteer book providers like LibriVox and Project Gutenberg can use financial help 
+        (so there are more books to read).
+        Consider donating to the ones you use. I do.
+        Letting me know <a href="mailto:aesopPlayer@gmail.com">by mail</a> 
+        you did that is always nice, or make the donation in the name of "Aesop Player".
+        <p>
+        Marcin Simionides (the author of Homer Player, upon which Aesop Player is based) suggests the best way to
+        thank him is to send him a postcard from where you live.<br>
+        Here's his P.O. Box address:
         </p>
         <p>
         <img style="margin: 0.5em 0em 0.7em 3em"src="img/address.png">
