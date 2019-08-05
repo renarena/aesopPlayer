@@ -16,7 +16,7 @@
         <p>
         A new tablet or phone ("device") isn't necessary.
         An older device, even one without a cellular connection, is quite usable.
-        See <a href="install-configure.html#hardware-selection">Hardware Considerations</a> about "previously owned" devices.
+        See <a href="install-dedicated.html#hardware-selection">Hardware Considerations</a> about "previously owned" devices.
         </p>
 
     - question: Is it necessary for the user to have WiFi or Internet connection after installing the app?
@@ -217,7 +217,7 @@
         </p>
         <p>
         However, the various volunteer book providers like LibriVox and Project Gutenberg can use financial help 
-        (so there are more books to read).
+        (so there are more books to read!).
         Consider donating to the ones you use. I do.
         Letting me know <a href="mailto:aesopPlayer@gmail.com">by mail</a> 
         you did that is always nice, or make the donation in the name of "Aesop Player".

@@ -15,7 +15,7 @@ extra_js:
 <h2>Simple vs Full kiosk mode</h2>
 
 The criteria for selecting a Kiosk Mode are discussed in depth
-<a href="install-configure.html#kiosk-mode">here</a>.
+<a href="install-dedicated.html#kiosk-mode">here</a>.
 If you determine you need Full Kiosk Mode, proceed as described below.
 
 <h2>Preparation</h2>
@@ -28,6 +28,7 @@ You will need:
 <a href="install-configure.html">configured</a>.
 <li>A PC or Mac computer with Internet access.
 <li>A USB cable to connect the Aesop Player tablet to your computer.
+    Your charging cable, if it unplugs from the transformer, is likely to suffice.
 </ol>
 </p>
 
@@ -37,7 +38,7 @@ You will need:
 In order for step 4 to succeed, you need to remove all the accounts registered
 in the system. 
 If you've recently done a Factory Reset or are using a brand new devoce, 
-and not created any accounts, that's already done and you can skip to step 2.
+and have not created any accounts, that's already done and you can skip to step 2.
 </p>
 
 <h3>Here's How</h3>
@@ -174,6 +175,14 @@ In case of errors see
     This means that there are some accounts still configured on the device.
     Make sure you have performed step "1. Remove all accounts" correctly.
     </dd>
+    <dd>
+    <!-- ???????????? Explain below error -->
+    <dt>Error: <code>DeviceAdminReceiver ComponentInfo{com.donnKey.aesopPlayer/com.donnKey.aesopPlayer.AesopPlayerDeviceAdmin} 
+	must be protected with android.permission.BIND_DEVICE_ADMIN</code> </dt>
+    <dd>
+    This means that you are running a newer version of Android that requires special permissions to enable full-kiosk mode.
+    We're working on this.
+    </dd>
   </dl>
   </div>
   <div class="modal-footer">
@@ -198,8 +207,6 @@ Now you can enable and disable the full kiosk mode at will.
 <li>Click the radio button for <strong>Full Kiosk</strong> (It will be enabled if you have done the above correctly.)
 <li>Go back to leave the settings screen.
 </ol>
-
-<!-- ??????????? Update Image below -->
 
 <img class="img-responsive center-block" src="img/full-kiosk-mode.png">
 

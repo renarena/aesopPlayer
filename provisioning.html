@@ -20,6 +20,62 @@ You can just use the parts you need, and come back later for more.
 (This material would get really tedious if it said "technical support person or caregiver" a lot.
 Thus it uses "you", and you can take the meaning that's appropriate to your circumstances.)
 </p>
+<h2>Provisioning Screens</h2>
+For reference, here is a guide to the two main screens used for provisioning.
+They are similar in many ways.
+We'll discuss the details in various places.
+<h3 id="inventory-screen" class="anchor-target">The Inventory (Current Books) Screen</h3>
+<div style="float:right">
+<img align="right" border="10px" src="img/inventory-guide.png">
+</div>
+<ol>
+    <li>
+    Selects this screen.
+    <li>
+    Click to edit book title.
+    <li>
+    Select/deselect this book.
+    <li>
+    Total length of all books.
+    <li>
+    Select/deselect all books.
+    <li>
+    Delete selected books.
+    <li>
+    Reset (to beginning) selected books.
+    <li>
+    (More): Archive rather than delete.
+    <li>
+    Click to edit book position.
+    <li>
+    Maintenance Mode (click to change) - off.
+</ol>
+<br>
+<h3 id="new-books" class="anchor-target">The New Books Screen</h3>
+<div style="float:right">
+<img align="right" border="10px" src="img/new-books-guide.png">
+</div>
+<ol>
+    <li>
+    Selects this screen.
+    <li>
+    Book cannot be selected - title already in Inventory
+    <li>
+    Click to edit book title.
+    <li>
+    Select/deselect this book.
+    <li>
+    Name of directory being displayed.
+    <li>
+    Select/deselect all books.
+    <li>
+    Install selected books.
+    <li>
+    (More): Select directory; copy rather than delete.
+    <li>
+    Maintenance Mode (click to change) - on.
+</ol>
+<h2>Getting Started</h2>
 <h3>Example 1</h3>
 <p>
 We'll use the example in 
@@ -46,8 +102,8 @@ In a bit more detail (and there's more detail in
 <ol>
 <li>You have to get the book onto the device, somehow. 
 There are lots of places books can be obtained.
-The original places usually are the Internet and physical media like CDs.
-The book can also be (for example) on a PC or USB drive on its way to your device.
+The sources are usually the Internet and physical media like CDs.
+The book can be (for example) on a PC or USB drive on its way to your device.
 <li>Aesop expects the book to be organized in a particular way so it can play it.
 Books actually come organized in several ways.
 Aesop will convert several of the most common book types into the format it needs.
@@ -63,23 +119,24 @@ Skim the section titles and read up on what looks useful to you.
 </p>
 <h2>Cleaning up</h2>
 <p>
-<!-- ????? graphic -->
 After you've read your books, and want some new ones, you may find either that having the old ones around makes it hard to find your new books,
 or that you've run out of space on the device.
 (Or, likely, both.)
 It's easy to clean up.
 Go to Settings and then click on "Inventory" (the Aesop icon) at the bottom of the screen.
+It will look something
+<a href="#inventory-screen">like this</a>.
 This will list all your books.
-Check the checkbox for the ones you no longer want to read, then the "delete" (trash can) button at the upper right, and they will be deleted.
+Check the checkbox for the ones you no longer want to read, then the "delete" (trash can, #6 in the graphic) button at the upper right, and they will be deleted.
 (Be sure to scroll all the way to the bottom.)
 </p>
 <p>
 You probably noted that some books were already checked.
 If you look closely, on the right, the word "Completed" will appear for those books.
 It will also give the total time, current position in the book, and percent completed.
-You can check books you didn't like, and uncheck books that you want to reread before clicking delete.
+You can check books you didn't want to finish, and uncheck books that you want to reread before clicking delete.
 You can use the "All" button to check (or uncheck) all the books if that makes things easier.
-Just don't click the delete button until you're sure all the checks are correct, 
+Just don't click the Delete button until you're sure all the checks are correct, 
 because the books will be completely removed and you'll have to reload them from wherever you got them to get them back.
 </p>
 <h2>Example 2</h2>
@@ -109,7 +166,7 @@ Mac, you may need the
 <small>
 Your device charging cable will probably do if it unplugs from the transformer.
 </small>
-<!-- ???? -->
+<!-- graphic ???? -->
 <li>Typically a File Manager window will pop up on the PC, looking like this(!). 
 <br>
 <small>Some devices may want you to download a support application.
@@ -119,7 +176,7 @@ Be sure you download from the device manufacturer's Internet site.</small>
 <li>Depending on the Android device, you may be presented with a popup on the device asking what you want want to
 do with the connection. 
 Alternatively a notification may be displayed that you will click on from Android Settings.
-In any case, you want to set it up to Transfer Files (or be a "Media Device" if that isn't an option).
+In any case, you want to set it up to Transfer Files (or be a "Media Device" if "Transfer Files" isn't an option).
 <li>On the PC, click on <code>Phone</code> in the File Manager's window for the device, then on <code>AudioBooks</code>.
 <li>On the PC, use the Internet Browser to Download a book from one of the places suggested in
 <a href="getting-started.html#provisioning">Getting Started</a>.
@@ -352,7 +409,9 @@ If the book title and such don't look right, you can fix that
 </p>
 <p>
 When working directly on the device, typically you'd do a bunch of downloads as in the first part of Example 1,
-and when they all complete, do the INSTALL step all at once.
+and when they all complete, do the INSTALL step in 
+<a href="#new-books">"New Books", item 7</a>
+all at once.
 (Just because that would be fewer clicks.)
 If your Internet browser makes it easy, you can do some simultaneous downloads.
 Don't start a lot simultaneously, but 2 or 3 could go at once without interfering with each other too much.
@@ -367,7 +426,7 @@ Once the downloads are completed (which takes time depending on the book length 
 you use Aesop's built in provisioning tools to reformat (depending on the file type) and install the books.
 It will automatically handle books already in the Aesop book format described above, <code>.zip</code> files 
 that yield the same format, and single audio files.
-From "New Books", click the check boxes for the books you want (scroll to see if there are more), 
+From "New Books" click the check boxes for the books you want (scroll to see if there are more), 
 then the "INSTALL" button.
 It will figure out how to reformat the book, handle the metadata and install it where you can play it.
 It will move (not copy) the book from <code>Download</code> to the library - 
@@ -384,7 +443,9 @@ The most common reasons are that you are using Cloud storage (more on that
 <a href="#cloud">here</a>), 
 or you are using physically external storage (see
 <a href="#usb">here</a>).
-To select a new place to load books from, simply click on the three vertical dots on the upper right of the screen 
+To select a new place to load books from, simply click on the 
+<a href="#new-books">three vertical dots (item 8)</a>
+on the upper right of the screen 
 (&vellip;)(called "More" in Android-speak).
 You will see "Select Directory containing New Books"; click that and a new screen will be displayed.
 Use it to find the directory you want, select "Comfirm" or "Select" and it will return you to the Add Books screen, with the new list of books displayed.
@@ -399,11 +460,12 @@ See <a href="#more-books-copying">below</a>.
 <div class="boxed">
 <p class="smaller">
 The terminology used for different types of storage varies with the Android revision and is quite confusing due to history.
-We'll always refer to addable (and thus removable) storage as the "SD" or "SD card".
+We'll always refer to addable (and thus removable) storage as "removable storage".
+If we're referring specifically to SD cards, we'll use "removable SD cards".
 In Android literature, "external" storage frequently does NOT refer to anything removable or physically external to the device.
 </p>
 <p class="smaller">
-Also due to history, the locations that can be modified on the SD card are messy and confusing.
+Also due to history, the locations that can be modified on the SD cards (removable or not) are messy and confusing.
 We'll try to keep it simple, a consequence of which is that it can appear unreasonably arbitrary.
 Since we want Aesop to run on older devices that have been retired as phones, we can't use some of the newer possible solutions.
 </p>
@@ -411,7 +473,6 @@ Since we want Aesop to run on older devices that have been retired as phones, we
 The large variety of Android manufacturers combined with the many Android revisions is a source of inconsistency in this area.
 You may end up with a device that doesn't work exactly as described.
 There's probably a way to make it work, but it may take a couple of tries.
-</p>
 </div>
 <p>
 The same tools to select a directory to copy from apply to removable physical storage.
@@ -506,7 +567,7 @@ drive have an application that can "rip" the CD into a directory on disk.
 And there is quite a selection of similar tools on the Internet.
 Actually, most books on CD take a number of disks (at least two or three, and frequently many more).
 Once the data has been ripped, it needs to be reformatted to some degree or other, because the format you get varies widely from book to book.
-See <a href="#book-format">Book Format</a> as discussed above.
+See <a href="#book-format">Aesop Book Format</a> as discussed above.
 </p>
 <p>
 In the ideal case, the CD contains book and chapter titles, and file names, 
@@ -608,7 +669,7 @@ The delete icon changes from "Delete Permanently" (with an "X" over the trash ca
 <p>
 <small>
 If you have more than one <code>AudioBooks</code> directory, there's an <code>AudioBooks.old</code> for each writeable
-one. See <a href="#audiobooks-directories">AudioBooks Directories</a>.
+one. See <a href="#audiobooks-directories">Alternate Directories</a>.
 </small
 </p>
 <h2>More things you can do</h2>
@@ -627,7 +688,7 @@ It's best to come back to this should you find you need extra space for your boo
 </p>
 <p>
 First, review 
-<a href="#audiobooks-directories">AudioBooks Directories</a> discussion above.
+<a href="#audiobooks-directories">Alternate Directories</a> discussion above.
 Given that,
 if you want to use an SD card for additional book storage, you must decide if allowing other applications 
 to read your books is more important than using the provisioning tools:
@@ -649,11 +710,11 @@ although it's likely to be confusing to do so.
 </p>
 <p>
 <!-- ??????? graphic? ---> 
-Books that cannot be deleted using the book inventory screen will be shown with a "padlock" icon, 
+Books that cannot be deleted using the book inventory screen will be shown with a red "padlock" icon, 
 and attempts to delete (or archive) them will be ignored.
 </p>
 <p>
-<h4 id="more-books-copying" class="anchor-target">Copy vs. Delete</h4>
+<h3 id="more-books-copying" class="anchor-target">Copy vs. Delete</h3>
 When installing new books, if the directory you are loading the books from is writable, 
 the default is to move, rather than copy, from that directory to Aesop.
 The assumption is that you are installing books from the <code>Download</code> directory, 
