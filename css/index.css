@@ -6,7 +6,7 @@ html,body {
 	height: 100%;
 	width: 100%;
 	display: table;
-	background: #422307 ;
+	background: #422307  url(../img/book-dark.jpg) no-repeat center center;
 	-moz-background-size: cover;
 	-webkit-background-size: cover;
 	-o-background-size: cover;
