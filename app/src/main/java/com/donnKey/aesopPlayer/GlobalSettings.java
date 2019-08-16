@@ -272,7 +272,7 @@ public class GlobalSettings {
     }
 
     public boolean isTiltVolumeSpeedEnabled() {
-        return sharedPreferences.getBoolean(KEY_TILT_VOLUME_SPEED, true);
+        return sharedPreferences.getBoolean(KEY_TILT_VOLUME_SPEED, false);
     }
 
     public boolean getRetainBooks() {

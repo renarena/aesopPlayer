@@ -29,7 +29,7 @@
         app:title="@string/pref_tilt_volume_speed"
         app:summaryOn="@string/pref_tilt_volume_speed_on"
         app:summaryOff="@string/pref_tilt_volume_speed_off"
-        app:defaultValue="true"/>
+        app:defaultValue="false"/>
     <ListPreference
         app:key="stop_on_face_down_preference"
         app:defaultValue="@string/pref_stop_on_face_down_default_value"
