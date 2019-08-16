@@ -1,5 +1,7 @@
 package com.donnKey.aesopPlayer.ui.provisioning;
 
+import android.annotation.SuppressLint;
+
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -45,7 +47,7 @@ public class Provisioning extends ViewModel {
 
     // Types used in this cache
     enum FileKind {ZIP_FILE, AUDIO_FILE, DIRECTORY, NONE}
-    enum Severity {INFO, MILD, SEVERE}
+    public enum Severity {INFO, MILD, SEVERE}
 
     static class Candidate {
         FileKind kind;
@@ -113,7 +115,7 @@ public class Provisioning extends ViewModel {
     final List<Candidate> candidates = new ArrayList<>();
 
     // ... associated with existing books
-    BookInfo bookList[];
+    BookInfo[] bookList;
     long totalTime;
     boolean partiallyUnknown;
 
@@ -371,6 +373,7 @@ public class Provisioning extends ViewModel {
         return false;
     }
 
+    @SuppressLint("UsableSpace")
     @WorkerThread
     void moveAllSelected_Task(Progress progress, boolean retainBooks) {
         clearErrors();

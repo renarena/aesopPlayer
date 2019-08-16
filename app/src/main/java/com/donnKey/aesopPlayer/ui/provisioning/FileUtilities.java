@@ -19,11 +19,11 @@ import static com.donnKey.aesopPlayer.ui.provisioning.Provisioning.Severity.SEVE
 
 public class FileUtilities {
 
-    interface StringCallback {
+    public interface StringCallback {
         void Callback(String s);
     }
 
-    interface ErrorCallback {
+    public interface ErrorCallback {
         void Callback(Provisioning.Severity severity, String text);
     }
 
@@ -31,7 +31,7 @@ public class FileUtilities {
 
     // Unzip a whole file to a directory; return true on success
     // Can log errors.
-    static boolean unzipAll(File zipName, File targetDir,
+    static public boolean unzipAll(File zipName, File targetDir,
                            StringCallback progress, ErrorCallback logError) {
         // Get a temp directory and make sure it doesn't exist. (That's "free" housekeeping
         // if previously something had dong wrong.)
@@ -231,7 +231,7 @@ public class FileUtilities {
     static boolean deleteTree(File dir, ErrorCallback logError) {
         if (dir.exists()) {
             try {
-                String commands[] = new String[3];
+                String[] commands = new String[3];
                 commands[0] = "rm";
                 commands[1] = "-r";
                 commands[2] = dir.getCanonicalPath();

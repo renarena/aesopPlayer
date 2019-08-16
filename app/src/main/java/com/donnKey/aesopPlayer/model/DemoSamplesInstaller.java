@@ -2,11 +2,12 @@ package com.donnKey.aesopPlayer.model;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
+import android.util.Log;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 
 import com.crashlytics.android.Crashlytics;
-import com.github.saturngod.Decompress;
 import com.google.common.io.Files;
 import com.donnKey.aesopPlayer.filescanner.FileScanner;
 
@@ -14,17 +15,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
+import static com.donnKey.aesopPlayer.ui.provisioning.FileUtilities.*;
+
+@SuppressWarnings("UnstableApiUsage")
 public class DemoSamplesInstaller {
 
     private final File audioBooksDirectory;
@@ -41,11 +41,11 @@ public class DemoSamplesInstaller {
 
     @SuppressWarnings("UnusedReturnValue") // future use?
     @WorkerThread
-    public boolean installBooksFromZip(File zipPath) throws IOException {
+    public boolean installBooksFromZip(File zipPath) {
         File tempFolder = Files.createTempDir();
-        InputStream inputStream = new BufferedInputStream(new FileInputStream(zipPath));
-        Decompress decompress = new Decompress(inputStream, tempFolder.getAbsolutePath());
-        decompress.unzip();
+        unzipAll(zipPath,tempFolder,
+            (s)->{}, // don't Toast these filenames
+            (severity, text) -> Log.e("Decompress", text));
         boolean anythingInstalled = installBooks(tempFolder);
         deleteFolderWithFiles(tempFolder);
 
@@ -61,7 +61,7 @@ public class DemoSamplesInstaller {
         }
 
         boolean anythingInstalled = false;
-        File books[] = sourceDirectory.listFiles();
+        File[] books = sourceDirectory.listFiles();
         for (File bookDirectory : books) {
             boolean success = installSingleBook(bookDirectory, audioBooksDirectory);
             if (success)
@@ -91,14 +91,9 @@ public class DemoSamplesInstaller {
             File sampleIndicator = new File(bookDirectory, FileScanner.SAMPLE_BOOK_FILE_NAME);
             Files.touch(sampleIndicator);
 
-            File files[] = sourceBookDirectory.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String filename) {
-                    return !TITLES_FILE_NAME.equals(filename);
-                }
-            });
+            File[] files = sourceBookDirectory.listFiles((dir, filename) -> !TITLES_FILE_NAME.equals(filename));
             int count = files.length;
-            String installedFilePaths[] = new String[count];
+            String[] installedFilePaths = new String[count];
 
             for (int i = 0; i < count; ++i) {
                 File srcFile = files[i];
@@ -140,7 +135,7 @@ public class DemoSamplesInstaller {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void deleteFolderWithFiles(File directory) {
-        File files[] = directory.listFiles();
+        File[] files = directory.listFiles();
         for (File file : files) {
             file.delete();
         }

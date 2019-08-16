@@ -221,39 +221,19 @@ public class DemoSamplesInstallerService extends Service {
         }
 
         void onInstallFinished() {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    service.onInstallFinished();
-                }
-            });
+            handler.post(service::onInstallFinished);
         }
 
         void onFailed(final @NonNull String errorMessage) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    service.onFailed(errorMessage);
-                }
-            });
+            handler.post(() -> service.onFailed(errorMessage));
         }
 
         void onDownloadProgress(final int progress, final int total) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    service.onProgress(progress, total);
-                }
-            });
+            handler.post(() -> service.onProgress(progress, total));
         }
 
         void onInstallStarted() {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    service.onInstallStarted();
-                }
-            });
+            handler.post(service::onInstallStarted);
         }
     }
 
@@ -298,6 +278,7 @@ public class DemoSamplesInstallerService extends Service {
             tmpFile.deleteOnExit();
 
             OutputStream output = new BufferedOutputStream(new FileOutputStream(tmpFile));
+            // The samples file is at AesopPlayerApplication#DEMO_SAMPLES_URL
             HttpsURLConnection connection = (HttpsURLConnection) downloadUrl.openConnection();
             // Disable gzip, apparently Java and/or Android's okhttp has problems with it
             // (possibly https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7003462).
