@@ -45,8 +45,8 @@ following third party services:
 
 The policy may be modified at any time. Any changes will be posted to this page.
 
-This policy was last modified on February 16, 2018.
+This policy was last modified on August 16, 2019.
 
 ## Contact
 
-You may contact me at marcin@studio4plus.com
+You may contact me at AesopPlayer@gmail.com

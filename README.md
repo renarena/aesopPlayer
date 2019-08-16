@@ -1,6 +1,5 @@
-Aesop Player [![Code Climate](https://codeclimate.com/github/donnKey/aesopPlayer/badges/gpa.svg)](https://codeclimate.com/github/donnKey/aesopPlayer)
+Aesop Player 
 ============
-
 An audio book player for the elderly and visually impaired.
 
 [Go to the project website](http://donnKey.github.io/aesopPlayer/)
@@ -10,7 +9,7 @@ or
 Project Goal
 ------------
 Turn a regular Android tablet into a dedicated audio book player that can be
-easily used by visually impaired and the elderly.
+easily used, particularly by the visually impaired and the elderly.
 
 Assumptions
 -----------
@@ -32,12 +31,11 @@ on the main features.
 
 Contributions
 -------------
-Translations (incl. Play Store description): Naomi Gumpel, Vasiliy Petviashvili,
-Stefan Rotermund, Magdalena Wodyńska.
+The original Homer Player by Marcin Simonides is the basis for this application.
 
 Contact
 -------
-DonnTerry@gmail.com
+aesopPlayer@gmail.com
 
 License
 -------
