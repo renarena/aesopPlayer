@@ -21,7 +21,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private static final String KEY_FAQ = "faq_preference";
     private static final String KEY_VERSION = "version_preference";
 
-    private static final String FAQ_URL = "https://goo.gl/1RVxFW";
+    private static final String FAQ_URL = "https://donnkey.github.io/aesopPlayer/faq.html";
 
     @Inject public AudioBookManager audioBookManager;
     @Inject public GlobalSettings globalSettings;
