@@ -37,11 +37,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.donnKey.aesopPlayer"
+        applicationId "github.io.donnKey.aesopPlayer"
         vectorDrawables.useSupportLibrary = true
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 54
+        versionCode 1
         versionName getVersionName()
     }
     buildTypes {
