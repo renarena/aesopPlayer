@@ -76,7 +76,9 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
             if (allFiles.length > 0) {
                 File sampleIndicator = new File(bookDirectory, FileScanner.SAMPLE_BOOK_FILE_NAME);
                 boolean isDemoSample = sampleIndicator.exists();
-                return new FileSet(id, bookDirectory, allFiles, isDemoSample);
+                File referenceIndicator = new File(bookDirectory, FileScanner.REFERENCE_BOOK_FILE_NAME);
+                boolean isReference = referenceIndicator.exists();
+                return new FileSet(id, bookDirectory, allFiles, isDemoSample, isReference);
             } else {
                 return null;
             }

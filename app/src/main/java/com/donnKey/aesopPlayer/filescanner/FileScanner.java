@@ -20,6 +20,7 @@ import javax.inject.Named;
 @ApplicationScope
 public class FileScanner {
     public static final String SAMPLE_BOOK_FILE_NAME = ".sample";
+    public static final String REFERENCE_BOOK_FILE_NAME = ".reference";
 
     private final String audioBooksDirectoryName;
     private final BackgroundExecutor ioExecutor;
@@ -52,6 +53,7 @@ public class FileScanner {
         return new File(externalStorage, audioBooksDirectoryName);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private void ensureDefaultAudioBooksDirectory() {
         final File defaultAudiobooksPath = getDefaultAudioBooksDirectory();
         ioExecutor.postTask((Callable<Void>) () -> {

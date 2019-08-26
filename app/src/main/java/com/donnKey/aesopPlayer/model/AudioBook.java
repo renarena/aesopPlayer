@@ -327,6 +327,10 @@ public class AudioBook {
     }
 
     public void setCompleted(boolean completed) {
+        if (completed && this.fileSet.isReference) {
+            // Just in case, allow it to be set false
+            return;
+        }
         this.completed = completed;
     }
 
