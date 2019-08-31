@@ -48,7 +48,7 @@ We'll discuss the details in various places.
     <li>
     Click to edit book position.
     <li>
-    Maintenance Mode (click to change) - off.
+    Maintenance Mode (click to change) - in off state.
 </ol>
 <br>
 <h3 id="new-books" class="anchor-target">The New Books Screen</h3>
@@ -71,9 +71,9 @@ We'll discuss the details in various places.
     <li>
     Install selected books.
     <li>
-    (More): Select directory; copy rather than delete.
+    (More): Select download directory; group and ungroup; copy rather than delete.
     <li>
-    Maintenance Mode (click to change) - on.
+    Maintenance Mode (click to change) - in on state.
 </ol>
 <h2>Getting Started</h2>
 <h3>Example 1</h3>
@@ -435,7 +435,7 @@ See
 <a href="#more-books-copying">Copy vs. Delete</a>
 for more on that.
 </p>
-<h3>...from Other Book Sources on your Device</h3>
+<h3 id="download-dir" class="anchor-target">...from Other Book Sources on your Device</h3>
 </p>
 <p>
 If you have books on your device that aren't already in <code>Download</code>, you can direct the installer to get books from there instead.
@@ -681,6 +681,67 @@ The next several topics are a collection of things you can do if simply getting 
 and deleting them doesn't meet your needs completely.
 Pick and choose what's helpful to you.
 Don't attach much meaning to the order of things below, because everyone's needs are different.
+<h3 id="grouping" class="anchor-target">Combining Downloads Into One Book (Grouping)</h3>
+<p>
+Sometimes a book is too big to fit into a single piece conveniently.
+<b>War and Peace</b> is a typical example.
+</p>
+<p>
+Some book providers offer book downloads by individual chapters, rather than providing the whole book.
+(Some provide both, so if you want a whole book be sure to look deeper in the website to see if that's available.)
+</p>
+<p>
+If you have a situation where you have a collection of downloaded files that you want to play as a single book,
+that can be fixed without using a PC.
+The Aesop player allows you to group a collection of candidate books (in the New Books screen) into a single
+entry that when installed will be treated as a single book.
+</p>
+<h4>Grouping</h4>
+The procedure is simple: first download all the pieces. These can be anything that Aesop treats as a book, such
+as single audio files, zip files, or directories containing these. 
+Then on the New Books screen, check the books you want to combine into a single book. 
+Be sure no other books are checked.
+(This will be easier if there aren't any other books in the download directory, but that's not a requirement.)
+</p>
+<p>
+Now click the "More" button (#8 on 
+<a href="#inventory-screen">this screen</a>)
+and then <b>Group Selected Books</b>.
+Aesop Player will ask for confirmation, and then combine the checked books into a single new book.
+</p>
+<p>
+The title will come from the (alphabetically) first book in the group. 
+You can now install the result just like any other book.
+</p>
+<p>
+The only thing you need to be careful about is that the book titles need to have the proper alphabetical order
+before grouping them, because that's the order they will be played in. (If you need numbers, be sure that they
+have leading zeros if needed.)
+In most cases the defaults will be fine, but if they aren't, you can 
+<a href="#fix-titles">change the titles</a>
+to fix that.
+</p>
+<p>
+<h4>Ungrouping</h4>
+<p>
+Mistakes do happen, so it is possible to ungroup a grouped book back to the individual books
+by clicking <b>Ungroup one book</b> under "More".
+Only one book can be ungrouped at a time.
+Doing this into a 
+<a href="#download-dir">download directory</a>,
+with no other books is helpful, but not required.
+The pieces each become a separate book with the usual properties, and those could be restored into
+a group later.
+</p>
+<p>
+<small>
+    Advanced: If you have installed a grouped book and need to do something to it, you can go to the
+    Current Books screen, select "More"->Archive, and then delete the book from Current Books.
+    That will put it into </code>AudioBooks.old</code> which you can then select as the
+    <a href="#download-dir">download directory</a>,
+    and ungroup it there, fix it, and then reinstall it.
+    (After you're done, be sure to reset the download directory, and Archive mode if you aren't otherwise using it!)
+</small>
 </p>
 <h3 id="more-books" class="anchor-target">Keeping More Books</h3>
 <p>
