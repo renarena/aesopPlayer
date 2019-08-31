@@ -148,6 +148,7 @@
     <string name="error_unzip_single_file_with_exception">Unzip single file failed: %1$s: %2$s</string>
     <string name="error_unzip_all_files_with_exception">Unzip all files failed: %1$s: %2$s</string>
     <string name="error_could_not_create_directory">Could not create directory %s</string>
+    <string name="error_unzip_into_existing_directory">Directory %s already exists when expanding zip file</string>
     <string name="error_could_not_create_directory_with_exception">Could not create directory %1$s: %2$s</string>
     <string name="error_could_not_rename">Could not rename %1$s to %2$s</string>
     <string name="error_could_not_rename_with_exception">Could not rename %1$s to %2$s: %3$s</string>
@@ -184,6 +185,8 @@
     <string name="position_edit_accept_button">Accept</string>
     <string name="candidate_action_bar_install">Install</string>
     <string name="candidate_action_bar_retain_policy">Retain after copy</string>
+    <string name="candidate_action_bar_group_books">Group selected books</string>
+    <string name="candidate_action_bar_ungroup_books">Ungroup one book</string>
     <string name="candidate_action_bar_new_directory">Select Directory containing New Books</string>
     <string name="inventory_action_bar_delete">Delete</string>
     <string name="inventory_action_bar_reset">Reset</string>
@@ -196,6 +199,15 @@
     <string name="status_name_info">Info: </string>
     <string name="status_name_check">Check: </string>
     <string name="status_name_error">Error: </string>
+    <string name="dialog_title_ungroup_book">Ungroup a book</string>
+    <string name="dialog_title_group_books">Group to combine book elements</string>
+    <string name="dialog_ok_to_group">Group %s?</string>
+    <string name="dialog_ok_to_ungroup">Ungroup this book (to several books)?</string>
+    <string name="dialog_illegal_ungroup">Can only ungroup only one book at a time</string>
+    <string name="dialog_illegal_group">Must group at least two books</string>
+    <string name="dialog_colliding_group">Group already exists; no action</string>
+    <string name="dialog_cannot_make_group">Unable to create group directory.</string>
+    <string name="dialog_cannot_rename_group">Renaming %s to %s failed.</string>
 
     <plurals name="numberOfBooks">
         <item quantity="one">this %d book</item>

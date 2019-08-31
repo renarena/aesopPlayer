@@ -31,6 +31,7 @@ import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.ui.OrientationActivityDelegate;
 import com.donnKey.aesopPlayer.ui.settings.SettingsActivity;
 
+import java.io.File;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -40,7 +41,6 @@ import static com.donnKey.aesopPlayer.ui.settings.SettingsActivity.setMenuItemPr
 
 public class ProvisioningActivity extends AppCompatActivity
 {
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public GlobalSettings globalSettings;
     @Inject
@@ -299,6 +299,103 @@ public class ProvisioningActivity extends AppCompatActivity
         retainBooks = globalSettings.getRetainBooks() && provisioning.candidateDirectory.canWrite();
         Thread t = new Thread(this::moveAllSelected_Task);
         t.start();
+    }
+
+    @UiThread
+    void groupAllSelected() {
+        File newDir = null;
+
+        for (Provisioning.Candidate c: provisioning.candidates) {
+            if (c.isSelected) {
+                File bookPath = new File(c.oldDirPath);
+                if (newDir == null) {
+                    File baseFile = new File(c.oldDirPath);
+                    String baseName = baseFile.getName();
+                    int extensionPos = baseName.lastIndexOf('.');
+                    if (extensionPos > 0) {
+                        baseName = baseName.substring(0, extensionPos);
+                    }
+                    baseName += ".group";
+                    newDir = new File(bookPath.getParentFile(), baseName);
+
+                    if (newDir.exists()) {
+                        new AlertDialog.Builder(getApplicationContext())
+                                .setTitle(getString(R.string.dialog_title_group_books))
+                                .setIcon(R.drawable.ic_launcher)
+                                .setMessage(getString(R.string.dialog_colliding_group))
+                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                                .show();
+                        return;
+                    } else if (!newDir.mkdirs()) {
+                        new AlertDialog.Builder(getApplicationContext())
+                                .setTitle(getString(R.string.dialog_title_group_books))
+                                .setIcon(R.drawable.ic_launcher)
+                                .setMessage(getString(R.string.dialog_cannot_make_group))
+                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                                .show();
+                        return;
+                    }
+                }
+
+                String renamedTo = c.newDirName;
+                if (!bookPath.isDirectory()) {
+                    // This is a zip or audio file, retain the extension
+                    // (We couldn't get here if it wasn't one of those because it's not a candidate)
+
+                    String bookDirName = bookPath.getName();
+                    String oldExtension = "";
+                    int dotLoc = bookDirName.lastIndexOf('.');
+                    oldExtension = bookDirName.substring(dotLoc);
+                    renamedTo += oldExtension;
+
+                    // deblank in case it gets ungrouped - the result would be messy otherwise
+                    renamedTo = AudioBook.deBlank(renamedTo);
+                }
+
+                File toBook = new File(newDir, renamedTo);
+                if (!bookPath.renameTo(toBook)) {
+                    new AlertDialog.Builder(getApplicationContext())
+                            .setTitle(getString(R.string.dialog_title_group_books))
+                            .setIcon(R.drawable.ic_launcher)
+                            .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), bookPath.getPath(), toBook.getPath()))
+                            .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                            .show();
+                }
+            }
+        }
+    }
+
+    @UiThread
+    void unGroupSelected() {
+        for (Provisioning.Candidate c: provisioning.candidates) {
+            if (c.isSelected) {
+                File ungroupDir = new File(c.oldDirPath);
+                File parent = ungroupDir.getParentFile();
+                for (String fn : ungroupDir.list()) {
+                    File newLoc = new File(parent, fn);
+                    File oldLoc = new File(ungroupDir,fn);
+                    int n = 0;
+                    while (!oldLoc.renameTo(newLoc)) {
+                        if (n++ > 3) {
+                            break;
+                        }
+                        new AlertDialog.Builder(getApplicationContext())
+                                .setTitle(getString(R.string.dialog_title_ungroup_book))
+                                .setIcon(R.drawable.ic_launcher)
+                                .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), oldLoc.getPath(), newLoc.getPath()))
+                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                                .show();
+                        fn += ".collision";
+                        newLoc = new File(parent, fn);
+                    }
+                }
+                // Unless we couldn't empty the directory, this wouldn't fail. If we couldn't empty
+                // it, we know that from failures above. Nothing useful to do here.
+                //noinspection ResultOfMethodCallIgnored
+                ungroupDir.delete();
+                break;
+            }
+        }
     }
 
     @UiThread

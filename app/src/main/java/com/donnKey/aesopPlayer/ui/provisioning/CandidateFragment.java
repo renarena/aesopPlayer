@@ -29,7 +29,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -56,7 +55,6 @@ import javax.inject.Inject;
    to house-keep that.
  */
 public class CandidateFragment extends Fragment {
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     private Provisioning provisioning;
@@ -163,7 +161,7 @@ public class CandidateFragment extends Fragment {
         this.optionsMenu = menu;
 
         MenuItem all = menu.findItem(R.id.check_all);
-        AppCompatCheckBox allCheckBox = (AppCompatCheckBox) MenuItemCompat.getActionView(all);
+        AppCompatCheckBox allCheckBox = (AppCompatCheckBox) all.getActionView();
         allCheckBox.setText(getString(R.string.action_bar_word_all));
 
         allCheckBox.setOnCheckedChangeListener((v, b)-> {
@@ -188,7 +186,7 @@ public class CandidateFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.install_books:
+        case R.id.install_books: {
             int count = getSelectedCount();
             Resources res = getResources();
             String books = res.getQuantityString(R.plurals.numberOfBooks, count, count);
@@ -200,12 +198,13 @@ public class CandidateFragment extends Fragment {
                     .setNegativeButton(android.R.string.no, null)
                     .show();
             return true;
+        }
 
-        case R.id.retain:
+        case R.id.retain: {
             new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                     .setTitle(getString(R.string.dialog_title_set_archive_policy))
                     .setIcon(R.drawable.ic_launcher)
-                    .setMessage(getString(R.string.dialog_archive_by_copy) )
+                    .setMessage(getString(R.string.dialog_archive_by_copy))
                     .setPositiveButton(getString(R.string.dialog_policy_yes), (dialog, whichButton) -> {
                         item.setChecked(true);
                         globalSettings.setRetainBooks(true);
@@ -218,22 +217,66 @@ public class CandidateFragment extends Fragment {
                     })
                     .show();
             return true;
+        }
 
-        case R.id.search_dir:
+        case R.id.group_books: {
+            int count = getSelectedCount();
+            if (count < 2) {
+                new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                        .setTitle(getString(R.string.dialog_title_group_books))
+                        .setIcon(R.drawable.ic_launcher)
+                        .setMessage(getString(R.string.dialog_illegal_group))
+                        .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                        .show();
+                return true;
+            }
+            Resources res = getResources();
+            String books = res.getQuantityString(R.plurals.numberOfBooks, count, count);
+            new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                    .setTitle(getString(R.string.dialog_title_group_books))
+                    .setIcon(R.drawable.ic_launcher)
+                    .setMessage(String.format(getString(R.string.dialog_ok_to_group), books))
+                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> groupAllSelected())
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+            return true;
+        }
+
+        case R.id.ungroup_books: {
+            int count = getSelectedCount();
+            if (count != 1) {
+                new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                        .setTitle(getString(R.string.dialog_title_ungroup_book))
+                        .setIcon(R.drawable.ic_launcher)
+                        .setMessage(getString(R.string.dialog_illegal_ungroup))
+                        .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                        .show();
+                return true;
+            }
+            new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                    .setTitle(getString(R.string.dialog_title_ungroup_book))
+                    .setIcon(R.drawable.ic_launcher)
+                    .setMessage(getString(R.string.dialog_ok_to_ungroup))
+                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> unGroupSelected())
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+            return true;
+        }
+
+        case R.id.search_dir: {
             // We want to find/load from internal, removable SD, and USB.
             if (Build.VERSION.SDK_INT >= 21) { // L
                 // This is the "right way" for L and above, but it's a lot more complicated
                 // at the result end.
 
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.putExtra("android.content.extra.SHOW_ADVANCED",true);
+                intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
                 // DocumentsContract.EXTRA_INITIAL_URI: would be useful, but requires API26.
                 // (It also requires a URI as argument.) No workaround discoverable.
                 startActivityForResult(intent, REQUEST_DIR_LOOKUP);
-            }
-            else {
+            } else {
                 // Down-level; works well enough on those
-                final Intent chooserIntent = new Intent (Objects.requireNonNull(getContext()).getApplicationContext(),
+                final Intent chooserIntent = new Intent(Objects.requireNonNull(getContext()).getApplicationContext(),
                         DirectoryChooserActivity.class);
 
                 final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
@@ -249,6 +292,7 @@ public class CandidateFragment extends Fragment {
             dirLookupPending = true;
 
             return true;
+        }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -435,8 +479,8 @@ public class CandidateFragment extends Fragment {
         // the limiting factor is file operations, not the UI thread.
         synchronized (provisioning.candidates) {
             recycler.notifyDataSetChanged();
+            view.scrollToPosition(provisioning.candidates.size()-1);
         }
-        view.scrollToPosition(provisioning.candidates.size()-1);
     }
 
     @WorkerThread
@@ -475,11 +519,22 @@ public class CandidateFragment extends Fragment {
         ((ProvisioningActivity) Objects.requireNonNull(getActivity())).moveAllSelected();
     }
 
+    @UiThread
+    private void groupAllSelected() {
+        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).groupAllSelected();
+    }
+
+    @UiThread
+    private void unGroupSelected() {
+        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).unGroupSelected();
+    }
+
     // While we're on top, look to see if the directory changes (the user might add more files).
     // Unhappily I can't get FileObserver to report directory changes (but it will report
     // changes/reads to files in the directory!)
     void startChecker() {
         checkHandler.removeCallbacksAndMessages(null);
+        checkChanged();
         checkHandler.postDelayed(this::checkChanged, 2000);
     }
 

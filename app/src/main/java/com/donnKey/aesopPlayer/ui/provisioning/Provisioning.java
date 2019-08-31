@@ -2,7 +2,6 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
@@ -40,17 +39,13 @@ import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 // Serves as a cache for inter-fragment communication
 public class Provisioning extends ViewModel {
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
-    @SuppressWarnings("WeakerAccess")
     @Inject public AudioBookManager audioBookManager;
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     // Types used in this cache
-    enum FileKind {ZIP_FILE, AUDIO_FILE, DIRECTORY, NONE}
     public enum Severity {INFO, MILD, SEVERE}
 
     static class Candidate {
-        FileKind kind;
         String newDirName;
         String oldDirPath;
         String audioPath;
@@ -62,12 +57,11 @@ public class Provisioning extends ViewModel {
         boolean collides; // ... with existing directory name (not book name)
 
         Candidate() {
-            this.kind = FileKind.NONE;
             this.newDirName = null;
             this.oldDirPath = null;
-            this.audioFile = null;
             this.audioPath = null;
 
+            this.audioFile = null;
             this.metadataTitle = null;
             this.metadataAuthor = null;
             this.bookTitle = null;
@@ -75,12 +69,13 @@ public class Provisioning extends ViewModel {
             this.collides = false;
         }
 
-        void fill (FileKind kind, String dirName, String dirPath, String audioFile, String audioPath) {
+        void fill (String dirName, String dirPath, String audioPath) {
             this.newDirName = dirName;
             this.oldDirPath = dirPath;
-            this.audioFile = audioFile;
             this.audioPath = audioPath;
-            this.kind = kind;
+
+            File f = new File(audioPath);
+            this.audioFile = f.getName();
         }
     }
 
@@ -220,53 +215,23 @@ public class Provisioning extends ViewModel {
                 synchronized (candidates) {
                     candidates.add(candidate);
                 }
-                notifier.notifier();
             }
-            else {
-                candidate.newDirName = fileName;
-                notifier.notifier();
-            }
+            candidate.newDirName = AudioBook.filenameCleanup(fileName);
+            notifier.notifier();
 
             File file = new File(candidateDirectory, fileName);
             String pathToTarget = file.getPath();
 
-            boolean newItem = false;
-            if (fileName.toLowerCase().endsWith(".zip")) {
-                // This is an expensive operation
-                String audioFile = FileUtilities.getZipAudioFile(file);
-                if (audioFile != null) {
-                    candidate.fill(
-                            FileKind.ZIP_FILE,
-                            AudioBook.filenameCleanup(fileName),
-                            pathToTarget,
-                            audioFile, null);
-                    newItem = true;
-                }
-            }
-            else if (FilesystemUtil.isAudioPath(fileName)) {
+            // This might return a file in the cache dir, which should later be deleted.
+            // This can be expensive depending on the content
+            String audioPath = FileUtilities.getAudioPath(pathToTarget, fileName);
+
+            if (audioPath != null) {
                 candidate.fill(
-                        FileKind.AUDIO_FILE,
                         AudioBook.filenameCleanup(fileName),
                         pathToTarget,
-                        fileName,
-                        pathToTarget);
-                newItem = true;
-            }
-            else if (file.isDirectory()) {
-                String audioFile = FileUtilities.getAudioFile(file);
-                if (audioFile != null) {
-                    // No audio file -> not a book; ignore
-                    candidate.fill(
-                            FileKind.DIRECTORY,
-                            fileName,
-                            pathToTarget,
-                            AudioBook.basename(audioFile),
-                            audioFile);
-                    newItem = true;
-                }
-            }
+                        audioPath);
 
-            if (newItem) {
                 if (scanForDuplicateAudioBook(candidate.newDirName)) {
                     candidate.collides = true;
                 }
@@ -282,14 +247,13 @@ public class Provisioning extends ViewModel {
                 });
                 t.setPriority(Thread.MIN_PRIORITY);
                 t.start();
-
                 candidate = null;
             }
         }
 
         if (candidates.size() > 0) {
             candidate = candidates.get(candidates.size() - 1);
-            if (candidate.kind == FileKind.NONE) {
+            if (candidate.audioPath == null) {
                 // If the last file was a non-book
                 synchronized (candidates) {
                     candidates.remove(candidates.size() - 1);
@@ -304,47 +268,39 @@ public class Provisioning extends ViewModel {
 
     @WorkerThread
     private void computeBookTitle(Candidate candidate) {
+        // candidate.audioPath must be filled in, or this wouldn't be a candidate.
+        AudioBook.TitleAndAuthor title;
+        title = AudioBook.metadataTitle(candidate.audioPath);
+
+        candidate.metadataTitle = title.title;
+        candidate.metadataAuthor = title.author;
+        candidate.bookTitle = AudioBook.computeTitle(title);
+
         if (candidate.newDirName.contains(" ")) {
             candidate.bookTitle = AudioBook.filenameCleanup(candidate.newDirName);
             return;
         }
 
-        if (candidate.audioFile != null) {
-            AudioBook.TitleAndAuthor title;
-            if (candidate.audioPath == null) {
-                Preconditions.checkState(candidate.kind == FileKind.ZIP_FILE);
-                int pos = candidate.audioFile.lastIndexOf(".");
-                String extension = "";
-                if (pos >= 0) {
-                    // (Retain the dot in the extension.)
-                    extension = candidate.audioFile.substring(pos);
-                }
-                File tmp = null;
-                try {
-                    tmp = File.createTempFile("AudioTmp", extension);
-                    FileUtilities.unzipNamed(candidate.oldDirPath, candidate.audioFile, tmp);
-                    title = AudioBook.metadataTitle(tmp);
-                } catch (IOException e) {
-                    title = new AudioBook.TitleAndAuthor(null,null);
-                } finally {
-                    if (tmp != null) {
-                        //noinspection ResultOfMethodCallIgnored
-                        tmp.delete();
-                    }
-                }
-            }
-            else {
-                title = AudioBook.metadataTitle(candidate.audioPath);
-            }
-
-            candidate.metadataTitle = title.title;
-            candidate.metadataAuthor = title.author;
-            candidate.bookTitle = AudioBook.computeTitle(title);
-        }
-
         if (candidate.bookTitle == null || candidate.bookTitle.length() <= 0){
             candidate.bookTitle = AudioBook.filenameCleanup(candidate.newDirName);
             candidate.bookTitle = AudioBook.titleCase(candidate.bookTitle);
+        }
+
+        // If the audio file is in the cache dir, it's extracted from a zip, and should
+        // be tossed now that we've processed it. Otherwise, it's a real file and should
+        // be left alone.
+        File cache = getAppContext().getCacheDir();
+        String cacheName = cache.getPath();
+        if (candidate.audioPath.regionMatches(0, cacheName,0,cacheName.length())) {
+            File audio = new File(candidate.audioPath);
+            // It's in a directory named by the original dir name in which it was found;
+            // delete both directory and file. This should never fail, but if it does
+            // Android will clean up later, and there's nothing sensible to do about it
+            // since it has no consequence for the user.
+            //noinspection ResultOfMethodCallIgnored
+            audio.delete();
+            //noinspection ResultOfMethodCallIgnored
+            audio.getParentFile().delete();
         }
     }
 
@@ -389,9 +345,8 @@ public class Provisioning extends ViewModel {
 
         // Iterate through all the files. If we need space to copy to, advance the pointer to
         // the several AudioBooks directories when needed.
-        CopyLoop:
-        for (int candidateIndex = 0; candidateIndex < currentCandidates.length; /* void */ ) {
-            Provisioning.Candidate candidate = currentCandidates[candidateIndex];
+        for (int candidateIndex = 0; candidateIndex < currentCandidates.length; /* void */) {
+            Candidate candidate = currentCandidates[candidateIndex];
             if (!candidate.isSelected || candidate.collides) {
                 // So we do nothing when no items selected
                 candidateIndex++;
@@ -407,7 +362,7 @@ public class Provisioning extends ViewModel {
                 }
                 activeStorage = dirsToUse.get(nextDir++);
                 if (!activeStorage.exists()) {
-                    logResult(Severity.INFO,String.format(getAppContext().getString(R.string.no_such_directory), activeStorage.getPath()));
+                    logResult(Severity.INFO, String.format(getAppContext().getString(R.string.no_such_directory), activeStorage.getPath()));
                     activeStorage = null;
                     continue;
                 }
@@ -419,7 +374,7 @@ public class Provisioning extends ViewModel {
                 }
             }
 
-            if ((float)activeStorage.getUsableSpace() / (float)activeStorage.getTotalSpace() < 0.1f) {
+            if ((float) activeStorage.getUsableSpace() / (float) activeStorage.getTotalSpace() < 0.1f) {
                 logResult(Severity.MILD, String.format(getAppContext().getString(R.string.error_specific_file_system_full), activeStorage.getPath()));
                 // Try the next one
                 activeStorage = null;
@@ -436,29 +391,24 @@ public class Provisioning extends ViewModel {
                 continue;
             }
 
-            switch (candidate.kind) {
-            case ZIP_FILE:
-            {
+            if (FileUtilities.isZip(candidate.oldDirPath)) {
                 // Zip files always get unpacked into their target location, where (presumably)
                 // there's enough space. Error and remove the partial unpack on failure.
                 if (!FileUtilities.unzipAll(fromDir, toDir,
-                        (fn)-> progress.progress(ProgressKind.SEND_TOAST, fn),
+                        (fn) -> progress.progress(ProgressKind.SEND_TOAST, fn),
                         this::logResult)) {
                     FileUtilities.deleteTree(toDir, this::logResult);
-                    break CopyLoop;
+                    break;
                 }
                 candidate.isSelected = false;
 
                 if (!retainBooks) {
                     if (!fromDir.delete()) {
-                        logResult(Severity.SEVERE,String.format(getAppContext().getString(R.string.error_could_not_delete_book), fromDir.getPath()));
+                        logResult(Severity.SEVERE, String.format(getAppContext().getString(R.string.error_could_not_delete_book), fromDir.getPath()));
                     }
                 }
-                logResult(Severity.INFO,String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
-                break;
-            }
-            case DIRECTORY:
-            {
+                logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
+            } else if (fromDir.isDirectory()) {
                 boolean successful = false;
                 if (!retainBooks) {
                     progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
@@ -466,28 +416,33 @@ public class Provisioning extends ViewModel {
                 }
 
                 if (successful) {
-                    candidate.isSelected = false;
                     candidates.remove(candidate);
-                    break;
+                }
+                else {
+                    // Move failed (or we're just copying), copy it.
+                    if (!FileUtilities.atomicTreeCopy(fromDir, toDir,
+                            (fn) -> progress.progress(ProgressKind.SEND_TOAST, fn),
+                            this::logResult)) {
+                        FileUtilities.deleteTree(toDir, this::logResult);
+                        break;
+                    }
+
+                    candidate.isSelected = false;
+                    if (!retainBooks) {
+                        FileUtilities.deleteTree(fromDir, this::logResult);
+                    }
+                    logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
                 }
 
-                // Move failed (or we're just copying), copy it.
-                if (!FileUtilities.atomicTreeCopy(fromDir, toDir,
-                        (fn)-> progress.progress(ProgressKind.SEND_TOAST, fn),
+                if (!FileUtilities.expandInnerZips(toDir,
+                        (fn) -> progress.progress(ProgressKind.SEND_TOAST, fn),
                         this::logResult)) {
-                    FileUtilities.deleteTree(toDir, this::logResult);
-                    break CopyLoop;
+                    break;
                 }
-                candidate.isSelected = false;
-                if (!retainBooks) {
-                    FileUtilities.deleteTree(fromDir, this::logResult);
-                }
-                logResult(Severity.INFO,String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
-                break;
-            }
-            case AUDIO_FILE:
-            {
+            } else {
+                // Ordinary file.
                 // In this case, "fromDir" is really an audio file, not a directory.
+                // This must be an audio file, or it wouldn't be a candidate.
                 boolean successful = false;
                 if (!retainBooks) {
                     progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
@@ -497,32 +452,28 @@ public class Provisioning extends ViewModel {
                 if (successful) {
                     candidate.isSelected = false;
                     candidates.remove(candidate);
-                    break;
-                }
+                } else {
+                    // Move failed (or we're just copying), copy it.
+                    if (!FileUtilities.mkdirs(toDir, this::logResult)) {
+                        break;
+                    }
+                    File toFile = new File(toDir, candidate.audioFile);
 
-                // Move failed (or we're just copying), copy it.
-                if (!FileUtilities.mkdirs(toDir, this::logResult)) {
-                    break CopyLoop;
+                    progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
+                    try (InputStream fs = new FileInputStream(fromDir);
+                         OutputStream ts = new FileOutputStream(toFile)) {
+                        IOUtils.copy(fs, ts);
+                    } catch (IOException e) {
+                        logResult(Severity.SEVERE, String.format(getAppContext().getString(R.string.error_could_not_copy_book_with_exception), fromDir.getPath(), e.getLocalizedMessage()));
+                        FileUtilities.deleteTree(toDir, this::logResult);
+                        break;
+                    }
+                    candidate.isSelected = false;
+                    if (!retainBooks) {
+                        FileUtilities.deleteTree(fromDir, this::logResult);
+                    }
+                    logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
                 }
-                File toFile = new File(toDir,candidate.audioFile);
-
-                progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
-                try (InputStream fs = new FileInputStream(fromDir);
-                     OutputStream ts = new FileOutputStream(toFile)) {
-                    IOUtils.copy(fs, ts);
-                }
-                catch (IOException e) {
-                    logResult(Severity.SEVERE, String.format(getAppContext().getString(R.string.error_could_not_copy_book_with_exception), fromDir.getPath(), e.getLocalizedMessage()));
-                    FileUtilities.deleteTree(toDir, this::logResult);
-                    break CopyLoop;
-                }
-                candidate.isSelected = false;
-                if (!retainBooks) {
-                    FileUtilities.deleteTree(fromDir, this::logResult);
-                }
-                logResult(Severity.INFO,String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
-                break;
-            }
             }
             if (retainBooks) {
                 candidate.collides = true;

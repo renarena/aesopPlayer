@@ -179,6 +179,18 @@
     <string name="status_name_info">Informacje:</string>
     <string name="status_name_check">Badanie:</string>
     <string name="status_name_error">Błąd:</string>
+    <string name="dialog_cannot_make_group">Nie można utworzyć katalogu grupy.</string>
+    <string name="dialog_cannot_rename_group">Zmiana nazwy %s na %s nie powiodła się.</string>
+    <string name="dialog_colliding_group">Grupa już istnieje; bez akcji</string>
+    <string name="dialog_illegal_group">Musi grupować co najmniej dwie książki</string>
+    <string name="dialog_illegal_ungroup">Można rozgrupować tylko jedną książkę na raz</string>
+    <string name="dialog_ok_to_group">Grupa %s?</string>
+    <string name="dialog_ok_to_ungroup">Rozgrupować tę książkę (na kilka książek)?</string>
+    <string name="dialog_title_group_books">Grupa do łączenia elementów książki</string>
+    <string name="dialog_title_ungroup_book">Rozgrupuj książkę</string>
+    <string name="error_unzip_into_existing_directory">Katalog %s już istnieje podczas rozwijania pliku zip</string>
+    <string name="candidate_action_bar_group_books">Grupuj wybrane książki</string>
+    <string name="candidate_action_bar_ungroup_books">Rozgrupuj jedną książkę</string>
 
     <plurals name="numberOfBooks">
         <item quantity="one">ta %d książka</item>

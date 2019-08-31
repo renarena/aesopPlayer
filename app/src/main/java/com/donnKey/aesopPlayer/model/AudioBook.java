@@ -28,7 +28,7 @@ public class AudioBook {
     static public class TitleAndAuthor {
         public final String title;
         public final String author;
-        public TitleAndAuthor(String title, String author) {
+        TitleAndAuthor(String title, String author) {
             this.title = title;
             this.author = author;
         }
@@ -41,7 +41,7 @@ public class AudioBook {
     }
 
     public class Position {
-        public final int fileIndex;
+        final int fileIndex;
         public final long seekPosition;
 
         Position(int fileIndex, long seekPosition) {
@@ -69,7 +69,7 @@ public class AudioBook {
         this.fileDurations = new ArrayList<>(fileSet.files.length);
     }
 
-    public void setUpdateObserver(UpdateObserver updateObserver) {
+    void setUpdateObserver(UpdateObserver updateObserver) {
         this.updateObserver = updateObserver;
     }
 
@@ -322,7 +322,7 @@ public class AudioBook {
         return colourScheme;
     }
 
-    public void setColourScheme(ColourScheme colourScheme) {
+    void setColourScheme(ColourScheme colourScheme) {
         this.colourScheme = colourScheme;
     }
 
@@ -435,6 +435,10 @@ public class AudioBook {
         return name;
     }
 
+    public static String deBlank(String name) {
+        return name.replace(" ", "");
+    }
+
     public boolean renameTo(String s) {
         File newName = new File(fileSet.path.getParent(), s);
         if (fileSet.path.renameTo(newName)) {
@@ -442,14 +446,6 @@ public class AudioBook {
             return true;
         }
         return false;
-    }
-
-    public static String basename(String str) {
-        if (str == null) {
-            return null;
-        }
-        int slash = str.lastIndexOf('/');
-        return str.substring(slash+1);
     }
 
     public static String titleCase(String str) {

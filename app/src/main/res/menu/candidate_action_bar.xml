@@ -18,6 +18,14 @@
         android:checkable="true"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/group_books"
+        android:title="@string/candidate_action_bar_group_books"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/ungroup_books"
+        android:title="@string/candidate_action_bar_ungroup_books"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/search_dir"
         android:title="@string/candidate_action_bar_new_directory"
         app:showAsAction="never"/>
