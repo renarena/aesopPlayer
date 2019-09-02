@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import io.fabric.sdk.android.Fabric;
 
-public class AesopPlayerApplication extends Application {
+public class AesopPlayerApplication extends androidx.multidex.MultiDexApplication {
 
     private static final String AUDIOBOOKS_DIRECTORY = "AudioBooks";
     // For the moment we continue to use the Homer samples.
