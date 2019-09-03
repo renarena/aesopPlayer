@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 
+import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -37,7 +38,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey);
         setupFaq();
-        updateVersionSummary();
+        setupVersionSummary();
     }
 
     @Override
@@ -75,9 +76,16 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         }
     }
 
-    private void updateVersionSummary() {
+    @SuppressWarnings("SameReturnValue")
+    private void setupVersionSummary() {
         Preference preference = findPreference(KEY_VERSION);
         preference.setSummary(BuildConfig.VERSION_NAME);
+        preference.setOnPreferenceClickListener(preference1 -> {
+            if (BuildConfig.DEBUG) {
+                Crashlytics.getInstance().crash();
+            }
+            return true;
+        });
     }
 
     private void updateScreenOrientationSummary(@NonNull SharedPreferences sharedPreferences) {
@@ -116,6 +124,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         kioskModeScreen.setSummary(summaryStringId);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private void setupFaq() {
         Preference preference = findPreference(KEY_FAQ);
         preference.setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));

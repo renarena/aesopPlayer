@@ -1,14 +1,11 @@
 package com.donnKey.aesopPlayer;
 
-import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.MediaStore;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
 import com.donnKey.aesopPlayer.ui.HomeActivity;
 import com.donnKey.aesopPlayer.service.NotificationUtil;
@@ -16,7 +13,7 @@ import com.donnKey.aesopPlayer.ui.Speaker;
 
 import javax.inject.Inject;
 
-import io.fabric.sdk.android.Fabric;
+import com.google.firebase.FirebaseApp;
 
 public class AesopPlayerApplication extends androidx.multidex.MultiDexApplication {
 
@@ -39,8 +36,7 @@ public class AesopPlayerApplication extends androidx.multidex.MultiDexApplicatio
 
         applicationContext = getApplicationContext();
 
-        CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
-        Fabric.with(this, new Crashlytics.Builder().core(core).build());
+        FirebaseApp.initializeApp(this);
 
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this, Uri.parse(DEMO_SAMPLES_URL)))
