@@ -41,3 +41,7 @@ License
 -------
 Copyright (c) 2015-2017 Marcin Simonides Licensed under the MIT license.
 Copyright (c) 2018-2019 Donn Terry Licensed under the MIT license.
+A copy of that license may be found in the file LICENSE.
+
+All other license information can be inspected in Settings->License Information
+in the application.

@@ -1,5 +1,6 @@
 package com.donnKey.aesopPlayer.ui.settings;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.KioskModeSwitcher;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
 import java.util.Objects;
 
@@ -21,6 +23,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
 
     private static final String KEY_FAQ = "faq_preference";
     private static final String KEY_VERSION = "version_preference";
+    private static final String KEY_LICENSES = "license_info";
 
     private static final String FAQ_URL = "https://donnkey.github.io/aesopPlayer/faq.html";
 
@@ -39,6 +42,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         setPreferencesFromResource(R.xml.preferences_main, rootKey);
         setupFaq();
         setupVersionSummary();
+        setupShowLicenses();
     }
 
     @Override
@@ -130,6 +134,15 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         preference.setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
         preference.setOnPreferenceClickListener(preference1 -> {
             openUrl(FAQ_URL);
+            return true;
+        });
+    }
+
+    @SuppressWarnings("SameReturnValue")
+    private void setupShowLicenses() {
+        Preference preference = findPreference(KEY_LICENSES);
+        preference.setOnPreferenceClickListener(preference1 -> {
+            startActivity(new Intent(getContext(), OssLicensesMenuActivity.class));
             return true;
         });
     }
