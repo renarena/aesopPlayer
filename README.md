@@ -43,5 +43,15 @@ Copyright (c) 2015-2017 Marcin Simonides Licensed under the MIT license.
 Copyright (c) 2018-2019 Donn Terry Licensed under the MIT license.
 A copy of that license may be found in the file LICENSE.
 
+Aesop Player uses a number of libraries. Most of those are described
+under Settings->License Information. A few do not fit that pattern.
+
+The following are licensed under the Apache 2.0 License (http://www.apache.org/licenses/):
+
+Android DirectoryChooser (https://github.com/passy/Android-DirectoryChooser/blob/master/README.md)
+Option (https://github.com/guardian/Option)
+ExoPlayer (https://github.com/google/ExoPlayer)
+Apache Commons Text and Apache Commons Compress (https://commons.apache.org/)
+
 All other license information can be inspected in Settings->License Information
 in the application.
