@@ -99,7 +99,6 @@ dependencies {
     // guava-jre does not work - must use -android
     implementation 'com.google.guava:guava:28.1-android'
 
-    implementation 'com.google.code.findbugs:jsr305:3.0.1'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.7.3'
     implementation 'com.google.dagger:dagger:2.15'
 
