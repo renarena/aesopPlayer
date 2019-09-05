@@ -208,7 +208,6 @@
     <string name="dialog_colliding_group">Group already exists; no action</string>
     <string name="dialog_cannot_make_group">Unable to create group directory.</string>
     <string name="dialog_cannot_rename_group">Renaming %s to %s failed.</string>
-    <string name="license_summary_preference">License Information</string>
 
     <plurals name="numberOfBooks">
         <item quantity="one">this %d book</item>

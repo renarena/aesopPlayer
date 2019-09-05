@@ -42,9 +42,6 @@
         app:key="faq_preference"
         app:title="@string/pref_help_faq_title" />
     <Preference
-        app:key="license_info"
-        app:title="@string/license_summary_preference"/>
-    <Preference
         app:key="version_preference"
         app:title="@string/pref_version_title"/>
 </PreferenceScreen>
