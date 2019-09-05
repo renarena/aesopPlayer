@@ -89,7 +89,7 @@ dependencies {
 
     implementation 'de.greenrobot:eventbus:2.4.1'
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.preference:preference:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
@@ -106,7 +106,7 @@ dependencies {
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0-rc01'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0-beta03'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0-beta01'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha03'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
 
     implementation 'com.github.ozodrukh:CircularReveal:2.0.1@aar'
