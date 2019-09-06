@@ -5,6 +5,8 @@
 /.idea/*
 .DS_Store
 /build
+/aesopPlayer.iml
+/app/google-services.json
 
 *~
 *.swp
