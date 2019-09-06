@@ -157,6 +157,7 @@ public class PlaybackService
                 Crashlytics.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
                 playbackInProgress = new AudioBookPlayback(
                         player, handler, book, globalSettings.getJumpBackPreferenceMs());
+                playbackInProgress.start();
             }
         }
     }
@@ -322,6 +323,9 @@ public class PlaybackService
 
             controller = player.createPlayback();
             controller.setObserver(this);
+        }
+
+        public void start() {
             AudioBook.Position position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
             resetSleepTimer();
