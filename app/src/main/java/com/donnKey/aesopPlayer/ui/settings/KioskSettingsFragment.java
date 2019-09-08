@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -199,6 +199,9 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     }
 
     private void disableDeviceOwner() {
+        if (globalSettings.getKioskMode() == GlobalSettings.SettingsKioskMode.FULL) {
+            kioskModeSwitcher.onKioskModeChanged(GlobalSettings.SettingsKioskMode.NONE, (AppCompatActivity) getActivity());
+        }
         AesopPlayerDeviceAdmin.clearDeviceOwner(getActivity());
         updateKioskModeSummary();
     }

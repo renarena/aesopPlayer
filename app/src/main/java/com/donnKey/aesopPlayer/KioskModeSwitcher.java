@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -174,7 +174,7 @@ public class KioskModeSwitcher {
         }
     }
 
-    public void stopAppPinning(AppCompatActivity activity) {
+    private void stopAppPinning(AppCompatActivity activity) {
         Preconditions.checkState(Build.VERSION.SDK_INT >= 21);
         //noinspection ConstantConditions
         if(Build.VERSION.SDK_INT >= 21) { // L

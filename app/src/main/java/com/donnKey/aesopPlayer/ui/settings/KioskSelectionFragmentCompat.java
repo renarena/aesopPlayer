@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -64,8 +64,6 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
     protected View onCreateDialogView(Context context) {
         fragment = (KioskSelectionPreference) getPreference();
         kioskPolicies = fragment.getPolicies();
-        currentSelected = fragment.getMode();
-        originalSelected = currentSelected;
         return super.onCreateDialogView(context);
     }
 
@@ -73,6 +71,8 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
     public void onResume() {
         super.onResume();
         // Wide screen for popup
+        currentSelected = fragment.getMode();
+        originalSelected = currentSelected;
         WindowManager.LayoutParams params = Objects.requireNonNull(Objects.requireNonNull(getDialog()).getWindow()).getAttributes();
         params.width = MATCH_PARENT;
         Objects.requireNonNull(getDialog().getWindow()).setAttributes(params);

@@ -38,7 +38,7 @@
     <string name="notificationChannelPlayback">Odtwarzanie dźwięku</string>
     <string name="settings_title">Ustawienia</string>
     <string name="settings_title_2">Ustawienia (z blokadą)</string>
-    <string name="settings_device_owner_required_alert">Aplikacja musi być ustawiona jako "device owner". Szczegóły: http://goo.gl/46gevp</string>
+    <string name="settings_device_owner_required_alert">Aplikacja musi być ustawiona jako "device owner". Szczegóły:\nhttps://donnkey.github.io/aesopPlayer/install-full-kiosk.html</string>
     <string name="permission_rationale_title">Potrzebne uprawnienia</string>
     <string name="permission_rationale_try_again">Spróbuj ponownie</string>
     <string name="permission_rationale_settings">Otwórz ustawienia</string>
@@ -187,7 +187,7 @@
     <string name="user_error_title_too_long">Tytuł zbyt długi</string>
     <string name="user_error_title_cannot_be_blank">Tytuł nie może być wszystkimi spacjami</string>
     <string name="title_edit_accept_button">Zaakceptować</string>
-    <string name="toast_warning_character_fixed">„/�? zastąpione przez „-�? (nielegalna w nazwa)</string>
+    <string name="toast_warning_character_fixed">\'/\' zastąpione przez \'-\' (nielegalna w nazwa)</string>
     <string name="book_is_completed">Zakończony</string>
     <string name="button_cancel_editing">Anuluj</string>
     <string name="position_edit_accept_button">Zaakceptować</string>

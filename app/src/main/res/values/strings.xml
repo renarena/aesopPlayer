@@ -40,7 +40,7 @@
     <string name="notificationChannelPlayback">Audio playback</string>
     <string name="settings_title">Settings</string>
     <string name="settings_title_2">Settings (interlocked)</string>
-    <string name="settings_device_owner_required_alert">The application must be a "device owner". See http://goo.gl/46gevp</string>
+    <string name="settings_device_owner_required_alert">The application must be a "device owner". See\nhttps://donnkey.github.io/aesopPlayer/install-full-kiosk.html</string>
     <string name="permission_rationale_title">Permission needed</string>
     <string name="permission_rationale_try_again">Try again</string>
     <string name="permission_rationale_settings">Open settings</string>
