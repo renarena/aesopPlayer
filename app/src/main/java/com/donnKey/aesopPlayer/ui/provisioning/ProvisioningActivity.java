@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -38,13 +38,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+
 import de.greenrobot.event.EventBus;
 
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.KioskModeSwitcher;
@@ -60,6 +60,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
+import static com.donnKey.aesopPlayer.ui.settings.SettingsActivity.getInSettings;
 import static com.donnKey.aesopPlayer.ui.settings.SettingsActivity.setMenuItemProperties;
 
 public class ProvisioningActivity extends AppCompatActivity
@@ -90,7 +91,7 @@ public class ProvisioningActivity extends AppCompatActivity
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
         super.onCreate(savedInstanceState);
 
-        provisioning = ViewModelProviders.of(this).get(Provisioning.class);
+        provisioning = new ViewModelProvider(this).get(Provisioning.class);
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
@@ -107,7 +108,7 @@ public class ProvisioningActivity extends AppCompatActivity
         }
 
         ActionBar actionBar = getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Objects.requireNonNull(actionBar);
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
@@ -141,6 +142,11 @@ public class ProvisioningActivity extends AppCompatActivity
         return doingProvisioning;
     }
 
+    private void startSettings() {
+        Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+        startActivityForResult(intent, ACTIVITY_REQUEST_PROVISIONING);
+    }
+
     private boolean onNavigationItemSelectedListener (MenuItem item) {
         switch (item.getItemId()) {
         case R.id.navigation_inventory:
@@ -158,8 +164,11 @@ public class ProvisioningActivity extends AppCompatActivity
             return true;
 
         case R.id.navigation_settings:
-            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-            startActivityForResult(intent, ACTIVITY_REQUEST_PROVISIONING);
+            if (getInSettings()) {
+                return false;
+            }
+
+            startSettings();
             return true;
 
         case R.id.navigation_maintenance:
@@ -174,6 +183,24 @@ public class ProvisioningActivity extends AppCompatActivity
         return false;
     }
 
+    private void backUpIntoSettings() {
+        // Back out of current screen, but always go to Settings if there
+        // isn't an additional one on the stack (so we don't go to Main).
+        // *Settings* can go back to main.
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStack();
+        } else {
+            startSettings();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // No super call - causes (occasional but repeatable) exit to main.
+        backUpIntoSettings();
+    }
+
     // Make the back button pop the stack rather than go all the way back to MainActivity.
     // The back button in the sub-fragments is owned by this fragment, so the code below goes here.
     @Override
@@ -181,15 +208,12 @@ public class ProvisioningActivity extends AppCompatActivity
         //noinspection SwitchStatementWithTooFewBranches
         switch (item.getItemId()) {
         case android.R.id.home:
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            if (fragmentManager.getBackStackEntryCount() > 0 ){
-                fragmentManager.popBackStack();
-                return true;
-            }
-            break;
+            backUpIntoSettings();
+            return true;
         default:
             break;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -236,7 +260,7 @@ public class ProvisioningActivity extends AppCompatActivity
             // onActivityResult in the fragment should be being called, but it's not, sometimes.
             // So do it here (callee will have to look for double calls.) (Seen on Oreo, not on others).
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.inventory_container);
-            Preconditions.checkNotNull(fragment);
+            Objects.requireNonNull(fragment);
             fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -366,12 +390,12 @@ public class ProvisioningActivity extends AppCompatActivity
                     // (We couldn't get here if it wasn't one of those because it's not a candidate)
 
                     String bookDirName = bookPath.getName();
-                    String oldExtension = "";
+                    String oldExtension;
                     int dotLoc = bookDirName.lastIndexOf('.');
                     oldExtension = bookDirName.substring(dotLoc);
                     renamedTo += oldExtension;
 
-                    // deblank in case it gets ungrouped - the result would be messy otherwise
+                    // de-blank in case it gets ungrouped - the result would be messy otherwise
                     renamedTo = AudioBook.deBlank(renamedTo);
                 }
 

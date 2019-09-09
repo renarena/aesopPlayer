@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -59,6 +59,8 @@ import com.donnKey.aesopPlayer.ui.KioskModeHandler;
 import com.donnKey.aesopPlayer.ui.OrientationActivityDelegate;
 import com.donnKey.aesopPlayer.ui.provisioning.ProvisioningActivity;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
@@ -95,7 +97,7 @@ public class SettingsActivity
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Preconditions.checkNotNull(Objects.requireNonNull(actionBar));
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         navigation = findViewById(R.id.navigation);
@@ -104,13 +106,16 @@ public class SettingsActivity
         navigation.setSelectedItemId(R.id.navigation_settings); // for side-effect of item size change
 
         kioskModeHandler.setKeepNavigation(true);
+        // On Pie and later with the new rotation stuff, the image is displayed in portrait and
+        // then immediately rotated. There's now a line in AndroidManifest that prevents that.
+        // There doesn't seem to be a way to tell the activity soon enough programmatically.
+        // (Main has the same problem and fix, but it's much less irritating.)
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
         // Display the fragment as the main content.
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.settings_container, new MainSettingsFragment())
                 .commit();
-
         mainThreadHandler = new Handler(getMainLooper());
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -36,7 +36,6 @@ import androidx.lifecycle.ViewModelProviders;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -44,7 +43,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBook;
 
@@ -74,7 +72,7 @@ public class TitleEditFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_title_edit, container, false);
 
         ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(R.string.fragment_subtitle_edit_book_title);
 
@@ -195,17 +193,6 @@ public class TitleEditFragment extends Fragment {
         });
 
         return view;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-        case android.R.id.home:
-            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
-            fragmentManager.popBackStack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     class inputFilter implements TextWatcher {
