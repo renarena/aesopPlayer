@@ -29,13 +29,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
@@ -88,7 +86,7 @@ public class CandidateFragment extends Fragment {
         view = (RecyclerView)inflater.inflate(R.layout.fragment_candidate_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
         preferences = globalSettings.appSharedPreferences();
-        this.provisioning = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(Provisioning.class);
+        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
 
         provisioning.candidateDirectory = new File(
                 preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,
@@ -136,7 +134,7 @@ public class CandidateFragment extends Fragment {
         Objects.requireNonNull(getContext()).registerReceiver(detachReceiver, filter);
 
         ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(provisioning.windowSubTitle);
 
@@ -163,7 +161,7 @@ public class CandidateFragment extends Fragment {
         this.optionsMenu = menu;
 
         MenuItem all = menu.findItem(R.id.check_all);
-        AppCompatCheckBox allCheckBox = (AppCompatCheckBox) MenuItemCompat.getActionView(all);
+        AppCompatCheckBox allCheckBox = (AppCompatCheckBox) all.getActionView();
         allCheckBox.setText(getString(R.string.action_bar_word_all));
 
         allCheckBox.setOnCheckedChangeListener((v, b)-> {

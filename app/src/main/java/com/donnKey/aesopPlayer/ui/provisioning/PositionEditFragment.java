@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -35,7 +35,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.ui.UiUtil;
@@ -51,7 +50,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 public class PositionEditFragment extends Fragment {
     private AppCompatEditText editor;
@@ -65,7 +64,7 @@ public class PositionEditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.provisioning = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(Provisioning.class);
+        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class PositionEditFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_position_edit, container, false);
 
         ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(R.string.fragment_subtitle_adjust_position);
 
@@ -167,7 +166,7 @@ public class PositionEditFragment extends Fragment {
         }
 
         // Ask split to retain a trailing empty string ("hh:" in our usage)
-        String parts[] = durationString.split(":", -1);
+        String[] parts = durationString.split(":", -1);
 
         long duration = 0;
         switch (parts.length) {

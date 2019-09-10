@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.donnKey.aesopPlayer.R;
@@ -82,7 +81,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
                 provisioning.bookList[position].selected = b;
                 if (!b) {
                     MenuItem all = parentFragment.optionsMenu.findItem(R.id.check_all);
-                    AppCompatCheckBox allCheckBox = (AppCompatCheckBox) MenuItemCompat.getActionView(all);
+                    AppCompatCheckBox allCheckBox = (AppCompatCheckBox) all.getActionView();
                     allCheckBox.setChecked(false);
                 }
                 // Not needed on later releases, but 4.4.4 needs it.

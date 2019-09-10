@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -25,7 +25,7 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 
@@ -39,7 +39,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 
 import java.util.Objects;
@@ -49,11 +48,11 @@ public class ErrorTextFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Provisioning provisioning = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(Provisioning.class);
+        Provisioning provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
         View view = inflater.inflate(R.layout.error_text_fragment, container, false);
 
         ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(provisioning.errorTitle);
 

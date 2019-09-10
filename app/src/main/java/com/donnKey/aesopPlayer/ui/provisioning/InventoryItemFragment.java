@@ -89,7 +89,7 @@ public class InventoryItemFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_inventory_item_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
 
-        this.provisioning = new ViewModelProvider(this).get(Provisioning.class);
+        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
         actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
 
         if (provisioning.bookList == null) {
