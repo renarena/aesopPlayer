@@ -217,13 +217,6 @@ public class SettingsActivity
             dialogFragment.show(getSupportFragmentManager(), "CONFIRM_DIALOG");
             return true;
         }
-        if (preference instanceof DurationDialogPreference) {
-            DialogFragment dialogFragment =
-                    DurationDialogFragmentCompat.newInstance(preference.getKey());
-            dialogFragment.setTargetFragment(preferenceFragmentCompat, 0);
-            dialogFragment.show(getSupportFragmentManager(), "DURATION_DIALOG");
-            return true;
-        }
         if (preference instanceof KioskSelectionPreference) {
             DialogFragment dialogFragment =
                     KioskSelectionFragmentCompat.newInstance(preference.getKey());

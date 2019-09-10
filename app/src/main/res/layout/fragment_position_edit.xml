@@ -24,6 +24,12 @@
     SOFTWARE.
 
 -->
+
+<!--
+This layout is somewhat cramped so that in Landscape mode the whole dialog appears near the
+top of the screen, with enough room for the automatically-started keyboard below it.
+-->
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -37,28 +43,31 @@
     <TextView
         android:id="@+id/book_title"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:gravity="start"
+        tools:text="Book Title"
         android:textSize="30sp"
         app:autoSizeTextType="uniform"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_done"
+        app:layout_constraintHorizontal_bias="75"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_weight="75"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Book Title" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/old_duration"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="end"
+        android:gravity="fill_horizontal|end"
         android:maxLines="1"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@+id/edit_duration"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_cancel"
         app:layout_constraintTop_toBottomOf="@+id/book_title"
         app:layout_constraintTop_toTopOf="@+id/edit_duration"
-        tools:text="(1:23)" />
+        tools:text="(1:23) "
+        tools:textGravity="right" />
 
     <EditText
         android:id="@+id/edit_duration"
@@ -72,18 +81,10 @@
         android:maxLines="1"
         android:textSize="30sp"
         android:windowSoftInputMode="stateAlwaysVisible|adjustResize"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_cancel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/book_title"
         tools:targetApi="o" />
-
-    <Space
-        android:id="@+id/space"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_duration" />
 
     <Button
         android:id="@+id/button_cancel"
@@ -93,11 +94,12 @@
         android:background="@color/buttonStopBackground"
         android:text="@string/button_cancel_editing"
         android:textColor="#000000"
-        app:layout_constraintEnd_toStartOf="@+id/button_done"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintBottom_toBottomOf="@id/edit_duration"
+        app:layout_constraintEnd_toEndOf="@id/button_done"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/space" />
+        app:layout_constraintStart_toStartOf="@id/button_done"
+        app:layout_constraintTop_toBottomOf="@id/button_done"
+        tools:layout_constraintEnd_toEndOf="@id/button_done" />
 
     <Button
         android:id="@+id/button_done"
@@ -107,10 +109,12 @@
         android:background="@color/buttonStartBackground"
         android:text="@string/position_edit_accept_button"
         android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="@id/book_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toEndOf="@+id/button_cancel"
-        app:layout_constraintTop_toBottomOf="@+id/space" />
+        app:layout_constraintHorizontal_bias="25"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_weight="25"
+        app:layout_constraintStart_toEndOf="@id/book_title"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -131,8 +131,6 @@ public class PositionEditFragment extends Fragment {
             fragmentManager.popBackStack();
         });
 
-        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-
         return view;
     }
 
