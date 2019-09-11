@@ -51,6 +51,7 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
     GlobalSettings.SettingsKioskMode currentSelected;
     GlobalSettings.SettingsKioskMode originalSelected;
     KioskSelectionPreference fragment;
+    CustomArrayAdapter listAdapter;
 
     static KioskSelectionFragmentCompat newInstance(@NonNull String key) {
         KioskSelectionFragmentCompat fragment = new KioskSelectionFragmentCompat();
@@ -78,6 +79,11 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
         Objects.requireNonNull(getDialog().getWindow()).setAttributes(params);
     }
 
+    void deviceOwnerChanged() {
+        currentSelected = GlobalSettings.SettingsKioskMode.NONE;
+        listAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onDialogClosed(boolean isPositive) {
         if (isPositive && currentSelected != originalSelected) {
@@ -87,7 +93,7 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
 
     protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
-        CustomArrayAdapter listAdapter = new CustomArrayAdapter(getContext(),
+        listAdapter = new CustomArrayAdapter(getContext(),
                 R.layout.kiosk_dialog_listview,
                 android.R.id.text1,
                 getAppContext().getResources().getStringArray(R.array.kiosk_selection_entries));
@@ -106,6 +112,7 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
         @Override
         public @NonNull
         View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            // Iterated through all positions during creation.
 
             View view = super.getView(position, convertView, parent);
             // text1 is set by defaults/xml

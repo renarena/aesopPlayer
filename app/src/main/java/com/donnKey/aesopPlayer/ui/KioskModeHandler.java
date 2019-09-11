@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -35,7 +35,6 @@ import android.os.Build;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
@@ -45,67 +44,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.google.common.base.Preconditions;
-import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
-import com.donnKey.aesopPlayer.events.KioskModeChanged;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
-
 @ActivityScope
 public class KioskModeHandler {
-
-    private static final String SCREEN_LOCK_PREFS = "ScreenLocker";
-    private static final String PREF_SCREEN_LOCK_ENABLED = "screen_lock_enabled";
 
     private static final int PERMISSION_REQUEST_FOR_SIMPLE_KIOSK = 2;
     private static final int PERMISSION_REQUEST_FOR_MANAGE_OVERLAYS = 3;
 
     private final @NonNull
     AppCompatActivity activity;
-    private final @NonNull GlobalSettings globalSettings;
-    private final @NonNull EventBus eventBus;
     private final @NonNull AnalyticsTracker analyticsTracker;
-    private boolean keepNavigation = false;
 
     @Inject
     KioskModeHandler(@NonNull AppCompatActivity activity,
-                     @NonNull GlobalSettings settings,
-                     @NonNull AnalyticsTracker analyticsTracker,
-                     @NonNull EventBus eventBus) {
+                     @NonNull AnalyticsTracker analyticsTracker) {
         this.activity = activity;
-        this.globalSettings = settings;
-        this.eventBus = eventBus;
         this.analyticsTracker = analyticsTracker;
-    }
-
-    public void setKeepNavigation(Boolean keepNavigation) {
-        this.keepNavigation = keepNavigation;
-    }
-
-    public void onActivityStart() {
-        if (!globalSettings.isFullKioskModeEnabled() && isLockTaskEnabled())
-            lockTask(false);
-        setUiFlagsAndLockTask();
-        eventBus.register(this);
-    }
-
-    public void onActivityStop() {
-        eventBus.unregister(this);
-    }
-
-    public void onFocusGained() {
-        setUiFlagsAndLockTask();
-    }
-
-    @SuppressWarnings("unused") // Used on EventBus
-    public void onEvent(KioskModeChanged event) {
-        if (event.type == GlobalSettings.SettingsKioskMode.FULL) {
-            lockTask(event.isEnabled);
-        }
-        setNavigationVisibility(!event.isEnabled);
     }
 
     public static void triggerSimpleKioskPermissionsIfNecessary(AppCompatActivity activity) {
@@ -215,68 +173,11 @@ public class KioskModeHandler {
     }
 
 
-    private void setUiFlagsAndLockTask() {
-        int visibilitySetting = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-        if (!keepNavigation) {
-            visibilitySetting |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                              |  View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        }
-
-        activity.getWindow().getDecorView().setSystemUiVisibility(visibilitySetting);
-        if (globalSettings.isAnyKioskModeEnabled())
-            setNavigationVisibility(false);
-
-        if (globalSettings.isFullKioskModeEnabled())
-            lockTask(true);
-    }
-
-    private void setNavigationVisibility(boolean show) {
-        if (Build.VERSION.SDK_INT < 19 || keepNavigation)
-            return;
-
-        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                    View.SYSTEM_UI_FLAG_FULLSCREEN |
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-
-        View decorView = activity.getWindow().getDecorView();
-        int visibilitySetting = decorView.getSystemUiVisibility();
-        if (show)
-            visibilitySetting &= ~flags;
-        else
-            visibilitySetting |= flags;
-
-        decorView.setSystemUiVisibility(visibilitySetting);
-    }
-
-    private boolean isLockTaskEnabled() {
-        return activity.getSharedPreferences(SCREEN_LOCK_PREFS, Context.MODE_PRIVATE)
-                .getBoolean(PREF_SCREEN_LOCK_ENABLED, false);
-    }
-
-    private void lockTask(boolean isLocked) {
-        activity.getSharedPreferences(SCREEN_LOCK_PREFS, Context.MODE_PRIVATE).edit()
-                .putBoolean(PREF_SCREEN_LOCK_ENABLED, isLocked).apply();
-        if (isLocked)
-            API21.startLockTask(activity);
-        else
-            API21.stopLockTask(activity);
-    }
-    @TargetApi(21)
-    private static class API21 {
-        static void startLockTask(AppCompatActivity activity) {
-            activity.startLockTask();
-        }
-
-        static void stopLockTask(AppCompatActivity activity) {
-            activity.stopLockTask();
-        }
-    }
-
     // We can't fully disable the status bar, but we can make it harmless.
     // (After Andreas Schrade's article on Kiosks)
     private static CustomViewGroup suppressStatusView;
 
-    public void controlStatusBarExpansion(Context context, boolean enable) {
+    public static void controlStatusBarExpansion(Context context, boolean enable) {
 
         if (!canDrawOverlays(context)) {
             // We don't have permission (see the function above for the rules)
@@ -346,7 +247,7 @@ public class KioskModeHandler {
         }
     }
 
-    static public void forceExit(@NonNull AppCompatActivity activity)
+    private static void forceExit(@NonNull AppCompatActivity activity)
     {
         if (Build.VERSION.SDK_INT >= 21) { // Lollipop
             // If it's already pinned, un-pin it. (Not strictly necessary)

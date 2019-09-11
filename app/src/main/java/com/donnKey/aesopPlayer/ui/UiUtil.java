@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -56,6 +56,7 @@ public class UiUtil {
         private TextView snoozeCounter;
         static private boolean suspended;
 
+        @SuppressWarnings("SameReturnValue")
         @SuppressLint("ClickableViewAccessibility")
         private void SnoozeDisplayFor(
                 final Fragment fragment,

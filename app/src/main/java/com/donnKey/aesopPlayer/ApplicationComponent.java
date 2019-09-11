@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -85,6 +85,7 @@ public interface ApplicationComponent {
     void inject(ProvisioningActivity fragment);
     void inject(Provisioning fragment);
     void inject(KioskSelectionPreference fragment);
+    void inject(AesopPlayerDeviceAdmin fragment);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();

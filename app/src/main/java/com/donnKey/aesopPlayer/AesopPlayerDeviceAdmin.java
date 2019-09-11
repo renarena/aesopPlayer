@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -34,12 +34,30 @@ import android.os.Build;
 
 import com.donnKey.aesopPlayer.events.DeviceAdminChangeEvent;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
 public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
+    @Inject
+    public GlobalSettings globalSettings;
 
+    public AesopPlayerDeviceAdmin () {
+        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
+    }
+
+    // onEnabled and onDisabled are called when the privilege changes, even when
+    // the app is NOT running. (It is run for a moment.) We want to be sure
+    // that if the privilege changes, the mode gets reset to NONE, so the user
+    // knows what to expect from locking. The app is sufficiently started that
+    // we can get globalSettings.
     @Override
     public void onEnabled(Context context, Intent intent) {
+        if (globalSettings != null) {
+            if (globalSettings.getKioskMode() != GlobalSettings.SettingsKioskMode.SIMPLE) {
+                globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.NONE);
+            }
+        }
         if (Build.VERSION.SDK_INT >= 21)
             API21.enableLockTask(context);
         EventBus.getDefault().post(new DeviceAdminChangeEvent(true));
@@ -47,6 +65,11 @@ public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
 
     @Override
     public void onDisabled(Context context, Intent intent) {
+        if (globalSettings != null) {
+            if (globalSettings.getKioskMode() != GlobalSettings.SettingsKioskMode.SIMPLE) {
+                globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.NONE);
+            }
+        }
         EventBus.getDefault().post(new DeviceAdminChangeEvent(false));
     }
 

@@ -66,6 +66,7 @@
     <string name="pref_kiosk_mode_screen_summary_full">Full kiosk mode enabled</string>
     <string name="pref_kiosk_mode_screen_summary_2_disables">Disables Current Selection</string>
     <string name="pref_kiosk_mode_screen_summary_2_pinning">Asks for permission on each startup</string>
+    <string name="pref_kiosk_mode_screen_summary_3_pinning">Pinning is not available when Full Kiosk is Enabled.</string>
     <string name="pref_kiosk_mode_screen_summary_2_full">Automatically locks device on startup</string>
     <string name="pref_kiosk_mode_full_title">Full mode - prevent exiting the application (recommended)</string>
     <string name="pref_kiosk_mode_simple_title">Simple mode - best effort within constraints</string>
@@ -75,8 +76,8 @@
     <string name="pref_kiosk_mode_full_summary_old_version">Android 5.0 or newer required</string>
     <string name="pref_kiosk_mode_unregister_device_owner">Drop the privilege required for the full kiosk mode</string>
     <string name="pref_kiosk_mode_unregister_device_owner_dialog_message">This action will disable the full kiosk mode and cannot be easily undone.\nProceed?</string>
-    <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Not a "device owner"</string>
-    <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privilege granted</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Privilege not currently held</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privilege currently granted</string>
     <string name="pref_kiosk_already_unlocked_toast">Already unlocked</string>
     <string name="pref_no_browser_toast">Cannot open website: no web browser found.</string>
     <string name="pref_playback_options_screen_title">Playback settings…</string>

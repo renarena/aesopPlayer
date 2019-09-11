@@ -77,6 +77,7 @@
     <string name="pref_kiosk_mode_screen_summary_2_disables">Wyłącza bieżący wybór</string>
     <string name="pref_kiosk_mode_screen_summary_2_full">Automatycznie blokuje urządzenie podczas uruchamiania</string>
     <string name="pref_kiosk_mode_screen_summary_2_pinning">Prosi o zgodę na każde uruchomienie</string>
+    <string name="pref_kiosk_mode_screen_summary_3_pinning">Przypinanie nie jest dostępne, gdy włączony jest pełny kiosk.</string>
     <string name="pref_kiosk_mode_full_title">Tryb pełny - zablokuj wyjście z aplikacji (zalecane)</string>
     <string name="pref_kiosk_mode_simple_title">Tryb prosty - maksymalne wysiłki w ramach ograniczeń</string>
     <string name="pref_kiosk_mode_any_summary_off">Wyłączone</string>
@@ -85,8 +86,8 @@
     <string name="pref_kiosk_mode_full_summary_old_version">Wymagany Android 5.0 lub nowszy</string>
     <string name="pref_kiosk_mode_unregister_device_owner">Wyłącz uprawnienia wymagane przez pełny tryb kiosku</string>
     <string name="pref_kiosk_mode_unregister_device_owner_dialog_message">Ta akcja wyłączy pelny tryb kiosku i nie może być łatwo cofnięta.\nWykonać?</string>
-    <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Nie posiada uprawnień "device owner"</string>
-    <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Posiada uprawnienia</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Przywilej nie jest obecnie posiadany</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Przywilej obecnie przyznany</string>
     <string name="pref_kiosk_already_unlocked_toast">Już odblokowany</string>
     <string name="pref_no_browser_toast">Nie można otworzyć strony: brak przeglądarki.</string>
     <string name="pref_playback_options_screen_title">Ustawienia odtwarzania…</string>

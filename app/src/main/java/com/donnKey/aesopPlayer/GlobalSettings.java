@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -98,6 +98,8 @@ public class GlobalSettings {
 
     private static final String KEY_BOOKS_EVER_INSTALLED = "action_history.books_ever_installed";
     private static final String KEY_SETTINGS_EVER_ENTERED = "action_history.settings_ever_entered";
+
+    public static final String TAG_KIOSK_DIALOG = "tag_kiosk_dialog";
 
     private final Resources resources;
     private final SharedPreferences sharedPreferences;
@@ -269,7 +271,7 @@ public class GlobalSettings {
     }
 
     @SuppressLint("ApplySharedPref")
-    void setKioskModeNow(SettingsKioskMode kioskMode) {
+    public void setKioskModeNow(SettingsKioskMode kioskMode) {
         sharedPreferences.edit().putString(KEY_KIOSK_MODE_SELECTION, kioskMode.toString()).commit();
     }
 

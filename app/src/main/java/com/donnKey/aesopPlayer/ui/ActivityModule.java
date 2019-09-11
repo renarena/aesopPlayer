@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -27,12 +27,10 @@ package com.donnKey.aesopPlayer.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
 
 import dagger.Module;
 import dagger.Provides;
-import de.greenrobot.event.EventBus;
 
 @Module
 public class ActivityModule {
@@ -49,7 +47,7 @@ public class ActivityModule {
 
     @Provides @ActivityScope
     KioskModeHandler provideKioskModeHandler(
-            AppCompatActivity activity, GlobalSettings settings, AnalyticsTracker analyticsTracker, EventBus eventBus) {
-        return new KioskModeHandler(activity, settings, analyticsTracker, eventBus);
+            AppCompatActivity activity, AnalyticsTracker analyticsTracker) {
+        return new KioskModeHandler(activity, analyticsTracker);
     }
 }

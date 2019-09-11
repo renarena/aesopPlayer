@@ -65,6 +65,8 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
+import static com.donnKey.aesopPlayer.GlobalSettings.TAG_KIOSK_DIALOG;
+
 public class SettingsActivity
         extends AppCompatActivity
         implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
@@ -105,7 +107,6 @@ public class SettingsActivity
         navigation.setItemIconTintList(null); // enable my control of icon color
         navigation.setSelectedItemId(R.id.navigation_settings); // for side-effect of item size change
 
-        kioskModeHandler.setKeepNavigation(true);
         // On Pie and later with the new rotation stuff, the image is displayed in portrait and
         // then immediately rotated. There's now a line in AndroidManifest that prevents that.
         // There doesn't seem to be a way to tell the activity soon enough programmatically.
@@ -138,7 +139,6 @@ public class SettingsActivity
             setMenuItemProperties(this, item,
                     enabled ? R.drawable.ic_settings_red_24dp : R.drawable.ic_settings_redish_24dp,
                     enabled ? android.R.color.white : R.color.medium_dark_grey);
-            kioskModeSwitcher.setKioskMaintenanceMode(this, enabled);
             globalSettings.setMaintenanceMode(enabled);
             return true;
         }
@@ -151,7 +151,6 @@ public class SettingsActivity
         orientationDelegate.onStart();
         blockEventsOnStart();
         eventBus.post(new SettingsEnteredEvent());
-        kioskModeHandler.onActivityStart();
         enteringSettings = true;
     }
 
@@ -177,16 +176,7 @@ public class SettingsActivity
         super.onStop();
         orientationDelegate.onStop();
         cancelBlockEventOnStart();
-        kioskModeHandler.onActivityStop();
         DeviceMotionDetector.resume();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            kioskModeHandler.onFocusGained();
-        }
     }
 
     @Override
@@ -221,7 +211,7 @@ public class SettingsActivity
             DialogFragment dialogFragment =
                     KioskSelectionFragmentCompat.newInstance(preference.getKey());
             dialogFragment.setTargetFragment(preferenceFragmentCompat, 0);
-            dialogFragment.show(getSupportFragmentManager(), "LIST_DIALOG");
+            dialogFragment.show(getSupportFragmentManager(), TAG_KIOSK_DIALOG);
             return true;
         }
         return false;

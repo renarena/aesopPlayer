@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -43,6 +44,8 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+
+import static com.donnKey.aesopPlayer.GlobalSettings.TAG_KIOSK_DIALOG;
 
 public class KioskSettingsFragment extends BaseSettingsFragment {
 
@@ -137,28 +140,35 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             updateUnregisterDeviceOwner(AesopPlayerDeviceAdmin.isDeviceOwner(getActivity()));
 
             kioskPolicies[PINNING_].possible = true;
-            kioskPolicies[PINNING_].available = true;
-            kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning;
 
             if (AesopPlayerDeviceAdmin.isDeviceOwner(getActivity())) {
+                kioskPolicies[PINNING_].available = false;
+                kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_3_pinning;
                 kioskPolicies[FULL_].possible = true;
                 kioskPolicies[FULL_].available = true;
                 kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_full;
             }
             else {
+                kioskPolicies[PINNING_].available = true;
+                kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning;
                 kioskPolicies[FULL_].possible = true;
                 kioskPolicies[FULL_].available = false;
                 kioskPolicies[FULL_].subTitle = R.string.settings_device_owner_required_alert;
             }
         }
 
-        KioskSelectionPreference preferenceFilteredList =
-                (KioskSelectionPreference) findPreference(KEY_KIOSK_SELECTION);
-        preferenceFilteredList.setPolicies(kioskPolicies);
-        preferenceFilteredList.setOnNewValueListener((mode) ->
-                kioskModeSwitcher.onKioskModeChanged(mode,(AppCompatActivity)getActivity()));
-
         Preference kioskModeScreen = findPreference(KEY_KIOSK_SELECTION);
+        KioskSelectionPreference preferenceFilteredList = (KioskSelectionPreference) kioskModeScreen;
+        preferenceFilteredList.setPolicies(kioskPolicies);
+        preferenceFilteredList.setOnNewValueListener((mode) -> {
+                GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
+                // This is where we actually change the mode.
+                globalSettings.setKioskModeNow(mode);
+                // If we have any one-time prep work, do it here.
+                kioskModeSwitcher.changeStaticKioskMode(oldMode, mode, (AppCompatActivity)getActivity());
+            }
+        );
+
         int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
         kioskModeScreen.setSummary(summaryStringId);
     }
@@ -180,9 +190,17 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         return R.string.pref_kiosk_mode_screen_title;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public void onEvent(DeviceAdminChangeEvent deviceAdminChangeEvent) {
+    // Event is from AesopPlayerDeviceAdmin
+    // @SuppressWarnings("UnusedDeclaration")
+    public void onEvent(@SuppressWarnings("unused") DeviceAdminChangeEvent deviceAdminChangeEvent) {
+        // Kiosk mode just got forced to NONE if it was FULL or PINNING
         updateKioskModeSummary();
+
+        FragmentManager mgr =  Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+        KioskSelectionFragmentCompat dialog = (KioskSelectionFragmentCompat)mgr.findFragmentByTag(TAG_KIOSK_DIALOG);
+        if (dialog != null) {
+            dialog.deviceOwnerChanged();
+        }
     }
 
     @Override
@@ -199,8 +217,10 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     }
 
     private void disableDeviceOwner() {
+        // We just stopped being device owner. Switch to NONE for the same reasons
+        // as above.
         if (globalSettings.getKioskMode() == GlobalSettings.SettingsKioskMode.FULL) {
-            kioskModeSwitcher.onKioskModeChanged(GlobalSettings.SettingsKioskMode.NONE, (AppCompatActivity) getActivity());
+            globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.NONE);
         }
         AesopPlayerDeviceAdmin.clearDeviceOwner(getActivity());
         updateKioskModeSummary();

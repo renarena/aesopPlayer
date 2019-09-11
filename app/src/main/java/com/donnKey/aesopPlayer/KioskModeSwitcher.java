@@ -33,73 +33,63 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
-import com.donnKey.aesopPlayer.events.KioskModeChanged;
 import com.donnKey.aesopPlayer.ui.HomeActivity;
 import com.donnKey.aesopPlayer.ui.KioskModeHandler;
 import com.donnKey.aesopPlayer.ui.MainActivity;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
-
 @ApplicationScope
 public class KioskModeSwitcher {
 
     private final Context context;
     private final GlobalSettings globalSettings;
-    private final EventBus eventBus;
 
     @Inject
-    KioskModeSwitcher(Context applicationContext, GlobalSettings globalSettings,
-                      EventBus eventBus) {
+    KioskModeSwitcher(Context applicationContext, GlobalSettings globalSettings) {
         this.context = applicationContext;
         this.globalSettings = globalSettings;
-        this.eventBus = eventBus;
     }
 
-    public void onKioskModeChanged(GlobalSettings.SettingsKioskMode newMode,
-                                   AppCompatActivity activity) {
-        GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
-        // See note in Active... must do changeActiveKioskMode last
-        globalSettings.setKioskModeNow(newMode);
+    public void switchToCurrentKioskMode(AppCompatActivity activity) {
         if (!globalSettings.isMaintenanceMode()) {
-            changeActiveKioskMode(oldMode, newMode, activity);
+            GlobalSettings.SettingsKioskMode newMode = globalSettings.getKioskMode();
+            changeActiveKioskMode(GlobalSettings.SettingsKioskMode.NONE, newMode, activity);
         }
     }
 
-    private void changeActiveKioskMode(GlobalSettings.SettingsKioskMode oldMode,
-                                       GlobalSettings.SettingsKioskMode newMode,
-                                       AppCompatActivity activity) {
+    public void switchToNoKioskMode(AppCompatActivity activity) {
+        if (!globalSettings.isMaintenanceMode()) {
+            GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
+            changeActiveKioskMode(oldMode, GlobalSettings.SettingsKioskMode.NONE, activity);
+        }
+    }
 
-        // Be very careful here - this doesn't always return - see trigger... below.
+    // Change the Kiosk mode stuff that only changes when actually setting Kiosk
+    // mode. Below we handle dynamic changes.
+    public void changeStaticKioskMode(GlobalSettings.SettingsKioskMode oldMode,
+                                      GlobalSettings.SettingsKioskMode newMode,
+                                      AppCompatActivity activity) {
+        if (oldMode == newMode) {
+            return;
+        }
 
         // Turn off the old mode.
-        eventBus.post(new KioskModeChanged(oldMode, false));
         switch (oldMode) {
-            case NONE: {
+            case NONE:
+            case PINNING: {
                 break;
             }
             case SIMPLE: {
                 try {
                     HomeActivity.setEnabled(context, false);
-                } catch (Exception e) {
-                    // ignore (just in case)
-                }
-                break;
-            }
-            case PINNING: {
-                // Normally, exit from pinning is achieved by simultaneously pressing
-                // the Back and Recents (triangle and square) keys, but that's not possible
-                // remotely. So this provides a way to do it for remote administrators.
-                // (Remember, this case can't be reached for <21 because the choice is not offered
-                try {
-                    stopAppPinning(activity);
                 } catch (Exception e) {
                     // ignore (just in case)
                 }
@@ -115,53 +105,97 @@ public class KioskModeSwitcher {
             }
         }
 
-        // ...And turn on the new. Note call to trigger... below
-        eventBus.post(new KioskModeChanged(newMode, true));
+        switch (newMode) {
+            case NONE:
+            case PINNING: {
+                break;
+            }
+            case SIMPLE: {
+                registerDeviceOwnerAsNeeded(activity);
+                HomeActivity.setEnabled(context, true);
+                break;
+            }
+            case FULL: {
+                Preconditions.checkState(isLockTaskPermitted());
+                try {
+                    API21.setPreferredHomeActivity(context, MainActivity.class);
+                } catch (Exception e) {
+                    // ignore (just in case)
+                }
+                break;
+            }
+        }
+    }
+    private void changeActiveKioskMode(GlobalSettings.SettingsKioskMode oldMode,
+                                       GlobalSettings.SettingsKioskMode newMode,
+                                       AppCompatActivity activity) {
+        if (oldMode == newMode) {
+            return;
+        }
+        // Turn off the old mode.
+        switch (oldMode) {
+            case NONE: {
+                break;
+            }
+            case SIMPLE: {
+                KioskModeHandler.controlStatusBarExpansion(context, false);
+                break;
+            }
+            case PINNING:
+            case FULL: {
+                // (Remember, this case can't be reached for <21 because the choice is not offered
+                stopAppPinning(activity);
+                setNavigationVisibility(activity, true);
+                break;
+            }
+        }
+
         switch (newMode) {
             case NONE: {
                 break;
             }
             case SIMPLE: {
-                HomeActivity.setEnabled(context, true);
-                // These requests pile up over the top of the Settings window until the user disposes
-                // of them. API level matters for the Status Bar.
-                if (android.os.Build.VERSION.SDK_INT <= 22) { // Lollipop and below
-                    // Get REORDER_TASKS and SYSTEM_ALERT_WINDOW
-                    KioskModeHandler.triggerSimpleKioskPermissionsIfNecessary(activity);
-                } else if (android.os.Build.VERSION.SDK_INT <= 25) { // Marshmallow and Nougat
-                    // At API23 we need SYSTEM_ALERT_WINDOW permission; as of 26, the permission is
-                    // useless because it's too weak. MainActivity has an alternate solution.
-                    //
-                    // This gets us SYSTEM_ALERT_WINDOW implicitly, but that's not a normal
-                    // permission at API 23. (Asking for SYSTEM_ALERT_WINDOW in the old way will
-                    // never succeed, creating a loop for the user.)
-                    KioskModeHandler.triggerOverlayPermissionsIfNecessary(activity);
-                }
-                //else { // Oreo and up
-                // Nothing (yet)
-                //}
-
-                // Should be last as it exits Settings forcibly when it happens
-                triggerHomeAppSelectionIfNecessary(activity);
+                KioskModeHandler.controlStatusBarExpansion(context, true);
                 break;
             }
-            case PINNING: {
-                startAppPinning(activity);
-                break;
-            }
+            case PINNING:
             case FULL: {
-                Preconditions.checkState(isLockTaskPermitted());
-                API21.setPreferredHomeActivity(context, MainActivity.class);
+                // (Remember, this case can't be reached for <21 because the choice is not offered
+                startAppPinning(activity);
+                setNavigationVisibility(activity,false);
                 break;
             }
         }
+    }
+
+    private void setNavigationVisibility(AppCompatActivity activity, boolean show) {
+        // Causes tool and nav bars to display (in a dark grey), but with
+        // nothing at all on them. Without this, it's black, but with a 'back' button
+        // (that's disabled but for a toast).
+        if (Build.VERSION.SDK_INT < 19)
+            return;
+
+        View decorView = activity.getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+        int visibilitySetting = decorView.getSystemUiVisibility();
+        if (show)
+            visibilitySetting &= ~flags;
+        else
+            visibilitySetting |= flags;
+
+        decorView.setSystemUiVisibility(visibilitySetting);
     }
 
     public boolean isLockTaskPermitted() {
         return Build.VERSION.SDK_INT >= 21 && API21.isLockTaskPermitted(context);
     }
 
-    public void startAppPinning(AppCompatActivity activity) {
+    private void startAppPinning(AppCompatActivity activity) {
         Preconditions.checkState(Build.VERSION.SDK_INT >= 21);
         //noinspection ConstantConditions
         if(Build.VERSION.SDK_INT >= 21) { // L
@@ -202,18 +236,30 @@ public class KioskModeSwitcher {
         }
     }
 
-    public void setKioskMaintenanceMode(AppCompatActivity activity, boolean enable) {
-        GlobalSettings.SettingsKioskMode realKioskMode = globalSettings.getKioskMode();
-        if (enable) {
-            // Turn it on - disable Kiosk mode
-            changeActiveKioskMode(realKioskMode,
-                    GlobalSettings.SettingsKioskMode.NONE, activity);
+    private void registerDeviceOwnerAsNeeded(AppCompatActivity activity) {
+        // These requests pile up over the top of the Settings window until the user disposes
+        // of them. API level matters for the Status Bar.
+        if (android.os.Build.VERSION.SDK_INT <= 22) { // Lollipop and below
+            // Get REORDER_TASKS and SYSTEM_ALERT_WINDOW
+            KioskModeHandler.triggerSimpleKioskPermissionsIfNecessary(activity);
+        } else if (android.os.Build.VERSION.SDK_INT <= 25) { // Marshmallow and Nougat
+            // At API23 we need SYSTEM_ALERT_WINDOW permission; as of 26, the permission is
+            // useless because it's too weak. MainActivity has an alternate solution.
+            //
+            // This gets us SYSTEM_ALERT_WINDOW implicitly, but that's not a normal
+            // permission at API 23. (Asking for SYSTEM_ALERT_WINDOW in the old way will
+            // never succeed, creating a loop for the user.)
+            KioskModeHandler.triggerOverlayPermissionsIfNecessary(activity);
         }
-        else {
-            // Turn it off - re-enable actual kiosk mode
-            changeActiveKioskMode(GlobalSettings.SettingsKioskMode.NONE,
-                    realKioskMode, activity);
-        }
+        //else { // Oreo and up
+        // Nothing (yet)
+        //}
+
+        // Needed to make 'trigger' below happen now.
+        HomeActivity.setEnabled(context, true);
+
+        // Should be last as it exits Settings forcibly when it happens
+        triggerHomeAppSelectionIfNecessary(activity);
     }
 
     private void triggerHomeAppSelectionIfNecessary(AppCompatActivity activity) {
@@ -259,8 +305,7 @@ public class KioskModeSwitcher {
     }
 
     @TargetApi(21)
-    static class API21 {
-
+    private static class API21 {
         static boolean isLockTaskPermitted(Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);

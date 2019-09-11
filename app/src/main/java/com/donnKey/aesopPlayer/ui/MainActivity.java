@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -184,9 +184,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // and stop states (with all the intermediate stuff as expected) at a fairly high
         // rate (about 1.2 sec interval on one machine: not even seconds). This does not
         // occur if the screen is on.
-        if (globalSettings.isPinningKioskModeEnabled()) {
-            kioskModeSwitcher.startAppPinning(this);
-        }
         restorer.cancelRestore();
 
         super.onStart();
@@ -194,9 +191,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         controller.onActivityStart();
         orientationDelegate.onStart();
         batteryStatusProvider.start();
-        kioskModeHandler.onActivityStart();
-        kioskModeHandler.controlStatusBarExpansion(getApplicationContext(),
-                globalSettings.isSimpleKioskModeEnabled());
         handleIntent(getIntent());
     }
 
@@ -204,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     protected void onResume() {
         isPaused = false;
         restorer.cancelRestore();
+        kioskModeSwitcher.switchToCurrentKioskMode(this);
         maintenanceMessage.setVisibility(globalSettings.isMaintenanceMode() ? View.VISIBLE : View.GONE);
 
         if (!justCreated.get() && !controller.justDidPauseActionAndReset()) {
@@ -211,8 +206,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             toaster.toastKioskActive();
         }
 
-        kioskModeHandler.controlStatusBarExpansion(getApplicationContext(),
-                globalSettings.isSimpleKioskModeEnabled());
         super.onResume();
     }
 
@@ -267,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         isPaused = true;
         super.onPause();
         controller.onActivityPause();
-        kioskModeHandler.controlStatusBarExpansion(getApplicationContext(), false);
     }
 
     @Override
@@ -298,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         controller.onActivityStop();
         orientationDelegate.onStop();
-        kioskModeHandler.onActivityStop();
+        kioskModeSwitcher.switchToNoKioskMode(this);
         super.onStop();
         batteryStatusProvider.stop();
 
@@ -355,8 +347,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         if (hasFocus) {
             // Start animations.
             batteryStatusIndicator.startAnimations();
-
-            kioskModeHandler.onFocusGained();
         }
         else {
             /* The below works too well, making it difficult to deal with (at least) the
@@ -445,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
             if (kioskModeSwitcher.isLockTaskPermitted()) {
                 boolean enable = intent.getBooleanExtra(ENABLE_EXTRA, false);
                 if (globalSettings.isFullKioskModeEnabled() != enable) {
-                    kioskModeSwitcher.onKioskModeChanged(GlobalSettings.SettingsKioskMode.FULL, this);
+                    globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.FULL);
 
                     // For some reason clearing the preferred Home activity only takes effect if the
                     // application exits (finishing the activity doesn't help).

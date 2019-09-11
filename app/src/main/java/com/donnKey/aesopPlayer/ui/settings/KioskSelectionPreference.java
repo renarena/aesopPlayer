@@ -35,7 +35,7 @@ import com.donnKey.aesopPlayer.AesopPlayerApplication;
 
 import javax.inject.Inject;
 
-public class KioskSelectionPreference extends ListPreference // implements DialogInterface.OnClickListener
+public class KioskSelectionPreference extends ListPreference
 {
     @Inject public GlobalSettings globalSettings;
 
