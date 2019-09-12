@@ -123,9 +123,9 @@ step. The software installed here can be uninstalled later.
 
 <p>
 In order for Aesop Player to take full control of the UI it needs to be given
-special privilege - it needs to be made a so-called <em>device owner</em>.
+special privilege &mdash; it needs to be made a so-called <em>device owner</em>.
 This doesn't change the software in any way, it does <strong>not</strong>
-void the warranty and it can be easily reversed.
+void the warranty and it can be easily reversed or temporarily suspended.
 </p>
 
 <h3>Here's How</h3>
@@ -135,7 +135,9 @@ void the warranty and it can be easily reversed.
 (Windows).
 <li>Execute the following command (on one line):
 <blockquote>
-<code>adb shell dpm set-device-owner com.donnKey.aesopPlayer/.AesopPlayerDeviceAdmin</code>
+<code>
+adb shell dpm set-device-owner github.io.donnKey.aesopPlayer/com.donnKey.aesopPlayer.AesopPlayerDeviceAdmin
+</code>
 </blockquote>
 </ol>
 
@@ -145,6 +147,14 @@ You should see:
 Success: Device owner set to package com.donnKey.aesopPlayer
 </pre>
 
+<p class="smaller">
+On recent (Android 9 and above) devices, if you go to Android Settings->Security&location->Device Admin Apps you'll find 
+a long and scary-sounding message about what Aesop Player could in theory do to the system.
+The only actual privilege it uses is the one required to implement Full Kiosk Mode,
+the BIND_DEVICE_ADMIN (also known as Device Owner) privilege. 
+The folks at Google want us to tell you we are using that privilege.
+</p>
+<p>
 In case of errors see
 <a role="button" data-toggle="modal"
     data-target="#adb-troubleshooting-modal">troubleshooting</a>.
@@ -175,13 +185,18 @@ In case of errors see
     This means that there are some accounts still configured on the device.
     Make sure you have performed step "1. Remove all accounts" correctly.
     </dd>
+    <dt>Error: <code>More than one device/emulator</code> </dt>
     <dd>
-    <!-- ???????????? Explain below error -->
-    <dt>Error: <code>DeviceAdminReceiver ComponentInfo{com.donnKey.aesopPlayer/com.donnKey.aesopPlayer.AesopPlayerDeviceAdmin} 
-	must be protected with android.permission.BIND_DEVICE_ADMIN</code> </dt>
+    You have more than one Android device (or emulator) plugged into your computer. 
+    Type <code>adb devices</code> to see a list of the devices and emulators.
+    Use the -d (for devices) or -s (for emulators) option to adb to select one.
+    (<code>adb -s emulator-5678 dpm... </code>)
+    </dd>
+    <dt>The adb operation did not make Full Kiosk Mode available. </dt>
     <dd>
-    This means that you are running a newer version of Android that requires special permissions to enable full-kiosk mode.
-    We're working on this.
+    We have occasionally and intermittently seen the adb command not fully enable the required permissions.
+    Simply repeat the command. 
+    You will see an error about the permission already being used, but it should fix the problem. 
     </dd>
   </dl>
   </div>
@@ -212,7 +227,12 @@ Now you can enable and disable the full kiosk mode at will.
 
 Now it's impossible to leave the player application. 
 <br>
-You can revert this by selecting one of the other Kiosk Modes. 
+You can change this by selecting one of the other Kiosk Modes. 
+<br>
+You can give up the permission completely by tapping
+<strong>Drop the privilege required for the full kiosk mode</strong>;
+you would need to repeat the step using <code>adb</code> above to
+restore it.
 <p>
 If you want to temporarily leave
 Full Kiosk mode to do other work on the device, put Aesop into 

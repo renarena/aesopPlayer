@@ -136,6 +136,9 @@ need to disable it.
 </p>
 
 <div class="additional-info info"><strong>Kindle Fire:</strong>
+We have not recently tested with the Kindle Fire. 
+It has worked in the past, but be sure to test it thoroghly before committing to it.
+<br>
 There is no way to disable the lock screen on a Kindle Fire. Setting it to
 "Swipe" is the best that can be done.
 </div>
@@ -290,7 +293,7 @@ To do that there are three choices, each with advantages and disadvantages that 
 	<ul>
 	    <li>Requires Android 5.0 or above.
 	    <li>Isn't designed to be as resistant to intentional misuse as Full Kiosk mode.
-	    <li>Requires a few extra clicks to ignore recurrent popups.
+	    <li>Requires a few extra taps to ignore recurrent popups (discussed below).
 	    <li>Does not return to Aesop after device restart.
 	</ul>
 	</dd>
@@ -318,6 +321,7 @@ To do that there are three choices, each with advantages and disadvantages that 
 	    <li>Requires computer and cable to for one-time setup, and a technical person to use them.
 	    <li>Requires significant one-time setup including removal of any accounts.
 	    <li>Leaves device in a state where it's not very usable for any other purpose.
+	    <li>Disables Application Pinning mode (see below).
 	    <li>Upgrading to a new version of the player should be done with great care (see below).
 	</ul>
 	</dd>
@@ -352,6 +356,16 @@ To do that there are three choices, each with advantages and disadvantages that 
 The Aesop player will only offer those modes that are actually available on the hardware.
 On older devices, Application Pinning and Full Kiosk mode won't be visible, 
 and Full Kiosk mode will be unclickable until it's set up as described above.
+</p>
+Full Kiosk Mode and Application Pinning are closely related in Android.
+The consequence of that to Aesop is that only one of the two is possible at any given time.
+If you have the privilege for Full Kiosk Mode, you cannot use Application Pinning; if you don't,
+the of course you can't use Full mode.
+</p>
+<p class="smaller">
+    What's really going on here is that when the Device Owner permission is held, Android treats
+    the operations to lock the device as kiosk mode requests. Without the permission, it's treated
+    as an applicaiton pinning request.
 </p>
 <p>
 Simple Kiosk and Application Pinning are your two best choices initially.
@@ -394,6 +408,9 @@ Application Pinning Mode:
     Click "Got It" (or "OK" or something similar depending on Android model). 
     The double-button-press it describes in that popup will work to exit pinning, but Application Pinning will be restored next time you start the player.
     (Some older devices may not pop up the "Got it" message but will pin Aesop anyway (there will be a Toast.))
+    </p>
+    <p>
+    Also on some devices there may be a second popup about Full Screen Mode (which may only appear once). You can click on that to ignore it as well.
     </div>
     </dd>
 </dl>
@@ -408,6 +425,10 @@ Turning off Maintenance Mode restores the pror settings.
 The effect is immediate: you can leave the player any time you wish when Maintenance Mode is on, as with any ordinary application.
 The setting for Maintenance Mode is not affected by application or device restarts - Aesop will stay in Maintenance Mode until you
 turn it off.
+</p>
+<p>
+Maintenance mode is in practice in effect whenever you are in Settings or Provisioning modes. When using Application Pinning,
+the "Got It" message mentioned above will be displayed when you return to the books screen.
 </p>
 
 <h3>Here's How</h3>
