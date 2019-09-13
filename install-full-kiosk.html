@@ -134,12 +134,28 @@ void the warranty and it can be easily reversed or temporarily suspended.
 <li>On your computer start a terminal (Linux/Mac) or the command prompt
 (Windows).
 <li>Execute the following command (on one line):
+<button onclick="CopyToClipboard()" style="float:right; font-size:12px">Copy to clipboard</button>
 <blockquote>
-<code>
+<code id="TheCommand">
 adb shell dpm set-device-owner github.io.donnKey.aesopPlayer/com.donnKey.aesopPlayer.AesopPlayerDeviceAdmin
 </code>
 </blockquote>
 </ol>
+
+<!-- Off screen temp for the button -->
+<input id="TempSpace" type="text" style="position: absolute; left: -9999px;" > 
+
+<script>
+function CopyToClipboard() {
+    var origText = document.getElementById("TheCommand");
+    var copyText = document.getElementById("TempSpace");
+    copyText.value = origText.innerText;
+    copyText.select();
+    // Copy only will work from an <input> object, thus the tapdance.
+    document.execCommand("Copy");
+    //alert("Copied the text: " + copyText.value);
+}
+</script>
 
 <p>
 You should see:
