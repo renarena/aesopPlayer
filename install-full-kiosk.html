@@ -12,7 +12,7 @@ extra_js:
  - video.js
 ---
 
-<h2>Simple vs Full kiosk mode</h2>
+<h2>The Various Kiosk Modes</h2>
 
 The criteria for selecting a Kiosk Mode are discussed in depth
 <a href="install-dedicated.html#kiosk-mode">here</a>.
@@ -27,7 +27,7 @@ You will need:
 <li>A tablet or smartphone with Aesop Player already installed and
 <a href="install-configure.html">configured</a>.
 <li>A PC or Mac computer with Internet access.
-<li>A USB cable to connect the Aesop Player tablet to your computer.
+<li>A USB cable to connect the Aesop Player device to your computer.
     Your charging cable, if it unplugs from the transformer, is likely to suffice.
 </ol>
 </p>
@@ -53,14 +53,14 @@ the accounts.
 <h2>2. Enable USB debugging</h2>
 
 <p>
-You need to enable USB debugging on the tablet so that it accepts commands from
+You need to enable USB debugging on the device so that it accepts commands from
 your computer.
 
 
 <h3>Here's How</h3>
 
 <ol>
-<li>Go to <strong>Settings</strong> &rarr; <strong>About tablet</strong> and
+<li>Go to <strong>Settings</strong> &rarr; <strong>About device</strong> and
 tap on the <strong>Build number</strong> 7 times.
 <li>Go back, enter the newly added <strong>Developer options</strong> and
 activate <strong>USB debugging</strong>.
@@ -162,7 +162,9 @@ You should see:
 <pre>
 Success: Device owner set to package com.donnKey.aesopPlayer
 </pre>
-
+<p>
+If Aesop was set to Application Pinning Kiosk Mode, it will be changed to None.
+</p>
 <p class="smaller">
 On recent (Android 9 and above) devices, if you go to Android Settings->Security&location->Device Admin Apps you'll find 
 a long and scary-sounding message about what Aesop Player could in theory do to the system.
@@ -193,7 +195,7 @@ In case of errors see
     <dt>Error: <code>device not found</code></dt>
     <dd>
     If you get this error on a Windows computer then it's probably a problem
-    with a driver for your tablet. <a
+    with a driver for your device. <a
         href="http://www.makeuseof.com/tag/android-wont-connect-windows-adb-fix-it-three-steps/">Installing a universal ADB driver should help.</a>
     </dd>
     <dt>Error: <code>Trying to set device owner but device is already provisioned.</code></dt>
@@ -241,14 +243,21 @@ Now you can enable and disable the full kiosk mode at will.
 
 <img class="img-responsive center-block" src="img/full-kiosk-mode.png">
 
-Now it's impossible to leave the player application. 
+Now it's impossible to leave the player application without going through Settings, which
+should have one of the 
+<a href="install-dedicated.html#access-to-settings">Settings Interlock</a>
+modes set.
 <br>
-You can change this by selecting one of the other Kiosk Modes. 
-<br>
+You can change the Kiosk Mode by selecting one of the other available types. 
+</p>
+<p>
 You can give up the permission completely by tapping
 <strong>Drop the privilege required for the full kiosk mode</strong>;
 you would need to repeat the step using <code>adb</code> above to
 restore it.
+<p>
+Dropping the privilege while in Full Kiosk Mode will cause the Kiosk Mode to be changed to None.
+</p>
 <p>
 If you want to temporarily leave
 Full Kiosk mode to do other work on the device, put Aesop into 
