@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -156,11 +156,13 @@ public class AudioBookManager {
                     break;
                 }
             }
-            if (!isInFileSet)
+            if (!isInFileSet) {
                 booksToRemove.add(audioBook);
+            }
         }
-        if (booksToRemove.contains(currentBook))
+        if (booksToRemove.contains(currentBook)) {
             currentBook = null;
+        }
         boolean audioBooksChanged = audioBooks.removeAll(booksToRemove);
         LibraryContentType contentType = LibraryContentType.EMPTY;
 
@@ -182,8 +184,9 @@ public class AudioBookManager {
             }
             LibraryContentType newContentType = fileSet.isDemoSample
                     ? LibraryContentType.SAMPLES_ONLY : LibraryContentType.USER_CONTENT;
-            if (newContentType.supersedes(contentType))
+            if (newContentType.supersedes(contentType)) {
                 contentType = newContentType;
+            }
         }
 
         if (audioBooks.size() > 0) {
@@ -191,6 +194,9 @@ public class AudioBookManager {
 
             assignColoursToNewBooks();
         }
+
+        storage.cleanOldEntries(this);
+
         if (currentBook == null) {
             String id = storage.getCurrentAudioBook();
             if (getById(id) == null && audioBooks.size() > 0)

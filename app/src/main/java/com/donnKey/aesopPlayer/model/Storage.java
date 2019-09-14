@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -36,6 +36,7 @@ import org.json.JSONTokener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
@@ -144,5 +145,25 @@ public class Storage implements AudioBook.UpdateObserver {
     @SuppressWarnings("UnusedDeclaration")
     public void onEvent(CurrentBookChangedEvent event) {
         writeCurrentAudioBook(event.audioBook.getId());
+    }
+
+    // Remove old (deleted) books from the list, so they don't build up over time.
+    // (Yes, VERY occasionally remembering the position would be nice, but it's not worth the leak.)
+    void cleanOldEntries(AudioBookManager audioBooks) {
+        SharedPreferences.Editor editor = preferences.edit();
+
+        Map<String,?> oldBooks = preferences.getAll();
+        for (Map.Entry<String, ?> oldBook : oldBooks.entrySet()) {
+            String prefId = oldBook.getKey();
+            if (prefId.startsWith(AUDIOBOOK_KEY_PREFIX)) {
+                String bookId = prefId.substring(AUDIOBOOK_KEY_PREFIX.length());
+                AudioBook book = audioBooks.getById(bookId);
+                if (book == null) {
+                    editor.remove(prefId);
+                }
+            }
+        }
+
+        editor.apply();
     }
 }
