@@ -185,6 +185,12 @@ public class FileUtilities {
             while ((zipMember = inputData.getNextEntry()) != null) {
                 String name = zipMember.getName();
                 if (FilesystemUtil.isAudioPath(name)) {
+
+                    // Some zippers put in a partial path name as the filename; for this,
+                    // just strip that out.
+                    File longName = new File("", name);
+                    name = longName.getName();
+
                     // Make a copy of the data file in <cacheDir>/<sourceName>/name
                     // We want a "real" audio file name there, so we use the source
                     // name to make it unique (so we don't collide when 2 books both

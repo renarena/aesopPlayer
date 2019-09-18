@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -247,7 +247,7 @@ public class Provisioning extends ViewModel {
 
             // This might return a file in the cache dir, which should later be deleted.
             // This can be expensive depending on the content
-            String audioPath = FileUtilities.getAudioPath(pathToTarget, fileName);
+            String audioPath = FileUtilities.getAudioPath(pathToTarget, candidate.newDirName);
 
             if (audioPath != null) {
                 candidate.fill(
