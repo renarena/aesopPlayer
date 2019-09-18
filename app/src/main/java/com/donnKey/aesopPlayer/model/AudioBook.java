@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -64,24 +64,10 @@ public class AudioBook {
         void onAudioBookStateUpdated(AudioBook audioBook);
     }
 
-    public class Position {
-        final int fileIndex;
-        public final long seekPosition;
-
-        Position(int fileIndex, long seekPosition) {
-            this.fileIndex = fileIndex;
-            this.seekPosition = seekPosition;
-        }
-
-        public File getFile() {
-            return fileSet.files[fileIndex];
-        }
-    }
-
     private FileSet fileSet;
     private List<Long> fileDurations;
     private ColourScheme colourScheme;
-    private Position lastPosition;
+    private BookPosition lastPosition;
     private long totalDuration = UNKNOWN_POSITION;
     private boolean completed = false;
 
@@ -89,8 +75,12 @@ public class AudioBook {
 
     public AudioBook(FileSet fileSet) {
         this.fileSet = fileSet;
-        this.lastPosition = new Position(0, 0);
+        this.lastPosition = new BookPosition(0, 0);
         this.fileDurations = new ArrayList<>(fileSet.files.length);
+    }
+
+    public File getFile(BookPosition position) {
+        return fileSet.files[position.fileIndex];
     }
 
     void setUpdateObserver(UpdateObserver updateObserver) {
@@ -266,15 +256,25 @@ public class AudioBook {
         return fileSet.path;
     }
 
-    public Position getLastPosition() {
+    public BookPosition getLastPosition() {
         return lastPosition;
     }
 
-    public long getLastPositionTime(long lastFileSeekPosition) {
+    public long toMs(BookPosition position) {
+        int fullFileCount = position.fileIndex;
+
+        if (fullFileCount <= fileDurations.size()) {
+            return fileDurationSum(fullFileCount) + position.seekPosition;
+        } else {
+            return UNKNOWN_POSITION;
+        }
+    }
+
+    public long getLastTotalPositionTime(long instantaneousSegmentPosition) {
         int fullFileCount = lastPosition.fileIndex;
 
         if (fullFileCount <= fileDurations.size()) {
-            return fileDurationSum(fullFileCount) + lastFileSeekPosition;
+            return fileDurationSum(fullFileCount) + instantaneousSegmentPosition;
         } else {
             return UNKNOWN_POSITION;
         }
@@ -314,9 +314,9 @@ public class AudioBook {
         return fileSet.isDemoSample;
     }
 
-    public void updatePosition(long seekPosition) {
+    public void updatePosition(long segmentPositionMs) {
         DebugUtil.verifyIsOnMainThread();
-        lastPosition = new Position(lastPosition.fileIndex, seekPosition);
+        lastPosition = new BookPosition(lastPosition.fileIndex, segmentPositionMs);
         notifyUpdateObserver();
     }
 
@@ -332,13 +332,13 @@ public class AudioBook {
             fullFileDurationSum = total;
         }
         long seekPosition = totalPositionMs - fullFileDurationSum;
-        lastPosition = new Position(fileIndex, seekPosition);
+        lastPosition = new BookPosition(fileIndex, seekPosition);
         notifyUpdateObserver();
     }
 
     public void resetPosition() {
         DebugUtil.verifyIsOnMainThread();
-        lastPosition = new Position(0, 0);
+        lastPosition = new BookPosition(0, 0);
         notifyUpdateObserver();
     }
 
@@ -367,7 +367,8 @@ public class AudioBook {
         int newIndex = lastPosition.fileIndex + 1;
         boolean hasMoreFiles = newIndex < fileSet.files.length;
         if (hasMoreFiles) {
-            lastPosition = new Position(newIndex, 0);
+            lastPosition = new BookPosition(newIndex, 0);
+            // below affects settings state, not playback
             notifyUpdateObserver();
         }
 
@@ -381,7 +382,7 @@ public class AudioBook {
     void restore(
             ColourScheme colourScheme, int fileIndex, long seekPosition, List<Long> fileDurations,
             boolean completed) {
-        this.lastPosition = new Position(fileIndex, seekPosition);
+        this.lastPosition = new BookPosition(fileIndex, seekPosition);
         if (colourScheme != null)
             this.colourScheme = colourScheme;
         if (fileDurations != null) {
@@ -411,7 +412,7 @@ public class AudioBook {
             }
         }
         if (fileIndex >= 0) {
-            lastPosition = new Position(fileIndex, seekPosition);
+            lastPosition = new BookPosition(fileIndex, seekPosition);
         }
         this.completed = false; // Old won't have this
     }
@@ -426,20 +427,19 @@ public class AudioBook {
 
     // Where we are in the current book
     public String thisBookProgress(Context context) {
-        AudioBook.Position position = lastPosition;
-        long currentMs = getLastPositionTime(position.seekPosition);
-        String duration = UiUtil.formatDuration(currentMs);
+        long currentTotalMs = this.toMs(lastPosition);
+        String duration = UiUtil.formatDuration(currentTotalMs);
 
         long totalMs = getTotalDurationMs();
         String progress = "?";
         if (totalMs == UNKNOWN_POSITION) {
             progress = "??";
         }
-        else if (currentMs == 0) {
+        else if (currentTotalMs == 0) {
             progress = "0";
         }
         else if (totalMs != 0) {
-            progress = (Long.valueOf((currentMs * 100) / totalMs)).toString();
+            progress = (Long.valueOf((currentTotalMs * 100) / totalMs)).toString();
         }
 
         return context.getString(R.string.playback_elapsed_time, duration, progress);

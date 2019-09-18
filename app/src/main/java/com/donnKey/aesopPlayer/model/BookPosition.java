@@ -2,7 +2,6 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
- * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,27 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.donnKey.aesopPlayer.ui;
+package com.donnKey.aesopPlayer.model;
 
 import androidx.annotation.NonNull;
 
-public interface PlaybackUi {
+public class BookPosition {
+    final int fileIndex;
+    public final long seekPosition;
 
-    enum SpeedLevel {
-        STOP,
-        REGULAR,
-        FAST,
-        FASTEST
+    public BookPosition(int fileIndex, long seekPosition) {
+        this.fileIndex = fileIndex;
+        this.seekPosition = seekPosition;
     }
 
-    void initWithController(@NonNull UiControllerPlayback controller);
-    void onPlaybackProgressed(long totalPositionMs);
-    void onPlaybackStopping();
-    void onChangeStopPause(int title);
+    public BookPosition(AudioBook book, long seekPosition) {
+        this.fileIndex = book.getLastPosition().fileIndex;
+        this.seekPosition = seekPosition;
+    }
 
-    /**
-     * Notify that fast-forward/rewind is taking place and at what speed level.
-     * Must be called with SpeedLevel.STOP when ff/rewind is finished.
-     */
-    void onFFRewindSpeed(SpeedLevel speedLevel);
+    @NonNull
+    public String toString() {
+        return fileIndex + "." + seekPosition;
+    }
 }

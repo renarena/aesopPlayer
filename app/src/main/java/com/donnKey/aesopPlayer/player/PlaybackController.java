@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -35,7 +35,7 @@ public interface PlaybackController {
          * Playback position progressed. Called more or less once per second of playback in media
          * time (i.e. affected by the playback speed).
          */
-        void onPlaybackProgressed(long currentPositionMs);
+        void onPlaybackProgressed(long segmentPositionMs);
 
         /**
          * Playback ended because it reached the end of track
@@ -45,7 +45,7 @@ public interface PlaybackController {
         /**
          * Playback stopped on request.
          */
-        void onPlaybackStopped(long currentPositionMs);
+        void onPlaybackStopped(long segmentPositionMs);
 
         /**
          * Error playing file.
@@ -60,10 +60,10 @@ public interface PlaybackController {
     }
 
     void setObserver(Observer observer);
-    void start(File file, long positionPosition);
+    void start(File file, long positionPosition, boolean chainFile);
     void pause();
     void resume(File file, long positionPosition);
     void stop();
     void release();
-    long getCurrentPosition();
+    long getSegmentPositionMs();
 }

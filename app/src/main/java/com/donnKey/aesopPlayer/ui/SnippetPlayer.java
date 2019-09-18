@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.model.AudioBook;
+import com.donnKey.aesopPlayer.model.BookPosition;
 import com.donnKey.aesopPlayer.player.PlaybackController;
 import com.donnKey.aesopPlayer.player.Player;
 
@@ -56,10 +57,10 @@ public class SnippetPlayer implements PlaybackController.Observer {
     }
 
     public void play(AudioBook audioBook) {
-        AudioBook.Position position = audioBook.getLastPosition();
+        BookPosition position = audioBook.getLastPosition();
 
         isPlaying = true;
-        playbackController.start(position.getFile(), position.seekPosition);
+        playbackController.start(audioBook.getFile(position), position.seekPosition, true);
     }
 
     public void stop() {
@@ -74,11 +75,11 @@ public class SnippetPlayer implements PlaybackController.Observer {
     public void onDuration(File file, long durationMs) {}
 
     @Override
-    public void onPlaybackProgressed(long currentPositionMs) {
+    public void onPlaybackProgressed(long segmentPositionMs) {
         if (startPositionMs < 0) {
-            startPositionMs = currentPositionMs;
+            startPositionMs = segmentPositionMs;
         } else {
-            if (currentPositionMs - startPositionMs > PLAYBACK_TIME_MS) {
+            if (segmentPositionMs - startPositionMs > PLAYBACK_TIME_MS) {
                 playbackController.stop();
             }
         }

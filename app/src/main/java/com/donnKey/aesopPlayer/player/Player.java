@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -133,18 +133,39 @@ public class Player {
             this.observer = observer;
         }
 
+        boolean isPlaying;
+
         @Override
-        public void start(File currentFile, long startPositionMs) {
+        public void start(File currentFile, long startPositionMs, boolean chainFile) {
             Preconditions.checkNotNull(observer);
             this.currentFile = currentFile;
-            // Change position then resume to avoid audio glitch
-            startUpdateProgress();
+            isPlaying = true;
+            // If we're starting from cold (from the user pressing start), delay actually starting
+            // audio for a bit to avoid glitches, and to give the "face down" detector time to
+            // stop the sound if the device is face down. This can happen when running remotely
+            // and doing maintenance, and we don't want to wake a sleeping user.
+            // Otherwise, start audio as soon as it's ready, particularly when transitioning
+            // between book segments.
+            if (chainFile) {
+                exoPlayer.setPlayWhenReady(true);
+            } else {
+                exoPlayer.setPlayWhenReady(false);
+                handler.postDelayed(()-> {
+                            if (isPlaying) {
+                                exoPlayer.setPlayWhenReady(true);
+                            }
+                        },
+                        // 750 seems to work reliably on my slowest device; 500 missed
+                        // occasionally. It's still imperceptible when hitting start.
+                        750);
+            }
             prepareAudioFile(currentFile, startPositionMs);
-            exoPlayer.setPlayWhenReady(true);
+            updateProgress();
         }
 
         @Override
         public void pause() {
+            isPlaying = false;
             exoPlayer.setPlayWhenReady(false);
             // This ought to be done in onPlayerStateChanged but detecting pause is not as trivial
             // as doing this here directly.
@@ -153,22 +174,24 @@ public class Player {
 
         @Override
         public void resume(File currentFile, long startPositionMs) {
-            start(currentFile, startPositionMs);
+            start(currentFile, startPositionMs, false);
         }
 
         public void stop() {
-            long position = exoPlayer.getCurrentPosition();
+            long segmentPosition = exoPlayer.getCurrentPosition();
+            isPlaying = false;
             exoPlayer.stop();
-            observer.onPlaybackStopped(position);
+            observer.onPlaybackStopped(segmentPosition);
         }
 
         @Override
         public void release() {
+            isPlaying = false;
             exoPlayer.stop();
         }
 
         @Override
-        public long getCurrentPosition() {
+        public long getSegmentPositionMs() {
             return exoPlayer.getCurrentPosition();
         }
 
@@ -192,6 +215,8 @@ public class Player {
                     exoPlayer.removeListener(this);
                     observer.onPlayerReleased();
                     break;
+                //case com.google.android.exoplayer2.Player.STATE_BUFFERING:
+                //  break;
             }
         }
 
@@ -214,42 +239,20 @@ public class Player {
             observer.onPlaybackError(currentFile);
         }
 
-        float oldVolume;
-        int firstSecondSilent;
-
-        private void startUpdateProgress() {
-            // To avoid audio glitches, run at volume 0 for a second or so and then turn up
-            // the level. This is particularly for when the device is face-down paused, and
-            // remote access is used for maintenance. We don't want it glitching loudly when
-            // it goes temporarily through playing state when playback is resumed after
-            // maintenance is done. (Don't want to awaken sleeping users.)
-            oldVolume = exoPlayer.getVolume();
-            exoPlayer.setVolume(0.0f);
-            firstSecondSilent = 1;
-            updateProgress();
-        }
-
         private void updateProgress() {
-            long positionMs = exoPlayer.getCurrentPosition();
-            observer.onPlaybackProgressed(positionMs);
-
-            if (firstSecondSilent>=0) {
-                if (firstSecondSilent == 0) {
-                    exoPlayer.setVolume(oldVolume);
-                }
-                firstSecondSilent--;
-            }
+            long segmentPositionMs = getSegmentPositionMs();
+            observer.onPlaybackProgressed(segmentPositionMs);
 
             // Aim a moment after the expected second change. It's necessary because the actual
             // playback speed may be slightly different than playbackSpeed when it's different
             // than 1.0.
-            long delayMs = (long) ((1200 - (positionMs % 1000)) * playbackSpeed);
+            long delayMs = (long) ((1200 - (segmentPositionMs % 1000)) * playbackSpeed);
             if (delayMs < 100)
                 delayMs += (long) (1000 * playbackSpeed);
 
-            if (exoPlayer.getPlayWhenReady()) {
+            if (isPlaying) {
                 // Clearing updateProgressTask from the handler doesn't always work (I think that
-                // the runnable, once posted, isn't removed). That can cause this to run away, so
+                // the runnable, once posted to run, isn't removed). That can cause this to run away, so
                 // belt and suspenders...
                 handler.postDelayed(updateProgressTask, delayMs);
             }

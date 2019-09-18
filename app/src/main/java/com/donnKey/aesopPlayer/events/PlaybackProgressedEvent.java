@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -33,10 +33,10 @@ import com.donnKey.aesopPlayer.model.AudioBook;
  */
 public class PlaybackProgressedEvent {
     public final AudioBook audioBook;
-    public final long playbackPositionMs;
+    public final long playbackTotalPositionMs;
 
     public PlaybackProgressedEvent(AudioBook audioBook, long playbackPositionMs) {
         this.audioBook = audioBook;
-        this.playbackPositionMs = playbackPositionMs;
+        this.playbackTotalPositionMs = playbackPositionMs;
     }
 }

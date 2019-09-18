@@ -103,7 +103,7 @@ public class Storage implements AudioBook.UpdateObserver {
     public void writeAudioBookState(AudioBook audioBook) {
         JSONObject jsonAudioBook = new JSONObject();
         JSONObject jsonPosition = new JSONObject();
-        AudioBook.Position position = audioBook.getLastPosition();
+        BookPosition position = audioBook.getLastPosition();
         try {
             jsonPosition.put(FIELD_POSITION_FILE_INDEX, position.fileIndex);
             jsonPosition.put(FIELD_POSITION_SEEK, position.seekPosition);

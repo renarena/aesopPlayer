@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -44,7 +44,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
@@ -105,7 +104,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
         stopButton = view.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(v -> {
-            Preconditions.checkNotNull(controller);
+            Objects.requireNonNull(controller);
             controller.stopPlayback();
         });
         adjustmentsListener = new AdjustmentsListener();
@@ -116,20 +115,14 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         chapterInfoView = view.findViewById(R.id.chapterInfo);
         stopText = view.findViewById(R.id.stop_text);
 
-        elapsedTimeView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(
-                    View v,
-                    int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                RelativeLayout.LayoutParams params =
-                        (RelativeLayout.LayoutParams) elapsedTimeRewindFFView.getLayoutParams();
-                params.leftMargin = left;
-                params.topMargin = top;
-                params.width = right - left;
-                params.height = bottom - top;
-                elapsedTimeRewindFFView.setLayoutParams(params);
-            }
+        elapsedTimeView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            RelativeLayout.LayoutParams params =
+                    (RelativeLayout.LayoutParams) elapsedTimeRewindFFView.getLayoutParams();
+            params.leftMargin = left;
+            params.topMargin = top;
+            params.width = right - left;
+            params.height = bottom - top;
+            elapsedTimeRewindFFView.setLayoutParams(params);
         });
 
         rewindButton = view.findViewById(R.id.rewindButton);
@@ -204,8 +197,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         rewindFFHandler.onStopping();
     }
 
-    void onPlaybackProgressed(long playbackPositionMs) {
-        onTimerUpdated(playbackPositionMs);
+    void onPlaybackProgressed(long totalElapsedTimeMs) {
+        onTimerUpdated(totalElapsedTimeMs);
         enableUiOnStart();
     }
 
@@ -224,20 +217,20 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         ffButton.setEnabled(false);
     }
 
-    private String elapsedTime(long elapsedMs) {
-        Preconditions.checkNotNull(controller);
-        String duration = UiUtil.formatDuration(elapsedMs);
+    private String elapsedTime(long totalElapsedMs) {
+        Objects.requireNonNull(controller);
+        String duration = UiUtil.formatDuration(totalElapsedMs);
 
         long totalMs = controller.getAudioBookBeingPlayed().getTotalDurationMs();
         String progress = "?";
         if (totalMs == UNKNOWN_POSITION) {
             progress = "??";
         }
-        else if (elapsedMs == 0) {
+        else if (totalElapsedMs == 0) {
             progress = "0";
         }
         else if (totalMs != 0) {
-            progress = (Long.valueOf((elapsedMs * 100) / totalMs)).toString();
+            progress = (Long.valueOf((totalElapsedMs * 100) / totalMs)).toString();
         }
         // Change below is for sleep bug hacking, but consider with respect to other use of this resource
         return getAppContext().getString(R.string.playback_elapsed_time, duration, progress);
@@ -255,11 +248,12 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     }
 
     @Override
-    public void onTimerUpdated(long displayTimeMs) {
-        Preconditions.checkNotNull(controller);
-        elapsedTimeView.setText(elapsedTime(displayTimeMs));
+    public void onTimerUpdated(long totalElapsedTimeMs) {
+        Objects.requireNonNull(controller);
+        String timeToDisplay = elapsedTime(totalElapsedTimeMs);
+        elapsedTimeView.setText(timeToDisplay);
         chapterInfoView.setText(controller.getAudioBookBeingPlayed().getChapter());
-        elapsedTimeRewindFFView.setText(elapsedTime(displayTimeMs));
+        elapsedTimeRewindFFView.setText(timeToDisplay);
     }
 
     @Override
@@ -287,7 +281,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
         @Override
         public void onPressed(final View v, float x, float y) {
-            Preconditions.checkNotNull(controller);
+            Objects.requireNonNull(controller);
             if (currentAnimator != null) {
                 currentAnimator.cancel();
             }
@@ -354,13 +348,13 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         }
 
         private void resumeFromRewind() {
-            Preconditions.checkNotNull(controller);
+            Objects.requireNonNull(controller);
             stopRewind();
             controller.resumeFromRewind();
         }
 
         private void stopRewind() {
-            Preconditions.checkNotNull(controller);
+            Objects.requireNonNull(controller);
             controller.stopRewind();
             isRunning = false;
         }
@@ -443,7 +437,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         // Handle volume and speed settings coming from the "joystick" interface.
 
         private void handleSettings(TouchRateJoystick.Direction direction, int counter) {
-            Preconditions.checkNotNull(controller);
+            Objects.requireNonNull(controller);
             if (counter == TouchRateJoystick.RELEASE || counter == TouchRateJoystick.REVERSE) {
                 // Wrap up everything.
                 switch (direction) {

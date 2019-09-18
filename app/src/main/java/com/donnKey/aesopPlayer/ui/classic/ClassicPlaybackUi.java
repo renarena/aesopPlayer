@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -69,8 +69,8 @@ public class ClassicPlaybackUi implements PlaybackUi {
     }
 
     @Override
-    public void onPlaybackProgressed(long playbackPositionMs) {
-        fragment.onPlaybackProgressed(playbackPositionMs);
+    public void onPlaybackProgressed(long playbackTotalPositionMs) {
+        fragment.onPlaybackProgressed(playbackTotalPositionMs);
     }
 
     @Override

@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBook;
+import com.donnKey.aesopPlayer.model.BookPosition;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 
 import java.util.Objects;
@@ -85,15 +86,15 @@ public class PositionEditFragment extends Fragment {
         Button cancelButton = view.findViewById(R.id.button_cancel);
         editor = view.findViewById(R.id.edit_duration);
 
-        AudioBook.Position position = book.getLastPosition();
-        long currentMs = book.getLastPositionTime(position.seekPosition);
+        BookPosition position = book.getLastPosition();
+        long currentTotalMs = book.toMs(position);
 
         ((ProvisioningActivity) Objects.requireNonNull(getActivity())).navigation.
                 setVisibility(View.GONE);
 
         title.setText(book.getTitle());
 
-        String positionStr = UiUtil.formatDurationShort(currentMs);
+        String positionStr = UiUtil.formatDurationShort(currentTotalMs);
         positionStr = getString(R.string.pref_current_position_note, positionStr);
         oldDuration.setText(positionStr);
 

@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -39,6 +39,7 @@ import androidx.core.content.ContextCompat;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.model.BookPosition;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -305,7 +306,7 @@ public class PlaybackService
         private final @NonNull Runnable updatePosition = new Runnable() {
             @Override
             public void run() {
-                audioBook.updatePosition(controller.getCurrentPosition());
+                audioBook.updatePosition(controller.getSegmentPositionMs());
                 handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             }
         };
@@ -325,11 +326,11 @@ public class PlaybackService
             controller.setObserver(this);
         }
 
-        public void start() {
-            AudioBook.Position position = audioBook.getLastPosition();
+        void start() {
+            BookPosition position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
             resetSleepTimer();
-            controller.start(position.getFile(), startPositionMs);
+            controller.start(audioBook.getFile(position), startPositionMs, false);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
         }
 
@@ -348,28 +349,29 @@ public class PlaybackService
         }
 
         void resumeFromRewind() {
-            AudioBook.Position position = audioBook.getLastPosition();
-            controller.start(position.getFile(), position.seekPosition);
+            BookPosition position = audioBook.getLastPosition();
+            controller.start(audioBook.getFile(position), position.seekPosition, false);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }
 
         void resumeFromPause() {
-            AudioBook.Position position = audioBook.getLastPosition();
+            BookPosition position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
-            controller.resume(position.getFile(), startPositionMs);
+            controller.resume(audioBook.getFile(position), startPositionMs);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
         }
 
         long getCurrentTotalPositionMs() {
-            return audioBook.getLastPositionTime(controller.getCurrentPosition());
+            return audioBook.getLastTotalPositionTime(controller.getSegmentPositionMs());
         }
 
         @Override
-        public void onPlaybackProgressed(long currentPositionMs) {
+        public void onPlaybackProgressed(long segmentPositionMs) {
+            BookPosition currentPosition = new BookPosition(audioBook, segmentPositionMs);
             eventBus.post(new PlaybackProgressedEvent(
-                    audioBook, audioBook.getLastPositionTime(currentPositionMs)));
+                    audioBook, audioBook.toMs(currentPosition)));
         }
 
         @Override
@@ -383,8 +385,8 @@ public class PlaybackService
             Crashlytics.log(Log.DEBUG, TAG, "PlaybackService.AudioBookPlayback.onPlaybackEnded: " +
                     (hasMoreToPlay ? "more to play" : "finished"));
             if (hasMoreToPlay) {
-                AudioBook.Position position = audioBook.getLastPosition();
-                controller.start(position.getFile(), position.seekPosition);
+                BookPosition position = audioBook.getLastPosition();
+                controller.start(audioBook.getFile(position), position.seekPosition, true);
             } else {
                 audioBook.resetPosition();
                 audioBook.setCompleted(true);
@@ -394,8 +396,8 @@ public class PlaybackService
         }
 
         @Override
-        public void onPlaybackStopped(long currentPositionMs) {
-            audioBook.updatePosition(currentPositionMs);
+        public void onPlaybackStopped(long currentSegmentPositionMs) {
+            audioBook.updatePosition(currentSegmentPositionMs);
         }
 
         @Override

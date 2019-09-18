@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -120,7 +120,7 @@ public class UiControllerPlayback {
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void onEvent(PlaybackProgressedEvent event) {
-        ui.onPlaybackProgressed(event.playbackPositionMs);
+        ui.onPlaybackProgressed(event.playbackTotalPositionMs);
     }
 
     public AudioBook getAudioBookBeingPlayed() {

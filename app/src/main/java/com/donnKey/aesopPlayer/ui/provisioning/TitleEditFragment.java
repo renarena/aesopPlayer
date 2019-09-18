@@ -105,11 +105,11 @@ public class TitleEditFragment extends Fragment {
             AudioBook book = (AudioBook)provisioning.fragmentParameter;
 
             AudioBook.TitleAndAuthor titleAndAuthor
-                    = AudioBook.metadataTitle(book.getLastPosition().getFile());
+                    = AudioBook.metadataTitle(book.getFile(book.getLastPosition()));
             originalTitle = book.getTitle();
             finalTitle.setText(book.getTitle());
             directoryName.setText(AudioBook.filenameCleanup(book.getPath().getName()));
-            audioFileName.setText(AudioBook.filenameCleanup(book.getLastPosition().getFile().getName()));
+            audioFileName.setText(AudioBook.filenameCleanup(book.getFile(book.getLastPosition()).getName()));
             audioTitle.setText(AudioBook.filenameCleanup(titleAndAuthor.title));
             author.setText(AudioBook.filenameCleanup(titleAndAuthor.author));
         }
