@@ -180,6 +180,9 @@ public class CandidateFragment extends Fragment {
         MenuItem archiveBox = menu.findItem(R.id.retain);
         archiveBox.setChecked(globalSettings.getRetainBooks());
 
+        MenuItem renameBox = menu.findItem(R.id.rename);
+        renameBox.setChecked(globalSettings.getRenameFiles());
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -215,6 +218,12 @@ public class CandidateFragment extends Fragment {
                         Objects.requireNonNull(getActivity()).invalidateOptionsMenu(); // see onPrepare below
                     })
                     .show();
+            return true;
+
+        case R.id.rename:
+            boolean isChecked = !item.isChecked();
+            item.setChecked(isChecked);
+            globalSettings.setRenameFiles(isChecked);
             return true;
 
         case R.id.search_dir:

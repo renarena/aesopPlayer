@@ -58,6 +58,7 @@ import androidx.lifecycle.ViewModel;
 import de.greenrobot.event.EventBus;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
+import static com.donnKey.aesopPlayer.ui.provisioning.FileUtilities.treeNameFix;
 
 // Serves as a cache for inter-fragment communication
 public class Provisioning extends ViewModel {
@@ -354,7 +355,7 @@ public class Provisioning extends ViewModel {
 
     @SuppressLint("UsableSpace")
     @WorkerThread
-    void moveAllSelected_Task(Progress progress, boolean retainBooks) {
+    void moveAllSelected_Task(Progress progress, boolean retainBooks, boolean renameFiles) {
         clearErrors();
 
         // Find the (possibly several) directories.
@@ -414,6 +415,8 @@ public class Provisioning extends ViewModel {
                 continue;
             }
 
+            File newTree = null;
+
             if (FileUtilities.isZip(candidate.oldDirPath)) {
                 // Zip files always get unpacked into their target location, where (presumably)
                 // there's enough space. Error and remove the partial unpack on failure.
@@ -431,14 +434,15 @@ public class Provisioning extends ViewModel {
                     }
                 }
                 logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
+
+                newTree = toDir;
             } else if (fromDir.isDirectory()) {
-                boolean successful = false;
                 if (!retainBooks) {
                     progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
-                    successful = moveToSameFs(fromDir, candidate.newDirName, null);
+                    newTree = moveToSameFs(fromDir, candidate.newDirName, null);
                 }
 
-                if (successful) {
+                if (newTree != null) {
                     candidates.remove(candidate);
                 }
                 else {
@@ -455,6 +459,8 @@ public class Provisioning extends ViewModel {
                         FileUtilities.deleteTree(fromDir, this::logResult);
                     }
                     logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
+
+                    newTree = toDir;
                 }
 
                 if (!FileUtilities.expandInnerZips(toDir,
@@ -466,13 +472,12 @@ public class Provisioning extends ViewModel {
                 // Ordinary file.
                 // In this case, "fromDir" is really an audio file, not a directory.
                 // This must be an audio file, or it wouldn't be a candidate.
-                boolean successful = false;
                 if (!retainBooks) {
                     progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
-                    successful = moveToSameFs(fromDir, candidate.newDirName, candidate.audioFile);
+                    newTree = moveToSameFs(fromDir, candidate.newDirName, candidate.audioFile);
                 }
 
-                if (successful) {
+                if (newTree != null) {
                     candidate.isSelected = false;
                     candidates.remove(candidate);
                 } else {
@@ -496,8 +501,15 @@ public class Provisioning extends ViewModel {
                         FileUtilities.deleteTree(fromDir, this::logResult);
                     }
                     logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
+
+                    newTree = toDir;
                 }
             }
+
+            if (renameFiles) {
+                treeNameFix(newTree, this::logResult);
+            }
+
             if (retainBooks) {
                 candidate.collides = true;
             }
@@ -508,8 +520,9 @@ public class Provisioning extends ViewModel {
     }
 
     @WorkerThread
-    private boolean moveToSameFs(@NonNull File fromDir, @NonNull String toDirName, @Nullable String toName) {
+    private File moveToSameFs(@NonNull File fromDir, @NonNull String toDirName, @Nullable String toName) {
         // Try to move it - I didn't find an a-priori way to check that it would succeed.
+        // Return the File of the final result (or null)
         try {
             File toFile = null;
             for (File f: audioBooksDirs) {
@@ -519,17 +532,20 @@ public class Provisioning extends ViewModel {
                 }
             }
             if (toFile == null) {
-                return false;
+                return null;
             }
             if (toName != null) {
                 if (!FileUtilities.mkdirs(toFile, this::logResult)) {
-                    return false;
+                    return null;
                 }
                 toFile = new File(toFile, toName);
             }
-            return FileUtilities.renameTo(fromDir, toFile, this::logResult);
+            if (!FileUtilities.renameTo(fromDir, toFile, this::logResult)) {
+                return null;
+            }
+            return toFile;
         } catch (SecurityException e) {
-            return false;
+            return null;
         }
     }
 

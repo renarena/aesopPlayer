@@ -215,6 +215,7 @@
     <string name="candidate_action_bar_group_books">Group selected books</string>
     <string name="candidate_action_bar_ungroup_books">Ungroup one book</string>
     <string name="candidate_action_bar_new_directory">Select Directory containing New Books</string>
+    <string name="candidate_action_bar_rename_policy">Normalize inner filenames</string>
     <string name="inventory_action_bar_delete">Delete</string>
     <string name="inventory_action_bar_reset">Reset</string>
     <string name="inventory_action_bar_archive_policy">Archive</string>

@@ -43,6 +43,11 @@
         android:checkable="true"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/rename"
+        android:title="@string/candidate_action_bar_rename_policy"
+        android:checkable="true"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/group_books"
         android:title="@string/candidate_action_bar_group_books"
         app:showAsAction="never"/>

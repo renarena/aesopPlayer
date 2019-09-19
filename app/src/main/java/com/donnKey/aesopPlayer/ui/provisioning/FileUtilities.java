@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -54,6 +54,28 @@ public class FileUtilities {
 
     static boolean isZip(String path) {
         return path.endsWith(".zip") || path.endsWith(".ZIP");
+    }
+
+    // Convert single digits to 2 digits (with 0), but not in the extension.
+    private static String fixSingleDigits(String name) {
+        int dot = name.lastIndexOf('.');
+        String extension = "";
+        if (dot > 0) {
+            extension = name.substring(dot+1);
+            name = name.substring(0,dot);
+        }
+
+        String regex = "(^|\\D)(\\d)(\\D|$)";
+        String subst = "$10$2$3";
+        // Do it twice just in case we get a1b2c (or 1.2), which doesn't fix the 2 in just one pass.
+        name = name.replaceAll(regex, subst);
+        name = name.replaceAll(regex, subst);
+
+        if (dot > 0) {
+            name = name + "." + extension;
+        }
+
+        return name;
     }
 
     // Look for zip files in targetDir and unzip them recursively, in place.
@@ -321,6 +343,41 @@ public class FileUtilities {
                                     .getString(R.string.error_copy_single_failed), from.getPath(),
                             e.getLocalizedMessage()));
                     return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    static boolean treeNameFix(File tree, ErrorCallback logError) {
+        if (!tree.exists()) {
+            throw new RuntimeException("Attempt to fix-up names in nonexistent directory");
+        }
+
+        String[] files = tree.list();
+
+        for (String file: files) {
+            File f = new File(tree, file);
+            if (f.isDirectory()) {
+                if (!treeNameFix(f, logError)) {
+                    return false;
+                }
+                File t = new File(tree, fixSingleDigits(file));
+                if (!f.getName().equals(t.getName())) {
+                    if (!renameTo(f, t, logError)) {
+                        return false;
+                    }
+                }
+            }
+            else {
+                if (FilesystemUtil.isAudioPath(file)) {
+                    // Only fix names on audio files, in case there are others.
+                    File t = new File(tree, fixSingleDigits(file));
+                    if (!f.getName().equals(t.getName())) {
+                        if (!renameTo(f, t, logError)) {
+                            return false;
+                        }
+                    }
                 }
             }
         }

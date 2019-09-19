@@ -197,6 +197,9 @@
     <string name="candidate_action_bar_new_directory">Wybierz katalog zawierający nowe książki</string>
     <string name="inventory_action_bar_delete">Kasować</string>
     <string name="inventory_action_bar_reset">Przeskładać</string>
+    <string name="candidate_action_bar_group_books">Grupuj wybrane książki</string>
+    <string name="candidate_action_bar_ungroup_books">Rozgrupuj jedną książkę</string>
+    <string name="candidate_action_bar_rename_policy">Normalizuj wewnętrzne nazwy plików</string>
     <string name="title_edit_hint_book_title">Wyświetlany tytuł książki</string>
     <string name="inventory_action_bar_archive_policy">Archiwum</string>
     <string name="title_edit_button_fix_case">Napraw duże i małe litery</string>
@@ -216,8 +219,6 @@
     <string name="dialog_title_group_books">Grupa do łączenia elementów książki</string>
     <string name="dialog_title_ungroup_book">Rozgrupuj książkę</string>
     <string name="error_unzip_into_existing_directory">Katalog %s już istnieje podczas rozwijania pliku zip</string>
-    <string name="candidate_action_bar_group_books">Grupuj wybrane książki</string>
-    <string name="candidate_action_bar_ungroup_books">Rozgrupuj jedną książkę</string>
 
     <plurals name="numberOfBooks">
         <item quantity="one">ta %d książka</item>

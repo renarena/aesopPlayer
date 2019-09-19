@@ -288,6 +288,7 @@ public class ProvisioningActivity extends AppCompatActivity
     }
 
     private boolean retainBooks;
+    private boolean renameFiles;
     private Toast lastToast;
     @UiThread
     private void postMoveProgress_Inner(Provisioning.ProgressKind kind, String message) {
@@ -336,13 +337,14 @@ public class ProvisioningActivity extends AppCompatActivity
     @WorkerThread
     private void moveAllSelected_Task() {
         if (activeCandidateFragment != null) activeCandidateFragment.stopChecker();
-        provisioning.moveAllSelected_Task(this::postMoveProgress, retainBooks);
+        provisioning.moveAllSelected_Task(this::postMoveProgress, retainBooks, renameFiles);
         if (activeCandidateFragment != null) activeCandidateFragment.startChecker();
     }
 
     @UiThread
     void moveAllSelected() {
         retainBooks = globalSettings.getRetainBooks() && provisioning.candidateDirectory.canWrite();
+        renameFiles = globalSettings.getRenameFiles() && provisioning.candidateDirectory.canWrite();
         Thread t = new Thread(this::moveAllSelected_Task);
         t.start();
     }
