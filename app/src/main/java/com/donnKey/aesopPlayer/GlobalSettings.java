@@ -30,6 +30,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 
 import com.donnKey.aesopPlayer.model.LibraryContentType;
+import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -242,6 +243,7 @@ public class GlobalSettings {
     @SuppressLint("ApplySharedPref")
     public void setMaintenanceMode(boolean mode) {
         sharedPreferences.edit().putBoolean(KEY_MAINTENANCE_MODE, mode).commit();
+        UiControllerBookList.suppressAnnounce();
     }
 
     // True->certain features temporarily disabled (actual settings NOT changed).

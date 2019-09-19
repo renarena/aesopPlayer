@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -27,9 +27,9 @@ package com.donnKey.aesopPlayer.ui;
 import android.content.Context;
 import androidx.annotation.NonNull;
 
+import com.donnKey.aesopPlayer.AesopPlayerApplication;
+import com.donnKey.aesopPlayer.GlobalSettings;
 import com.google.common.base.Preconditions;
-import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
-import com.donnKey.aesopPlayer.events.CurrentBookChangedEvent;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 
@@ -37,24 +37,19 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
-
 public class UiControllerBookList {
 
     public static class Factory {
         private final @NonNull Context context;
         private final @NonNull AudioBookManager audioBookManager;
-        private final @NonNull EventBus eventBus;
         private final @NonNull SpeakerProvider speakerProvider;
 
         @Inject
         public Factory(@NonNull Context context,
                        @NonNull AudioBookManager audioBookManager,
-                       @NonNull EventBus eventBus,
                        @NonNull SpeakerProvider speakerProvider) {
             this.context = context;
             this.audioBookManager = audioBookManager;
-            this.eventBus = eventBus;
             this.speakerProvider = speakerProvider;
         }
 
@@ -81,6 +76,7 @@ public class UiControllerBookList {
         this.uiControllerMain = uiControllerMain;
         this.ui = ui;
 
+        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
         speaker = Speaker.get(context, speakerProvider);
 
         ui.initWithController(this);
@@ -98,6 +94,9 @@ public class UiControllerBookList {
     private static String previousBook = "";
     private final static long MINIMUM_INTERVAL_BETWEEN_TITLES = TimeUnit.SECONDS.toMillis(30);
 
+    @Inject
+    public GlobalSettings globalSettings;
+
     public void changeBook(@NonNull String bookId) {
         audioBookManager.setCurrentBook(bookId);
         AudioBook book = audioBookManager.getById(bookId);
@@ -107,27 +106,26 @@ public class UiControllerBookList {
         long now = System.currentTimeMillis();
 
         // If the book actually changed, always say it.
+        // Except in maintenance mode, so it doesn't chatter when being remotely maintained.
         if (!previousBook.equals(bookId)) {
-            speak(book.getTitle());
+            if (!globalSettings.isMaintenanceMode()) {
+                speak(book.getTitle());
+            }
             previousBook = bookId;
         }
         // Otherwise, don't do it very often (This is policy that might change)
         else if (now - lastTitleAnnouncedAt > MINIMUM_INTERVAL_BETWEEN_TITLES) {
-            speak(book.getTitle());
+            if (!globalSettings.isMaintenanceMode()) {
+                speak(book.getTitle());
+            }
         }
         lastTitleAnnouncedAt = now;
 
         uiControllerMain.computeDuration(book);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public void onEvent(AudioBooksChangedEvent event) {
-        updateAudioBooks();
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public void onEvent(CurrentBookChangedEvent event) {
-        ui.updateCurrentBook(audioBookManager.getCurrentBookIndex());
+    static public void suppressAnnounce() {
+        lastTitleAnnouncedAt = System.currentTimeMillis();
     }
 
     private void speak(@NonNull String text) {

@@ -194,7 +194,7 @@
         android:background="@color/ffRewindFillBackground"
         android:visibility="gone">
 
-        <!-- The text view is positioned to match the elapsedTime position -->
+        <!-- The text view is dynamically positioned in FragmentPlayback to match the elapsedTime position -->
         <TextView
             android:id="@+id/elapsedTimeRewindFF"
             android:textColor="#ffffff"

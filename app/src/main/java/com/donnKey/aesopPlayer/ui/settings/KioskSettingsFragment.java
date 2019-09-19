@@ -191,7 +191,6 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     }
 
     // Event is from AesopPlayerDeviceAdmin
-    // @SuppressWarnings("UnusedDeclaration")
     public void onEvent(@SuppressWarnings("unused") DeviceAdminChangeEvent deviceAdminChangeEvent) {
         // Kiosk mode just got forced to NONE if it was FULL or PINNING
         updateKioskModeSummary();

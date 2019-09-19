@@ -37,6 +37,7 @@ import com.donnKey.aesopPlayer.service.AudioBookPlayerModule;
 import com.donnKey.aesopPlayer.service.DemoSamplesInstallerService;
 import com.donnKey.aesopPlayer.service.DeviceMotionDetector;
 import com.donnKey.aesopPlayer.service.PlaybackService;
+import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 import com.donnKey.aesopPlayer.ui.provisioning.CandidateFragment;
 import com.donnKey.aesopPlayer.ui.provisioning.InventoryItemFragment;
 import com.donnKey.aesopPlayer.ui.classic.ClassicPlaybackUi;
@@ -86,6 +87,7 @@ public interface ApplicationComponent {
     void inject(Provisioning fragment);
     void inject(KioskSelectionPreference fragment);
     void inject(AesopPlayerDeviceAdmin fragment);
+    void inject(UiControllerBookList fragment);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();

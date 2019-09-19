@@ -327,6 +327,7 @@ public class PlaybackService
         }
 
         void start() {
+            userPaused = false;
             BookPosition position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
             resetSleepTimer();
@@ -344,7 +345,10 @@ public class PlaybackService
             controller.pause();
         }
 
+        boolean userPaused = false;
+
         void pauseForPause() {
+            userPaused = true;
             pauseForRewind();
         }
 
@@ -353,9 +357,13 @@ public class PlaybackService
             controller.start(audioBook.getFile(position), position.seekPosition, false);
             handler.postDelayed(updatePosition, UPDATE_TIME_MS);
             resetSleepTimer();
+            if (userPaused) {
+                controller.pause();
+            }
         }
 
         void resumeFromPause() {
+            userPaused = false;
             BookPosition position = audioBook.getLastPosition();
             long startPositionMs = Math.max(0, position.seekPosition - jumpBackMs);
             controller.resume(audioBook.getFile(position), startPositionMs);

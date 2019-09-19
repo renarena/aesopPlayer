@@ -115,7 +115,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         chapterInfoView = view.findViewById(R.id.chapterInfo);
         stopText = view.findViewById(R.id.stop_text);
 
-        elapsedTimeView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+        View etBoxView = view.findViewById(R.id.elapsedTimeBox);
+        etBoxView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             RelativeLayout.LayoutParams params =
                     (RelativeLayout.LayoutParams) elapsedTimeRewindFFView.getLayoutParams();
             params.leftMargin = left;
