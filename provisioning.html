@@ -794,6 +794,15 @@ and if the directory you are copying from is read-only it will just copy rather 
 The copy versus move status is reflected in the icon for "INSTALL".
 The download icon will have a line above it (mnemonically, the book left in place) when a copy rather than move will occur.
 </p>
+<h3>Name Normalization</h3>
+This is an advanced topic, you can ignore it until you need it.
+Occasionally you may run across a book where files were named without the leading zeros in sequence numbers
+suggested above.
+The Aesop Player by default fixes any audio file or directory names (except that for the whole book) that it finds
+containing single-digit numbers. The numbers are silently converted to 2 digit numbers (with a zero added).
+Although we have not (yet) seen a book where doing this would cause a problem (and many instances where it helps)
+it is possible to disable this by unchecking "Normalize Book Names" using the "More" button (#8 on 
+<a href="#new-books">this screen</a>)). 
 <h3>Book Progress</h3>
 <p>
 The player keeps two pieces of information about progress reading a book: 
