@@ -1,27 +1,32 @@
 ---
 layout: page
-meta_title: "Aesop Player: provisioning"
-title: "Provisioning"
-heading: "Provisioning"
+meta_title: "Aesop Player: managing books"
+title: "Managing<br>Books"
+heading: "Managing Books"
 description: "Providing books on the Aesop player."
 header-img: img/book.jpg
 meta_description: "Understanding how to install and remove books."
 redirect_from: /install-test.html
 ---
-<h2>"Provisioning" Books</h2>
+<h2>"Managing Books" Books</h2>
 <p>
 For a book reader to be useful, it must have books to read.
-<em>Provisioning</em> is the process of making those books available.
 For most users, books will either be downloaded from a Internet browser or some form of shared Internet access.
 We'll start with a simple example.
-You can just use the parts you need, and come back later for more.
+</p>
+<p>
+There are <em>a lot</em> of ways to install books. 
+This is a long section to give guidance on many of those ways; much of it is intended as reference, not tutorial.
+It's unlikely you'll use more than one or two of the available ways. 
+We suggest reading the examples, and if they do not fit your circumstances using the
+section titles to find a solution that will.
 </p>
 <p class="smaller">
 (This material would get really tedious if it said "technical support person or caregiver" a lot.
 Thus it uses "you", and you can take the meaning that's appropriate to your circumstances.)
 </p>
-<h2>Provisioning Screens</h2>
-For reference, here is a guide to the two main screens used for provisioning.
+<h2>Managing Books Screens</h2>
+For reference, here is a guide to the two main screens used for managing books.
 They are similar in many ways.
 We'll discuss the details in various places.
 <h3 id="inventory-screen" class="anchor-target">The Inventory (Current Books) Screen</h3>
@@ -79,7 +84,7 @@ We'll discuss the details in various places.
 <h3>Example 1</h3>
 <p>
 We'll use the example in 
-<a href="getting-started.html#provisioning">Getting Started</a>.
+<a href="getting-started.html#managing-books">Getting Started</a>.
 If you haven't done it, it's the best way to become familiar with the process.
 <br>
 <small>
@@ -103,7 +108,7 @@ In a bit more detail (and there's more detail in
 <li>You have to get the book onto the device, somehow. 
 There are lots of places books can be obtained.
 The sources are usually the Internet and physical media like CDs.
-The book can be (for example) on a PC or USB drive on its way to your device.
+The book might be put (for example) on a PC or USB drive on its way to your device.
 <li>Aesop expects the book to be organized in a particular way so it can play it.
 Books actually come organized in several ways.
 Aesop will convert several of the most common book types into the format it needs.
@@ -111,11 +116,6 @@ Sometimes the book is already that way.
 <li>Aesop expects to find the books in the <code>AudioBooks</code> directory (folder) on your device.
 You need to be sure it's there.
 </ol>
-<p>
-Depending on where you will be getting your books and how you'll be installing them, you'll 
-need to know bits and pieces of the information below, but you probably won't need to know
-all of it to begin with.
-Skim the section titles and read up on what looks useful to you.
 </p>
 <h2>Cleaning up</h2>
 <p>
@@ -141,9 +141,6 @@ because the books will be completely removed and you'll have to reload them from
 </p>
 <h2>Example 2</h2>
 <p>
-There are a large number of ways you can provision books in Aesop.
-The provisioning process consists of a lot of pieces you can fit together to meet your particular needs,
-and it would be impractical to try to explain all the combinations.
 Here's another example, chosen to be different in most ways from the previous one, but it's also likely
 to be a common way of getting books.
 After this example we'll explain the pieces separately in more
@@ -161,25 +158,31 @@ Mac, you may need the
 <a href="https://www.android.com/filetransfer/">Android file transfer tool</a>.
 </small>
 <ol>
-<li>Obtain a "USB" cable to connect your PC to your device and connect it.
-<br>
-<small>
+<li>Obtain a 
+<span class="moreinfo" title="
 Your device charging cable will probably do if it unplugs from the transformer.
-</small>
-<!-- graphic ???? -->
-<li>Typically a File Manager window will pop up on the PC, looking like this(!). 
+">
+USB cable 
+</span>
+to connect your PC to your device and connect it.
 <br>
-<small>Some devices may want you to download a support application.
-You don't need to as long as you have a File Manager window, but if it isn't there (which can happen),
-you'll have to download the application.
-Be sure you download from the device manufacturer's Internet site.</small>
-<li>Depending on the Android device, you may be presented with a popup on the device asking what you want want to
-do with the connection; something like "Do you want to allow the Computer to access your files?." 
+<!-- graphic of PC window ???? -->
+<li>Typically a 
+<span class="moreinfo" title="
+Some devices may want you to download a support application.  You don't need to as long as you have a File Manager window, but if it isn't there (which can happen), you'll have to download the application.
+Be sure you download from the device manufacturer's Internet site.
+">
+File Manager 
+</span>
+window will pop up on the PC, looking like this(!). 
+<br>
+<li>Depending on the Android device, you may be presented with a popup on the device asking what you want to
+do with the connection; something like "Do you want to allow the Computer to access your files?" 
 Alternatively a notification may be displayed that you will click on from Android Settings.
 In any case, you want to set it up to Transfer (or "Access") Files (or be a "Media Device" if "Transfer Files" isn't an option).
 <li>On the PC, click on <code>Phone</code> in the File Manager's window for the device, then on <code>AudioBooks</code>.
 <li>On the PC, use the Internet Browser to Download a book from one of the places suggested in
-<a href="getting-started.html#provisioning">Getting Started</a>.
+<a href="getting-started.html#managing-books">Getting Started</a>.
 For our example we'll use <b style="font-weight:600">The Hound of the Baskervilles</b> from <code>librivox.org</code>
 <a href="https://librivox.org/search?q=Hound%20of%20the%20Baskervilles&search_form=advanced">found here</a>.
 (We've chosen the first of several performances.)
@@ -194,10 +197,13 @@ A new window will pop up.
 It's helpful but not necessary to click on "Show Extracted Files When Complete".
 Click the "Extract" button.
 <li>A new folder will appear with the name without <code>.zip</code>.
-<li>In it you'll find several <code>.mp3</code> files, one for each chapter. 
+<li>In that folder you'll find several <code>.mp3</code> files, one for each 
+<span class="moreinfo" title="
+Note how the individual files are named with leading zeros in the chapter numbers.
+">
+chapter. 
+</span>
 Chapter titles may be shown. 
-<br>
-<small>Note how the individual files are named with leading zeros in the chapter numbers.</small>
 <li>If we were to install the book into Aesop right now, the spoken title could be the name of the
 folder, which would cause the spoken title to be painful to listen to.
 <br>
@@ -206,11 +212,12 @@ folder, which would cause the spoken title to be painful to listen to.
 </small>
 <li>Rename the directory: double click on the directory name and type a new book title that
 would be suitable to be read aloud. In this case "Hound of the Baskervilles - Arthur Conan Doyle"
-would be fine.
-<br>
-<small>
-You can skip this step if the metadata is OK, but be sure to check the Album Title shown for each <code>.mp3</code> file.
-</small>
+would be 
+<span class="moreinfo" title="
+You can skip this step if the metadata is OK, but be sure to check the Album Title shown for each .mp3 file.
+">
+fine.
+</span>
 <li>Drag the directory you just renamed from the File Manager window it is in to the <code>AudioBooks</code> directory
 on the device. 
 This will copy the directory (leaving the original behind, since it's a different file system.)
@@ -231,19 +238,25 @@ There were many more intermediate steps, and for books from Internet sources lik
 to involve a PC, but some of the other sources of books will require a PC (and more steps) prior to 
 moving the folder to <code>AudioBooks</code>.
 <h2 id="terms-concepts" class="anchor-target">Terms and Concepts</h2>
+<small>
+This is where things start to get unavoidably complicated. 
+From this point on, it's best to think of this as reference material, but the
+Terms and Concepts below will be necessary to make effective use of the rest.
+</small>
+</p>
 <p>
 There are several terms and concepts that make explaining the pieces of the process of getting books easier.
 It's time to deal with those.
-It will make explaining the other pieces easier.
 <br>
 <h3 id="meta-data" class="anchor-target">Metadata</h3>
 <p>
-Many, but far from all, books include metadata.
+Many, but far from all, audio books include metadata.
 Metadata is additional information about the book beyond the basic audio.
 Audio files can contain metadata directly, and some Audio Books contain additional files of metadata.
 The items of interest in the audio file are the book title, author, and the individual chapter titles.
 The Aesop Player will make the best use it can of that information if it is present.
-<br>
+</p>
+<p>
 The fields found in audio file metadata have standard names.
 The <em>Album Title</em> and <em>Contributing Artists</em> are combined to form the book title.
 The <em>Title</em> (that's the song title for music) is treated as the chapter title.
@@ -326,10 +339,15 @@ This is an advanced topic, you can ignore it until you need it. See the box abou
 </small>
 </p>
 <p>
-Normally Aesop finds books in the directory <code>AudioBooks</code> in the root directory on the built-in storage of the device.
+Normally Aesop finds books in the 
+<span class="moreinfo" title="
+On Android these names are case sensitive: 'audiobooks' and 'AudioBooks' are different things.
+">
+directory 
+</span>
+<code>AudioBooks</code> in the root directory on the built-in storage of the device.
 However, particularly on older devices, there may not be much space available.
 Some devices have the ability to add a "SD" (Secure Digital) card to add more storage.
-(Note that on Android these names are case sensitive: <code>audiobooks</code> and <code>AudioBooks</code> are different things.)
 </p>
 <p>
 In addition to the usual place, Aesop will also look for, and play, books found in the <code>AudioBooks</code> 
@@ -337,7 +355,7 @@ directory in the root of any SD card it discovers.
 The content of the <code>AudioBooks</code> directory in the built-in storage is readable and writable by anyone.
 The <code>AudioBooks</code> directory at the root of an SD card (if it even exists) 
 may or may not be writable (or even accessible) by Aesop.
-Aesop will use it if it can, and use it in provisioning if it can, 
+Aesop will use it if it can, and use it in managing books if it can, 
 but more often than not Aesop will be unable to write (or change) anything in that directory.
 </p>
 <p>
@@ -350,12 +368,15 @@ and can modify SD root <code>AudioBooks</code> (if your device is new enough).
 </p>
 <p>
 This doesn't mean you can't use the space on the SD card for your books, it just means you can't put your books in (the root) <code>AudioBooks</code>.
-Aesop can also use the directory 
-<code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code>.
+Aesop can also use the 
+<span class="moreinfo" title="
+The name Android/media/com.donnKey.aesopPlayer follows some 'magic' rules defined for Android and cannot be changed by the application.
+">
+directory <code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code>.
+</span>
 (Where <code>Android</code> is at the root of the SD card (or the root file system).)
-All the provisioning stuff will "just work" on this directory.
+All the managing books stuff will "just work" on this directory.
 The downside of this is that no other app can get to these books (but again, you can get to them using a PC).
-(The name <code>Android/media/com.donnKey.aesopPlayer</code> follows some "magic" rules defined for Android and cannot be changed by the application.)
 Either of the <code>AudioBooks</code> directories on the SD card works out of the same physical storage, so there's no space advantage one over the other.
 </p>
 <p>
@@ -423,7 +444,7 @@ There are several to choose from in the store.
 </p>
 <p>
 Once the downloads are completed (which takes time depending on the book length and your Internet speed),
-you use Aesop's built in provisioning tools to reformat (depending on the file type) and install the books.
+you use Aesop's built in managining books tools to reformat (depending on the file type), Normalize Names, and install the books.
 It will automatically handle books already in the Aesop book format described above, <code>.zip</code> files 
 that yield the same format, and single audio files.
 From "New Books" click the check boxes for the books you want (scroll to see if there are more), 
@@ -452,7 +473,7 @@ Use it to find the directory you want, select "Comfirm" or "Select" and it will 
 You can then proceed as you previously have.
 </p>
 <p>
-You may have noticed a second option "Retain after copy" when you did the above.
+You may have noticed an option "Retain after copy" when you did the above.
 Normally the player will move (not copy) books, but if you select "Retain after copy", it will leave the original alone and make a copy.
 See <a href="#more-books-copying">below</a>.
 </p>
@@ -478,7 +499,14 @@ There's probably a way to make it work, but it may take a couple of tries.
 The same tools to select a directory to copy from apply to removable physical storage.
 <p>
 Use the same "Select Directory" screen to select a directory on removable storage.
-The exact selection process varies depending on the Android version: on some devices the removable devices are visible as a panel on the screen, 
+The exact selection process varies depending on the Android version: on some devices the 
+<span class="moreinfo" title="
+Sometimes it shows the root of the non-removable storage as well. 
+You man need to click on that and then move down to access other directories in non-removable storage.
+">
+removable storage 
+</span>
+is visible as a panel on the screen, 
 on some you may have to move upward through the directory hierarchy and then back down to the storage device.
 It can't hurt to simply try experiment if it isn't obvious, just don't click Select or Confirm until you see your new books.
 </p>
@@ -510,7 +538,7 @@ Putting books on to the Cloud and having them automatically downloaded (ready to
 with a remotely administered book reader.
 <br>
 <small>
-Technically&hellip; If they're already in Aesop Book format, they can be put directly into <code>AudioBooks</code> - Aesop will handle that correctly.
+Technically&hellip; If they're already in Aesop Book format, they can be put directly into <code>AudioBooks</code> &mdash; Aesop will handle that correctly.
 However, depending on the specific Cloud provider, you might find that books appear and disappear unexpectedly, and if you try to play an
 incomplete download it may yield confusing results. Your tradeoff: convenience vs. consistent behavior. 
 </small>
@@ -587,17 +615,26 @@ In the process of doing so, it's likely to include something like <code>Track 1<
 <code>Track 2</code> for the second track, etc.
 That works fine until you get to <code>Track 10</code>, which according to computer sorting rules sorts right next to Track 1, 
 which doesn't work out well for an audio book.
-Most ripping tools do insert the track number as metadata in a way that can be sorted correctly (but Aesop uses filenames!), 
-but you will have to manually fix the file names to get correct sorting order.
-(Downloaded books rely on titles, not embedded track numbers for proper ordering, and may not even have the track number metadata filled in.)
 You want the track numbers to be the first thing that's different in each file name, 
 and to be numbered <code>01</code> ...  <code>09</code> <code>10</code> <code>11</code> etc.
 so they'll sort correctly.
+If you use Aesop's New Books install screen to do the final installation, it will 
+use 
+<a href="#name-normalization">Name Normalization</a>
+to convert any one-digit numbers it finds to two-digit ones (with a zero), 
+which fixes both the track number problem and any one-digit date or time information the ripping tool 
+<span class="moreinfo" title="
+Most ripping tools do insert the track number as metadata in a way that can be sorted correctly (but Aesop uses filenames!)
+Downloaded books rely on titles, not embedded track numbers for proper ordering, and may not even have the track number metadata filled in.
+">
+might have used.
+</span>
 </p>
 <p>
 Ripping tools don't do a very good job of recognizing "albums" of more than one CD, treating each disk individually.
 You'll need to rip each disk separately, and it's easier to put each CD's content in it's own directory.
-Here naming each directory as something like <code>Disc01</code> <code>Disc02</code> will give correct results.
+Name Normalization will help if you are using a ripping tool that uses the start-time of the rip as the directory name.
+Otherwise, naming each directory as something like <code>Disc01</code> <code>Disc02</code> will give correct results.
 (Be sure to use two (or three) digit numbers with leading zeros.)
 </p>
 <p>
@@ -622,58 +659,70 @@ you can easily fix an ugly book title.
 (Occasionally a title is inconveniently long when spoken; fix that the same way.)
 </p>
 <p>
-On either the New Books or Book Inventory screen, click on the book title (the text).
+On either the Book Inventory screen (item 2) or New Books screen (item 3), click on the book title (the text).
 The player will enter a new screen.
 The top line, in white, is what it will use for the title.
 You can click on that to bring up a keyboard and edit it in the usual way.
 Further down the screen (below the buttons) up to three additional bits of text are presented that might be a start on a better choice.
 You can click on those if they look better to you, and they will replace the current text.
 </p>
-<p>
+<ul>
+<li>
 The Fix Case button will convert underscores ("_") to spaces and convert everything to Title Case (each word capitalized).
-</p>
-<p>
+<li>
 The Add Author button will add a space, a hyphen, another space and the Author name that appears to the right of the cancel button (if there's an author in the metadata).
-</p>
-<p>
+<li>
 Clicking Cancel or the back button will exit the window making no changes.
-</p>
-<p>
+<li>
 Clicking Accept will make the change permanent (although you can of course re-enter this screen).
 When you click Accept it will trim off any leading or trailing spaces, and check to see if at least one space remains (and if not, it will add it at the end).
-(The space is used to indicate a user defined book title.) 
-(Adding an author is a nice way to add the spaces.)
-A title cannot contain the character "/" - it will be silently converted to "-".
-</p>
+(The space is used to indicate a 
+<span class="moreinfo" title="
+Adding an author is a nice way to add the spaces.
+A title cannot contain the character '/' - it will be silently converted to '-'.
+">
+user defined book title.) 
+</span>
+</ul>
 <p>
-If you change the title in the New Books screen, it will be applied when the book is actually installed, which will
-make the name change permanent.
-Leaving and returning to the New Books screen prior to doing an install will undo that title change.
-<p>
-<small>
-Technical Note: the title created in this way is the directory name.
+If you change the 
+<span class="moreinfo" title="
+The title created in this way is the directory name.
 If you are creating books from another computer, you can simply change the directory name to control the title.
 As long as there's a space somewhere in the name, it will be used as the title.
+">
+title 
+</span>
+in the New Books screen, it will be applied when the book is actually installed, which will
+make the name change permanent.
+Leaving and returning to the New Books screen prior to doing an install will undo that 
+<span class="moreinfo" title="
+You can also change the audio file metadata from a computer.  We won't go into that here.
+">
+title change.
+</span>
+</p>
+<small>
 <p>
-Technical Note: you can also change the audio file metadata from a computer.
-We won't go into that here.
 </small>
 </p>
 <h3 id="more-delete-books" class="anchor-target">More on Deleting Books</h3>
 <p>
 Normally, completely deleting books you no longer want is the best solution, but on occasion keeping them is useful.
-If you click the three vertical dots (&vellip;) ("More") at the upper right of the Inventory screen, you can select "Archive",
-and it will put any books you delete in the directory <code>AudioBooks.old</code> adjacent to the <code>AudioBooks</code>
+If you click the three vertical dots (&vellip;) ("More") 
+(#8 on <a href="#inventory-screen">Book Inventory</a>), you can select "Archive",
+and it will put any books you delete in the directory 
+<span class="moreinfo" title="
+If you have more than one 'AudioBooks' directory, it will create an 'AudioBooks.old' for each writeable
+one, as needed. See Alternate Directories above.
+">
+<code>AudioBooks.old</code> adjacent 
+</span>
+to the <code>AudioBooks</code>
 directory they were previously contained in.
 You can then copy or move them from there to meet your needs.
 Generally this is not recommended since you want the space they occupy for new books, but is available if needed.
 The delete icon changes from "Delete Permanently" (with an "X" over the trash can) to just "Delete" (no "X").
-</p>
-<p>
-<small>
-If you have more than one <code>AudioBooks</code> directory, there's an <code>AudioBooks.old</code> for each writeable
-one. See <a href="#audiobooks-directories">Alternate Directories</a>.
-</small
 </p>
 <h2>More things you can do</h2>
 <p>
@@ -683,7 +732,7 @@ Pick and choose what's helpful to you.
 Don't attach much meaning to the order of things below, because everyone's needs are different.
 <h3 id="grouping" class="anchor-target">Combining Downloads Into One Book (Grouping)</h3>
 <p>
-Sometimes a book is too big to fit into a single piece conveniently.
+Sometimes a book is too big to fit into a single downloadable piece conveniently.
 <b>War and Peace</b> is a typical example.
 </p>
 <p>
@@ -704,8 +753,8 @@ Be sure no other books are checked.
 (This will be easier if there aren't any other books in the download directory, but that's not a requirement.)
 </p>
 <p>
-Now click the "More" button (#8 on 
-<a href="#inventory-screen">this screen</a>)
+Now click the "More" button 
+(#8 on <a href="#inventory-screen">Inventory Screen</a>)
 and then <b>Group Selected Books</b>.
 Aesop Player will ask for confirmation, and then combine the checked books into a single new book.
 </p>
@@ -721,7 +770,6 @@ In most cases the defaults will be fine, but if they aren't, you can
 <a href="#fix-titles">change the titles</a>
 to fix that. Aesop Player will maintain any file extensions.
 </p>
-<p>
 <h4>Ungrouping</h4>
 <p>
 Mistakes do happen, so it is possible to ungroup a grouped book back to the individual books
@@ -761,16 +809,16 @@ First, review
 <a href="#audiobooks-directories">Alternate Directories</a> discussion above.
 Given that,
 if you want to use an SD card for additional book storage, you must decide if allowing other applications 
-to read your books is more important than using the provisioning tools:
+to read your books is more important than using the managining books tools:
 </p>
 <ol>
 <li>
-    If the provisioning tools are more important, use your PC (or file manager application) to make the directory 
-    <code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on the SD card, and proceed using provisioning tools.
+    If the managing books tools are more important, use your PC (or file manager application) to make the directory 
+    <code>Android/media/com.donnKey.aesopPlayer/AudioBooks</code> on the SD card, and proceed using managing books tools.
 </li>
 <li>
     If shared access is more important, make <code>AudioBooks</code> at the root of the SD card.
-    You (probably) won't be able to use the provisioning tools, but will rather have to maintain the content using a PC.
+    You (probably) won't be able to use the managing books tools, but will rather have to maintain the content using a PC.
 </li>
 </ol>
 <p>
@@ -794,15 +842,14 @@ and if the directory you are copying from is read-only it will just copy rather 
 The copy versus move status is reflected in the icon for "INSTALL".
 The download icon will have a line above it (mnemonically, the book left in place) when a copy rather than move will occur.
 </p>
-<h3>Name Normalization</h3>
-This is an advanced topic, you can ignore it until you need it.
+<h3 id="name-normalization" class="anchor-target">Name Normalization</h3>
 Occasionally you may run across a book where files were named without the leading zeros in sequence numbers
 suggested above.
 The Aesop Player by default fixes any audio file or directory names (except that for the whole book) that it finds
 containing single-digit numbers. The numbers are silently converted to 2 digit numbers (with a zero added).
 Although we have not (yet) seen a book where doing this would cause a problem (and many instances where it helps)
 it is possible to disable this by unchecking "Normalize Book Names" using the "More" button (#8 on 
-<a href="#new-books">this screen</a>)). 
+<a href="#new-books">New Books</a>)). 
 <h3>Book Progress</h3>
 <p>
 The player keeps two pieces of information about progress reading a book: 
@@ -810,15 +857,18 @@ the current position (which it needs for restarting after a pause) and whether t
 The progress shows up as a time and percentage on the player screen and on the book inventory screen, 
 and the word "Completed" is show in both places when the book has been read to the end.
 Occasionally a book may be left playing accidentally, or you need to move from one device to another.
-Should that happen, you can click on the time displayed in the book inventory screen and enter a new time.
+Should that happen, you can click on the time displayed in the book inventory 
+(#9 on <a href="#inventory-screen">Book Inventory</a>).
 That can be in minutes (even more than an hours worth) or hours and minutes (as hh:mm)).
 Setting it to zero rewinds the book completely.
 Changing the time also resets the "Completed" flag.
 </p>
 <p>
-You can also reset any books to the beginning by checking them in the book inventory screen and then clicking the "Reset" button at the upper right.
+You can also reset any books to the beginning by checking them in the book inventory screen and then clicking the "Reset" button at the upper right
+(#7 on <a href="#inventory-screen">Book Inventory</a>).
 (Check "All" if you want to reset everything.)
 This also resets the "Completed" flag.
 (This is particularly useful if you are using the player as a "library book" shared between users.)
 </p>
 <p>
+

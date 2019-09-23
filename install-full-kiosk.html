@@ -16,7 +16,21 @@ extra_js:
 
 The criteria for selecting a Kiosk Mode are discussed in depth
 <a href="install-dedicated.html#kiosk-mode">here</a>.
-If you determine you need Full Kiosk Mode, proceed as described below.
+If, after reviewing that, you determine you need Full Kiosk Mode, proceed as described below.
+</p>
+<p>
+This is where you use the BIND_DEVICE_ADMIN privilege and enable the Device Owner.
+The folks at Google want us to be sure you can't do that unknowingly, so we're telling
+you about it here, with a few more details where you do it. 
+The actual step that does it is the 'adb' command below.
+You can stop using the privilege either by choosing another Kiosk Mode or using
+Maintenance Mode. You can also completely drop it as described below.
+</p>
+<p>
+Since at this point you've decided to use the device as a completely dedicated player,
+if you have correctly set up your device there should be no personally identifiable
+information on it.
+</p>
 
 <h2>Preparation</h2>
 
@@ -37,7 +51,9 @@ You will need:
 <p>
 In order for step 4 to succeed, you need to remove all the accounts registered
 in the system. 
-If you've recently done a Factory Reset or are using a brand new devoce, 
+If you've recently done a 
+<a href="install-dedicated.html#initial-setup">factory reset</a>
+or are using a brand new device, 
 and have not created any accounts, that's already done and you can skip to step 2.
 </p>
 
@@ -124,6 +140,7 @@ step. The software installed here can be uninstalled later.
 <p>
 In order for Aesop Player to take full control of the UI it needs to be given
 special privilege &mdash; it needs to be made a so-called <em>device owner</em>.
+This uses the BIND_DEVICE_ADMIN privilege discussed at the top of this page.
 This doesn't change the software in any way, it does <strong>not</strong>
 void the warranty and it can be easily reversed or temporarily suspended.
 </p>
@@ -158,19 +175,21 @@ function CopyToClipboard() {
 </script>
 
 <p>
-You should see:
+You should 
+<span class="moreinfo" title="
+On recent (Android 9 and above) devices, if you go to Android Settings->Security&location->Device Admin Apps you'll find 
+a long and scary-sounding message about what Aesop Player could in theory do to the system. We only use the privilege
+for this one purpose.
+">
+see:
+</span>
+<p class="smaller">
+</p>
 <pre>
 Success: Device owner set to package com.donnKey.aesopPlayer
 </pre>
 <p>
 If Aesop was set to Application Pinning Kiosk Mode, it will be changed to None.
-</p>
-<p class="smaller">
-On recent (Android 9 and above) devices, if you go to Android Settings->Security&location->Device Admin Apps you'll find 
-a long and scary-sounding message about what Aesop Player could in theory do to the system.
-The only actual privilege it uses is the one required to implement Full Kiosk Mode,
-the BIND_DEVICE_ADMIN (also known as Device Owner) privilege. 
-The folks at Google want us to tell you we are using that privilege.
 </p>
 <p>
 In case of errors see

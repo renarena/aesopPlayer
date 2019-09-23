@@ -16,7 +16,7 @@
         <p>
         A new tablet or phone ("device") isn't necessary.
         An older device, even one without a cellular connection, is quite usable.
-        See <a href="install-dedicated.html#hardware-selection">Hardware Considerations</a> about "previously owned" devices.
+        See <a href="install-dedicated.html#hardware-selection">Hardware Considerations</a> for more on "previously owned" devices.
         </p>
 
     - question: Is it necessary for the user to have WiFi or Internet connection after installing the app?
@@ -36,14 +36,14 @@
         <p>
         The player can also be remotely administered if you have an Internet connection.
         <p>
-        If you don't intend on using WiFi on a Dedicated Player, turn it off to save battery.
+        If you don't intend on using WiFi or Cellular on a Dedicated Player, turn it off to save battery.
         <p>
         There's a lot more on these topics in the 
-        <a href="http:provisioning.html">Provisioning</a>
-        article.
+        <a href="http:provisioning.html">Managing Books</a>
+        section.
         </p>
 
-    - question: I would like to make a Aesop Player tablet but will I be able to do this with a Mac?
+    - question: I would like to make a dedicated Aesop Player but will I be able to do this with a Mac?
       answer: >
         <p>Yes, you can use a Mac or a PC with Windows or Linux.</p>
 
@@ -83,7 +83,8 @@
         </p>
         <p>
         This means that most audiobooks that you <strong>buy</strong> will
-        work fine.<br>
+        work fine. Books downloaded from the various free book providers should also be fine.
+        <br>
         However, subscription and rental services that only work with their
         dedicated application are unlikely to work.
         </p>
@@ -217,15 +218,11 @@
         </p>
         <p>
         However, the various volunteer book providers like LibriVox and Project Gutenberg can use financial help 
-        (so there are more books to read!).
+        (so there are more books to read!)
         Consider donating to the ones you use. I do.
         Letting me know <a href="mailto:aesopPlayer@gmail.com">by mail</a> 
         you did that is always nice, or make the donation in the name of "Aesop Player".
         <p>
-        Marcin Simionides (the author of Homer Player, upon which Aesop Player is based) suggests the best way to
-        thank him is to send him a postcard from where you live.<br>
-        Here's his P.O. Box address:
-        </p>
-        <p>
-        <img style="margin: 0.5em 0em 0.7em 3em"src="img/address.png">
-        </p>
+        This project is based upon the
+        <a href="https://msimonides.github.io/homerplayer">Homer Player</a>
+        project created by Marcin Simonides. Our thanks to him.

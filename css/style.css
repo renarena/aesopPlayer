@@ -47,6 +47,10 @@ h3 {
 	font-weight: 600;
 }
 
+h4 {
+	text-decoration: underline;
+}
+
 strong {
 	font-weight: 600;
 }
@@ -160,6 +164,52 @@ a.framed-link img {
 
 a.framed-link:hover {
 	background-color: #cccccc;
+}
+
+.moreinfo {
+        border-bottom: 1px dashed #0a0;
+        text-decoration: none;
+}
+
+.more-info:hover {
+        border-bottom: 1px dashed #0a0;
+        text-decoration: none;
+	cursor: help;
+}
+
+a.moreinfo:link {
+        border-bottom: 1px dashed #0a0;
+	color:inherit !important;
+	text-decoration: none ;
+}
+
+a.moreinfo:visited {
+	/* can only change limited things in 'visited' */
+	text-color:inherit !important;
+	color:inherit !important;
+        border-bottom-color: #040 ;
+}
+
+a.moreinfo:hover {
+	cursor: help;
+	position:relative;
+}
+
+a.moreinfo span {
+    display: none
+}
+
+a.moreinfo:hover span {
+    text-color: inherit;
+    display: block;
+    font-size: 70%;
+    border: 1px solid;
+    box-shadow: 3px 4px #888;
+    text-decoration: none;
+    position: absolute;
+    margin: 5px;
+    background: white;
+    left: 0px;
 }
 
 .navbar-brand {

@@ -2,20 +2,20 @@
 layout: page
 meta_title: "Aesop Player: user interface"
 title: "User<br>Interface"
-heading: "User<br>Interface"
+heading: "User Interface"
 description: "The Aesop end-user interface"
 header-img: img/holding.jpg
 meta_description: "Understanding how the end user will interact with the Aesop Player."
 redirect_from: /install-test.html
 ---
 <p>
-The Aesop Player's focus is on providing a simple user inteface for audio books.
+The Aesop Player's focus is on providing a simple user interface for audio books.
 Now that Aesop Player is installed on your tablet (see 
 <a href="getting-started.html">Getting started</a>)
 let's explore the user interface to see how it does that.
 Be sure that at least the sample books are installed - it will display a special screen
 asking you to do that if there aren't any books. There's more on how to add books in
-<a href="provisioning.html">Provisioning</a>.
+<a href="provisioning.html">Managing Books</a>.
 </p>
 <p>
 For the user (see 
@@ -24,7 +24,7 @@ for what we mean by "user") there are only two screens to consider, the Book Sel
 screen. The caregiver and technical person will need to use other screens, which are discussed under 
 <a href="install-configure.html">Configuration</a>
 and 
-<a href="provisioning.html">Provisioning</a>.
+<a href="provisioning.html">Managing Books</a>.
 </p>
 <p>
 The sections below are separated into a description of the displayed screen and a section on each
@@ -66,20 +66,30 @@ to make it hard to accidentally enter Settings mode.
 <p>
 Also displayed at the top are the the progress in the book in both time and percentage, and in a small font, the
 chapter title. 
-At the lower left of the colored area is the total length of the book. 
+At the lower left of the colored area is the 
+<span class="moreinfo" title="
+The book length information is computed the first time the book is displayed, so it may appear as ?? for
+a while when a new book is looked at.
+">
+total length 
+</span>,
+of the book. 
 The word "Completed" will be displayed at the lower right when the player has played to the end of the book.
-(The book length information is computed the first time the book is displayed, so it may appear as "??" for
-a while when a new book is looked at.)
 </p>
 <p>
-The Provisioning section discusses book titles in more depth. 
+The Managing Books section discusses book titles in more depth. 
 It is possible to change the displayed book title, which might be necessary if it is too "computerish" or excessively long for
 a spoken title.
 <p>
-The book position and the "Completed" flag can be reset via the Provisioning screens.
+The book position and the "Completed" flag can be reset via the Managing Books screens.
 </p>
 <p>
-The chapter title is a "best guess", and really is the title found in (or the name of) the currently playing .mp3 file.
+The chapter title is a
+<span class="moreinfo" title="
+It really is the title found in (or the name of) the currently playing .mp3 file.
+">
+"best guess".
+</span>
 The chapter title is not used anywhere else, but may be helpful for the caregiver.
 </p>
 <h3>Changing the Book Gesture</h3>
@@ -160,7 +170,7 @@ The Aesop Player saves the audio volume in use each time the player is stopped a
 It saves separate values for each kind of audio device.
 All wired headphones count as a single device type.
 Each Bluetooth device is different.
-The built-in (device) speaker is distinct fron the headphones.
+The built-in (device) speaker is distinct from the headphones.
 
 <p>
 For some devices, particularly Bluetooth, there is a volume control on the headset in addition to the one on the player.
@@ -173,7 +183,7 @@ Generally users need not concern themselves with saving the volume, Aesop should
 <p>
 Some users may find that they want the book read slower or faster than the original recording.
 The speed can be adjusted to fit the user's ability, either faster than or slower than the original,
-with no pitch change. The gesture-based speed controls for the Aesop player are similer to the volume controls.
+with no pitch change. The gesture-based speed controls for the Aesop player are similar to the volume controls.
 
 <h2 id="playback-volume-speed" class="anchor-target">Gestures for Audio Volume and Speed (Playback Screen)</h2>
 <p>
@@ -196,7 +206,7 @@ The audio will continue playing, and you'll immediately hear the effect.
 Once the direction of the drag is recognized, a series of "tick"s will be heard overlaying the audio,
 and with each tick the volume or speed will be raised or lowered by one step.
 When a limit is reached, the tick will be replaced by a double-beep, and there will be no effect.
-Reversing the drag will reverse the direction (either faster&harr;lower or louder&harr;softer).
+Reversing the drag will reverse the direction (either faster&harr;slower or louder&harr;softer).
 Ending the drag (lifting the finger for a moment) and reestablishing direction is needed to change between volume and speed.
 (This sounds more complicated than it is: give it a try.)
 Aesop will also say one of "Faster", "Slower", "Louder" or "Softer", or when adjusting speed, "Normal" for no change in speed (1.0x).

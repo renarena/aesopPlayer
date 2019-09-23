@@ -15,6 +15,16 @@ With the right configuration all the other apps are hidden from the user.
 All that is left on the surface is the simple functionality of playing audiobooks.
 </p>
 <p>
+Before proceeding further, the folks at Google want us to tell you that to use what's called
+"Full Kiosk Mode" below, you have to use the Android BIND_DEVICE_ADMIN privilege. It's a strong 
+privilege, so they don't want it abused. If you choose to use Full Kiosk mode, there will
+be more information there. 
+If you don't use Full Kiosk mode, the privilege will remain unused and you can safely ignore its existence.
+The steps required to use it make it completely clear that you are doing so.
+It is far easier to suspend or drop the privilege than it is to obtain it.
+</p>
+<h2>Dedicated Players</h2>
+<p>
 A Dedicated Player need not run on the latest hardware. 
 <a href="#hardware-selection">Hardware Considerations</a> below discusses
 the issues you might want to consider in using "previously owned" hardware.
@@ -137,7 +147,7 @@ need to disable it.
 
 <div class="additional-info info"><strong>Kindle Fire:</strong>
 We have not recently tested with the Kindle Fire. 
-It has worked in the past, but be sure to test it thoroghly before committing to it.
+It has worked in the past, but be sure to test it thoroughly before committing to it.
 <br>
 There is no way to disable the lock screen on a Kindle Fire. Setting it to
 "Swipe" is the best that can be done.
@@ -355,17 +365,20 @@ To do that there are three choices, each with advantages and disadvantages that 
 <p>
 The Aesop player will only offer those modes that are actually available on the hardware.
 On older devices, Application Pinning and Full Kiosk mode won't be visible, 
-and Full Kiosk mode will be unclickable until it's set up as described above.
+and Full Kiosk mode will be un-clickable until it's set up as described above.
 </p>
-Full Kiosk Mode and Application Pinning are closely related in Android.
+Full Kiosk Mode and Application Pinning are 
+<span class="moreinfo" title="
+What's really going on here is that when the Device Owner permission is held, Android treats
+the operations to lock the device as kiosk mode requests. Without the permission, it's treated
+as an application pinning request.
+">
+closely related 
+</span>
+in Android.
 The consequence of that to Aesop is that only one of the two is possible at any given time.
 If you have the privilege for Full Kiosk Mode, you cannot use Application Pinning; if you don't,
-the of course you can't use Full mode.
-</p>
-<p class="smaller">
-    What's really going on here is that when the Device Owner permission is held, Android treats
-    the operations to lock the device as kiosk mode requests. Without the permission, it's treated
-    as an applicaiton pinning request.
+then of course you can't use Full mode.
 </p>
 <p>
 Simple Kiosk and Application Pinning are your two best choices initially.
@@ -404,10 +417,17 @@ Simple Kiosk Mode:
 Application Pinning Mode:
     <dd>
     <div style="margin-left: 2em;">
-    When you first click OK, and each time you start the player application thereafter, it will ask you to confirm application pinning.
+    Each time you go to the playback screen after starting Application Pinning (and when you aren't in 
+    <a href="#maintenance-mode">Maintenance Mode</a>),
+    it will ask you to confirm 
+    <span class="moreinfo" title="
+    Some older devices may not pop up the 'Got it' message but will pin Aesop anyway (there will be a Toast.)
+    ">
+    application pinning.
+    </span>
     Click "Got It" (or "OK" or something similar depending on Android model). 
-    The double-button-press it describes in that popup will work to exit pinning, but Application Pinning will be restored next time you start the player.
-    (Some older devices may not pop up the "Got it" message but will pin Aesop anyway (there will be a Toast.))
+    The double-button-press it describes in that popup will work to exit pinning, 
+    but Application Pinning will be restored each time you enter the playback screen.
     </p>
     <p>
     Also on some devices there may be a second popup about Full Screen Mode (which may only appear once). You can click on that to ignore it as well.
@@ -423,16 +443,18 @@ particularly if you're changing books in unusual ways.
 Maintenance Mode temporarily turns off Kiosk mode, button delay, and settings interlock. 
 It also turns off the audible announcement of book titles. 
 Suppression of title announcement continues for 30 seconds after Maintenance Mode is turned off. 
-This is useful when maintaining the device remotely so it is silent when left in Paused mode. 
+This is useful when maintaining the device remotely so it is silent when left in face-down Paused mode. 
 </p>
 <p>
-Turning off Maintenance Mode restores the pror settings. 
 The effect is immediate: you can leave the player any time you wish when Maintenance Mode is on, as with any ordinary application.
 The setting for Maintenance Mode is not affected by application or device restarts - Aesop will stay in Maintenance Mode until you
 turn it off.
 </p>
 <p>
-Maintenance mode is in practice in effect whenever you are in Settings or Provisioning modes. When using Application Pinning,
+Turning off Maintenance Mode restores the pror settings. 
+</p>
+<p>
+Maintenance mode is in practice in effect whenever you are in Settings or managing books. When using Application Pinning,
 the "Got It" message mentioned above will be displayed when you return to the books screen.
 </p>
 
@@ -442,7 +464,7 @@ Go to <strong>Aesop Settings</strong> (the "gear" icon) &rarr;
 Click the greyed-out "gear" button at the bottom right of the Settings screen.
 </p>
 Turn it off (click the now-bright icon in the same location) before resuming normal use.
-The bright red "gear" icon is your reminder that it's on in Settings mode, and it displays "Maintenance Mode" on the playback screen.
+The bright red "gear" icon is your reminder that it's on in Settings mode, and Aesop displays "Maintenance Mode" on the playback screen.
 (You can see that in the image at the top of this page.)
 </p>
 <p>
@@ -462,12 +484,16 @@ with even purely cosmetic flaws are not much in demand, you may be able to find 
 at a place that recycles older hardware.
 
 <ul>
-    <li>Version: Android versions 5.0 and later will be somewhat easier to set up than 4.2.x up. For the
-	actual user, there will be little perceived difference. Note that "factory reset" (above) may change the
-	installed version downward, but typically it can be updated back to the latest available version
-	after the reset.  (Devices that have been "rooted" might be running versions that can't be easily
-	reinstalled, so check what the device's manufacturer supports, not what's installed, if you intend
-	to reset the device.) 
+    <li>Version: 
+	For the actual user using any of the Kiosk modes, there will be little perceived difference. 
+	For users who want to use Application Pinning or Full Kiosk mode, Android versions 5.0 and later are required.
+	Note that "factory reset" (above) may change the installed version downward, but typically it can be updated back to the latest available version
+<span class="moreinfo" title="
+Devices that have been 'rooted' might be running versions that can't be easily reinstalled,
+so check what the device's manufacturer supports, not what's installed, if you intend to reset the device.
+">
+after the reset.  
+</span>
     </li>
     <li>Audio: obviously this must be fully functional, and the heaphone jack should be functional and
 	not too worn, as headphones may well be used. The mechanical volume control buttons are convenient
@@ -487,7 +513,7 @@ at a place that recycles older hardware.
 	WiFi is a better choice (likely to cost less) for system upgrades (and may be required for that).
 	A temporary WiFi connection (if one is possible) will work. 
 	After initial setup the Internet is not needed if USB works, although an Internet connection 
-	may be very helpful for Provisioning.
+	may be very helpful when Managing Books.
 	If you intend to control the device remotely, then some sort of Internet connection 
 	(as supported by the remote-control app) will be needed, and that may well be WiFi.
     </li>
@@ -497,12 +523,12 @@ at a place that recycles older hardware.
 	if the device is connected
     <li>NFC: unused.
     <li>USB: the physical connector for USB is also used for power, so that should be in good shape. If it is
-	marginal, consider "permanantly" attaching an extender cable to save wear and tear. The USB itself is
-	not strictly required unless you intend to use Full Kiosk mode. Provisioning can be
+	marginal, consider "permanently" attaching an extender cable to save wear and tear. The USB itself is
+	not strictly required unless you intend to use Full Kiosk mode. Managing Books can be
 	done via WiFi if USB is broken. <i>One</i> of an Internet connection (WiFi or cellular) or USB is required 
 	to install books.
 	<br>
-	If you intend to use USB for Provisioning (see
+	If you intend to use USB for Managing Books (see
 	<a href="provisioning.html#usb">here</a>) be sure USB drives are supported. 
 	Support for them is spotty on older (particularly Android 4) devices.
     </li>
