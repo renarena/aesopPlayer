@@ -47,6 +47,10 @@
     <string name="permission_rationale_exit">Exit app</string>
     <string name="permission_rationale_ignore">Skip (Kiosk less effective)</string>
     <string name="permission_rationale_download_samples">Storage permission is needed by Aesop Player to save downloaded audiobook samples.</string>
+    <string name="permission_rationale_analytics">Help improve Aesop Player by allowing usage and crash information to be uploaded. Aesop gathers no PII. See\nhttps://donnkey.github.io/aesopPlayer/install-configure.html for more details.</string>
+    <string name="permission_rationale_analytics_title">Help Aesop Player Improve</string>
+    <string name="permission_kind_allow">Allow</string>
+    <string name="permission_kind_disallow">Disallow</string>
     <string name="permission_rationale_scan_audiobooks">Storage permission is needed by Aesop Player to access the audiobook files.</string>
     <string name="permission_rationale_simple_kiosk">Simple Kiosk mode requires these permissions.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Overlay permissions avoid accidental use of the status bar.</string>
@@ -112,6 +116,9 @@
     <string name="pref_proximity_awaken">Awaken on proximity detector"</string>
     <string name="pref_proximity_awaken_summary_on">Enabled</string>
     <string name="pref_proximity_awaken_summary_off">Disabled</string>
+    <string name="pref_analytics">Send Diagnostic and Usage Information</string>
+    <string name="pref_analytics_summary_on">Enabled</string>
+    <string name="pref_analytics_summary_off">Disabled</string>
     <string name="pref_screen_orientation">Screen orientation</string>
     <string name="pref_screen_orientation_default_value" translatable="false">LANDSCAPE_AUTO</string>
     <string name="pref_current_position_note" translatable="false">(%1$s)</string>
@@ -145,6 +152,8 @@
     <string name="samplesDownloadProgressTitle">Downloading…</string>
     <string name="samplesDownloadNotificationTitle">Audiobook samples for Aesop Player</string>
     <string name="content_description_fragment_init_logo">This application\'s logo during startup</string>
+    <string name="info_will_restart">Aesop must restart to activate this change. This will occur when you exit Settings.</string>
+    <string name="info_info">Information</string>
 
     <!-- Below are for provisioning activity -->
     <string name="title_activity_provisioning">Update Books</string>

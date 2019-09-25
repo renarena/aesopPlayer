@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -30,7 +30,7 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 
@@ -111,7 +111,7 @@ public class SoundBank {
 
             return new Sound(track, frameCount, sampleRate);
         } catch (IOException e) {
-            Crashlytics.logException(e);
+            CrashWrapper.logException(e);
             return null;
         }
     }

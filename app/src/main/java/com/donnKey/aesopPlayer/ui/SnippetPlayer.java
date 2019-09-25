@@ -27,7 +27,7 @@ package com.donnKey.aesopPlayer.ui;
 import android.content.Context;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.BookPosition;
 import com.donnKey.aesopPlayer.player.PlaybackController;
@@ -93,7 +93,7 @@ public class SnippetPlayer implements PlaybackController.Observer {
 
     @Override
     public void onPlaybackError(File path) {
-        Crashlytics.log(Log.DEBUG, TAG,"Unable to play snippet: " + path.toString());
+        CrashWrapper.log(Log.DEBUG, TAG,"Unable to play snippet: " + path.toString());
     }
 
     @Override

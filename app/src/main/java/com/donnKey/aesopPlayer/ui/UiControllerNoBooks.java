@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -27,7 +27,6 @@ package com.donnKey.aesopPlayer.ui;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -40,12 +39,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
 import com.donnKey.aesopPlayer.service.DemoSamplesInstallerService;
 import com.donnKey.aesopPlayer.events.DemoSamplesInstallationStartedEvent;
+
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -110,7 +111,7 @@ public class UiControllerNoBooks {
                 activity,
                 new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
                 PERMISSION_REQUEST_DOWNLOADS);
-        Crashlytics.log(Log.DEBUG, TAG, "startSamplesInstallation, "
+        CrashWrapper.log(Log.DEBUG, TAG, "startSamplesInstallation, "
                 + (permissionsAlreadyGranted ? "has permissions" : "requesting permissions"));
         if (permissionsAlreadyGranted)
             doStartSamplesInstallation();
@@ -126,7 +127,7 @@ public class UiControllerNoBooks {
     public void abortSamplesInstallation() {
         Preconditions.checkState(DemoSamplesInstallerService.isDownloading()
                 || DemoSamplesInstallerService.isInstalling());
-        Crashlytics.log(Log.DEBUG, TAG, "abortSamplesInstallation, isDownloading: " +
+        CrashWrapper.log(Log.DEBUG, TAG, "abortSamplesInstallation, isDownloading: " +
                 DemoSamplesInstallerService.isDownloading());
         // Can't cancel installation.
         if (DemoSamplesInstallerService.isDownloading()) {
@@ -153,27 +154,12 @@ public class UiControllerNoBooks {
             AlertDialog.Builder dialogBuilder = PermissionUtils.permissionRationaleDialogBuilder(
                     activity, R.string.permission_rationale_download_samples);
             if (canRetry) {
-                dialogBuilder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
+                dialogBuilder.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss());
             } else {
                 analyticsTracker.onPermissionRationaleShown("downloadSamples");
                 dialogBuilder.setPositiveButton(
-                        R.string.permission_rationale_settings, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        PermissionUtils.openAppSettings(activity);
-                    }
-                });
-                dialogBuilder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
+                        R.string.permission_rationale_settings, (dialogInterface, i) -> PermissionUtils.openAppSettings(activity));
+                dialogBuilder.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss());
             }
             dialogBuilder.create().show();
         }
@@ -181,7 +167,7 @@ public class UiControllerNoBooks {
 
     private void showInstallProgress(boolean isAlreadyInstalling) {
         Preconditions.checkState(progressReceiver == null);
-        Crashlytics.log(Log.DEBUG, TAG, "showInstallProgress, " +
+        CrashWrapper.log(Log.DEBUG, TAG, "showInstallProgress, " +
                 (isAlreadyInstalling ? "installation in progress" : "starting installation"));
         NoBooksUi.InstallProgressObserver uiProgressObserver =
                 ui.showInstallProgress(isAlreadyInstalling);
@@ -196,7 +182,7 @@ public class UiControllerNoBooks {
 
     private void stopProgressReceiver() {
         Preconditions.checkState(progressReceiver != null);
-        Crashlytics.log(Log.DEBUG, TAG, "stopProgressReceiver");
+        CrashWrapper.log(Log.DEBUG, TAG, "stopProgressReceiver");
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(progressReceiver);
         progressReceiver.stop();
         progressReceiver = null;
@@ -216,13 +202,13 @@ public class UiControllerNoBooks {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Preconditions.checkNotNull(intent.getAction());
+            Preconditions.checkNotNull(Objects.requireNonNull(intent.getAction()));
             // Workaround for intents being sent after the receiver is unregistered:
             // https://code.google.com/p/android/issues/detail?id=191546
             if (observer == null)
                 return;
 
-            Crashlytics.log(Log.DEBUG, TAG, "progress receiver: " + intent.getAction());
+            CrashWrapper.log(Log.DEBUG, TAG, "progress receiver: " + intent.getAction());
             if (DemoSamplesInstallerService.BROADCAST_DOWNLOAD_PROGRESS_ACTION.equals(
                     intent.getAction())) {
                 int transferredBytes = intent.getIntExtra(

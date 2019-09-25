@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -31,13 +31,12 @@ import android.os.Handler;
 import android.provider.MediaStore;
 
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.ui.HomeActivity;
 import com.donnKey.aesopPlayer.service.NotificationUtil;
 import com.donnKey.aesopPlayer.ui.Speaker;
 
 import javax.inject.Inject;
-
-import com.google.firebase.FirebaseApp;
 
 public class AesopPlayerApplication extends androidx.multidex.MultiDexApplication {
 
@@ -60,13 +59,14 @@ public class AesopPlayerApplication extends androidx.multidex.MultiDexApplicatio
 
         applicationContext = getApplicationContext();
 
-        FirebaseApp.initializeApp(this);
-
         component = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this, Uri.parse(DEMO_SAMPLES_URL)))
                 .audioBookManagerModule(new AudioBookManagerModule(AUDIOBOOKS_DIRECTORY))
                 .build();
         component.inject(this);
+
+        // Caution here: sets an apparently a device-global, persistent setting.
+        CrashWrapper.start(applicationContext, globalSettings.getAnalytics());
 
         mediaStoreUpdateObserver = new MediaStoreUpdateObserver(new Handler(getMainLooper()));
         getContentResolver().registerContentObserver(

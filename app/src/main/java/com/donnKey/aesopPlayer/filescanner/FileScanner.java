@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -27,8 +27,8 @@ package com.donnKey.aesopPlayer.filescanner;
 import android.content.Context;
 import android.os.Environment;
 
-import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.ApplicationScope;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.concurrency.BackgroundExecutor;
 import com.donnKey.aesopPlayer.concurrency.SimpleFuture;
 import com.donnKey.aesopPlayer.util.MediaScannerUtil;
@@ -98,13 +98,13 @@ public class FileScanner {
                             MediaScannerUtil.scanAndDeleteFile(applicationContext, dummyFile);
                         }
                     } catch (IOException e) {
-                        Crashlytics.logException(e);
+                        CrashWrapper.logException(e);
                     }
                 }
             } else {
                 // This should not happen because permissions are granted by this point.
                 // But it does, at least on some unofficial CyanogenMod systems.
-                Crashlytics.logException(new Exception(
+                CrashWrapper.logException(new Exception(
                         "Unable to write to: " + path.getParentFile().getAbsolutePath()));
             }
         }

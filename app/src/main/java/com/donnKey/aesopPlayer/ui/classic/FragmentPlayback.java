@@ -43,10 +43,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.service.DeviceMotionDetector;
 import com.donnKey.aesopPlayer.ui.FFRewindTimer;
 import com.donnKey.aesopPlayer.ui.HintOverlay;
@@ -154,7 +154,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     @Override
     public void onResume() {
         super.onResume();
-        Crashlytics.log("UI: FragmentPlayback resumed");
+        CrashWrapper.log("UI: FragmentPlayback resumed");
         rewindButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         ffButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         if (globalSettings.isScreenVolumeSpeedEnabled()) {

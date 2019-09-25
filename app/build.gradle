@@ -74,13 +74,8 @@ android {
     }
     buildTypes {
         debug {
-            manifestPlaceholders = [doCrashReports:"true"]
-            //TODO: the calls to Crashlytics.log (at least) will need to be conditional to allow this to
-            //      be false.  Need to figure how to determine this setting from within app.
-            //      See also use of this in AndroidManifest.
         }
         release {
-            manifestPlaceholders = [doCrashReports:"true"]
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

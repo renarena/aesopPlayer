@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -31,7 +31,7 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.io.Files;
 import com.donnKey.aesopPlayer.filescanner.FileScanner;
 
@@ -131,7 +131,7 @@ public class DemoSamplesInstaller {
             return true;
         } catch(IOException exception) {
             deleteFolderWithFiles(bookDirectory);
-            Crashlytics.logException(exception);
+            CrashWrapper.logException(exception);
             return false;
         }
     }
@@ -149,7 +149,7 @@ public class DemoSamplesInstaller {
 
             return localizedTitle;
         } catch(IOException | JSONException | ClassCastException exception) {
-            Crashlytics.logException(exception);
+            CrashWrapper.logException(exception);
             return null;
         }
     }

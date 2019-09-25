@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -37,11 +37,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 
-import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 import com.donnKey.aesopPlayer.ui.BookListUi;
@@ -133,7 +133,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     @Override
     public void onResume() {
         super.onResume();
-        Crashlytics.log("UI: ClassicBookList fragment resumed");
+        CrashWrapper.log("UI: ClassicBookList fragment resumed");
         showHintsIfNecessary();
     }
 
@@ -168,7 +168,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
         private final @NonNull List<AudioBook> audioBooks;
 
         BookListPagerAdapter(@NonNull FragmentManager fm, @NonNull List<AudioBook> audioBooks) {
-            super(fm);
+            super(fm,  BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
             this.audioBooks = audioBooks;
         }
 

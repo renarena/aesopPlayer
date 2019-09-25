@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -28,11 +28,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.ApplicationComponent;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.ui.InitUi;
 import com.donnKey.aesopPlayer.ui.UiControllerInit;
 
@@ -76,6 +76,6 @@ public class ClassicInitUi extends Fragment implements InitUi {
     @Override
     public void onResume() {
         super.onResume();
-        Crashlytics.log("UI: ClassicInit fragment resumed");
+        CrashWrapper.log("UI: ClassicInit fragment resumed");
     }
 }

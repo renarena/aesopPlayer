@@ -30,7 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
@@ -109,7 +109,7 @@ public class UiControllerPlayback {
     }
 
     public void stopPlayback() {
-        Crashlytics.log(Log.DEBUG, TAG, "UiControllerPlayback.stopPlayback");
+        CrashWrapper.log(Log.DEBUG, TAG, "UiControllerPlayback.stopPlayback");
         playbackService.stopPlayback();
     }
 

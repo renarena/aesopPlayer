@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -26,15 +26,18 @@ package com.donnKey.aesopPlayer.ui.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 
-import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.KioskModeSwitcher;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 
 import java.util.Objects;
@@ -42,6 +45,8 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 public class MainSettingsFragment extends BaseSettingsFragment {
+
+    private static final String TAG="Settings Main";
 
     private static final String KEY_FAQ = "faq_preference";
     private static final String KEY_VERSION = "version_preference";
@@ -97,16 +102,20 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             case GlobalSettings.KEY_SETTINGS_INTERLOCK:
                 updateSettingsInterlockSummary(sharedPreferences);
                 break;
+            case GlobalSettings.KEY_ANALYTICS:
+                respondToAnalyticsChange();
+                break;
         }
     }
 
     @SuppressWarnings("SameReturnValue")
     private void setupVersionSummary() {
         Preference preference = findPreference(KEY_VERSION);
-        preference.setSummary(BuildConfig.VERSION_NAME);
+        Objects.requireNonNull(preference).setSummary(BuildConfig.VERSION_NAME);
         preference.setOnPreferenceClickListener(preference1 -> {
             if (BuildConfig.DEBUG) {
-                Crashlytics.getInstance().crash();
+                CrashWrapper.log(Log.DEBUG, TAG, "Forced Crash");
+                CrashWrapper.crash();
             }
             return true;
         });
@@ -145,13 +154,32 @@ public class MainSettingsFragment extends BaseSettingsFragment {
                 findPreference(GlobalSettings.KEY_KIOSK_MODE_SCREEN);
 
         int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
-        kioskModeScreen.setSummary(summaryStringId);
+        Objects.requireNonNull(kioskModeScreen).setSummary(summaryStringId);
+    }
+
+    private void respondToAnalyticsChange()
+    {
+        if (globalSettings.getAnalytics()) {
+            CrashWrapper.start(getContext(), true);
+        }
+        else {
+            globalSettings.forceRestart = true;
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                    .setMessage(R.string.info_will_restart)
+                    .setTitle(R.string.info_info)
+                    .setIcon(R.drawable.ic_launcher);
+            dialogBuilder.setPositiveButton(android.R.string.ok,
+                    (dialogInterface, i) -> {});
+            dialogBuilder.create().show();
+        }
+
     }
 
     @SuppressWarnings("SameReturnValue")
     private void setupFaq() {
         Preference preference = findPreference(KEY_FAQ);
-        preference.setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
+        Objects.requireNonNull(preference).setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
         preference.setOnPreferenceClickListener(preference1 -> {
             openUrl(FAQ_URL);
             return true;

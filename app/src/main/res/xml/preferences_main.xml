@@ -58,6 +58,12 @@
         app:summaryOn="@string/pref_proximity_awaken_summary_on"
         app:summaryOff="@string/pref_proximity_awaken_summary_off"
         app:defaultValue="true"/>
+    <SwitchPreference
+        app:key="settings_analytics_preference"
+        app:title="@string/pref_analytics"
+        app:summaryOn="@string/pref_analytics_summary_on"
+        app:summaryOff="@string/pref_analytics_summary_off"
+        app:defaultValue="false"/>
     <ListPreference
         app:key="screen_orientation_preference"
         app:title="@string/pref_screen_orientation"

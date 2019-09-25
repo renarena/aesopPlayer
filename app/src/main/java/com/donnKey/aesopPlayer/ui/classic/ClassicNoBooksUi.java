@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -40,7 +40,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.ApplicationComponent;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -102,7 +102,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
     @Override
     public void onResume() {
         super.onResume();
-        Crashlytics.log("UI: ClassicNoBooks fragment resumed");
+        CrashWrapper.log("UI: ClassicNoBooks fragment resumed");
     }
 
     @Override

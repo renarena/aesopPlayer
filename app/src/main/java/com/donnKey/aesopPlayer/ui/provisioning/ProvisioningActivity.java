@@ -27,6 +27,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.Nullable;
@@ -353,6 +354,7 @@ public class ProvisioningActivity extends AppCompatActivity
     void groupAllSelected() {
         File newDir = null;
 
+        CrashWrapper.log("PV: Group books selected");
         for (Provisioning.Candidate c: provisioning.candidates) {
             if (c.isSelected) {
                 File bookPath = new File(c.oldDirPath);
@@ -415,6 +417,7 @@ public class ProvisioningActivity extends AppCompatActivity
 
     @UiThread
     void unGroupSelected() {
+        CrashWrapper.log("PV: Ungroup books selected");
         for (Provisioning.Candidate c: provisioning.candidates) {
             if (c.isSelected) {
                 File ungroupDir = new File(c.oldDirPath);

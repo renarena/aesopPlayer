@@ -37,6 +37,7 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 
@@ -90,6 +91,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
 
         holder.titleButton.setOnClickListener( (v) ->
         {
+            CrashWrapper.log("PV: Re-title book from Inventory");
             Objects.requireNonNull((ProvisioningActivity) parentFragment.getActivity())
                     .updateTitle(holder.book);
             provisioning.booksEvent();
@@ -97,6 +99,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
 
         holder.positionButton.setOnClickListener( (v) ->
         {
+            CrashWrapper.log("PV: Adjust book time");
             Objects.requireNonNull((ProvisioningActivity) parentFragment.getActivity())
                     .updateProgress(holder.book);
             provisioning.booksEvent();

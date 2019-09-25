@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -38,7 +38,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
@@ -110,7 +110,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void onActivityStart() {
-        Crashlytics.log(Log.DEBUG, TAG,"UI: onActivityStart");
+        CrashWrapper.log(Log.DEBUG, TAG,"UI: onActivityStart");
         if (!audioBookManager.isInitialized()) {
             scanAudioBookFiles();
         }
@@ -126,12 +126,12 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void onActivityPause() {
-        Crashlytics.log(Log.DEBUG, TAG, "UI: onActivityPause, state: " + currentState.stateId());
+        CrashWrapper.log(Log.DEBUG, TAG, "UI: onActivityPause, state: " + currentState.stateId());
         currentState.onActivityPause();
     }
 
     void onActivityStop() {
-        Crashlytics.log(Log.DEBUG, TAG,
+        CrashWrapper.log(Log.DEBUG, TAG,
                 "UI: stopping in state " + currentState.stateId() + " (activity stop)");
 
         // Leave the FSM unchanged and let restart do everything
@@ -166,7 +166,7 @@ public class UiControllerMain implements ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder service) {
-        Crashlytics.log(Log.DEBUG, TAG, "onServiceConnected");
+        CrashWrapper.log(Log.DEBUG, TAG, "onServiceConnected");
         Preconditions.checkState(playbackService == null);
         playbackService = ((PlaybackService.ServiceBinder) service).getService();
         maybeSetInitialState();
@@ -180,7 +180,7 @@ public class UiControllerMain implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
-        Crashlytics.log(Log.DEBUG, TAG, "onServiceDisconnected");
+        CrashWrapper.log(Log.DEBUG, TAG, "onServiceDisconnected");
         playbackService = null;
     }
 
@@ -282,7 +282,7 @@ public class UiControllerMain implements ServiceConnection {
     private void changeState(StateFactory newStateFactory) {
         // Since this might be a new instance of the class, we have to do a
         // state change even when it's the same state so listeners are right.
-        Crashlytics.log(Log.DEBUG, TAG, "UI: change state: " + currentState.stateId() + " to " + newStateFactory);
+        CrashWrapper.log(Log.DEBUG, TAG, "UI: change state: " + currentState.stateId() + " to " + newStateFactory);
         currentState.onLeaveState();
         currentState = newStateFactory.create(this, currentState);
 
@@ -301,6 +301,7 @@ public class UiControllerMain implements ServiceConnection {
         return noBooksControllerFactory.create(noBooksUi);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private UiControllerInit showInit() {
         InitUi initUi = mainUi.switchToInit();
         return initControllerFactory.create(initUi);
@@ -308,7 +309,7 @@ public class UiControllerMain implements ServiceConnection {
 
     @NonNull
     private UiControllerPlayback showPlayback(boolean animate) {
-        Preconditions.checkNotNull(playbackService);
+        Objects.requireNonNull(playbackService);
         PlaybackUi playbackUi = mainUi.switchToPlayback(animate);
         return playbackControllerFactory.create(playbackService, playbackUi);
     }
@@ -334,7 +335,7 @@ public class UiControllerMain implements ServiceConnection {
                     return new BookListState(mainController, previousState);
                 }
                 else {
-                    Crashlytics.log(Log.DEBUG, TAG, "UI: ...BOOK_LIST forced to NO_BOOKS");
+                    CrashWrapper.log(Log.DEBUG, TAG, "UI: ...BOOK_LIST forced to NO_BOOKS");
                     return new NoBooksState(mainController, previousState);
                 }
             }
@@ -383,11 +384,8 @@ public class UiControllerMain implements ServiceConnection {
 
     private static class InitState extends State {
 
-        @SuppressWarnings("unused")
-        private @NonNull final UiControllerInit initController;
-
         InitState (@NonNull UiControllerMain mainController) {
-            initController = mainController.showInit();
+            mainController.showInit();
         }
 
         @Override
@@ -498,15 +496,15 @@ public class UiControllerMain implements ServiceConnection {
                 playingAudioBook = mainController.currentAudioBook();
                 playbackController.startPlayback(playingAudioBook);
             }
-            Preconditions.checkNotNull(playbackController);
-            Preconditions.checkNotNull(playingAudioBook);
+            Objects.requireNonNull(playbackController);
+            Objects.requireNonNull(playingAudioBook);
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
             motionDetector.enable();
         }
 
         @Override
         void onActivityPause() {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             playbackController.stopRewindIfActive();
         }
 
@@ -514,7 +512,7 @@ public class UiControllerMain implements ServiceConnection {
         void onLeaveState() {
             justPaused = true;
             motionDetector.disable();
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             playbackController.shutdown();
         }
 
@@ -526,7 +524,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             if (playingAudioBook != null &&
                     playingAudioBook != mainController.currentAudioBook()) {
                 // This will cause a state change to BOOK_LIST (see just above)
@@ -537,7 +535,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         public void onFaceDownStill() {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             switch (mainController.getGlobalSettings().getStopOnFaceDown()) {
             case NONE:
                 break;
@@ -561,7 +559,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         public void onSignificantMotion() {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             playbackController.playbackService.resetSleepTimer();
         }
 
@@ -597,7 +595,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         void onBooksChanged(@NonNull UiControllerMain mainController) {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             if (playingAudioBook != null &&
                     playingAudioBook != mainController.currentAudioBook()) {
                 // This will cause a state change
@@ -614,7 +612,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         public void onFaceUpStill() {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             // We only get in this state when it's STOP_RESUME
             playbackController.resumeFromPause();
             playbackController.playbackService.resetSleepTimer();
@@ -623,7 +621,7 @@ public class UiControllerMain implements ServiceConnection {
 
         @Override
         public void onSignificantMotion() {
-            Preconditions.checkNotNull(playbackController);
+            Objects.requireNonNull(playbackController);
             playbackController.playbackService.resetSleepTimer();
         }
 

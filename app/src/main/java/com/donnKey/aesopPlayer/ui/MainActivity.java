@@ -26,6 +26,8 @@ package com.donnKey.aesopPlayer.ui;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +39,7 @@ import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +50,7 @@ import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.KioskModeSwitcher;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.battery.BatteryStatusProvider;
 import com.donnKey.aesopPlayer.concurrency.SimpleDeferred;
 import com.donnKey.aesopPlayer.ui.provisioning.ProvisioningActivity;
@@ -178,6 +182,15 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onStart() {
+        // If the user turned off analytics, it won't take until we restart.
+        if (globalSettings.forceRestart) {
+            globalSettings.forceRestart = false; // Should be the case, but to be sure...
+            restartMe();
+        }
+
+        // One time only opt-in.
+        doesUserAllowAnalytics();
+
         isPaused = false;
         // If app is started with a black screen (thus, from the debugger) various bad things
         // appear to happen not under our control. At a minimum it will loop between start
@@ -447,6 +460,35 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 }
             }
         }
+    }
+
+    private void doesUserAllowAnalytics() {
+
+        if (!globalSettings.getAnalyticsQueried()) {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
+                    .setMessage(R.string.permission_rationale_analytics)
+                    .setTitle(R.string.permission_rationale_analytics_title)
+                    .setIcon(R.drawable.ic_launcher);
+            dialogBuilder.setPositiveButton(R.string.permission_kind_allow,
+                    (dialogInterface, i) -> {
+                        globalSettings.setAnalytics(true);
+                        CrashWrapper.start(getApplicationContext(), true);
+                    });
+            dialogBuilder.setNegativeButton(R.string.permission_kind_disallow,
+                    (dialogInterface, i) -> globalSettings.setAnalytics(false));
+            dialogBuilder.create().show();
+        }
+
+        globalSettings.setAnalyticsQueried(true);
+    }
+
+    private void restartMe() {
+        Context context = getApplicationContext();
+        Intent newActivity = new Intent(context, AesopPlayerApplication.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 5551212, newActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
+        System.exit(0);
     }
 
     private class Restorer {

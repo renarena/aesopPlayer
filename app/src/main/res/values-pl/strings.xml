@@ -45,6 +45,10 @@
     <string name="permission_rationale_exit">Zamknij aplikację</string>
     <string name="permission_rationale_ignore">Pomiń (kiosk jest mniej skuteczna)</string>
     <string name="permission_rationale_download_samples">Pozwolenie na dostęp do pamięci jest potrzebne aby Aesop Player mógł zapisać pobrane przykładowe książki.</string>
+    <string name="permission_rationale_analytics">Pomóż ulepszyć odtwarzacz Aesop, wysyłając informacje o użytkowaniu i awarii. Aesop nie zbiera żadnych danych osobowych. Aby uzyskać więcej informacji, odwiedź https://donnkey.github.io/aesopPlayer/install-configure.html.</string>
+    <string name="permission_rationale_analytics_title">Pomóż ulepszyć gracza Aesop</string>
+    <string name="permission_kind_allow">Dopuszczać</string>
+    <string name="permission_kind_disallow">Zakazać</string>
     <string name="permission_rationale_scan_audiobooks">Pozwolenie na dostęp do pamięci jest potrzebne aby Aesop Player mógł odczytać pliki audiobooków.</string>
     <string name="permission_rationale_simple_kiosk">Prosty tryb kiosku wymaga tych uprawnień.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Zgodę na powołanie uniknąć przypadkowego użycia paska stanu</string>
@@ -68,6 +72,9 @@
     <string name="pref_proximity_awaken">Obudź się na wykrywaczu zbliżeniowy"</string>
     <string name="pref_proximity_awaken_summary_on">Włączone</string>
     <string name="pref_proximity_awaken_summary_off">Wyłączone</string>
+    <string name="pref_analytics">Wyślij informacje diagnostyczne i dotyczące użytkowania</string>
+    <string name="pref_analytics_summary_off">Zakazać</string>
+    <string name="pref_analytics_summary_on">Umożliwiać</string>
     <string name="pref_kiosk_mode_screen_title">Zablokuj wyjście z aplikacji (tryb kiosku)…</string>
     <string name="pref_kiosk_mode_screen_selection">Preferowany tryb kiosku</string>
     <string name="pref_kiosk_mode_screen_summary_disabled">Wyłączone</string>
@@ -129,6 +136,8 @@
     <string name="samplesDownloadErrorTitle">Błąd</string>
     <string name="samplesDownloadProgressTitle">Pobieranie…</string>
     <string name="samplesDownloadNotificationTitle">Przykładowe audiobooki dla Aesop Playera</string>
+    <string name="info_will_restart">Aesop musi zostać ponownie uruchomiony, aby aktywować tę zmianę. Stanie się to po opuszczeniu Ustawień.</string>
+    <string name="info_info">Informacja</string>
 
     <string name="content_description_fragment_init_logo">Logo tej aplikacji podczas uruchamiania</string>
     <string name="title_activity_provisioning">Aktualizacja Książek</string>

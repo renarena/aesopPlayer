@@ -29,8 +29,8 @@ import android.os.Looper;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
-import com.crashlytics.android.Crashlytics;
 import com.donnKey.aesopPlayer.ApplicationScope;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.concurrency.SimpleFuture;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.events.CurrentBookChangedEvent;
@@ -127,7 +127,7 @@ public class AudioBookManager {
             public void onException(@NonNull Throwable t) {
                 isInitialized = true;
                 // TODO: clear the list of books?
-                Crashlytics.logException(t);
+                CrashWrapper.logException(t);
             }
         });
     }

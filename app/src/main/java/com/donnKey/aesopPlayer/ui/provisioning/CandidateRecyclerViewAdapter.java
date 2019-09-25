@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -36,6 +36,7 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.ColourScheme;
 
 import java.util.Objects;
@@ -89,9 +90,10 @@ public class CandidateRecyclerViewAdapter
             notifyItemChanged(position);
         });
 
-        holder.view.setOnClickListener((v) ->
+        holder.view.setOnClickListener((v) -> {
+                CrashWrapper.log("PV: Re-title Book from candidates");
                 Objects.requireNonNull((ProvisioningActivity) parentFragment.getActivity())
-                .updateTitle(holder.aCandidate));
+                    .updateTitle(holder.aCandidate);} );
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

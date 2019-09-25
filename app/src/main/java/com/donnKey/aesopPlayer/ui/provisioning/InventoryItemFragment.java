@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 
@@ -248,6 +249,7 @@ public class InventoryItemFragment extends Fragment {
     }
 
     private void deleteAllSelected() {
+        CrashWrapper.log("PV: Delete Books");
         ((ProvisioningActivity) Objects.requireNonNull(getActivity())).deleteAllSelected();
     }
 
@@ -262,6 +264,7 @@ public class InventoryItemFragment extends Fragment {
 
     private void rewindAllSelected()
     {
+        CrashWrapper.log("PV: Rewind Books");
         for (Provisioning.BookInfo b : provisioning.bookList) {
             if (b.selected)
             {

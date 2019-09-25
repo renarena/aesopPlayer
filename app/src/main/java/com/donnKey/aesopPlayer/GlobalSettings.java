@@ -93,6 +93,8 @@ public class GlobalSettings {
     private static final String KEY_PROXIMITY_AWAKEN = "awaken_on_proximity_preference";
     public static final String KEY_SETTINGS_INTERLOCK = "settings_interlock_preference";
     private static final String KEY_MAINTENANCE_MODE = "settings_maintenance_mode";
+    public static final String KEY_ANALYTICS = "settings_analytics_preference";
+    private static final String KEY_ANALYTICS_QUERIED = "analytics_queried_once";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     // --Commented out by Inspection (2/25/2019 2:47 PM):private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -105,6 +107,8 @@ public class GlobalSettings {
 
     private final Resources resources;
     private final SharedPreferences sharedPreferences;
+
+    public boolean forceRestart = false;
 
     @Inject
     public GlobalSettings(Resources resources, SharedPreferences sharedPreferences) {
@@ -302,6 +306,22 @@ public class GlobalSettings {
 
     public boolean isTiltVolumeSpeedEnabled() {
         return sharedPreferences.getBoolean(KEY_TILT_VOLUME_SPEED, false);
+    }
+
+    public boolean getAnalytics() {
+        return sharedPreferences.getBoolean(KEY_ANALYTICS, false);
+    }
+
+    public void setAnalytics(boolean b) {
+        sharedPreferences.edit().putBoolean(KEY_ANALYTICS, b).apply();
+    }
+
+    public boolean getAnalyticsQueried() {
+        return sharedPreferences.getBoolean(KEY_ANALYTICS_QUERIED, false);
+    }
+
+    public void setAnalyticsQueried(boolean b) {
+        sharedPreferences.edit().putBoolean(KEY_ANALYTICS_QUERIED, b).apply();
     }
 
     public boolean getRetainBooks() {
