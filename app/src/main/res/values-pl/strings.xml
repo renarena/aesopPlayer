@@ -96,6 +96,7 @@
     <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Przywilej nie jest obecnie posiadany</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Przywilej obecnie przyznany</string>
     <string name="pref_kiosk_already_unlocked_toast">Już odblokowany</string>
+    <string name="pref_kiosk_mode_broken">Niedostępne w systemie Android 10 lub nowszym.</string>
     <string name="pref_no_browser_toast">Nie można otworzyć strony: brak przeglądarki.</string>
     <string name="pref_playback_options_screen_title">Ustawienia odtwarzania…</string>
     <string name="pref_playback_speed_title">Prędkość odtwarzania</string>

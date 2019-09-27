@@ -83,6 +83,7 @@
     <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Privilege not currently held</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privilege currently granted</string>
     <string name="pref_kiosk_already_unlocked_toast">Already unlocked</string>
+    <string name="pref_kiosk_mode_broken">Not available on Android 10 or later.</string>
     <string name="pref_no_browser_toast">Cannot open website: no web browser found.</string>
     <string name="pref_playback_options_screen_title">Playback settings…</string>
     <string name="pref_playback_speed_title">Playback speed</string>

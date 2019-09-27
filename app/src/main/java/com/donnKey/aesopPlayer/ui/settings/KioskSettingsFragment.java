@@ -111,15 +111,20 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             kioskPolicies[SIMPLE_].available = false;
             kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_summary_old_version;
         }
-        else {
+        else if (Build.VERSION.SDK_INT < 29) { //L - P
             kioskPolicies[SIMPLE_].possible = true;
             kioskPolicies[SIMPLE_].available = true;
             kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title;
         }
+        else { // Q
+            kioskPolicies[SIMPLE_].possible = true;
+            kioskPolicies[SIMPLE_].available = false;
+            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken;
+        }
 
         // App Pinning and Full.
         ConfirmDialogPreference preferenceUnregisterDeviceOwner =
-                (ConfirmDialogPreference) findPreference(KEY_UNREGISTER_DEVICE_OWNER);
+                findPreference(KEY_UNREGISTER_DEVICE_OWNER);
 
         if (Build.VERSION.SDK_INT < 21) { // L
             if (preferenceUnregisterDeviceOwner != null) {
@@ -136,7 +141,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_full_summary_old_version;
         }
         else {
-            preferenceUnregisterDeviceOwner.setOnConfirmListener(this::disableDeviceOwner);
+            Objects.requireNonNull(preferenceUnregisterDeviceOwner).setOnConfirmListener(this::disableDeviceOwner);
             updateUnregisterDeviceOwner(AesopPlayerDeviceAdmin.isDeviceOwner(getActivity()));
 
             kioskPolicies[PINNING_].possible = true;
@@ -159,7 +164,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
         Preference kioskModeScreen = findPreference(KEY_KIOSK_SELECTION);
         KioskSelectionPreference preferenceFilteredList = (KioskSelectionPreference) kioskModeScreen;
-        preferenceFilteredList.setPolicies(kioskPolicies);
+        Objects.requireNonNull(preferenceFilteredList).setPolicies(kioskPolicies);
         preferenceFilteredList.setOnNewValueListener((mode) -> {
                 GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
                 // This is where we actually change the mode.
@@ -170,7 +175,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         );
 
         int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
-        kioskModeScreen.setSummary(summaryStringId);
+        Objects.requireNonNull(kioskModeScreen).setSummary(summaryStringId);
     }
 
     @Override
@@ -209,7 +214,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
     private void updateUnregisterDeviceOwner(boolean isEnabled) {
         Preference preference = findPreference(KEY_UNREGISTER_DEVICE_OWNER);
-        preference.setEnabled(isEnabled);
+        Objects.requireNonNull(preference).setEnabled(isEnabled);
         preference.setSummary(getString(isEnabled
                 ? R.string.pref_kiosk_mode_unregister_device_owner_summary_on
                 : R.string.pref_kiosk_mode_unregister_device_owner_summary_off));
