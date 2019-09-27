@@ -1,29 +1,36 @@
 # Privacy Policy
 
-By using the Aesop Player app (the "App") you consent to the collection and
+By using the Aesop Player app (the "App") you can consent to the collection and
 processing of data concerning your use of the App in accordance with this
 privacy policy.
 
 ## Data collection and processing
 
-The App automatically collects certain usage and device data for the purpose of
-improving the App and its user experience.
+The App optionally automatically collects certain usage and device data 
+for the purpose of improving the App and its user experience.
 
-The following data is collected when you use the App:
+During application initialization, or later from the main Settings screen,
+you can authorize limited data collection. Assuming you have authorized 
+it, the following data is collected when you use the App. If you have 
+not authorized it, no data is collected or transmitted.
 
 ### Usage information
 
 This includes but is not limited to information about how often the App is
-being used or which application features are used etc. This data contains
-no personally identifiable information and it is processed by a third party
-service Flurry Analytics.
+being used or which application features are used, etc. This data contains
+no personally identifiable information and it is processed by the third party
+service Firebase Analytics (a part of Google). Only Firebase Analytics 
+retains any of this information. User provided variable information (for
+example, book titles) is never uploaded.
 
 ### Stability monitoring
 
 This is data about application errors that cause the application to stop (so
-called "crashes"). Whenever such error occurs data about the application state
-at that moment is collected. This data is processed by a third party service
-Crashlytics.
+called "crashes"). Whenever such an error occurs data about the application state
+at that moment is collected. This data is processed by the third party service
+Firebase Crashlytics (a part of Google). Only Firebase Crashlytics retains
+any of this information. User provided variable information (for
+example, book titles) is never uploaded.
 
 ### Device data
 
@@ -37,15 +44,14 @@ memory and some state of the device, e.g. the current amount of free memory.
 The data described above is collected, stored and processed with the use of the
 following third party services:
 
-- Flurry Analytics: [Privacy Policy]( http://www.flurry.com/legal-privacy/privacy-policy)
-- Crashlytics: [Privacy
-  Policy](https://try.crashlytics.com/terms/privacy-policy.pdf)
+- The general Google privacy policy is here: [Privacy Policy]( https://policies.google.com/privacy?hl=en&gl=us)
+- We have been unable to find specific Privacy Policies related to Analytics and Crashlytics.
 
 ## Changes to this Privacy Policy
 
 The policy may be modified at any time. Any changes will be posted to this page.
 
-This policy was last modified on August 16, 2019.
+This policy was last modified on September 27, 2019.
 
 ## Contact
 
