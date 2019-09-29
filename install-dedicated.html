@@ -245,10 +245,22 @@ Go to <strong>Aesop Settings</strong> (the "gear" icon) &rarr;
 
 <h2 id="kiosk-mode" class="anchor-target">Kiosk Mode</h2>
 <p>
-One of the objectives of the Android system is to make sure that all the applications work well together and share the screen. 
-For an application like this we want to overcome that so that unintended or misunderstood use of the "system" buttons does 
-not leave the user unable to use the player. 
-To do that there are three choices, each with advantages and disadvantages that fit different circumstances.
+One of the worst things that can happen with an application like this is that it accidentally becomes
+unusable by the <em>user</em> (as described in <a href="features.html#roles">Roles</a>).
+Accidental button presses are a significant risk for this sort of user, and fequently
+users would be unable to recover from, or even recongize the consequences of, an accidental press of 
+one of the system buttons.
+For typical users, the Android system tries to protect users from losing control of the system by
+making these same buttons very powerful, and hard to disable.
+However, for this sort of user that instead makes things worse.
+We want to assure the continued usability of the application by making it (as close as we can to) impossible to
+<em>accidentally</em> lose control of the system.
+On the other hand, it's also important that the care-giver and technical person can <em>intentionally</em>
+gain control when needed. The "Access To Settings" section just above is part of that solution.
+Kiosk mode is the other part.
+</p>
+<p>
+To prevent accidental pushes of the system buttons we provide three choices, each with advantages and disadvantages that fit different circumstances.
 </p>
 <ol class="toc">
     <li>
@@ -257,7 +269,9 @@ To do that there are three choices, each with advantages and disadvantages that 
 	Advantages:
 	<dd>
 	<ul>
-	    <li>Works on older Androids (4.4/API 19 and above), including the Kindle Fire.
+	    <li>Works on older Androids (4.4/API 19 and above), including possibly the Kindle Fire.
+		We have not recently tested with the Kindle Fire. 
+		It has worked in the past, but be sure to test it thoroughly before committing to it.
 	    <!-- ??????? check API 17 -->
 	    <li>Doesn't require any setup outside the app. (Does require granting permissions when selecting this mode for the first time. It will guide you.)
 	    <li>Doesn't interfere with the phone's normal use when not running.
@@ -267,6 +281,10 @@ To do that there are three choices, each with advantages and disadvantages that 
 	<dd>
 	<ul>
 	    <li>Can be ugly and slow at times.
+	    <li> Does not 
+		<span class="moreinfo" title="We're looking into it, but it may take some time. It's harder than it looks."/>
+		currently</span>
+		work on Android 10 (Q) or above. (Use App Pinning (or Full Kiosk) instead.)
 	    <li>Not guaranteed to be always effective.  (99.9%, but there are probably ways around it.)
 	    <li>Does not return to Aesop after device restart.
 	</ul>
@@ -274,13 +292,8 @@ To do that there are three choices, each with advantages and disadvantages that 
 	</dl>
 	<p>
 	    Simple mode is the only choice for older devices. On newer devices where Kiosk mode or 
-	    Application Pinning is available, it still can be useful when the device cannot be dedicated to a single
-	    use full-time, and for some reason Application Pinning is a problem.
-	</p>
-	<p>
-	    Whether Simple Kiosk mode will continue to be effective as new versions of Android are released is unclear 
-	    (it has been tested successfully on 9.0/API28). 
-	    However since either of the other modes should be available on newer systems, this is not a big concern.
+	    Application Pinning is available (and where it works), it still can be useful when the 
+	    device cannot be dedicated to a single use full-time, and for some reason Application Pinning is a problem.
 	</p>
     </li>
     <li>
@@ -342,6 +355,7 @@ To do that there are three choices, each with advantages and disadvantages that 
 	</p>
 	<p>
 	    See <a href="install-full-kiosk.html">Full Kiosk Mode</a> for the process of enabling Full Kiosk mode.
+	    Full Kiosk Mode requires special Android permissions: that is described in detail on that page.
 	</p>
 	<p>
 	    There is a Settings option to "Drop the privilege required for the full kiosk mode", which is only available
