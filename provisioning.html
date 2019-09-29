@@ -372,7 +372,8 @@ Aesop can also use the
 <span class="moreinfo" title="
 The name Android/media/github.io.donnKey.aesopPlayer follows some 'magic' rules defined for Android and cannot be changed by the application.
 ">
-directory <code>Android/media/github.io.donnKey.aesopPlayer/AudioBooks</code>.
+directory 
+<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
 </span>
 (Where <code>Android</code> is at the root of the SD card (or the root file system).)
 All the managing books stuff will "just work" on this directory.
@@ -380,21 +381,27 @@ The downside of this is that no other app can get to these books (but again, you
 Either of the <code>AudioBooks</code> directories on the SD card works out of the same physical storage, so there's no space advantage one over the other.
 </p>
 <p>
-The directory <code>Android/media/github.io.donnKey.aesopPlayer/AudioBooks</code> on the built-in storage will be used if you create it.
+The directory 
+<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
+on the built-in storage will be used if you create it.
 This would only be useful if you have a device where Android/&hellip; files are put on physically different storage.
 This is theoretically possible but rare.
 </p>
 <p>
-The directory (and content of) <code>Android/media/github.io.donnKey.aesopPlayer/AudioBooks</code> on either the built-in storage or SD card
+The directory (and content of) 
+<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
+on either the built-in storage or SD card
 will be deleted if you uninstall Aesop Player.
 The <code>AudioBooks</code> at the root of the device or a SD card will not be deleted.
 (This is Android policy, not anything we control.)
 </p>
 <p>
 When installing books, Aesop first installs them in the device root <code>AudioBooks</code> directory until it is 90% or more full, then 
-<code>Android/media/github.io.donnKey.aesopPlayer/AudioBooks</code> on the device root, if it exists, and there's space.
+<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
+on the device root, if it exists, and there's space.
 Then it will then use <code>AudioBooks</code> on the SD card, if it exists, until it is 90% or more full, then 
-<code>Android/media/github.io.donnKey.aesopPlayer/AudioBooks</code> on the SD card, if it exists and there's space.
+<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
+on the SD card, if it exists and there's space.
 It will use additional SD cards if it finds them and the directories exist and there's space.
 </p>
 <p>
@@ -814,7 +821,8 @@ to read your books is more important than using the managining books tools:
 <ol>
 <li>
     If the managing books tools are more important, use your PC (or file manager application) to make the directory 
-    <code>Android/media/github.io.donnKey.aesopPlayer/AudioBooks</code> on the SD card, and proceed using managing books tools.
+    <code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
+    on the SD card, and proceed using managing books tools.
 </li>
 <li>
     If shared access is more important, make <code>AudioBooks</code> at the root of the SD card.
@@ -870,4 +878,3 @@ This also resets the "Completed" flag.
 (This is particularly useful if you are using the player as a "library book" shared between users.)
 </p>
 <p>
-
