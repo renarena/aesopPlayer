@@ -282,7 +282,10 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	<ul>
 	    <li>Can be ugly and slow at times.
 	    <li> Does not 
-		<span class="moreinfo" title="We're looking into it, but it may take some time. It's harder than it looks."/>
+		<span class="more_info"> 
+		<span class="popup">
+		We're looking into it, but it may take some time. It's harder than it looks.
+		</span>
 		currently</span>
 		work on Android 10 (Q) or above. (Use App Pinning (or Full Kiosk) instead.)
 	    <li>Not guaranteed to be always effective.  (99.9%, but there are probably ways around it.)
@@ -382,11 +385,12 @@ On older devices, Application Pinning and Full Kiosk mode won't be visible,
 and Full Kiosk mode will be un-clickable until it's set up as described above.
 </p>
 Full Kiosk Mode and Application Pinning are 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 What's really going on here is that when the Device Owner permission is held, Android treats
 the operations to lock the device as kiosk mode requests. Without the permission, it's treated
 as an application pinning request.
-">
+</span>
 closely related 
 </span>
 in Android.
@@ -434,9 +438,10 @@ Application Pinning Mode:
     Each time you go to the playback screen after starting Application Pinning (and when you aren't in 
     <a href="#maintenance-mode">Maintenance Mode</a>),
     it will ask you to confirm 
-    <span class="moreinfo" title="
+    <span class="more_info">
+    <span class="popup">
     Some older devices may not pop up the 'Got it' message but will pin Aesop anyway (there will be a Toast.)
-    ">
+    </span>
     application pinning.
     </span>
     Click "Got It" (or "OK" or something similar depending on Android model). 
@@ -502,12 +507,13 @@ at a place that recycles older hardware.
 	For the actual user using any of the Kiosk modes, there will be little perceived difference. 
 	For users who want to use Application Pinning or Full Kiosk mode, Android versions 5.0 and later are required.
 	Note that "factory reset" (above) may change the installed version downward, but typically it can be updated back to the latest available version
-<span class="moreinfo" title="
-Devices that have been 'rooted' might be running versions that can't be easily reinstalled,
-so check what the device's manufacturer supports, not what's installed, if you intend to reset the device.
-">
-after the reset.  
-</span>
+	<span class="more_info">
+	<span class="popup">
+	Devices that have been 'rooted' might be running versions that can't be easily reinstalled,
+	so check what the device's manufacturer supports, not what's installed, if you intend to reset the device.
+	</span>
+	after the reset.  
+	</span>
     </li>
     <li>Audio: obviously this must be fully functional, and the heaphone jack should be functional and
 	not too worn, as headphones may well be used. The mechanical volume control buttons are convenient

@@ -159,23 +159,26 @@ Mac, you may need the
 </small>
 <ol>
 <li>Obtain a 
-<span class="moreinfo" title="
-Your device charging cable will probably do if it unplugs from the transformer.
-">
+<span class="more_info"> 
 USB cable 
+<span class="popup">
+Your device charging cable will probably do if it unplugs from the transformer.
+</span>
 </span>
 to connect your PC to your device and connect it.
 <br>
 <!-- graphic of PC window ???? -->
 <li>Typically a 
-<span class="moreinfo" title="
-Some devices may want you to download a support application.  You don't need to as long as you have a File Manager window, but if it isn't there (which can happen), you'll have to download the application.
-Be sure you download from the device manufacturer's Internet site.
-">
+<span class="more_info">
 File Manager 
+<div class="popup">
+Some devices may want you to download a support application.
+You don't need to as long as you have a File Manager window, but if it isn't there (which can happen), you'll have to download the application.
+<br>
+<em>Be sure you download from the device manufacturer's Internet site.</em>
+</div>
 </span>
 window will pop up on the PC, looking like this(!). 
-<br>
 <li>Depending on the Android device, you may be presented with a popup on the device asking what you want to
 do with the connection; something like "Do you want to allow the Computer to access your files?" 
 Alternatively a notification may be displayed that you will click on from Android Settings.
@@ -191,16 +194,17 @@ which is the default.
 <li>On the PC, in a new File Manager Window, go to <code>Downloads</code> and find the book.
 The name of the book will probably be a single word (no spaces) that contains elements
 of the actual title separated by underscores.
-(In our case, <code>hound_baskervilles_librivox_64kb_mp3.zip</code>.)
+(In our case, <code>hound_baskervilles_<wbr>librivox_64kb_mp3.zip</code>.)
 <li>Right click on the book name. Choose "Extract All&hellip;". 
 A new window will pop up.
 It's helpful but not necessary to click on "Show Extracted Files When Complete".
 Click the "Extract" button.
 <li>A new folder will appear with the name without <code>.zip</code>.
 <li>In that folder you'll find several <code>.mp3</code> files, one for each 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 Note how the individual files are named with leading zeros in the chapter numbers.
-">
+</span>
 chapter. 
 </span>
 Chapter titles may be shown. 
@@ -213,9 +217,10 @@ folder, which would cause the spoken title to be painful to listen to.
 <li>Rename the directory: double click on the directory name and type a new book title that
 would be suitable to be read aloud. In this case "Hound of the Baskervilles - Arthur Conan Doyle"
 would be 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 You can skip this step if the metadata is OK, but be sure to check the Album Title shown for each .mp3 file.
-">
+</span>
 fine.
 </span>
 <li>Drag the directory you just renamed from the File Manager window it is in to the <code>AudioBooks</code> directory
@@ -340,10 +345,11 @@ This is an advanced topic, you can ignore it until you need it. See the box abou
 </p>
 <p>
 Normally Aesop finds books in the 
-<span class="moreinfo" title="
-On Android these names are case sensitive: 'audiobooks' and 'AudioBooks' are different things.
-">
+<span class="more_info">
 directory 
+<span class="popup">
+    On Android these names are case sensitive: <code>audiobooks</code> and <code>AudioBooks</code> are different things.
+</span>
 </span>
 <code>AudioBooks</code> in the root directory on the built-in storage of the device.
 However, particularly on older devices, there may not be much space available.
@@ -369,12 +375,13 @@ and can modify SD root <code>AudioBooks</code> (if your device is new enough).
 <p>
 This doesn't mean you can't use the space on the SD card for your books, it just means you can't put your books in (the root) <code>AudioBooks</code>.
 Aesop can also use the 
-<span class="moreinfo" title="
-The name Android/media/github.io.donnKey.aesopPlayer follows some 'magic' rules defined for Android and cannot be changed by the application.
-">
-directory 
-<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
+<span class="more_info">
+<span class="popup">
+    The name <code>Android/media/github.io.donnKey.aesopPlayer</code> follows some 'magic' rules defined for Android and cannot be changed by the application.
 </span>
+directory 
+</span>
+<code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
 (Where <code>Android</code> is at the root of the SD card (or the root file system).)
 All the managing books stuff will "just work" on this directory.
 The downside of this is that no other app can get to these books (but again, you can get to them using a PC).
@@ -507,10 +514,11 @@ The same tools to select a directory to copy from apply to removable physical st
 <p>
 Use the same "Select Directory" screen to select a directory on removable storage.
 The exact selection process varies depending on the Android version: on some devices the 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 Sometimes it shows the root of the non-removable storage as well. 
 You man need to click on that and then move down to access other directories in non-removable storage.
-">
+</span>
 removable storage 
 </span>
 is visible as a panel on the screen, 
@@ -630,10 +638,11 @@ use
 <a href="#name-normalization">Name Normalization</a>
 to convert any one-digit numbers it finds to two-digit ones (with a zero), 
 which fixes both the track number problem and any one-digit date or time information the ripping tool 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 Most ripping tools do insert the track number as metadata in a way that can be sorted correctly (but Aesop uses filenames!)
 Downloaded books rely on titles, not embedded track numbers for proper ordering, and may not even have the track number metadata filled in.
-">
+</span>
 might have used.
 </span>
 </p>
@@ -684,28 +693,31 @@ Clicking Cancel or the back button will exit the window making no changes.
 Clicking Accept will make the change permanent (although you can of course re-enter this screen).
 When you click Accept it will trim off any leading or trailing spaces, and check to see if at least one space remains (and if not, it will add it at the end).
 (The space is used to indicate a 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 Adding an author is a nice way to add the spaces.
 A title cannot contain the character '/' - it will be silently converted to '-'.
-">
+</span>
 user defined book title.) 
 </span>
 </ul>
 <p>
 If you change the 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 The title created in this way is the directory name.
 If you are creating books from another computer, you can simply change the directory name to control the title.
 As long as there's a space somewhere in the name, it will be used as the title.
-">
-title 
+</span>
+title
 </span>
 in the New Books screen, it will be applied when the book is actually installed, which will
 make the name change permanent.
 Leaving and returning to the New Books screen prior to doing an install will undo that 
-<span class="moreinfo" title="
+<span class="more_info">
+<span class="popup">
 You can also change the audio file metadata from a computer.  We won't go into that here.
-">
+</span>
 title change.
 </span>
 </p>
@@ -719,10 +731,11 @@ Normally, completely deleting books you no longer want is the best solution, but
 If you click the three vertical dots (&vellip;) ("More") 
 (#8 on <a href="#inventory-screen">Book Inventory</a>), you can select "Archive",
 and it will put any books you delete in the directory 
-<span class="moreinfo" title="
-If you have more than one 'AudioBooks' directory, it will create an 'AudioBooks.old' for each writeable
+<span class="more_info">
+<span class="popup">
+If you have more than one <code>AudioBooks</code> directory, it will create an <code>AudioBooks.old</code> for each writeable
 one, as needed. See Alternate Directories above.
-">
+</span>
 <code>AudioBooks.old</code> adjacent 
 </span>
 to the <code>AudioBooks</code>

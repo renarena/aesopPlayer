@@ -166,15 +166,53 @@ a.framed-link:hover {
 	background-color: #cccccc;
 }
 
-.moreinfo {
-        border-bottom: 1px dashed #0a0;
-        text-decoration: none;
-}
-
-.more-info:hover {
+.more_info {
+	position: relative;
         border-bottom: 1px dashed #0a0;
         text-decoration: none;
 	cursor: help;
+}
+
+.more_info .popup {
+	position: absolute;
+	top: 15px; /*must overlap parent element otherwise pop-up doesn't 
+		    stay open when rolling over */
+	border: 1px solid #ccc;
+	visibility:hidden;
+	transform: scale(0.85);
+	padding: 4px;
+	z-index: 100;
+	background: #eee;
+
+        display: block;
+        float:left;
+}
+
+/* min-width means actual >= parameter
+ * max-width means actual <= parameter
+ */
+@media (max-width: 1080px) {
+    .more_info .popup {
+	background: #eee;
+	max-width: 80vw;
+	min-width: 80vw;
+    }
+}
+
+@media (min-width: 1081px) {
+    .more_info .popup {
+	background: #eee;
+	/* This could be min() were it broadly available */
+	max-width: 1000px;
+	min-width: 850px;
+    }
+}
+
+.more_info:hover .popup {
+    position:absolute;
+    text-decoration: none;
+    cursor: pointer;
+    visibility: visible;
 }
 
 a.moreinfo:link {
