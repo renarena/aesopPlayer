@@ -181,7 +181,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         Preference preference = findPreference(KEY_FAQ);
         Objects.requireNonNull(preference).setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
         preference.setOnPreferenceClickListener(preference1 -> {
-            openUrl(FAQ_URL);
+            openUrl(Objects.requireNonNull(getContext()),FAQ_URL);
             return true;
         });
     }

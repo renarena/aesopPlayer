@@ -25,111 +25,270 @@
     SOFTWARE.
 
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout4"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
     android:gravity="center"
     android:orientation="vertical"
     android:weightSum="10"
-    android:background="@android:color/darker_gray"
     tools:ignore="Overdraw">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="2"
-        android:orientation="horizontal"
-        android:weightSum="7">
+        android:background="@color/transparent"
+        android:contentDescription="@string/settings_title"
+        app:layout_constraintDimensionRatio="1"
+        app:layout_constraintEnd_toStartOf="@id/h_spacer"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_weight="15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_settings_black_24dp" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/settingsButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/transparent"
+        app:layout_constraintBottom_toBottomOf="@id/imageView3"
+        app:layout_constraintEnd_toEndOf="@id/imageView3"
+        app:layout_constraintStart_toStartOf="@id/imageView3"
+        app:layout_constraintTop_toTopOf="@id/imageView3" />
+
+    <Space
+        android:id="@+id/h_spacer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="top|center_horizontal"
+        app:layout_constraintBottom_toTopOf="@id/space1"
+        app:layout_constraintEnd_toStartOf="@id/imageView4"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_weight="110"
+        app:layout_constraintStart_toEndOf="@id/imageView3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="20" />
+
+    <FrameLayout
+        android:id="@+id/imageView4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/imageView3"
+        app:layout_constraintDimensionRatio="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_weight="15"
+        app:layout_constraintStart_toEndOf="@id/h_spacer"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Nesting is used to dynamically enable both sub-elements at once without changing parent -->
         <FrameLayout
-            android:layout_width="0dp"
+            android:id="@+id/settingsButton2box"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            tools:ignore="NestedWeights">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/settingsButton"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/transparent" />
+            tools:ignore="UselessParent">
 
             <ImageView
+                android:id="@+id/imageView4a"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/transparent"
-                android:contentDescription="@string/settings_title"
-                app:srcCompat="@drawable/ic_settings_black_24dp">
-
-            </ImageView>
-
-        </FrameLayout>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="5" />
-
-        <FrameLayout
-            android:id="@+id/settingsButton2box"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+                android:contentDescription="@string/settings_title_2"
+                app:srcCompat="@drawable/ic_settings_black_24dp" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/settingsButton2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/transparent" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/transparent"
-                android:contentDescription="@string/settings_title_2"
-                app:srcCompat="@drawable/ic_settings_black_24dp">
-            </ImageView>
-
         </FrameLayout>
-    </LinearLayout>
+
+    </FrameLayout>
 
     <Space
-        android:layout_width="match_parent"
+        android:id="@+id/space1"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <TextView
-        android:id="@+id/noBooksPath"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_weight="2"
-        android:gravity="center"
-        android:textSize="@dimen/copyBooksInstructionTextSize"
-        tools:text="Path to books" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/copyBooksInstructionTextSize"
-        android:layout_marginBottom="@dimen/copyBooksInstructionTextSize"
-        android:layout_weight="2"
-        android:gravity="center"
-        android:text="@string/noBooksOrMessage"
-        android:textSize="@dimen/copyBooksInstructionTextSize" />
+        app:layout_constraintBottom_toTopOf="@id/downloadSamplesButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/h_spacer"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="0" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/downloadSamplesButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="2"
         android:text="@string/noBooksDownloadSamplesButton"
-        android:textSize="@dimen/copyBooksInstructionTextSize" />
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@id/space2"
+        app:layout_constraintEnd_toStartOf="@id/h_space3"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="30"
+        app:layout_constraintStart_toEndOf="@id/h_space2"
+        app:layout_constraintTop_toBottomOf="@id/space1"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="30" />
 
     <Space
-        android:layout_width="match_parent"
+        android:id="@+id/space2"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+        app:layout_constraintBottom_toTopOf="@+id/textView1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/downloadSamplesButton"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="4" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/noBooksOrMessage"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@id/space3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/space2"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="10" />
+
+    <Space
+        android:id="@+id/space3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/noBooksPath"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView1"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="4" />
+
+    <TextView
+        android:id="@+id/noBooksPath"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/space4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/space3"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="20"
+        tools:text="Path to books" />
+
+    <Space
+        android:id="@+id/space4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/textView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/noBooksPath"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="4" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/noBooksOrMessage"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/space5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/space4"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="10" />
+
+    <Space
+        android:id="@+id/space5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/installViaSettings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="4" />
+
+    <Space
+        android:id="@+id/h_space2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHorizontal_weight="10"
+        app:layout_constraintBottom_toBottomOf="@id/downloadSamplesButton"
+        app:layout_constraintEnd_toStartOf="@id/downloadSamplesButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/downloadSamplesButton"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <Space
+        android:id="@+id/h_space3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHorizontal_weight="10"
+        app:layout_constraintBottom_toBottomOf="@id/downloadSamplesButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@id/downloadSamplesButton"
+        app:layout_constraintTop_toTopOf="@+id/downloadSamplesButton"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <TextView
+        android:id="@+id/installViaSettings"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/noBooksInstallFromSettings"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@id/goToWeb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/space5"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="20" />
+
+    <Button
+        android:id="@+id/goToWeb"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/noBooksWebsiteLoc"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@id/space6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/installViaSettings"
+        app:layout_constraintVertical_weight="25" />
+
+    <Space
+        android:id="@+id/space6"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/goToWeb"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_weight="3" />
+</androidx.constraintlayout.widget.ConstraintLayout>

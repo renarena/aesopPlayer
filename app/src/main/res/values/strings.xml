@@ -145,6 +145,8 @@
     <string name="snooze_seconds" translatable="false">"%d"</string>
     <string name="noBooksOrMessage">or</string>
     <string name="noBooksDownloadSamplesButton">Download book samples</string>
+    <string name="noBooksWebsiteLoc">Details at: %s</string>
+    <string name="noBooksInstallFromSettings">Install Books from Settings</string>
     <string name="scanning_books">Scanning available books</string>
     <string name="scanning_title">Aesop Player logo</string>
     <string name="playbackErrorToast">Unable to play file:\n%s</string>

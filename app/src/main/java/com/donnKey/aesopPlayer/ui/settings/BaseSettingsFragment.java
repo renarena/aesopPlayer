@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -25,6 +25,7 @@
 package com.donnKey.aesopPlayer.ui.settings;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -52,7 +53,7 @@ abstract class BaseSettingsFragment
         getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
         final ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
-        Preconditions.checkNotNull(actionBar);
+        Preconditions.checkNotNull(Objects.requireNonNull(actionBar));
         actionBar.setTitle(getTitle());
 
     }
@@ -76,22 +77,21 @@ abstract class BaseSettingsFragment
                                      int default_value_res_id) {
         String stringValue = sharedPreferences.getString(key, getString(default_value_res_id));
         ListPreference preference =
-                (ListPreference) findPreference(key);
-        int index = preference.findIndexOfValue(stringValue);
+                findPreference(key);
+        int index = Objects.requireNonNull(preference).findIndexOfValue(stringValue);
         if (index < 0)
             index = 0;
         preference.setSummary(preference.getEntries()[index]);
     }
 
-    void openUrl(@SuppressWarnings("SameParameterValue") @NonNull String url) {
+    static public void openUrl(Context context, @SuppressWarnings("SameParameterValue") @NonNull String url) {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setData(Uri.parse(url));
         try {
-            startActivity(i);
+            context.startActivity(i);
         }
         catch(ActivityNotFoundException noActivity) {
-            Preconditions.checkNotNull(getView());
-            Toast.makeText(getView().getContext(),
+            Toast.makeText(context,
                     R.string.pref_no_browser_toast, Toast.LENGTH_LONG).show();
         }
     }

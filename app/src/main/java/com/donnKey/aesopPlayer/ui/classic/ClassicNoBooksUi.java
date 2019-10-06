@@ -41,6 +41,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+import com.donnKey.aesopPlayer.ui.settings.MainSettingsFragment;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.ApplicationComponent;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -49,6 +50,8 @@ import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.ui.NoBooksUi;
 import com.donnKey.aesopPlayer.ui.UiControllerNoBooks;
 import com.donnKey.aesopPlayer.ui.UiUtil;
+
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -66,6 +69,8 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
     @SuppressWarnings("WeakerAccess")
     public @Inject @Named("AUDIOBOOKS_DIRECTORY") String audioBooksDirectoryName;
 
+    private static final String INSTALL_URL = "https://donnkey.github.io/aesopPlayer/provisioning.html";
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
@@ -82,6 +87,12 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
 
         AppCompatButton downloadSamplesButton = view.findViewById(R.id.downloadSamplesButton);
         downloadSamplesButton.setOnClickListener(v -> controller.startSamplesInstallation());
+
+        AppCompatButton toProvisioning = view.findViewById(R.id.goToWeb);
+        String provisioningMessage =
+                getString(R.string.noBooksWebsiteLoc, INSTALL_URL);
+        toProvisioning.setText(Html.fromHtml(provisioningMessage));
+        toProvisioning.setOnClickListener(v -> MainSettingsFragment.openUrl(Objects.requireNonNull(getContext()),INSTALL_URL));
 
         UiUtil.connectToSettings(view, globalSettings);
 
