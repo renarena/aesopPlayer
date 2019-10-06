@@ -166,6 +166,16 @@ a.framed-link:hover {
 	background-color: #cccccc;
 }
 
+code { 
+	color: green;
+	font-family: "Courier New", Courier, monospace;
+	font-weight: bold;
+	background: transparent;
+	padding-right: 0px;
+	padding-left: 0px;
+	font-size: 95%
+}
+
 .more_info {
 	position: relative;
         border-bottom: 1px dashed #0a0;
@@ -188,9 +198,6 @@ a.framed-link:hover {
         float:left;
 }
 
-/* min-width means actual >= parameter
- * max-width means actual <= parameter
- */
 @media (max-width: 1080px) {
     .more_info .popup {
 	background: #eee;
@@ -202,7 +209,7 @@ a.framed-link:hover {
 @media (min-width: 1081px) {
     .more_info .popup {
 	background: #eee;
-	/* This could be min() were it broadly available */
+	/* This could be min() in :hover were it broadly available */
 	max-width: 1000px;
 	min-width: 850px;
     }
