@@ -114,7 +114,7 @@ Books actually come organized in several ways.
 Aesop will convert several of the most common book types into the format it needs.
 Sometimes the book is already that way.
 <li>Aesop expects to find the books in the <code>AudioBooks</code> directory (folder) on your device.
-You need to be sure it's there.
+Aesop will automatically create it when it first runs, but if something goes wrong, you need to be sure it's there.
 </ol>
 </p>
 <h2>Cleaning up</h2>
@@ -189,8 +189,15 @@ In any case, you want to set it up to Transfer (or "Access") Files (or be a "Med
 For our example we'll use <b style="font-weight:600">The Hound of the Baskervilles</b> from <code>librivox.org</code>
 <a href="https://librivox.org/search?q=Hound%20of%20the%20Baskervilles&search_form=advanced">found here</a>.
 (We've chosen the first of several performances.)
-We'll assume that it ends up in the PC browser's <code>Downloads</code> directory (<code>C:\Downloads</code>), 
-which is the default.
+We'll assume that it ends up in the PC browser's 
+<span class="more_info">
+<span class="popup">
+    On a Windows PC, this is "Downloads" with an 's' (as opposed to without on Android), and case does not matter.
+    (That's historical and we just must live with it.)
+</span>
+<code>Downloads</code>
+</span>
+directory, which is the default.
 <li>On the PC, in a new File Manager Window, go to <code>Downloads</code> and find the book.
 The name of the book will probably be a single word (no spaces) that contains elements
 of the actual title separated by underscores.
@@ -829,13 +836,13 @@ First, review
 <a href="#audiobooks-directories">Alternate Directories</a> discussion above.
 Given that,
 if you want to use an SD card for additional book storage, you must decide if allowing other applications 
-to read your books is more important than using the managining books tools:
+to read your books is more important than using the built-in tools for managing books:
 </p>
 <ol>
 <li>
-    If the managing books tools are more important, use your PC (or file manager application) to make the directory 
+    If Aesop's built-in tools are more important, use your PC (or file manager application) to make the directory 
     <code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
-    on the SD card, and proceed using managing books tools.
+    on the SD card, and proceed using the built-intools.
 </li>
 <li>
     If shared access is more important, make <code>AudioBooks</code> at the root of the SD card.
