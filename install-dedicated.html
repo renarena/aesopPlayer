@@ -272,7 +272,6 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	    <li>Works on older Androids (4.4/API 19 and above), including possibly the Kindle Fire.
 		We have not recently tested with the Kindle Fire. 
 		It has worked in the past, but be sure to test it thoroughly before committing to it.
-	    <!-- ??????? check API 17 -->
 	    <li>Doesn't require any setup outside the app. (Does require granting permissions when selecting this mode for the first time. It will guide you.)
 	    <li>Doesn't interfere with the phone's normal use when not running.
 	</ul>
@@ -294,7 +293,14 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	</dd>
 	</dl>
 	<p>
-	    Simple mode is the only choice for older devices. On newer devices where Kiosk mode or 
+	    Simple mode is the only choice for 
+		<span class="more_info">
+		    <span class="popup">
+		    There isn't a kiosk-like solution for really early versions of Android, although Aesop will run on API 17 and up.
+		    </span>
+		    older devices. 
+		</span>
+	    On newer devices where Kiosk mode or 
 	    Application Pinning is available (and where it works), it still can be useful when the 
 	    device cannot be dedicated to a single use full-time, and for some reason Application Pinning is a problem.
 	</p>
@@ -303,8 +309,8 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	Application pinning:
 	<br>
 	There are two ways of accessing application pinning, externally to the Aesop Player, and internally. 
-	This discusses the internal mode, since it is far simpler to use than the external one. (Look it up
-	on the Internet to see how it's used externally to an application.)
+	This discusses the internal mode, since it is far simpler to use with Aesop than the external one.
+	(Look it up on the Internet to see how it's used externally to an application.)
 	<dl>
 	Advantages:
 	<dd>
