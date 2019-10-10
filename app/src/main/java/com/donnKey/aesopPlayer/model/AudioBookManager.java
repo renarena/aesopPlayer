@@ -72,6 +72,7 @@ public class AudioBookManager {
         scanFiles();
     }
 
+    @MainThread
     public List<AudioBook> getAudioBooks() {
         return audioBooks;
     }
@@ -88,6 +89,13 @@ public class AudioBookManager {
     @MainThread
     public AudioBook getCurrentBook() {
         return currentBook;
+    }
+
+    public void removeBook(AudioBook book) {
+        audioBooks.remove(book);
+        if (book == currentBook) {
+            currentBook = null;
+        }
     }
 
     @MainThread

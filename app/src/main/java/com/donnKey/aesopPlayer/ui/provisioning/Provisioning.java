@@ -552,7 +552,6 @@ public class Provisioning extends ViewModel {
     @WorkerThread
     void deleteAllSelected_Task(Progress progress) {
         clearErrors();
-        List<AudioBook> audioBooks = audioBookManager.getAudioBooks();
         boolean archiveBooks = globalSettings.getArchiveBooks();
 
         DeleteLoop:
@@ -590,7 +589,7 @@ public class Provisioning extends ViewModel {
                         continue DeleteLoop;
                     }
                 }
-                audioBooks.remove(book.book);
+                audioBookManager.removeBook(book.book);
                 book.selected = false;
                 progress.progress(ProgressKind.BOOK_DONE, null);
                 logResult(Severity.INFO,

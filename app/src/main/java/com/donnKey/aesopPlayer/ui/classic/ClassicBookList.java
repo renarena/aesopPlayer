@@ -64,7 +64,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
-    // TODO: Fix accessibility issie on setOnTouchListener below if multi-tap remains.
+    // TODO: Fix accessibility issue on setOnTouchListener below if multi-tap remains.
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(
