@@ -43,7 +43,7 @@ public class AesopPlayerApplication extends androidx.multidex.MultiDexApplicatio
     private static final String AUDIOBOOKS_DIRECTORY = "AudioBooks";
     // For the moment we continue to use the Homer samples.
     private static final String DEMO_SAMPLES_URL =
-            "https://homer-player.firebaseapp.com/samples.zip";
+            "https://donnkey.github.io/aesopPlayer/samples/TheAesopAudiobookSamples.zip";
 
     private ApplicationComponent component;
     private MediaStoreUpdateObserver mediaStoreUpdateObserver;
