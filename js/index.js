@@ -1,6 +1,6 @@
 (function() {
 
-  var VIDEO_URL = 'https://www.youtube.com/embed/RfLkoLtxzng?vq=large&autoplay=1&autohide=1&border=0&egm=0&showinfo=0';
+  var VIDEO_URL = 'https://www.youtube.com/embed/yjj3P2VE6jk?vq=large&autoplay=1&autohide=1&border=0&egm=0&showinfo=0';
   var WIDTH = 853;
   var HEIGHT = 480;
   var BUTTONS_OFFSET = 10;

@@ -19,5 +19,5 @@ defaults:
           path: "/img/thumbs-up.jpg"
           width: 1200
           height: 630
-        video_url: "http://www.youtube.com/v/xxxxxxxxxxx"
-        video_url_secure: "https://www.youtube.com/v/xxxxxxxxxxx"
+        video_url: "https://youtu.be/yjj3P2VE6jk"
+        video_url_secure: "https://youtu.be/yjj3P2VE6jk"
