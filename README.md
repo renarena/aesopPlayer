@@ -1,6 +1,7 @@
 Aesop Player 
 ============
-An audio book player for the elderly and visually impaired.
+An audio book player for the elderly and visually impaired, or for those
+who just want a very simple way to play audio books.
 
 [Go to the project website](http://donnKey.github.io/aesopPlayer/)
 or
@@ -13,12 +14,10 @@ easily used, particularly by the visually impaired and the elderly.
 
 Assumptions
 -----------
-* used at home,
 * focused on audio book playback, not music,
 * controlled with imprecise gestures and subject to accidental touch,
-* the user can see something but isn't able to make out letters or small UI
-  controls,
-* only a single function of the device (runs in kiosk-like mode, no access to
+* the user isn't able to make out letters or small UI controls,
+* device can (optionally) be dedicated to a single function (runs in kiosk-like mode, no access to
   other applications).
 
 Status
