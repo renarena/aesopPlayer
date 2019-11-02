@@ -303,7 +303,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         controller.onActivityStop();
         orientationDelegate.onStop();
-        kioskModeSwitcher.switchToNoKioskMode(this);
         super.onStop();
         batteryStatusProvider.stop();
 
@@ -463,7 +462,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     }
 
     private void doesUserAllowAnalytics() {
-
         if (!globalSettings.getAnalyticsQueried()) {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
                     .setMessage(R.string.permission_rationale_analytics)

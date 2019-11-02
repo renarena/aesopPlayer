@@ -157,6 +157,7 @@ public class SettingsActivity
     @Override
     protected void onResume() {
         super.onResume();
+        kioskModeSwitcher.switchToNoKioskMode(this);
 
         boolean enabled = globalSettings.isMaintenanceMode();
         setMenuItemProperties(this, navigation.getMenu().getItem(3),

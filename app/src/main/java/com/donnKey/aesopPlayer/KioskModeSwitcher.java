@@ -58,7 +58,15 @@ public class KioskModeSwitcher {
         this.globalSettings = globalSettings;
     }
 
+    enum activityState {active, inactive}
+    private static activityState state = activityState.inactive;
+
     public void switchToCurrentKioskMode(AppCompatActivity activity) {
+        // Called from onResume in MainActivity (frequently redundantly)
+        if (state == activityState.active) {
+            return;
+        }
+        state = activityState.active;
         if (!globalSettings.isMaintenanceMode()) {
             GlobalSettings.SettingsKioskMode newMode = globalSettings.getKioskMode();
             changeActiveKioskMode(GlobalSettings.SettingsKioskMode.NONE, newMode, activity);
@@ -66,6 +74,11 @@ public class KioskModeSwitcher {
     }
 
     public void switchToNoKioskMode(AppCompatActivity activity) {
+        // Called from onResume in SettingsActivity (frequently redundantly)
+        if (state == activityState.inactive) {
+            return;
+        }
+        state = activityState.inactive;
         if (!globalSettings.isMaintenanceMode()) {
             GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
             changeActiveKioskMode(oldMode, GlobalSettings.SettingsKioskMode.NONE, activity);
@@ -161,6 +174,8 @@ public class KioskModeSwitcher {
             case PINNING:
             case FULL: {
                 // (Remember, this case can't be reached for <21 because the choice is not offered
+                // Be cautious not to over-call startAppPinning: it fires the dialog about app
+                // pinning even when it's already pinned.
                 startAppPinning(activity);
                 setNavigationVisibility(activity,false);
                 break;
