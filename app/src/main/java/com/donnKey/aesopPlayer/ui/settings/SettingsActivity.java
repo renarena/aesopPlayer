@@ -131,6 +131,13 @@ public class SettingsActivity
             return true;
 
         case R.id.navigation_settings:
+            // If we're not in the main settings fragment, go there when the user clicks Settings.
+            // (Yeah, it's really just 'back', but it feels like a bug to just ignore it.)
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.settings_container);
+            if (currentFragment != null && !(currentFragment instanceof MainSettingsFragment)) {
+                getSupportFragmentManager().popBackStack();
+            }
+
             // No-op
             return true;
 

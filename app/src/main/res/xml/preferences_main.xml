@@ -25,55 +25,60 @@
     SOFTWARE.
 
 -->
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mainPreference">
     <Preference
+        app:fragment="com.donnKey.aesopPlayer.ui.settings.PlaybackSettingsFragment"
         app:key="playback_options_screen"
-        app:title="@string/pref_playback_options_screen_title"
-        app:fragment="com.donnKey.aesopPlayer.ui.settings.PlaybackSettingsFragment"/>
+        app:title="@string/pref_playback_options_screen_title" />
     <ListPreference
-        app:key="snooze_delay_preference"
         app:defaultValue="@string/pref_snooze_time_default_value"
         app:entries="@array/snooze_time_entries"
         app:entryValues="@array/snooze_time_values"
+        app:key="snooze_delay_preference"
         app:title="@string/pref_snooze_time_title" />
     <ListPreference
-        app:key="blink_rate_preference"
         app:defaultValue="@string/pref_blink_rate_default_value"
         app:entries="@array/blink_rate_entries"
         app:entryValues="@array/blink_rate_values"
+        app:key="blink_rate_preference"
         app:title="@string/pref_blink_rate_title" />
     <ListPreference
-        app:key="settings_interlock_preference"
         app:defaultValue="@string/pref_settings_interlock_default_value"
         app:entries="@array/settings_interlock_entries"
         app:entryValues="@array/settings_interlock_values"
+        app:key="settings_interlock_preference"
         app:title="@string/pref_settings_interlock_title" />
     <PreferenceScreen
+        app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"
         app:key="kiosk_mode_screen"
-        app:title="@string/pref_kiosk_mode_screen_title"
-        app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"/>
+        app:title="@string/pref_kiosk_mode_screen_title" />
     <SwitchPreference
+        app:defaultValue="true"
         app:key="awaken_on_proximity_preference"
-        app:title="@string/pref_proximity_awaken"
-        app:summaryOn="@string/pref_proximity_awaken_summary_on"
         app:summaryOff="@string/pref_proximity_awaken_summary_off"
-        app:defaultValue="true"/>
-    <SwitchPreference
-        app:key="settings_analytics_preference"
-        app:title="@string/pref_analytics"
-        app:summaryOn="@string/pref_analytics_summary_on"
-        app:summaryOff="@string/pref_analytics_summary_off"
-        app:defaultValue="false"/>
+        app:summaryOn="@string/pref_proximity_awaken_summary_on"
+        app:title="@string/pref_proximity_awaken" />
     <ListPreference
-        app:key="screen_orientation_preference"
-        app:title="@string/pref_screen_orientation"
+        app:defaultValue="@string/pref_screen_orientation_default_value"
         app:entries="@array/screen_orientation_entries"
         app:entryValues="@array/screen_orientation_values"
-        app:defaultValue="@string/pref_screen_orientation_default_value"/>
+        app:key="screen_orientation_preference"
+        app:title="@string/pref_screen_orientation" />
+    <Preference
+        app:key="data_usage_preference"
+        app:title="@string/pref_data_use" />
+    <SwitchPreference
+        app:defaultValue="false"
+        app:key="settings_analytics_preference"
+        app:summaryOff="@string/pref_analytics_summary_off"
+        app:summaryOn="@string/pref_analytics_summary_on"
+        app:title="@string/pref_analytics" />
     <Preference
         app:key="faq_preference"
         app:title="@string/pref_help_faq_title" />
     <Preference
         app:key="version_preference"
-        app:title="@string/pref_version_title"/>
+        app:title="@string/pref_version_title" />
 </PreferenceScreen>

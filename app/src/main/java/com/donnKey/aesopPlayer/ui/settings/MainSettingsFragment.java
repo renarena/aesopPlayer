@@ -49,6 +49,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private static final String TAG="Settings Main";
 
     private static final String KEY_FAQ = "faq_preference";
+    private static final String KEY_POLICY = "data_usage_preference";
     private static final String KEY_VERSION = "version_preference";
 
     private static final String FAQ_URL = "https://donnkey.github.io/aesopPlayer/faq.html";
@@ -67,6 +68,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey);
         setupFaq();
+        setupPolicy();
         setupVersionSummary();
     }
 
@@ -182,6 +184,19 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         Objects.requireNonNull(preference).setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
         preference.setOnPreferenceClickListener(preference1 -> {
             openUrl(Objects.requireNonNull(getContext()),FAQ_URL);
+            return true;
+        });
+    }
+
+    @SuppressWarnings("SameReturnValue")
+    private void setupPolicy() {
+        Preference preference = findPreference(KEY_POLICY);
+        Objects.requireNonNull(preference).setOnPreferenceClickListener(preference1 -> {
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.settings_container, new PolicyFragment())
+                    .addToBackStack(null)
+                    .commit();
             return true;
         });
     }
