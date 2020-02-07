@@ -297,12 +297,12 @@ public class ProvisioningActivity extends AppCompatActivity
         case SEND_TOAST: {
             if (lastToast != null)
                 lastToast.cancel();
-            lastToast = Toast.makeText(getAppContext(), message, Toast.LENGTH_SHORT);
+            lastToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
             lastToast.show();
             break;
         }
         case FILESYSTEMS_FULL: {
-            new AlertDialog.Builder(getAppContext())
+            new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.error_dialog_title_file_system_full))
                     .setIcon(R.drawable.ic_launcher)
                     .setMessage(getString(R.string.error_dialog_file_system_full))
@@ -369,7 +369,7 @@ public class ProvisioningActivity extends AppCompatActivity
                     newDir = new File(bookPath.getParentFile(), baseName);
 
                     if (newDir.exists()) {
-                        new AlertDialog.Builder(getApplicationContext())
+                        new AlertDialog.Builder(this)
                                 .setTitle(getString(R.string.dialog_title_group_books))
                                 .setIcon(R.drawable.ic_launcher)
                                 .setMessage(getString(R.string.dialog_colliding_group))
@@ -377,7 +377,7 @@ public class ProvisioningActivity extends AppCompatActivity
                                 .show();
                         return;
                     } else if (!newDir.mkdirs()) {
-                        new AlertDialog.Builder(getApplicationContext())
+                        new AlertDialog.Builder(this)
                                 .setTitle(getString(R.string.dialog_title_group_books))
                                 .setIcon(R.drawable.ic_launcher)
                                 .setMessage(getString(R.string.dialog_cannot_make_group))
@@ -404,7 +404,7 @@ public class ProvisioningActivity extends AppCompatActivity
 
                 File toBook = new File(newDir, renamedTo);
                 if (!bookPath.renameTo(toBook)) {
-                    new AlertDialog.Builder(getApplicationContext())
+                    new AlertDialog.Builder(this)
                             .setTitle(getString(R.string.dialog_title_group_books))
                             .setIcon(R.drawable.ic_launcher)
                             .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), bookPath.getPath(), toBook.getPath()))
@@ -430,7 +430,7 @@ public class ProvisioningActivity extends AppCompatActivity
                         if (n++ > 3) {
                             break;
                         }
-                        new AlertDialog.Builder(getApplicationContext())
+                        new AlertDialog.Builder(this)
                                 .setTitle(getString(R.string.dialog_title_ungroup_book))
                                 .setIcon(R.drawable.ic_launcher)
                                 .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), oldLoc.getPath(), newLoc.getPath()))
