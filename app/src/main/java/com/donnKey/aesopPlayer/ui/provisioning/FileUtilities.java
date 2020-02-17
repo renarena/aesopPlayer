@@ -349,6 +349,8 @@ public class FileUtilities {
         return true;
     }
 
+    // Fix filenames containing single digits to add a leading zero so it will sort correctly
+    // when file names contain some sort of sequence number that isn't already with leading zeros
     static boolean treeNameFix(File tree, ErrorCallback logError) {
         if (!tree.exists()) {
             throw new RuntimeException("Attempt to fix-up names in nonexistent directory");

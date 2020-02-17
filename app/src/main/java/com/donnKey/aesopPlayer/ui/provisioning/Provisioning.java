@@ -353,12 +353,83 @@ public class Provisioning extends ViewModel {
         return false;
     }
 
-    @SuppressLint("UsableSpace")
     @WorkerThread
     void moveAllSelected_Task(Progress progress, boolean retainBooks, boolean renameFiles) {
         clearErrors();
 
-        // Find the (possibly several) directories.
+        moveAllSelected_pass1(progress, retainBooks, renameFiles);
+        moveAllSelected_pass2(progress, retainBooks, renameFiles);
+
+        progress.progress(ProgressKind.ALL_DONE, null);
+    }
+
+    @SuppressLint("UsableSpace")
+    @WorkerThread
+    private void moveAllSelected_pass1(Progress progress, boolean retainBooks, boolean renameFiles) {
+        // Pass one: simple renames on the same file system (operations that don't change
+        // the space used even temporarily). Thus avoiding interaction with the available space
+        // checks.
+
+        if (retainBooks) {
+            // No-op, since it will take space
+            return;
+        }
+
+        Provisioning.Candidate[] currentCandidates
+                = candidates.toArray(new Provisioning.Candidate[0]);
+
+        // Iterate through all the files. If we need space to copy to, advance the pointer to
+        // the several AudioBooks directories when needed.
+        for (int candidateIndex = 0; candidateIndex < currentCandidates.length; /* void */) {
+            Candidate candidate = currentCandidates[candidateIndex];
+            if (!candidate.isSelected || candidate.collides) {
+                // So we do nothing when no items selected
+                candidateIndex++;
+                continue;
+            }
+
+            candidateIndex++;
+
+            File fromDir = new File(candidate.oldDirPath);
+            File newTree;
+
+            if (FileUtilities.isZip(candidate.oldDirPath)) {
+                // Ignore zips since they take space at least while expanding
+                continue;
+            }
+
+            progress.progress(ProgressKind.SEND_TOAST, fromDir.getName());
+            if (fromDir.isDirectory()) {
+                newTree = moveToSameFs(fromDir, candidate.newDirName, null);
+            } else {
+                // Ordinary file.
+                // In this case, "fromDir" is really an audio file, not a directory.
+                // This must be an audio file, or it wouldn't be a candidate.
+                newTree = moveToSameFs(fromDir, candidate.newDirName, candidate.audioFile);
+            }
+
+            if (newTree != null) {
+                candidate.isSelected = false;
+                candidates.remove(candidate);
+                if (renameFiles) {
+                    treeNameFix(newTree, this::logResult);
+                }
+            }
+
+            progress.progress(ProgressKind.BOOK_DONE, fromDir.getName());
+        }
+    }
+
+    @SuppressLint("UsableSpace")
+    @WorkerThread
+    private void moveAllSelected_pass2(Progress progress, boolean retainBooks, boolean renameFiles) {
+        // Pass 2: These operations use space (copying or expanding archives)
+        // Note: "moveToSameFs" shouldn't normally be called from here (everything got done in pass one)
+        // It's a fail-soft in the case of is a nearly full file system than fails a directory move
+        // because of the space needed for a name change. (The error will get reported here if
+        // the retry fails.)
+
+        // Find the (possibly several) target directories.
         List<File> dirsToUse = audioBooksDirs;
 
         int nextDir = 0;
@@ -443,6 +514,7 @@ public class Provisioning extends ViewModel {
                 }
 
                 if (newTree != null) {
+                    candidate.isSelected = false;
                     candidates.remove(candidate);
                 }
                 else {
