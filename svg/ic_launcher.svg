@@ -19,9 +19,9 @@
    sodipodi:docname="ic_launcher.svg"
    enable-background="new"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   inkscape:export-filename="D:\AndroidStudioProjects\aesopPlayer\app\src\main\res\svg\ic_launcher_32.png"
-   inkscape:export-xdpi="17.982691"
-   inkscape:export-ydpi="17.982691">
+   inkscape:export-filename="C:\Users\donnt\bitmap512.png"
+   inkscape:export-xdpi="287.72305"
+   inkscape:export-ydpi="287.72305">
   <metadata
      id="metadata16">
     <rdf:RDF>
@@ -30,7 +30,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -152,12 +152,12 @@
      inkscape:window-height="901"
      id="namedview12"
      showgrid="false"
-     inkscape:zoom="4.2849377"
+     inkscape:zoom="3.7122963"
      inkscape:cx="96.947799"
      inkscape:cy="95.985435"
      inkscape:window-x="482"
      inkscape:window-y="90"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg10"
      inkscape:snap-grids="true"
      inkscape:snap-to-guides="false"
