@@ -69,9 +69,9 @@ public class DemoSamplesInstaller {
         File tempFolder = Files.createTempDir();
         unzipAll(zipPath,tempFolder,
             (s)->{}, // don't Toast these filenames
-            (severity, text) -> Log.e("Decompress", text));
+            (severity, text) -> CrashWrapper.log("DemoSamplesInstaller: unzip: " + text));
         boolean anythingInstalled = installBooks(tempFolder);
-        deleteFolderWithFiles(tempFolder);
+        deleteTree(tempFolder, (severity,text)->CrashWrapper.log("DemoSamplesInstaller: Unable to clean up"));
 
         return anythingInstalled;
     }
@@ -130,8 +130,8 @@ public class DemoSamplesInstaller {
 
             return true;
         } catch(IOException exception) {
-            deleteFolderWithFiles(bookDirectory);
             CrashWrapper.logException(exception);
+            deleteTree(bookDirectory,(a,b)->CrashWrapper.log("DemoSamplesInstaller: Unable to clean " + audioBooksDirectory + " after failure."));
             return false;
         }
     }
@@ -152,18 +152,6 @@ public class DemoSamplesInstaller {
             CrashWrapper.logException(exception);
             return null;
         }
-    }
-
-    /**
-     * Deletes files from a directory, non-recursive.
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void deleteFolderWithFiles(File directory) {
-        File[] files = directory.listFiles();
-        for (File file : files) {
-            file.delete();
-        }
-        directory.delete();
     }
 
     private static final String TITLES_FILE_NAME = "titles.json";

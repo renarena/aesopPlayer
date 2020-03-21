@@ -387,7 +387,7 @@ public class FileUtilities {
     }
 
     // rm -rf might be a bit slower, but it's known thorough!
-    static boolean deleteTree(File dir, ErrorCallback logError) {
+    public static boolean deleteTree(File dir, ErrorCallback logError) {
         if (dir.exists()) {
             try {
                 String[] commands = new String[3];
