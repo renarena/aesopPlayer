@@ -50,3 +50,6 @@ Technical changes.
 * Support for both public and private AudioBooks directories on each physical drive.
 
 Large bodies of the code remain unmodified (or nearly so) from the original.
+
+## Version 1.0.1
+Fix rare bug, improve logging in samples downloader.
