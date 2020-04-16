@@ -2,7 +2,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -115,6 +115,7 @@
     <string name="pref_stop_on_face_down_default_value" translatable="false">STOP_RESUME</string>
     <string name="pref_settings_interlock_title">Settings mode access interlock</string>
     <string name="pref_settings_interlock_default_value" translatable="false">NONE</string>
+    <string name="pref_swipe_stop_points">Two finger swipe to stop points</string>
     <string name="pref_proximity_awaken">Awaken on proximity detector"</string>
     <string name="pref_proximity_awaken_summary_on">Enabled</string>
     <string name="pref_proximity_awaken_summary_off">Disabled</string>

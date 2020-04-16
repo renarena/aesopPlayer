@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -53,6 +53,8 @@ public class Storage implements AudioBook.UpdateObserver {
     private static final String FIELD_POSITION_SEEK = "seek";
     private static final String FIELD_POSITION_COMPLETED = "completed";
     private static final String FIELD_FILE_DURATIONS = "fileDurations";
+    private static final String FIELD_BOOK_STOPS = "bookStops";
+    private static final String FIELD_MAX_POSITION = "maxPosition";
 
 
     private final SharedPreferences preferences;
@@ -62,12 +64,13 @@ public class Storage implements AudioBook.UpdateObserver {
         EventBus.getDefault().register(this);
     }
 
-    public void readAudioBookState(AudioBook audioBook) {
+    void readAudioBookState(AudioBook audioBook) {
         String bookData = preferences.getString(getAudioBookPreferenceKey(audioBook.getId()), null);
         if (bookData != null) {
             try {
                 ColourScheme colourScheme = null;
                 List<Long> durations = null;
+                List<Long> bookStops = null;
 
                 JSONObject jsonObject = (JSONObject) new JSONTokener(bookData).nextValue();
                 JSONObject jsonPosition = jsonObject.getJSONObject(FIELD_POSITION);
@@ -90,8 +93,18 @@ public class Storage implements AudioBook.UpdateObserver {
 
                 boolean completed = jsonObject.optBoolean(FIELD_POSITION_COMPLETED, false);
 
+                JSONArray jsonBookStops = jsonObject.optJSONArray(FIELD_BOOK_STOPS);
+                if (jsonBookStops != null) {
+                    final int count = jsonBookStops.length();
+                    bookStops = new ArrayList<>(count);
+                    for (int i = 0; i < count; ++i)
+                        bookStops.add(jsonBookStops.getLong(i));
+                }
+
+                int maxPosition = jsonPosition.optInt(FIELD_MAX_POSITION, 0);
+
                 if (fileIndex >= 0)
-                    audioBook.restore(colourScheme, fileIndex, seek, durations, completed);
+                    audioBook.restore(colourScheme, fileIndex, seek, durations, completed, bookStops, maxPosition);
                 else
                     audioBook.restoreOldFormat(colourScheme, fileName, seek, durations);
             } catch (JSONException e) {
@@ -100,7 +113,7 @@ public class Storage implements AudioBook.UpdateObserver {
         }
     }
 
-    public void writeAudioBookState(AudioBook audioBook) {
+    void writeAudioBookState(AudioBook audioBook) {
         JSONObject jsonAudioBook = new JSONObject();
         JSONObject jsonPosition = new JSONObject();
         BookPosition position = audioBook.getLastPosition();
@@ -108,10 +121,13 @@ public class Storage implements AudioBook.UpdateObserver {
             jsonPosition.put(FIELD_POSITION_FILE_INDEX, position.fileIndex);
             jsonPosition.put(FIELD_POSITION_SEEK, position.seekPosition);
             JSONArray jsonDurations = new JSONArray(audioBook.getFileDurations());
+            jsonAudioBook.put(FIELD_FILE_DURATIONS, jsonDurations);
             jsonAudioBook.put(FIELD_POSITION, jsonPosition);
             jsonAudioBook.putOpt(FIELD_COLOUR_SCHEME, audioBook.getColourScheme());
-            jsonAudioBook.put(FIELD_FILE_DURATIONS, jsonDurations);
             jsonAudioBook.put(FIELD_POSITION_COMPLETED, audioBook.getCompleted());
+            JSONArray jsonStops = new JSONArray(audioBook.getBookStops());
+            jsonAudioBook.put(FIELD_BOOK_STOPS, jsonStops);
+            jsonAudioBook.put(FIELD_MAX_POSITION, audioBook.getMaxPosition());
 
             SharedPreferences.Editor editor = preferences.edit();
             String key = getAudioBookPreferenceKey(audioBook.getId());
@@ -123,7 +139,7 @@ public class Storage implements AudioBook.UpdateObserver {
         }
     }
 
-    public String getCurrentAudioBook() {
+    String getCurrentAudioBook() {
         return preferences.getString(LAST_AUDIOBOOK_KEY, null);
     }
 

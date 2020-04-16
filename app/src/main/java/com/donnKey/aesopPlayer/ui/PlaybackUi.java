@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,14 +27,6 @@ package com.donnKey.aesopPlayer.ui;
 import androidx.annotation.NonNull;
 
 public interface PlaybackUi {
-
-    enum SpeedLevel {
-        STOP,
-        REGULAR,
-        FAST,
-        FASTEST
-    }
-
     void initWithController(@NonNull UiControllerPlayback controller);
     void onPlaybackProgressed(long totalPositionMs);
     void onPlaybackStopping();
@@ -44,5 +36,5 @@ public interface PlaybackUi {
      * Notify that fast-forward/rewind is taking place and at what speed level.
      * Must be called with SpeedLevel.STOP when ff/rewind is finished.
      */
-    void onFFRewindSpeed(SpeedLevel speedLevel);
+    void onFFRewindSpeed(RewindSound.SpeedLevel speedLevel);
 }

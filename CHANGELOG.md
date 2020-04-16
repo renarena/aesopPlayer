@@ -53,3 +53,13 @@ Large bodies of the code remain unmodified (or nearly so) from the original.
 
 ## Version 1.0.1
 Fix rare bug, improve logging in samples downloader.
+
+## Version 1.1.0
+Add *two-finger* swipe in playback window to move back (or forward) to recent "stop points".
+Stop points are created when the player is stopped (or paused). The few closest  
+to the end of the book are kept, and are always at least one minute apart (duplications ignored).
+This allows easy backup should the user fall asleep. More details on the web page.
+
+On Current Books page, don't suggest removing a book that has been completed and then restarted.
+
+Documentation only: add note about fre:ac for easy ripping.

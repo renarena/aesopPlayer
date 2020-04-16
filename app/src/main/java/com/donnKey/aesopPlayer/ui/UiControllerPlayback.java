@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -110,6 +110,7 @@ public class UiControllerPlayback {
 
     public void stopPlayback() {
         CrashWrapper.log(Log.DEBUG, TAG, "UiControllerPlayback.stopPlayback");
+        getAudioBookBeingPlayed().insertStop(playbackService.getCurrentTotalPositionMs());
         playbackService.stopPlayback();
     }
 
@@ -131,8 +132,9 @@ public class UiControllerPlayback {
         playbackService.pauseForRewind();
     }
 
-    public void pauseForPause() {
+    void pauseForPause() {
         ui.onChangeStopPause(R.string.button_pause);
+        getAudioBookBeingPlayed().insertStop(playbackService.getCurrentTotalPositionMs());
         playbackService.pauseForPause();
     }
 
@@ -140,7 +142,7 @@ public class UiControllerPlayback {
         playbackService.resumeFromRewind();
     }
 
-    public void resumeFromPause() {
+    void resumeFromPause() {
         ui.onChangeStopPause(R.string.button_stop);
         eventBus.register(this);
         playbackService.resumeFromPause();
@@ -175,8 +177,8 @@ public class UiControllerPlayback {
     private static class FFRewindController implements FFRewindTimer.Observer {
         private static final int[] SPEED_LEVEL_SPEEDS = { 250, 100, 25  };
         private static final long[] SPEED_LEVEL_THRESHOLDS = { 15_000, 90_000, Long.MAX_VALUE };
-        private static final PlaybackUi.SpeedLevel[] SPEED_LEVELS =
-                {PlaybackUi.SpeedLevel.REGULAR, PlaybackUi.SpeedLevel.FAST, PlaybackUi.SpeedLevel.FASTEST };
+        private static final RewindSound.SpeedLevel[] SPEED_LEVELS =
+                {RewindSound.SpeedLevel.REGULAR, RewindSound.SpeedLevel.FAST, RewindSound.SpeedLevel.FASTEST };
 
         private final @NonNull PlaybackUi ui;
         private final @NonNull FFRewindTimer timer;
@@ -210,7 +212,7 @@ public class UiControllerPlayback {
         }
 
         void stop() {
-            ui.onFFRewindSpeed(PlaybackUi.SpeedLevel.STOP);
+            ui.onFFRewindSpeed(RewindSound.SpeedLevel.STOP);
             timer.removeObserver(this);
             timer.stop();
         }
@@ -224,7 +226,7 @@ public class UiControllerPlayback {
 
         @Override
         public void onTimerLimitReached() {
-            ui.onFFRewindSpeed(PlaybackUi.SpeedLevel.STOP);
+            ui.onFFRewindSpeed(RewindSound.SpeedLevel.STOP);
         }
 
         long getDisplayTimeMs() {
@@ -260,5 +262,9 @@ public class UiControllerPlayback {
 
     public float getSpeed() {
         return playbackService.getSpeed();
+    }
+
+    public long getCurrentPositionMs() {
+        return playbackService.getCurrentTotalPositionMs();
     }
 }

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -42,7 +42,11 @@ import com.donnKey.aesopPlayer.util.DebugUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.text.WordUtils;
 
 import de.greenrobot.event.EventBus;
@@ -356,6 +360,9 @@ public class AudioBook {
             return;
         }
         this.completed = completed;
+        if (completed) {
+            maxPosition = 0;
+        }
     }
 
     public boolean getCompleted() {
@@ -381,7 +388,7 @@ public class AudioBook {
 
     void restore(
             ColourScheme colourScheme, int fileIndex, long seekPosition, List<Long> fileDurations,
-            boolean completed) {
+            boolean completed, List<Long>bookStops, long maxPosition) {
         this.lastPosition = new BookPosition(fileIndex, seekPosition);
         if (colourScheme != null)
             this.colourScheme = colourScheme;
@@ -391,6 +398,8 @@ public class AudioBook {
                 this.totalDuration = fileDurationSum(fileDurations.size());
         }
         this.completed = completed;
+        this.lastStops = bookStops;
+        this.maxPosition = maxPosition;
     }
 
     void restoreOldFormat(
@@ -415,6 +424,8 @@ public class AudioBook {
             lastPosition = new BookPosition(fileIndex, seekPosition);
         }
         this.completed = false; // Old won't have this
+        this.lastStops = null;
+        this.maxPosition = 0;
     }
 
     private long fileDurationSum(int fileCount) {
@@ -481,6 +492,84 @@ public class AudioBook {
                 str.replace('_', ' ')
                    .replace('/', '-')
                 );
+    }
+
+    // Keep a list of a few places the user stopped/paused the player: the NUMBER_OF_STOPS
+    // largest time chops are kept in a sorted list, and given another time chop we can
+    // return the one closest before or after that actual. Only chops which differ by a minute
+    // or more are recorded. There's an implied one at the beginning, and if the querying chop
+    // value is later than any recorded one, the actual chop is returned unmodified.
+    // This is used to allow backspacing (or forward spacing) to recent stop points, which
+    // are the best guess we have of when the user fell asleep.
+    private final static long NUMBER_OF_STOPS = 5;
+    private List<Long> lastStops = null;
+    private long maxPosition = 0;
+
+    public void insertStop(long position) {
+        maxPosition = Math.max(position, maxPosition);
+        if (lastStops == null) {
+            lastStops = new Vector<>();
+            lastStops.add((long) 0);
+        }
+        for (Long stop : lastStops) {
+            if (Math.abs(position - stop) < TimeUnit.SECONDS.toMillis(60)) {
+                // if there's an existing entry within one minute, treat this as a duplicate
+                return;
+            }
+        }
+        while (lastStops.size() >= NUMBER_OF_STOPS) {
+            // remove the earliest ones if there are too many
+            lastStops.remove(0);
+        }
+        lastStops.add(position);
+        Collections.sort(lastStops, Long::compareTo);
+    }
+
+    public long getStopBefore(long position) {
+        // For swipe-left
+        // Returning 0 (for beginning) if we're before the earliest stop is just what we want
+        long prev = 0;
+        // Remember how far into the book we've ever been
+        maxPosition = Math.max(position, maxPosition);
+        if (lastStops == null) {
+            return prev;
+        }
+        for (Long stop : lastStops) {
+            if (position <= stop) {
+                break;
+            }
+            prev = stop;
+        }
+        return prev;
+    }
+
+    public long getStopAfter(long position) {
+        // For swipe-right
+        // If we're past the last stop, just return the maximum visited
+        // (A swipe right at the current position should be a no-op if we're
+        // as far into the book as we ever have been.)
+        if (lastStops == null) {
+            return position;
+        }
+        for (Long stop : lastStops) {
+            if (position < stop) {
+                return stop;
+            }
+        }
+        return Math.max(maxPosition, position);
+    }
+
+    public List<Long> getBookStops() {
+        return lastStops;
+    }
+
+    public long getMaxPosition() {
+        return this.maxPosition;
+    }
+
+    void leave() {
+        // We're done with this book for now. Be sure the stop times are saved.
+        notifyUpdateObserver();
     }
 
     private void notifyUpdateObserver() {

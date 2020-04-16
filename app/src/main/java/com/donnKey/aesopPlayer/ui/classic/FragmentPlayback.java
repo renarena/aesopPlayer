@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,18 +47,22 @@ import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.service.DeviceMotionDetector;
 import com.donnKey.aesopPlayer.ui.FFRewindTimer;
 import com.donnKey.aesopPlayer.ui.HintOverlay;
 import com.donnKey.aesopPlayer.ui.PressReleaseDetector;
+import com.donnKey.aesopPlayer.ui.RewindSound;
 import com.donnKey.aesopPlayer.ui.SimpleAnimatorListener;
 import com.donnKey.aesopPlayer.ui.Speaker;
 import com.donnKey.aesopPlayer.ui.TouchRateJoystick;
+import com.donnKey.aesopPlayer.ui.TwoFingerSwipe;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.ui.UiControllerPlayback;
 import com.donnKey.aesopPlayer.util.ViewUtils;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -71,6 +75,7 @@ import static com.donnKey.aesopPlayer.model.AudioBook.UNKNOWN_POSITION;
 public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer {
 
     private View view;
+    private View wholeScreen;
     private AppCompatImageButton stopButton;
     private AppCompatImageButton rewindButton;
     private AppCompatImageButton ffButton;
@@ -87,7 +92,6 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
     private @Nullable UiControllerPlayback controller;
 
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -101,6 +105,8 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
+
+        wholeScreen = Objects.requireNonNull(getActivity()).findViewById(R.id.wholeScreen);
 
         stopButton = view.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(v -> {
@@ -161,9 +167,16 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             stopButton.setOnTouchListener(new TouchRateJoystick(view.getContext(),
                     adjustmentsListener::handleSettings));
         }
+
         if (globalSettings.isTiltVolumeSpeedEnabled()) {
             DeviceMotionDetector.getDeviceMotionDetector(adjustmentsListener::handleSettings);
         }
+
+        if (globalSettings.isSwipeStopPointsEnabled()) {
+            wholeScreen.setOnTouchListener(new TwoFingerSwipe(view.getContext(),
+                    this::seekNextStop));
+        }
+
         UiUtil.startBlinker(view, globalSettings);
         showHintIfNecessary();
     }
@@ -176,12 +189,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         rewindButton.setOnTouchListener(null);
         ffButton.setOnTouchListener(null);
         rewindFFHandler.onPause();
-        if (globalSettings.isScreenVolumeSpeedEnabled()) {
-            stopButton.setOnTouchListener(null);
-        }
-        if (globalSettings.isTiltVolumeSpeedEnabled()) {
-            DeviceMotionDetector.getDeviceMotionDetector((TouchRateJoystick.Listener)null);
-        }
+        stopButton.setOnTouchListener(null);
+        DeviceMotionDetector.getDeviceMotionDetector((TouchRateJoystick.Listener)null);
+        wholeScreen.setOnTouchListener(null);
         super.onPause();
     }
 
@@ -262,6 +272,37 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         if (elapsedTimeRewindFFView.getVisibility() == View.VISIBLE) {
             elapsedTimeRewindFFViewAnimation.start();
         }
+    }
+
+    private void seekNextStop(TwoFingerSwipe.Direction direction) {
+        if (controller == null) {
+            return;
+        }
+
+        AudioBook book = controller.getAudioBookBeingPlayed();
+        long lastTimeChop = controller.getCurrentPositionMs();
+        long newPosition;
+        switch (direction) {
+        case LEFT:
+            // Back search up a little to allow user time to back up again, rather than
+            // just backing up to the same place because it advanced a little.
+            newPosition = book.getStopBefore(lastTimeChop - TimeUnit.SECONDS.toMillis(5));
+            break;
+        case RIGHT:
+            newPosition = book.getStopAfter(lastTimeChop);
+            break;
+        default:
+            return;
+        }
+
+        if (newPosition == lastTimeChop) {
+            return;
+        }
+
+        controller.pauseForRewind();
+        book.updateTotalPosition(newPosition);
+        new RewindSound().rewindBurst();
+        controller.resumeFromRewind();
     }
 
     void setController(@NonNull UiControllerPlayback controller) {

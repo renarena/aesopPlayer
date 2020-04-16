@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -79,6 +79,7 @@ public class GlobalSettings {
     private static final String KEY_KIOSK_MODE_SELECTION = "kiosk_mode_selection_preference";
     public static final String KEY_JUMP_BACK = "jump_back_preference";
     public static final String KEY_SLEEP_TIMER = "sleep_timer_preference";
+    private static final String KEY_STOP_POINTS_ACCESS = "stop_points_access_preference";
     public static final String KEY_SCREEN_ORIENTATION = "screen_orientation_preference";
     private static final String KEY_FF_REWIND_SOUND = "ff_rewind_sound_preference";
     private static final String KEY_SCREEN_VOLUME_SPEED = "screen_volume_speed_preference";
@@ -298,6 +299,10 @@ public class GlobalSettings {
 
     public boolean isFFRewindSoundEnabled() {
         return sharedPreferences.getBoolean(KEY_FF_REWIND_SOUND, true);
+    }
+
+    public boolean isSwipeStopPointsEnabled() {
+        return sharedPreferences.getBoolean(KEY_STOP_POINTS_ACCESS, false);
     }
 
     public boolean isScreenVolumeSpeedEnabled() {

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,31 +25,19 @@
 package com.donnKey.aesopPlayer.ui.classic;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.ui.PlaybackUi;
-import com.donnKey.aesopPlayer.ui.SoundBank;
+import com.donnKey.aesopPlayer.ui.RewindSound;
 import com.donnKey.aesopPlayer.ui.UiControllerPlayback;
 
-import java.util.EnumMap;
-
-import javax.inject.Inject;
-
 public class ClassicPlaybackUi implements PlaybackUi {
-
-    @SuppressWarnings("WeakerAccess")
-    @Inject public SoundBank soundBank;
-    @SuppressWarnings("WeakerAccess")
-    @Inject public GlobalSettings globalSettings;
 
     private final @NonNull FragmentPlayback fragment;
     private final @NonNull ClassicMainUi mainUi;
     private final boolean animateOnInit;
-
-    private @Nullable SoundBank.Sound ffRewindSound;
+    private final @NonNull RewindSound rewindSound;
 
     ClassicPlaybackUi(
             @NonNull AppCompatActivity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit) {
@@ -58,8 +46,7 @@ public class ClassicPlaybackUi implements PlaybackUi {
         this.animateOnInit = animateOnInit;
         AesopPlayerApplication.getComponent(activity).inject(this);
 
-        if (globalSettings.isFFRewindSoundEnabled())
-            ffRewindSound = soundBank.getSound(SoundBank.SoundId.FF_REWIND);
+        rewindSound = new RewindSound();
     }
 
     @Override
@@ -79,30 +66,11 @@ public class ClassicPlaybackUi implements PlaybackUi {
     }
 
     @Override
-    public void onFFRewindSpeed(SpeedLevel speedLevel) {
-        if (ffRewindSound != null) {
-            if (speedLevel == SpeedLevel.STOP) {
-                SoundBank.stopTrack(ffRewindSound.track);
-            } else {
-                @SuppressWarnings("ConstantConditions") int soundPlaybackFactor = SPEED_LEVEL_SOUND_RATE.get(speedLevel);
-                ffRewindSound.track.setPlaybackRate(ffRewindSound.sampleRate * soundPlaybackFactor);
-                ffRewindSound.track.play();
-            }
-
-        }
+    public void onFFRewindSpeed(RewindSound.SpeedLevel speedLevel) {
+        rewindSound.setFFRewindSpeed(speedLevel);
     }
 
     public void onChangeStopPause(int title) {
         fragment.onChangeStopPause(title);
-    }
-
-    private static final EnumMap<SpeedLevel, Integer> SPEED_LEVEL_SOUND_RATE =
-            new EnumMap<>(SpeedLevel.class);
-
-    static {
-        // No value for STOP.
-        SPEED_LEVEL_SOUND_RATE.put(SpeedLevel.REGULAR, 1);
-        SPEED_LEVEL_SOUND_RATE.put(SpeedLevel.FAST, 2);
-        SPEED_LEVEL_SOUND_RATE.put(SpeedLevel.FASTEST, 4);
     }
 }

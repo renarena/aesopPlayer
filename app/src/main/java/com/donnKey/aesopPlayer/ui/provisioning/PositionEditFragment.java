@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,8 +38,8 @@ import android.widget.TextView;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.BookPosition;
-import com.donnKey.aesopPlayer.ui.UiUtil;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -52,6 +52,8 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+
+import static com.donnKey.aesopPlayer.ui.UiUtil.formatDurationShort;
 
 public class PositionEditFragment extends Fragment {
     private AppCompatEditText editor;
@@ -84,6 +86,7 @@ public class PositionEditFragment extends Fragment {
         TextView oldDuration = view.findViewById(R.id.old_duration);
         Button doneButton = view.findViewById(R.id.button_done);
         Button cancelButton = view.findViewById(R.id.button_cancel);
+        TextView stopList = view.findViewById(R.id.stopPoints);
         editor = view.findViewById(R.id.edit_duration);
 
         BookPosition position = book.getLastPosition();
@@ -94,9 +97,23 @@ public class PositionEditFragment extends Fragment {
 
         title.setText(book.getTitle());
 
-        String positionStr = UiUtil.formatDurationShort(currentTotalMs);
+        String positionStr = formatDurationShort(currentTotalMs);
         positionStr = getString(R.string.pref_current_position_note, positionStr);
         oldDuration.setText(positionStr);
+
+        List<Long> stops = book.getBookStops();
+        StringBuilder stopTimes = new StringBuilder();
+        for (Long s:stops) {
+            if (s == 0) {
+                continue;
+            }
+            if (!stopTimes.toString().equals("")) {
+                stopTimes.append(",  ");
+            }
+            stopTimes.append(formatDurationShort(s));
+        }
+        stopTimes.append(" - ").append(formatDurationShort(book.getMaxPosition()));
+        stopList.setText(stopTimes.toString());
 
         editor.setSingleLine(true);
         editor.setFilters(new InputFilter[]{filter});
@@ -118,7 +135,7 @@ public class PositionEditFragment extends Fragment {
                 if (durationString.length() != 0)
                 {
                     long duration = timeToMillis(durationString);
-                    editor.setText(UiUtil.formatDurationShort(duration));
+                    editor.setText(formatDurationShort(duration));
                 }
                 // We didn't process it, just a side-effect, so return false
             }
@@ -172,16 +189,16 @@ public class PositionEditFragment extends Fragment {
         case 2:
             // ':' present - it's hh:mm (either could be empty)
             if (parts[0].length() > 0) {
-                duration = Long.valueOf(parts[0]) * 60;
+                duration = Long.parseLong(parts[0]) * 60;
             }
             if (parts[1].length() > 0) {
-                duration += Long.valueOf(parts[1]);
+                duration += Long.parseLong(parts[1]);
             }
             break;
         case 1:
             // no ':' - it's just mm (or mmm)
             if (parts[0].length() > 0) {
-                duration = Long.valueOf(parts[0]); // in minutes
+                duration = Long.parseLong(parts[0]); // in minutes
             }
             break;
         default:

@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -116,5 +116,16 @@ top of the screen, with enough room for the automatically-started keyboard below
         app:layout_constraintHorizontal_weight="25"
         app:layout_constraintStart_toEndOf="@id/book_title"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/stopPoints"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="2:13, 3:45, 12:20, 12:45, 13:15"
+        android:textSize="20sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_duration" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

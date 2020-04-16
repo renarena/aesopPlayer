@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -205,8 +206,11 @@ public class Provisioning extends ViewModel {
         for (int i = 0; i< audioBooks.size(); i++) {
             AudioBook book = audioBooks.get(i);
 
-            bookList[i] = new BookInfo(book,
-                    book.getCompleted(),!book.getPath().canWrite());
+            // A completed book that isn't in its first 10 seconds is likely being reread.
+            // Don't suggest deletion.
+            boolean preSelected = book.getCompleted()
+                    && TimeUnit.MILLISECONDS.toSeconds(book.toMs(book.getLastPosition())) < 10;
+            bookList[i] = new BookInfo(book, preSelected, !book.getPath().canWrite());
             long t = book.getTotalDurationMs();
             if (t != AudioBook.UNKNOWN_POSITION) {
                 totalTime += book.getTotalDurationMs();

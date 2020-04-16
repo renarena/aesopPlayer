@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,6 +37,7 @@ import com.donnKey.aesopPlayer.service.AudioBookPlayerModule;
 import com.donnKey.aesopPlayer.service.DemoSamplesInstallerService;
 import com.donnKey.aesopPlayer.service.DeviceMotionDetector;
 import com.donnKey.aesopPlayer.service.PlaybackService;
+import com.donnKey.aesopPlayer.ui.RewindSound;
 import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 import com.donnKey.aesopPlayer.ui.provisioning.CandidateFragment;
 import com.donnKey.aesopPlayer.ui.provisioning.InventoryItemFragment;
@@ -88,6 +89,7 @@ public interface ApplicationComponent {
     void inject(KioskSelectionPreference fragment);
     void inject(AesopPlayerDeviceAdmin fragment);
     void inject(UiControllerBookList fragment);
+    void inject(RewindSound rewindSound);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();

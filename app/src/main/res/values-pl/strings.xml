@@ -70,6 +70,7 @@
     <string name="pref_sleep_timer_summary_disabled">Wyłączone</string>
     <string name="pref_stop_on_face_down_title">Zatrzymać się twarzą w dół</string>
     <string name="pref_settings_interlock_title">Blokowanie dostępu do trybu ustawień</string>
+    <string name="pref_swipe_stop_points">Użyj machnięcia dwoma palcami, aby dotrzeć do punktów zatrzymania</string>
     <string name="pref_proximity_awaken">Obudź się na wykrywaczu zbliżeniowy"</string>
     <string name="pref_proximity_awaken_summary_on">Włączone</string>
     <string name="pref_proximity_awaken_summary_off">Wyłączone</string>

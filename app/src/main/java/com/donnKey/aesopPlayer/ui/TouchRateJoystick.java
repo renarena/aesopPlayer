@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -90,9 +90,6 @@ public class TouchRateJoystick implements View.OnTouchListener {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (event.getPointerCount() != 1)
-            return false;
-
         switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
             return onTouchDown(event);
@@ -100,6 +97,9 @@ public class TouchRateJoystick implements View.OnTouchListener {
             return onTouchUp();
         case MotionEvent.ACTION_MOVE:
             return onMove(event);
+        case MotionEvent.ACTION_CANCEL:
+            //noinspection DuplicateBranchesInSwitch
+            return onTouchUp();
         default:
             return false;
         }
@@ -139,7 +139,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
 
         // 4 zones - innermost is "nothing", then faster as the pointer moves away
         // Test for the dead zone
-        if (delta < minimumScrollMovement/2) return INTERVALNs * 1000; // "forever"
+        if (delta < minimumScrollMovement/2.0) return INTERVALNs * 1000; // "forever"
 
         // Convert distance to an interval
         delta /= 10; // Adjusts the distance from 0 to max; larger divisors -> more distance
@@ -210,7 +210,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
             switch (direction) {
             case UP:
             case DOWN: {
-                if (Math.abs(prevY - y) < minimumScrollMovement / 3) {
+                if (Math.abs(prevY - y) < minimumScrollMovement / 3.0) {
                     // Ignore small motions
                     break;
                 }
@@ -237,7 +237,7 @@ public class TouchRateJoystick implements View.OnTouchListener {
             }
             case LEFT:
             case RIGHT: {
-                if (Math.abs(prevX - x) < minimumScrollMovement / 3) {
+                if (Math.abs(prevX - x) < minimumScrollMovement / 3.0) {
                     // Ignore small motions
                     break;
                 }

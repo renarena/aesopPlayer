@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,6 +38,12 @@
         app:entries="@array/sleep_timer_entries"
         app:entryValues="@array/sleep_timer_values"
         app:defaultValue="0"/>
+    <SwitchPreference
+        app:key="stop_points_access_preference"
+        app:title="@string/pref_swipe_stop_points"
+        app:summaryOn="@string/pref_screen_volume_speed_on"
+        app:summaryOff="@string/pref_screen_volume_speed_off"
+        app:defaultValue="false"/>
     <ListPreference
         app:key="playback_speed_preference"
         app:title="@string/pref_playback_speed_title"
