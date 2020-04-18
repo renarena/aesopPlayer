@@ -139,6 +139,12 @@ You can use the "All" button to check (or uncheck) all the books if that makes t
 Just don't click the Delete button until you're sure all the checks are correct, 
 because the books will be completely removed and you'll have to reload them from wherever you got them to get them back.
 </p>
+<p>
+<small>
+    If you check closely, if a completed book has been replayed more than ten seconds, it's likely that
+    it's being reread. Those aren't automatically suggested for deletion.
+</small>
+</p>
 <h2>Example 2</h2>
 <p>
 Here's another example, chosen to be different in most ways from the previous one, but it's also likely
@@ -603,7 +609,7 @@ We can't cover all the cases, but here are some things to consider.
 	(There are a lot of opinions about what's "right" here, but "right" varies with your assumptions about intended use of the files.)
     <li>Be patient: things happen slowly with large book files.
 </ul>
-<h3 id="CDs" class="anchor-target">...from Sources Other Than the Internet</h3>
+<h3 id="CDs" class="anchor-target">...from Sources Other Than the Internet (CDs and Tape)</h3>
 <p>
 Again, a reminder about honoring copyright.
 </p>
@@ -612,11 +618,12 @@ Audio books are also available on CDs and (historically) tape.
 These can be converted to a form Aesop can handle, but it's technically more difficult.
 </p>
 <p>
-All books on CD share the common CD audio format, and most PCs that have a CD (usually also DVD and BluRay) 
+All books on CD share the common CD audio format, and many PCs that have a CD (usually also DVD and BluRay) 
 drive have an application that can "rip" the CD into a directory on disk.
 And there is quite a selection of similar tools on the Internet.
 Actually, most books on CD take a number of disks (at least two or three, and frequently many more).
-Once the data has been ripped, it needs to be reformatted to some degree or other, because the format you get varies widely from book to book.
+Once the data has been ripped, it needs to be reformatted to some degree or other, 
+because the format you get varies widely from book to book.
 See <a href="#book-format">Aesop Book Format</a> as discussed above.
 </p>
 <p>
@@ -627,21 +634,23 @@ This seems to be rare.
 <p>
 Slightly more commonly, the metadata is found on the Internet.
 For music titles, this is very common, but it seems to be rare for books.
-Many ripping applications will automatically make the Internet search, although not all the applications apply the names well.
+Many ripping applications will automatically make the Internet search, 
+although not all the applications apply the names well.
 (One, unnamed here, applies the names (if it finds any) to all except the first track on the disk.)
 </p>
 <p>
-More frequently there will be no metadata available, and the ripping application will "make up" names from the sequence of tracks on the CD,
-the current date, and other information it thinks relevant.
-In the process of doing so, it's likely to include something like <code>Track 1</code> in the title for the first track, 
+More frequently there will be no metadata available, and the ripping application will "make up" names 
+from the sequence of tracks on the CD, the current date, and other information it thinks relevant.
+In the process of doing so, it's likely to include something like 
+<code>Track 1</code> in the title for the first track, 
 <code>Track 2</code> for the second track, etc.
-That works fine until you get to <code>Track 10</code>, which according to computer sorting rules sorts right next to Track 1, 
+That works fine until you get to <code>Track 10</code>, 
+which according to computer sorting rules sorts right next to Track 1, 
 which doesn't work out well for an audio book.
 You want the track numbers to be the first thing that's different in each file name, 
 and to be numbered <code>01</code> ...  <code>09</code> <code>10</code> <code>11</code> etc.
 so they'll sort correctly.
-If you use Aesop's New Books install screen to do the final installation, it will 
-use 
+If you use Aesop's New Books install screen to do the final installation, it will use 
 <a href="#name-normalization">Name Normalization</a>
 to convert any one-digit numbers it finds to two-digit ones (with a zero), 
 which fixes both the track number problem and any one-digit date or time information the ripping tool 
@@ -668,8 +677,19 @@ It's best to look at what you get after ripping.
 If your PC treats the books as a music directory it will show track numbers (if present) 
 and you can make sure that the order of the individual files matches the track numbers.
 </p>
+<small>
+    <p>
+    The <strong>fre:ac</strong> PC application available for download can be configured to use the 
+    date and time you start the rip of the disk to create the file names.
+    Unlike many other ripping tools, it will both auto-start and 
+    auto-eject the disk when there is no metadata when it is using date, time, and 2-digit track number for filenames.
+    Using a CD drive with a tray that ejects the media (that is, typically not one in a laptop) it is possible
+    to simply change the CDs (without any clicks on the PC) in order, and the result is a collection of
+    directories that will work with Aesop without having to rename any files except the top level directory to
+    provide the book title.
+</small>
 <p>
-As for books on tape: it's certainly possible to capture the audio stream from a tape, digitize it, 
+As for books on tape (or records!): it's certainly possible to capture the audio stream from a tape, digitize it, 
 split it into comfortable-sized chapters using an audio editor, 
 and then provide titles and other metadata, 
 but it's a significant effort for an expert with the right equipment and software.
@@ -879,16 +899,27 @@ it is possible to disable this by unchecking "Normalize Book Names" using the "M
 <a href="#new-books">New Books</a>)). 
 <h3>Book Progress</h3>
 <p>
-The player keeps two pieces of information about progress reading a book: 
-the current position (which it needs for restarting after a pause) and whether the book has been read to the end.
+The player keeps some information about progress reading a book: 
+the current position (which it needs for restarting after a pause), whether the book has been read to the end,
+the 
+<a href="user-interface.html#two-finger-swipe">stop points</a>,
+and the maximum position read so far.
 The progress shows up as a time and percentage on the player screen and on the book inventory screen, 
-and the word "Completed" is show in both places when the book has been read to the end.
-Occasionally a book may be left playing accidentally, or you need to move from one device to another.
+and the word "Completed" is shown in both places when the book has been read to the end.
+</P>
+<p>
+Occasionally a book may be left playing accidentally and the stop points feature is not useful for some reason,
+or you need to move from one device to another.
 Should that happen, you can click on the time displayed in the book inventory 
-(#9 on <a href="#inventory-screen">Book Inventory</a>).
+(#9 on <a href="#inventory-screen">Book Inventory</a>), and enter a new position.
 That can be in minutes (even more than an hours worth) or hours and minutes (as hh:mm)).
-Setting it to zero rewinds the book completely.
-Changing the time also resets the "Completed" flag.
+Setting the time to zero rewinds the book completely.
+Changing the time this way also resets the "Completed" flag.
+The window for setting the time also shows the stop points and (after the "-") the maximum position, again as hh:mm.
+<small>
+That may be hidden behind the virtual keyboard on some devices: you can close the keyboard ("done")
+and then restore it by clicking on the new time field.
+</small>
 </p>
 <p>
 You can also reset any books to the beginning by checking them in the book inventory screen and then clicking the "Reset" button at the upper right

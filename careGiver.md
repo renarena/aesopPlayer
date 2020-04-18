@@ -19,6 +19,8 @@ Care Giver Quick Reference
 
 * Slower: drag down and hold while playing. Similarly.
 
+* Back up/jump forward to last place user stopped: *Two finger* swipe left or right while playing. There are several places remembered. Enable in playback settings.
+
 * Select Book: swipe left or right when stopped. It will say the book title. It will come around to the same book again.
 
 

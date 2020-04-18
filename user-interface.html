@@ -146,6 +146,35 @@ A setting
 <a href="install-configure.html#face-down">here</a>
 allows returning the device face-up to continue playing (the gesture is then a "pause").
 The same setting can be used to disable the feature.
+
+<h3 id="two-finger-swipe" class="anchor-target">Back Up to Stop Point Gesture</h3>
+The Aesop Player remembers (bookmarks) the last several places in the book that the player was stopped or paused.
+This can be used to back up and replay a section if the user needs to replay it.
+The gesture is a <em>two-finger</em> swipe (while playing). 
+A swipe to the left moves backwards one stop point, 
+to the right forward to the next one. 
+Swiping to the left several times goes to the beginning of the book, 
+several times to the right to the maximum extent the book has so far been played.
+If the 
+<a href="install-configure.html#rewind-sound">rewind sound</a>
+feature is enabled, a short bit of rewind sound is played after each swipe.
+</p>
+Hint: to easily rewind to the beginning, swipe left several times until it gets there.
+(You have five seconds after a swipe where it will back up past the immediately prior stop point.)
+<p>
+</p>
+<p>
+Stop points are never less than one minute apart; nearby duplicates are simply ignored.
+Using this feature does not affect the "Completed" flag.
+<p>
+This feature is by default off, and can be enabled with the setting 
+<a href="install-configure.html#swipe-enable">here</a>.
+<small>
+<p>
+Devices might not always recognize a two-finger swipe if the fingers are too close together.
+Try it, and note that a more relaxed (and separated) position works better.
+</small>
+
 <h3>Defer Sleep Gesture</h3>
 <p>Aesop can be 
 <a href="install-configure.html#sleep-timer">set</a>
