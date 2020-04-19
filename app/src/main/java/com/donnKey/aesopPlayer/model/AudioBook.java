@@ -29,9 +29,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.google.common.base.Preconditions;
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.Mp3File;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.filescanner.FileSet;
@@ -48,6 +45,10 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.text.WordUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
 
 import de.greenrobot.event.EventBus;
 
@@ -100,8 +101,8 @@ public class AudioBook {
 
     static public TitleAndAuthor metadataTitle(String fileName) {
         try {
-            Mp3File mp3file = new Mp3File(fileName, false);
-            return metadataTitle(mp3file);
+            File audioFile = new File(fileName);
+            return metadataTitle(audioFile);
         }
         catch (Exception e) {
             // Ignore any errors
@@ -111,9 +112,8 @@ public class AudioBook {
 
     static public TitleAndAuthor metadataTitle(File file) {
         try {
-            // 65536 is the default... we need scanFile to be false.
-            Mp3File mp3file = new Mp3File(file, 65536, false);
-            return metadataTitle(mp3file);
+            AudioFile audioFile = AudioFileIO.read(file);
+            return metadataTitle(audioFile);
         }
         catch (Exception e) {
             // Ignore any errors
@@ -121,7 +121,7 @@ public class AudioBook {
         }
     }
 
-    private static TitleAndAuthor metadataTitle(Mp3File mp3file) {
+    private static TitleAndAuthor metadataTitle(AudioFile audioFile) {
         // MediaMetadataRetriever (the obvious choice) simply doesn't work,
         // not returning metadata that's clearly there.
         // (StackOverflow rumor has it that it's a Samsung issue in part.)
@@ -131,22 +131,9 @@ public class AudioBook {
         String newTitle = null;
 
         try {
-            if (mp3file.hasId3v2Tag()) {
-                ID3v2 id3v2Tag = mp3file.getId3v2Tag();
-                newTitle = id3v2Tag.getAlbum();
-                author = id3v2Tag.getArtist();
-            }
-            if (newTitle == null || author == null) {
-                if (mp3file.hasId3v1Tag()) {
-                    ID3v1 id3v1Tag = mp3file.getId3v1Tag();
-                    if (newTitle == null) {
-                        newTitle = id3v1Tag.getAlbum();
-                    }
-                    if (author == null) {
-                        author = id3v1Tag.getArtist();
-                    }
-                }
-            }
+            Tag tag = audioFile.getTag();
+            newTitle = tag.getFirst(FieldKey.ALBUM);
+            author = tag.getFirst(FieldKey.ARTIST);
         }
         catch (Exception e) {
             // Ignore any errors
@@ -211,17 +198,10 @@ public class AudioBook {
             // Get it from the metadata
             // See above about MediaMetadataRetriever.
             try {
-                Mp3File mp3file = new Mp3File(fileName);
-                if (mp3file.hasId3v2Tag()) {
-                    ID3v2 id3v2Tag = mp3file.getId3v2Tag();
-                    chapterTitle = id3v2Tag.getTitle();
-                }
-                if (chapterTitle == null) {
-                    if (mp3file.hasId3v1Tag()) {
-                        ID3v1 id3v1Tag = mp3file.getId3v1Tag();
-                        chapterTitle = id3v1Tag.getTitle();
-                    }
-                }
+                File file = new File(fileName);
+                AudioFile audioFile = AudioFileIO.read(file);
+                Tag tag = audioFile.getTag();
+                chapterTitle = tag.getFirst(FieldKey.TITLE);
             }
             catch (Exception e) {
                 // Ignore any errors
@@ -239,9 +219,11 @@ public class AudioBook {
                 // Guess if the title is repeated in the chapter name and remove that
                 String title = getTitle();
                 int titleLoc = chapterTitle.indexOf(title);
-                if (titleLoc >= 0) {
+
+                if (titleLoc >= 0 && chapterTitle.length() > title.length()) {
+                    // If the chapter title is the book title... nothing
                     chapterTitle = chapterTitle.substring(0, titleLoc)
-                                 + chapterTitle.substring(titleLoc + title.length() + 1);
+                                 + chapterTitle.substring(titleLoc + title.length());
                 }
             }
             lastFileIndex = lastPosition.fileIndex;

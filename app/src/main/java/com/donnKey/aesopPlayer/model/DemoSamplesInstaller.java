@@ -146,6 +146,10 @@ public class DemoSamplesInstaller {
             if (localizedTitle == null)
                 localizedTitle = titles.getString(DEFAULT_TITLE_FIELD);
 
+            if (!localizedTitle.contains(" ")) {
+                // Be sure the title contains a space so it's used rather than the metadata
+                localizedTitle += " ";
+            }
             return localizedTitle;
         } catch(IOException | JSONException | ClassCastException exception) {
             CrashWrapper.logException(exception);

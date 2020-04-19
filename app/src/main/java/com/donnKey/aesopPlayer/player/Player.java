@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,8 +36,8 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
@@ -57,7 +57,7 @@ public class Player {
 
     private final SimpleExoPlayer exoPlayer;
     private final EventBus eventBus;
-    private ExtractorMediaSource.Factory mediaSourceFactory;
+    private ProgressiveMediaSource.Factory mediaSourceFactory;
 
     private float playbackSpeed = 1.0f;
 
@@ -100,20 +100,20 @@ public class Player {
         exoPlayer.prepare(source, false, true);
     }
 
-    private ExtractorMediaSource.Factory getExtractorMediaSourceFactory() {
+    private ProgressiveMediaSource.Factory getExtractorMediaSourceFactory() {
         if (mediaSourceFactory == null) {
             DataSource.Factory dataSourceFactory = new FileDataSourceFactory();
             DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
             extractorsFactory.setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-            mediaSourceFactory = new ExtractorMediaSource.Factory(dataSourceFactory)
-                            .setExtractorsFactory(extractorsFactory);
+            mediaSourceFactory = new ProgressiveMediaSource.Factory(
+                    dataSourceFactory, extractorsFactory);
         }
         return mediaSourceFactory;
     }
 
-    private class PlaybackControllerImpl
-            extends com.google.android.exoplayer2.Player.DefaultEventListener
-            implements PlaybackController {
+    private class PlaybackControllerImpl implements
+            com.google.android.exoplayer2.Player.EventListener,
+            PlaybackController {
 
         private File currentFile;
         private Observer observer;
@@ -270,9 +270,9 @@ public class Player {
         }
     }
 
-    private class DurationQueryControllerImpl
-            extends com.google.android.exoplayer2.Player.DefaultEventListener
-            implements DurationQueryController {
+    private class DurationQueryControllerImpl implements
+            com.google.android.exoplayer2.Player.EventListener,
+            DurationQueryController {
 
         private final Iterator<File> iterator;
         private File currentFile;

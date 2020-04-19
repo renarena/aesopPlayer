@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,6 +24,7 @@
  */
 package com.donnKey.aesopPlayer.util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -41,7 +42,7 @@ import java.util.List;
 
 public class FilesystemUtil {
 
-    private static final String[] SUPPORTED_SUFFIXES = {".mp3", ".m4a", ".ogg"};
+    private static final String[] SUPPORTED_SUFFIXES = {".mp3", ".m4a", ".ogg", ".m4b"};
 
     private static List<File> listRootDirs(Context context) {
         List<File> rootDirs = listStorageMounts();
@@ -109,6 +110,7 @@ public class FilesystemUtil {
         return rootDirs;
     }
 
+    @SuppressLint("UsableSpace")
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean sameFilesystemAs(File file1, File file2) {
         if (Build.VERSION.SDK_INT < 21) {
@@ -187,7 +189,7 @@ public class FilesystemUtil {
         }
     }
 
-    @TargetApi(21)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private static class API21 {
         static long stat(String s) {
             try {

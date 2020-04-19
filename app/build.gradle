@@ -41,7 +41,7 @@ licenseReport {
 
 repositories {
     maven { url 'https://guardian.github.io/maven/repo-releases' } // for 'option'
-    maven { url "https://jitpack.io" } // For CircularReveal
+    maven { url "https://jitpack.io" } // For CircularReveal, jaudiotagger
     google()
 }
 
@@ -113,7 +113,7 @@ dependencies {
     // guava-jre does not work - must use -android
     implementation 'com.google.guava:guava:28.1-android'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.7.3'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
     implementation 'com.google.dagger:dagger:2.26'
 
     implementation 'com.google.android.material:material:1.2.0-alpha05'
@@ -125,8 +125,10 @@ dependencies {
 
     implementation 'com.github.ozodrukh:CircularReveal:2.0.1@aar'
 
-    implementation 'com.mpatric:mp3agic:0.9.0'
-    // 0.9.1 doesn't currently (9/19) run down-level due to Java nio lib usage
+    // jitpack is not providing the "right" version right now; the AdrienPoupa version
+    // seems to have the same problem except for "-SNAPSHOT", which is good enough for now.
+    //implementation 'com.github.hexise:jaudiotagger-android:-SNAPSHOT'
+    implementation 'com.github.AdrienPoupa:jaudiotagger-android:-SNAPSHOT'
 
     implementation 'org.apache.commons:commons-text:1.8'
     implementation 'org.apache.commons:commons-compress:1.20'

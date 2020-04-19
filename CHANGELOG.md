@@ -62,4 +62,7 @@ This allows easy backup should the user fall asleep. More details on the web pag
 
 On Current Books page, don't suggest removing a book that has been completed and then restarted.
 
-Documentation only: add note about fre:ac for easy ripping.
+Technical changes to the player and metadata reader to widen the range of books that can
+be successfully played (and/or title displayed).
+
+Web page only: add note about fre:ac for easy ripping.
