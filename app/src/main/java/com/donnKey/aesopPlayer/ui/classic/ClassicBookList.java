@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -141,16 +141,17 @@ public class ClassicBookList extends Fragment implements BookListUi {
         if (isResumed() && isVisible() && !isAnyHintVisible()) {
             if (!globalSettings.browsingHintShown()) {
                 HintOverlay overlay = new HintOverlay(
-                        view, R.id.browseHintOverlayStub, R.string.hint_browsing, R.drawable.hint_horizontal_swipe);
+                        view, R.id.browseHintOverlayStub, R.string.hint_browsing,
+                        R.drawable.hint_horizontal_swipe, globalSettings::setBrowsingHintShown);
                 overlay.show();
-                globalSettings.setBrowsingHintShown();
         // TODO: there's more, but this is the primary thing to disable the 5-tap help
         // (This doesn't apply with the gear-icon based settings stuff).
         /*    } else if (!globalSettings.settingsHintShown()) {
                 HintOverlay overlay = new HintOverlay(
-                        view, R.id.settingsHintOverlayStub, R.string.hint_settings, R.drawable.hint_tap);
+                        view, R.id.settingsHintOverlayStub, R.string.hint_settings,
+                        R.drawable.hint_tap, globalSettings::setSettingsHintShown);
                 overlay.show();
-                globalSettings.setSettingsHintShown();*/
+                */
             }
         }
     }

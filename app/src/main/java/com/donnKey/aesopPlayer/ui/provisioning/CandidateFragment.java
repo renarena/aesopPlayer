@@ -118,6 +118,8 @@ public class CandidateFragment extends Fragment {
                 preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,
                     defaultCandidateDirectory.getPath()));
         if (!provisioning.candidateDirectory.exists() || !provisioning.candidateDirectory.isDirectory()) {
+            // Some emulators don't appear to come with a Download dir. It seems unlikely that
+            // any real device wouldn't, but we can get here bogus-ly on an emulator.
             Toast.makeText(getContext(), getString(R.string.warning_toast_using_default_source),Toast.LENGTH_LONG).show();
             provisioning.candidateDirectory = defaultCandidateDirectory;
             provisioning.candidates.clear();

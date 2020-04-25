@@ -106,7 +106,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
-        wholeScreen = Objects.requireNonNull(getActivity()).findViewById(R.id.wholeScreen);
+        wholeScreen = requireActivity().findViewById(R.id.wholeScreen);
 
         stopButton = view.findViewById(R.id.stopButton);
         stopButton.setOnClickListener(v -> {
@@ -251,9 +251,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         if (isResumed() && isVisible()) {
             if (!globalSettings.flipToStopHintShown()) {
                 HintOverlay overlay = new HintOverlay(
-                        view, R.id.flipToStopHintOverlayStub, R.string.hint_flip_to_stop, R.drawable.hint_flip_to_stop);
+                        view, R.id.flipToStopHintOverlayStub, R.string.hint_flip_to_stop,
+                        R.drawable.hint_flip_to_stop, globalSettings::setFlipToStopHintShown);
                 overlay.show();
-                globalSettings.setFlipToStopHintShown();
             }
         }
     }
@@ -446,7 +446,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
 
         AdjustmentsListener ()
         {
-            audioManager = (AudioManager) Objects.requireNonNull(getContext()).getSystemService(Context.AUDIO_SERVICE);
+            audioManager = (AudioManager) requireContext().getSystemService(Context.AUDIO_SERVICE);
             mediaPlayerTick = MediaPlayer.create(getContext(), R.raw.tick);
             mediaPlayerComplain = MediaPlayer.create(getContext(), R.raw.limit_hit);
             speaker = Speaker.get();

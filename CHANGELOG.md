@@ -66,6 +66,9 @@ Add a High Contrast color theme and switch to enable it.
 Lots of inspection-related cleanup on the otherwise-changed files, bug fix
 to PositionEdit when stop list is empty.
 
+Bug fix so that the hint for swiping to change books is visibly displayed.
+(Don't record that it was displayed until the user actually dismisses it.)
+
 Technical changes to the player and metadata reader to widen the range of books that can
 be successfully played (and/or title displayed).
 

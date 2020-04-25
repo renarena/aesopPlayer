@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,12 +39,15 @@ public class HintOverlay {
     private final int viewStubId;
     private final int textResourceId;
     private final int imageResourceId;
+    private final Listener listener;
 
-    public HintOverlay(View parentView, int viewStubId, int textResourceId, int imageResourceId) {
+    public HintOverlay(View parentView, int viewStubId, int textResourceId, int imageResourceId,
+                       Listener listener) {
         this.parentView = parentView;
         this.viewStubId = viewStubId;
         this.textResourceId = textResourceId;
         this.imageResourceId = imageResourceId;
+        this.listener = listener;
     }
 
     public void show() {
@@ -88,7 +91,7 @@ public class HintOverlay {
         }
     }
 
-    private static class HideHintClickListener implements View.OnClickListener {
+    private class HideHintClickListener implements View.OnClickListener {
 
         private final View hintOverlay;
 
@@ -108,6 +111,7 @@ public class HintOverlay {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
+                    listener.setHintShown();
                     hintOverlay.setVisibility(View.GONE);
                 }
 
@@ -118,6 +122,7 @@ public class HintOverlay {
             hintOverlay.startAnimation(animation);
         }
     }
-
-
+    public interface Listener {
+        void setHintShown();
+    }
 }
