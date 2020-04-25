@@ -97,8 +97,8 @@ dependencies {
     // To successfully use Firebase you'll need to download google-services.json from
     // your Firebase account (it's custom for each Firebase project/app). It should not
     // be checked in publicly.
-    implementation 'com.google.firebase:firebase-core:17.2.3'
-    implementation 'com.google.firebase:firebase-analytics:17.2.3'
+    implementation 'com.google.firebase:firebase-core:17.3.0'
+    implementation 'com.google.firebase:firebase-analytics:17.3.0'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     implementation 'de.greenrobot:eventbus:2.4.1'
@@ -111,17 +111,17 @@ dependencies {
     // implementation 'com.flurry.android:analytics:6.9.2' Disabled: see analytics/StatsLogger.java
 
     // guava-jre does not work - must use -android
-    implementation 'com.google.guava:guava:28.1-android'
+    implementation 'com.google.guava:guava:28.2-android'
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
-    implementation 'com.google.dagger:dagger:2.26'
+    implementation 'com.google.dagger:dagger:2.27'
 
-    implementation 'com.google.android.material:material:1.2.0-alpha05'
+    implementation 'com.google.android.material:material:1.2.0-alpha06'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.26'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
 
     implementation 'com.github.ozodrukh:CircularReveal:2.0.1@aar'
 
