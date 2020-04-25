@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -50,6 +50,12 @@
         app:entryValues="@array/settings_interlock_values"
         app:key="settings_interlock_preference"
         app:title="@string/pref_settings_interlock_title" />
+    <ListPreference
+        app:key="color_theme"
+        app:title="@string/pref_color_theme_title"
+        app:entries="@array/color_theme_entries"
+        app:entryValues="@array/color_theme_values"
+        app:defaultValue="@string/pref_color_theme_default_value"/>
     <PreferenceScreen
         app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"
         app:key="kiosk_mode_screen"

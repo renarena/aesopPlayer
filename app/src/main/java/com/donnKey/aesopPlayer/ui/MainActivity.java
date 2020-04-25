@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -79,19 +79,14 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     SimpleDeferred<Object> ttsDeferred;
     private OrientationActivityDelegate orientationDelegate;
 
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public UiControllerMain controller;
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public BatteryStatusProvider batteryStatusProvider;
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public GlobalSettings globalSettings;
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public KioskModeHandler kioskModeHandler;
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public KioskModeSwitcher kioskModeSwitcher;
 
@@ -142,12 +137,14 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     // below to show when it should.
     private final PulsedBoolean justCreated = new PulsedBoolean(2000);
 
+    @Nullable
+    private ColorTheme currentTheme;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         restorer.cancelRestore();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
 
         powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
@@ -158,6 +155,9 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 .classicMainUiModule(new ClassicMainUiModule(this))
                 .build();
         mainUiComponent.inject(this);
+
+        setTheme(globalSettings.colorTheme());
+        setContentView(R.layout.main_activity);
 
         controller.onActivityCreated();
 
@@ -220,6 +220,14 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         }
 
         super.onResume();
+
+        ColorTheme theme = globalSettings.colorTheme();
+        if (currentTheme != theme) {
+            setTheme(theme);
+            // Although it sort-of works not to call recreate(), some things don't get reset without it.
+            // The cost is a replay of "Scanning Books", which is livable.
+            recreate();
+        }
     }
 
     @SuppressLint("MissingSuperCall")
@@ -625,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         }
     }
 
-    class PulsedBoolean {
+    static class PulsedBoolean {
         boolean mBool;
         final long mDelay;
         // These need to be on separate handler queues so they can be cleared.
@@ -648,5 +656,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         boolean get() {
             return mBool;
         }
+    }
+
+    private void setTheme(@NonNull ColorTheme theme) {
+        currentTheme = theme;
+        setTheme(theme.styleId);
     }
 }

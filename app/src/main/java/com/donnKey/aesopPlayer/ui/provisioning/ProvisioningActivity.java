@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,14 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+import com.donnKey.aesopPlayer.ui.ColorTheme;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
@@ -61,6 +64,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 import static com.donnKey.aesopPlayer.ui.settings.SettingsActivity.getInSettings;
 import static com.donnKey.aesopPlayer.ui.settings.SettingsActivity.setMenuItemProperties;
 
@@ -79,6 +83,9 @@ public class ProvisioningActivity extends AppCompatActivity
     private Provisioning provisioning;
     BottomNavigationView navigation;
 
+    @Nullable
+    private ColorTheme currentTheme;
+
     public ProvisioningActivity() {
         // required stub constructor
     }
@@ -96,6 +103,7 @@ public class ProvisioningActivity extends AppCompatActivity
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
+        setTheme(globalSettings.colorTheme());
         setContentView(R.layout.activity_provisioning);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -111,6 +119,7 @@ public class ProvisioningActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar);
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(this,R.attr.actionBarBackground)));
     }
 
     // Used to tell MainActivity that we're here on purpose.
@@ -133,6 +142,11 @@ public class ProvisioningActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        ColorTheme theme = globalSettings.colorTheme();
+        if (currentTheme != theme) {
+            setTheme(theme);
+            recreate();
+        }
         boolean enabled = globalSettings.isMaintenanceMode();
         setMenuItemProperties(this, navigation.getMenu().getItem(3),
                 enabled ? R.drawable.ic_settings_red_24dp : R.drawable.ic_settings_redish_24dp,
@@ -486,5 +500,11 @@ public class ProvisioningActivity extends AppCompatActivity
 
     private void deleteAllSelected_Task() {
         provisioning.deleteAllSelected_Task(this::postDeleteProgress);
+    }
+
+    @UiThread
+    private void setTheme(@NonNull ColorTheme theme) {
+        currentTheme = theme;
+        setTheme(theme.styleId);
     }
 }

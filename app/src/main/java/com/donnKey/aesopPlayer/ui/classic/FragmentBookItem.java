@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,6 +25,8 @@
 package com.donnKey.aesopPlayer.ui.classic;
 
 import android.os.Bundle;
+
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
@@ -35,7 +37,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
@@ -49,6 +50,8 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 public class FragmentBookItem extends BookListChildFragment {
 
     public static FragmentBookItem newInstance(String bookId) {
@@ -59,11 +62,8 @@ public class FragmentBookItem extends BookListChildFragment {
         return newFragment;
     }
 
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
-    @SuppressWarnings("WeakerAccess")
     @Inject public AudioBookManager audioBookManager;
-    @SuppressWarnings("WeakerAccess")
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
 
     private @Nullable UiControllerBookList controller;
@@ -84,14 +84,18 @@ public class FragmentBookItem extends BookListChildFragment {
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         Bundle args = getArguments();
-        Preconditions.checkNotNull(args);
+        Objects.requireNonNull(args);
         final String bookId = args.getString(ARG_BOOK_ID);
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
             TextView textView = view.findViewById(R.id.title);
             textView.setText(book.getTitle());
-            textView.setTextColor(book.getColourScheme().textColour);
-            view.setBackgroundColor(book.getColourScheme().backgroundColour);
+
+            @ColorInt int textColour = colorFromAttribute(requireContext(),
+                book.getColourScheme().textColourAttrId);
+            textView.setTextColor(textColour);
+            view.setBackgroundColor(colorFromAttribute(requireContext(),
+                book.getColourScheme().backgroundColourAttrId));
 
             if (book.isDemoSample()) {
                 TextView copyBooksInstruction =
@@ -99,7 +103,7 @@ public class FragmentBookItem extends BookListChildFragment {
                 String directoryMessage =
                         getString(R.string.copyBooksInstructionMessage, audioBooksDirectoryName);
                 copyBooksInstruction.setText(Html.fromHtml(directoryMessage));
-                copyBooksInstruction.setTextColor(book.getColourScheme().textColour);
+                copyBooksInstruction.setTextColor(textColour);
                 copyBooksInstruction.setVisibility(View.VISIBLE);
             }
 
@@ -125,7 +129,7 @@ public class FragmentBookItem extends BookListChildFragment {
 
             final AppCompatButton startButton = view.findViewById(R.id.startButton);
             startButton.setOnClickListener(v -> {
-                Preconditions.checkNotNull(controller);
+                Objects.requireNonNull(controller);
                 controller.playCurrentAudiobook();
                 startButton.setEnabled(false);
             });
@@ -138,8 +142,8 @@ public class FragmentBookItem extends BookListChildFragment {
         return view;
     }
 
-    public String getAudioBookId() {
-        return Objects.requireNonNull(getArguments()).getString(ARG_BOOK_ID);
+    String getAudioBookId() {
+        return requireArguments().getString(ARG_BOOK_ID);
     }
 
     void setController(@NonNull UiControllerBookList controller) {

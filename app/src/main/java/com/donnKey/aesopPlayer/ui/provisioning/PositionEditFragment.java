@@ -24,6 +24,7 @@
 package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.view.KeyEvent;
@@ -53,6 +54,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 import static com.donnKey.aesopPlayer.ui.UiUtil.formatDurationShort;
 
 public class PositionEditFragment extends Fragment {
@@ -67,7 +69,7 @@ public class PositionEditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
+        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
     }
 
     @Override
@@ -77,10 +79,11 @@ public class PositionEditFragment extends Fragment {
         book = (AudioBook)provisioning.fragmentParameter;
         View view = inflater.inflate(R.layout.fragment_position_edit, container, false);
 
-        ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(R.string.fragment_subtitle_adjust_position);
+        actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
 
         TextView title = view.findViewById(R.id.book_title);
         TextView oldDuration = view.findViewById(R.id.old_duration);
@@ -92,7 +95,7 @@ public class PositionEditFragment extends Fragment {
         BookPosition position = book.getLastPosition();
         long currentTotalMs = book.toMs(position);
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).navigation.
+        ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.GONE);
 
         title.setText(book.getTitle());
@@ -103,14 +106,16 @@ public class PositionEditFragment extends Fragment {
 
         List<Long> stops = book.getBookStops();
         StringBuilder stopTimes = new StringBuilder();
-        for (Long s:stops) {
-            if (s == 0) {
-                continue;
+        if (stops != null) {
+            for (Long s : stops) {
+                if (s == 0) {
+                    continue;
+                }
+                if (!stopTimes.toString().equals("")) {
+                    stopTimes.append(",  ");
+                }
+                stopTimes.append(formatDurationShort(s));
             }
-            if (!stopTimes.toString().equals("")) {
-                stopTimes.append(",  ");
-            }
-            stopTimes.append(formatDurationShort(s));
         }
         stopTimes.append(" - ").append(formatDurationShort(book.getMaxPosition()));
         stopList.setText(stopTimes.toString());
@@ -124,7 +129,7 @@ public class PositionEditFragment extends Fragment {
                         || event.getKeyCode() == KeyEvent.KEYCODE_NUMPAD_ENTER)
                 ) {
                     InputMethodManager imm = (InputMethodManager)
-                            Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+                            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
                     imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
                     actionId = EditorInfo.IME_ACTION_DONE;
@@ -145,7 +150,7 @@ public class PositionEditFragment extends Fragment {
         doneButton.setOnClickListener((v) -> setNewTime());
 
         cancelButton.setOnClickListener((v) -> {
-            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             fragmentManager.popBackStack();
         });
 
@@ -158,7 +163,7 @@ public class PositionEditFragment extends Fragment {
         // This has to happen late (after layout is finished) to get the keyboard up immediately.
         editor.requestFocus();
         InputMethodManager imm = (InputMethodManager)
-                Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(editor, InputMethodManager.SHOW_FORCED);
     }
 
@@ -167,7 +172,7 @@ public class PositionEditFragment extends Fragment {
         // Defer below until stop so we catch ALL stops
         // Method for hiding the keyboard is obscure at best, but it works
         InputMethodManager imm = (InputMethodManager)
-                Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editor.getWindowToken(), 0);
         super.onStop();
     }
@@ -232,7 +237,7 @@ public class PositionEditFragment extends Fragment {
         book.updateTotalPosition(newBookPosition);
         book.setCompleted(false);
 
-        FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         fragmentManager.popBackStack();
     }
 

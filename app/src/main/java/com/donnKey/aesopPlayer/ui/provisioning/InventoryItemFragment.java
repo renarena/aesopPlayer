@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -56,16 +57,15 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 /* An inventory of current books, displaying completion status and position and total time
  */
 public class InventoryItemFragment extends Fragment {
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public GlobalSettings globalSettings;
-    @SuppressWarnings("WeakerAccess")
     @Inject
     public AudioBookManager audioBookManager;
-    @SuppressWarnings("WeakerAccess")
     @Inject
     @Named("AUDIOBOOKS_DIRECTORY")
     public String audioBooksDirectoryName;
@@ -90,8 +90,9 @@ public class InventoryItemFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_inventory_item_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
 
-        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
-        actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
+        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
+        actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+        Objects.requireNonNull(actionBar).setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
 
         if (provisioning.bookList == null) {
             // already done; redo (below) if things change enough
@@ -112,7 +113,7 @@ public class InventoryItemFragment extends Fragment {
         provisioning.windowTitle = getString(R.string.fragment_title_inventory);
         setTotalSubtitle();
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).navigation.
+        ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.VISIBLE);
 
         return view;
@@ -128,12 +129,12 @@ public class InventoryItemFragment extends Fragment {
         setTotalSubtitle();
         actionBar.setSubtitle(provisioning.windowSubTitle);
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).activeInventoryFragment = this;
+        ((ProvisioningActivity) requireActivity()).activeInventoryFragment = this;
     }
 
     @Override
     public void onPause() {
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).activeInventoryFragment = null;
+        ((ProvisioningActivity) requireActivity()).activeInventoryFragment = null;
         provisioning.setListener(null);
         super.onPause();
     }
@@ -172,7 +173,7 @@ public class InventoryItemFragment extends Fragment {
             int count = getSelectedCount();
             Resources res = getResources();
             String books = res.getQuantityString(R.plurals.numberOfBooks, count, count);
-            new AlertDialog.Builder(Objects.requireNonNull(this.getContext()))
+            new AlertDialog.Builder(this.requireContext())
                     .setTitle(getString(R.string.dialog_title_reset_books_position))
                     .setIcon(R.drawable.ic_launcher)
                     .setMessage(String.format(getString(R.string.dialog_ok_to_rewind), books))
@@ -195,7 +196,7 @@ public class InventoryItemFragment extends Fragment {
                 title = getString(R.string.dialog_title_delete_books);
                 message = String.format(getString(R.string.dialog_ok_to_delete), books);
             }
-            new AlertDialog.Builder(Objects.requireNonNull(this.getContext()))
+            new AlertDialog.Builder(this.requireContext())
                     .setTitle(title)
                     .setIcon(R.drawable.ic_launcher)
                     .setMessage(message)
@@ -205,19 +206,19 @@ public class InventoryItemFragment extends Fragment {
             return true;
         }
         case R.id.archive_books: {
-            new AlertDialog.Builder(Objects.requireNonNull(this.getContext()))
+            new AlertDialog.Builder(this.requireContext())
                     .setTitle(getString(R.string.dialog_title_archive_policy))
                     .setIcon(R.drawable.ic_launcher)
                     .setMessage(String.format(getString(R.string.dialog_archive_policy), audioBooksDirectoryName))
                     .setPositiveButton(getString(R.string.dialog_policy_yes), (dialog, whichButton) -> {
                         item.setChecked(true);
                         globalSettings.setArchiveBooks(true);
-                        Objects.requireNonNull(getActivity()).invalidateOptionsMenu(); // see onPrepare... below
+                        requireActivity().invalidateOptionsMenu(); // see onPrepare... below
                     })
                     .setNegativeButton(getString(R.string.dialog_policy_no), (dialog, whichButton) -> {
                         item.setChecked(false);
                         globalSettings.setArchiveBooks(false);
-                        Objects.requireNonNull(getActivity()).invalidateOptionsMenu(); // see onPrepare... below
+                        requireActivity().invalidateOptionsMenu(); // see onPrepare... below
                     })
                     .show();
             return true;
@@ -250,7 +251,7 @@ public class InventoryItemFragment extends Fragment {
 
     private void deleteAllSelected() {
         CrashWrapper.log("PV: Delete Books");
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).deleteAllSelected();
+        ((ProvisioningActivity) requireActivity()).deleteAllSelected();
     }
 
     void notifyDataSetChanged() {

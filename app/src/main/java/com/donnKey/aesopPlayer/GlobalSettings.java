@@ -29,7 +29,10 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.model.LibraryContentType;
+import com.donnKey.aesopPlayer.ui.ColorTheme;
 import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 
 import java.util.Locale;
@@ -75,6 +78,7 @@ public class GlobalSettings {
     }
 
     // TODO: figure out if these constants can somehow be shared with the keys in xml files.
+    public static final String KEY_COLOR_THEME = "color_theme";
     public static final String KEY_KIOSK_MODE_SCREEN = "kiosk_mode_screen";
     private static final String KEY_KIOSK_MODE_SELECTION = "kiosk_mode_selection_preference";
     public static final String KEY_JUMP_BACK = "jump_back_preference";
@@ -355,5 +359,16 @@ public class GlobalSettings {
 
     public SharedPreferences appSharedPreferences() {
         return sharedPreferences;
+    }
+
+    @NonNull
+    public ColorTheme colorTheme() {
+        String colorThemeName = sharedPreferences.getString(
+                KEY_COLOR_THEME, resources.getString(R.string.pref_color_theme_default_value));
+        try {
+            return ColorTheme.valueOf(colorThemeName);
+        } catch (IllegalArgumentException illegalArgument) {
+            return ColorTheme.valueOf(resources.getString(R.string.pref_color_theme_default_value));
+        }
     }
 }

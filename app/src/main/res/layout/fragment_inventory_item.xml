@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,8 @@
     SOFTWARE.
 
 -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout"
@@ -59,7 +60,7 @@
         android:id="@+id/book_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         android:textSize="18sp"
         tools:text="Book"
         app:layout_constraintBottom_toTopOf="@+id/book_directory"
@@ -71,7 +72,7 @@
         android:id="@+id/current_position"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         android:textSize="16sp"
         tools:text="1:22:33"
         app:layout_constraintBottom_toTopOf="@+id/total_length"
@@ -83,7 +84,7 @@
         android:id="@+id/book_directory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
+        android:textColor="?attr/provisioningTextColor1"
         android:textSize="14sp"
         tools:text="Directory"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -96,7 +97,7 @@
         android:layout_width="wrap_content"
         android:layout_height="13dp"
         android:text="@string/book_is_completed"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/total_length"
@@ -110,7 +111,7 @@
         android:gravity="end"
         android:maxEms="4"
         android:minEms="4"
-        android:textColor="#000000"
+        android:textColor="?attr/provisioningTextColor1"
         android:textSize="12sp"
         tools:text="1:22:33"
         app:layout_constraintBottom_toBottomOf="parent"

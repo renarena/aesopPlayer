@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -58,6 +58,7 @@
         android:layout_weight="2"
         android:gravity="center"
         app:autoSizeTextType="uniform"
+        android:background="@color/transparent"
         android:text="@string/scanning_books" />
 
     <Space

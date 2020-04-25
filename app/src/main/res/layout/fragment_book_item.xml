@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -44,7 +44,7 @@
         app:layout_constraintHorizontal_weight="15"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_settings_black_24dp" />
+        app:srcCompat="?attr/startSettingsIcon" />
 
     <TextView
         android:id="@+id/copyBooksInstruction"
@@ -96,7 +96,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/transparent"
                 android:contentDescription="@string/settings_title_2"
-                app:srcCompat="@drawable/ic_settings_black_24dp" />
+                app:srcCompat="?attr/startSettingsIcon" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/settingsButton2"
@@ -112,7 +112,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
-        android:textColor="#ffffff"
+        android:textColor="?attr/playbackTextColor"
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="@id/imageView"
         app:layout_constraintEnd_toStartOf="@id/imageView2"
@@ -181,7 +181,7 @@
         android:id="@+id/flipper"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@android:color/transparent"
+        android:background="@color/transparent"
         android:flipInterval="1000"
         app:layout_constraintBottom_toTopOf="@id/spacer2"
         app:layout_constraintEnd_toEndOf="@id/startButton"
@@ -195,15 +195,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent"
+            android:background="@color/transparent"
             android:gravity="center_vertical|center"
             android:text="@string/button_start"
             android:textAllCaps="true"
-            android:textColor="#ffffff"
+            android:textColor="?attr/buttonStartTextColor"
             app:autoSizeTextType="uniform" />
 
         <TextView
-            android:background="@android:color/transparent"
+            android:background="@color/transparent"
             android:layout_width="match_parent"
             android:layout_height="0dp" />
     </ViewFlipper>
@@ -223,7 +223,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="start"
-        android:textColor="#000000"
+        android:textColor="?attr/playbackNoteText"
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/completed"
@@ -239,7 +239,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="end"
-        android:textColor="#000000"
+        android:textColor="?attr/playbackNoteText"
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

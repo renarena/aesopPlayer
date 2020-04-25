@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,7 @@ import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 
-import java.util.Objects;
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 
 public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<InventoryItemRecyclerViewAdapter.ViewHolder> {
     private final Provisioning provisioning;
@@ -70,7 +70,8 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
 
         holder.book = provisioning.bookList[position].book;
         holder.bookTitle.setText(holder.book.getTitle());
-        holder.view.setBackgroundColor(holder.book.getColourScheme().backgroundColour);
+        holder.view.setBackgroundColor(colorFromAttribute(holder.view.getContext(),
+                holder.book.getColourScheme().backgroundColourAttrId));
         holder.bookDirectory.setText(holder.book.getDirectoryName());
         holder.bookCompleted.setVisibility(holder.book.getCompleted() ? View.VISIBLE : View.INVISIBLE);
         holder.currentPosition.setText(holder.book.thisBookProgress(holder.view.getContext()));
@@ -92,16 +93,14 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
         holder.titleButton.setOnClickListener( (v) ->
         {
             CrashWrapper.log("PV: Re-title book from Inventory");
-            Objects.requireNonNull((ProvisioningActivity) parentFragment.getActivity())
-                    .updateTitle(holder.book);
+            ((ProvisioningActivity) parentFragment.requireActivity()).updateTitle(holder.book);
             provisioning.booksEvent();
         });
 
         holder.positionButton.setOnClickListener( (v) ->
         {
             CrashWrapper.log("PV: Adjust book time");
-            Objects.requireNonNull((ProvisioningActivity) parentFragment.getActivity())
-                    .updateProgress(holder.book);
+            ((ProvisioningActivity) parentFragment.requireActivity()).updateProgress(holder.book);
             provisioning.booksEvent();
         });
     }
@@ -111,7 +110,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
         return provisioning.bookList.length;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final View view;
         final TextView bookTitle;
         final TextView bookDirectory;

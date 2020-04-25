@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -85,9 +85,9 @@
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/buttonStartBackground"
+        android:background="?attr/buttonStartBackground"
         android:text="@string/title_edit_accept_button"
-        android:textColor="#000000"
+        android:textColor="?attr/provisioningTextColor1"
         app:layout_constraintBottom_toBottomOf="@+id/button_normalize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_chainStyle="spread"
@@ -104,7 +104,7 @@
         android:enabled="true"
         android:focusable="true"
         android:gravity="start"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_normalize"
@@ -120,7 +120,7 @@
         android:ems="10"
         android:focusable="true"
         android:gravity="start"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -137,7 +137,7 @@
         android:ems="10"
         android:focusable="true"
         android:gravity="start"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/audio_title"
@@ -150,9 +150,9 @@
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:background="@color/buttonStopBackground"
+        android:background="?attr/buttonStopBackground"
         android:text="@string/button_cancel_editing"
-        android:textColor="#000000"
+        android:textColor="?attr/provisioningTextColor1"
         app:layout_constraintBottom_toBottomOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="@+id/button_normalize"
         app:layout_constraintHorizontal_bias="1.0"
@@ -170,7 +170,7 @@
         android:enabled="true"
         android:focusable="true"
         android:gravity="start"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/provisioningTextColor2"
         app:layout_constraintBottom_toBottomOf="@+id/button_cancel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_cancel"

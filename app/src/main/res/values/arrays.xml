@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +26,14 @@
 
 -->
 <resources>
+    <string-array name="color_theme_entries">
+        <item>Regular</item>
+        <item>High-contrast</item>
+    </string-array>
+    <string-array name="color_theme_values" translatale="false">
+        <item>CLASSIC_REGULAR</item>
+        <item>CLASSIC_HIGH_CONTRAST</item>
+    </string-array>
     <string-array name="jump_back_entries" translatable="false">
         <item>@string/pref_jump_back_entry_disabled</item>
         <item>5s</item>

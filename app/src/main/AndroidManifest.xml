@@ -44,7 +44,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
+        android:theme="@style/AppThemeClassic"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <!-- Default reporting off - optionally enable in AesopPlayerApplication -->
@@ -65,7 +65,8 @@
             android:clearTaskOnLaunch="true"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -83,7 +84,8 @@
             android:name=".ui.settings.SettingsActivity"
             android:excludeFromRecents="true"
             android:screenOrientation="landscape"
-            android:label="@string/settings_title">
+            android:label="@string/settings_title"
+            tools:ignore="LockedOrientationActivity">
         </activity>
         <activity
             android:name=".ui.HomeActivity"

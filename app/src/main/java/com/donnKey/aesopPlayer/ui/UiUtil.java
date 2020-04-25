@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -34,6 +35,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -246,5 +249,12 @@ public class UiUtil {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMs) % 60;
 
         return String.format("%d:%02d", hours, minutes);
+    }
+
+    @ColorInt
+    static public int colorFromAttribute(Context context, @AttrRes int attributeId) {
+        TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(attributeId, value, true);
+        return context.getResources().getColor(value.resourceId);
     }
 }

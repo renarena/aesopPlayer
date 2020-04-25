@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -60,7 +60,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(Objects.requireNonNull(getActivity())).inject(this);
+        AesopPlayerApplication.getComponent(requireActivity()).inject(this);
         super.onCreate(savedInstanceState);
     }
 
@@ -77,6 +77,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         super.onStart();
 
         SharedPreferences sharedPreferences = getSharedPreferences();
+        updateColorThemeSummary(sharedPreferences);
         updateKioskModeSummary();
         updateScreenOrientationSummary(sharedPreferences);
         updateSnoozeDelaySummary(sharedPreferences);
@@ -92,6 +93,11 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch(key) {
+            case GlobalSettings.KEY_COLOR_THEME:
+                updateColorThemeSummary(sharedPreferences);
+                // The recreate will end up calling onCreate to change the the actual theme
+                requireActivity().recreate();
+                break;
             case GlobalSettings.KEY_SCREEN_ORIENTATION:
                 updateScreenOrientationSummary(sharedPreferences);
                 break;
@@ -121,6 +127,13 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             }
             return true;
         });
+    }
+
+    private void updateColorThemeSummary(@NonNull SharedPreferences sharedPreferences) {
+        updateListPreferenceSummary(
+                sharedPreferences,
+                GlobalSettings.KEY_COLOR_THEME,
+                R.string.pref_color_theme_default_value);
     }
 
     private void updateScreenOrientationSummary(@NonNull SharedPreferences sharedPreferences) {
@@ -167,7 +180,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         else {
             globalSettings.forceRestart = true;
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(requireContext())
                     .setMessage(R.string.info_will_restart)
                     .setTitle(R.string.info_info)
                     .setIcon(R.drawable.ic_launcher);
@@ -183,7 +196,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         Preference preference = findPreference(KEY_FAQ);
         Objects.requireNonNull(preference).setSummary(getString(R.string.pref_help_faq_summary, FAQ_URL));
         preference.setOnPreferenceClickListener(preference1 -> {
-            openUrl(Objects.requireNonNull(getContext()),FAQ_URL);
+            openUrl(requireContext(),FAQ_URL);
             return true;
         });
     }

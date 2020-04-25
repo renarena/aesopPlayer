@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -74,9 +74,9 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
         // Wide screen for popup
         currentSelected = fragment.getMode();
         originalSelected = currentSelected;
-        WindowManager.LayoutParams params = Objects.requireNonNull(Objects.requireNonNull(getDialog()).getWindow()).getAttributes();
+        WindowManager.LayoutParams params = Objects.requireNonNull(requireDialog().getWindow()).getAttributes();
         params.width = MATCH_PARENT;
-        Objects.requireNonNull(getDialog().getWindow()).setAttributes(params);
+        Objects.requireNonNull(requireDialog().getWindow()).setAttributes(params);
     }
 
     void deviceOwnerChanged() {

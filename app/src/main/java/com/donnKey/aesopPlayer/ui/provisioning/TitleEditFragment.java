@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package com.donnKey.aesopPlayer.ui.provisioning;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,8 @@ import com.donnKey.aesopPlayer.model.AudioBook;
 
 import java.util.Objects;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 public class TitleEditFragment extends Fragment {
     private Provisioning provisioning;
     private Button doneButton;
@@ -62,7 +65,7 @@ public class TitleEditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
+        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
     }
 
     @Override
@@ -71,12 +74,13 @@ public class TitleEditFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_title_edit, container, false);
 
-        ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(R.string.fragment_subtitle_edit_book_title);
+        actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).navigation.
+        ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.GONE);
 
         finalTitle = view.findViewById(R.id.final_title);
@@ -168,7 +172,7 @@ public class TitleEditFragment extends Fragment {
 
                 if (!book.renameTo(s)) {
                     doneButton.setText(getString(R.string.user_error_bad_book_name));
-                    doneButton.setBackgroundColor(getResources().getColor(R.color.buttonStopPressedBackground));
+                    doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
                     doneButton.setEnabled(false);
                     return;
                 }
@@ -177,18 +181,18 @@ public class TitleEditFragment extends Fragment {
                 provisioning.booksEvent();
             }
 
-            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             fragmentManager.popBackStack();
         });
 
         if (collides) {
             doneButton.setText(getString(R.string.user_error_duplicate_book_name));
-            doneButton.setBackgroundColor(getResources().getColor(R.color.buttonStopPressedBackground));
+            doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
             doneButton.setEnabled(false);
         }
 
         cancelButton.setOnClickListener((v) -> {
-            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             fragmentManager.popBackStack();
         });
 
@@ -223,12 +227,12 @@ public class TitleEditFragment extends Fragment {
             }
             if (errMsg != null) {
                 doneButton.setText(errMsg);
-                doneButton.setBackgroundColor(getResources().getColor(R.color.buttonStopPressedBackground));
+                doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
                 doneButton.setEnabled(false);
                 return;
             }
 
-            doneButton.setBackgroundColor(getResources().getColor(R.color.buttonStartBackground));
+            doneButton.setBackgroundColor(colorFromAttribute(requireContext(), R.attr.buttonStartBackground));
             doneButton.setEnabled(true);
             doneButton.setText(getString(R.string.title_edit_accept_button));
 

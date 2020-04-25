@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,8 @@ import com.donnKey.aesopPlayer.model.ColourScheme;
 
 import java.util.Objects;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 public class CandidateRecyclerViewAdapter
         extends RecyclerView.Adapter<CandidateRecyclerViewAdapter.ViewHolder> {
 
@@ -74,7 +76,8 @@ public class CandidateRecyclerViewAdapter
         holder.candidateTitle.setText(holder.aCandidate.bookTitle);
         holder.candidateName.setText(holder.aCandidate.newDirName);
         holder.candidateAudio.setText(holder.aCandidate.audioFile);
-        holder.view.setBackgroundColor(ColourScheme.get(position).backgroundColour);
+        holder.view.setBackgroundColor(colorFromAttribute(parentFragment.requireContext(),
+                ColourScheme.get(position).backgroundColourAttrId));
         holder.selected.setChecked(holder.aCandidate.isSelected);
         holder.selected.setEnabled(!holder.aCandidate.collides);
         holder.collision.setVisibility(holder.aCandidate.collides?View.VISIBLE:View.GONE);
@@ -96,7 +99,7 @@ public class CandidateRecyclerViewAdapter
                     .updateTitle(holder.aCandidate);} );
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final View view;
         final TextView candidateName;
         final TextView candidateTitle;

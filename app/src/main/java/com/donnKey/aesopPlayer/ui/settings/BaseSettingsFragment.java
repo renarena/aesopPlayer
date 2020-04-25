@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,6 +28,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -43,6 +44,8 @@ import com.donnKey.aesopPlayer.R;
 
 import java.util.Objects;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 abstract class BaseSettingsFragment
         extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -52,10 +55,10 @@ abstract class BaseSettingsFragment
         super.onStart();
         getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-        final ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
+        final ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Preconditions.checkNotNull(Objects.requireNonNull(actionBar));
         actionBar.setTitle(getTitle());
-
+        actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
     }
 
     @Override
@@ -66,7 +69,7 @@ abstract class BaseSettingsFragment
 
     @NonNull
     SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(Objects.requireNonNull(getActivity()));
+        return PreferenceManager.getDefaultSharedPreferences(requireActivity());
     }
 
     @StringRes

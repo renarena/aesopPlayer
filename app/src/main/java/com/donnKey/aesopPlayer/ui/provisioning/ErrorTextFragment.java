@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -43,25 +44,28 @@ import com.donnKey.aesopPlayer.R;
 
 import java.util.Objects;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 public class ErrorTextFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Provisioning provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
+        Provisioning provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
         View view = inflater.inflate(R.layout.error_text_fragment, container, false);
 
-        ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(provisioning.errorTitle);
+        actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
 
-        ArrayAdapter<Provisioning.ErrorInfo> adapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
+        ArrayAdapter<Provisioning.ErrorInfo> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_list_item_1, provisioning.errorLogs);
         ListView listView = view.findViewById(R.id.string_list);
         listView.setAdapter(adapter);
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).navigation.
+        ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.GONE);
 
         return view;

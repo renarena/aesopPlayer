@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
@@ -74,11 +75,12 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
+
 /* A list of candidate books that might be copied to AudioBooks, and tools
    to house-keep that.
  */
 public class CandidateFragment extends Fragment {
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     private Provisioning provisioning;
@@ -110,7 +112,7 @@ public class CandidateFragment extends Fragment {
         view = (RecyclerView)inflater.inflate(R.layout.fragment_candidate_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
         preferences = globalSettings.appSharedPreferences();
-        this.provisioning = new ViewModelProvider(Objects.requireNonNull(this.getActivity())).get(Provisioning.class);
+        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
 
         provisioning.candidateDirectory = new File(
                 preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,
@@ -155,17 +157,18 @@ public class CandidateFragment extends Fragment {
         // which should be vanishingly rare, and then this is just a long no-op.
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        Objects.requireNonNull(getContext()).registerReceiver(detachReceiver, filter);
+        requireContext().registerReceiver(detachReceiver, filter);
 
-        ActionBar actionBar = ((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar);
         actionBar.setTitle(provisioning.windowTitle);
         actionBar.setSubtitle(provisioning.windowSubTitle);
+        actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).navigation.
+        ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.VISIBLE);
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).activeCandidateFragment = this;
+        ((ProvisioningActivity) requireActivity()).activeCandidateFragment = this;
 
         startChecker();
     }
@@ -173,9 +176,9 @@ public class CandidateFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Objects.requireNonNull(getContext()).unregisterReceiver(detachReceiver);
+        requireContext().unregisterReceiver(detachReceiver);
 
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).activeCandidateFragment = null;
+        ((ProvisioningActivity) requireActivity()).activeCandidateFragment = null;
         stopChecker();
     }
 
@@ -217,7 +220,7 @@ public class CandidateFragment extends Fragment {
             int count = getSelectedCount();
             Resources res = getResources();
             String books = res.getQuantityString(R.plurals.numberOfBooks, count, count);
-            new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+            new AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.dialog_title_install_books))
                     .setIcon(R.drawable.ic_launcher)
                     .setMessage(String.format(getString(R.string.dialog_ok_to_install), books))
@@ -227,19 +230,19 @@ public class CandidateFragment extends Fragment {
             return true;
 
         case R.id.retain:
-            new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+            new AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.dialog_title_set_archive_policy))
                     .setIcon(R.drawable.ic_launcher)
                     .setMessage(getString(R.string.dialog_archive_by_copy) )
                     .setPositiveButton(getString(R.string.dialog_policy_yes), (dialog, whichButton) -> {
                         item.setChecked(true);
                         globalSettings.setRetainBooks(true);
-                        Objects.requireNonNull(getActivity()).invalidateOptionsMenu(); // see onPrepare below
+                        requireActivity().invalidateOptionsMenu(); // see onPrepare below
                     })
                     .setNegativeButton(getString(R.string.dialog_policy_no), (dialog, whichButton) -> {
                         item.setChecked(false);
                         globalSettings.setRetainBooks(false);
-                        Objects.requireNonNull(getActivity()).invalidateOptionsMenu(); // see onPrepare below
+                        requireActivity().invalidateOptionsMenu(); // see onPrepare below
                     })
                     .show();
             return true;
@@ -264,7 +267,7 @@ public class CandidateFragment extends Fragment {
             }
             else {
                 // Down-level; works well enough on those
-                final Intent chooserIntent = new Intent (Objects.requireNonNull(getContext()).getApplicationContext(),
+                final Intent chooserIntent = new Intent (requireContext().getApplicationContext(),
                         DirectoryChooserActivity.class);
 
                 final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
@@ -290,7 +293,7 @@ public class CandidateFragment extends Fragment {
     private String pathFromUUID(String UUID) {
         try {
             StorageManager mStorageManager =
-                    (StorageManager) Objects.requireNonNull(getContext()).getSystemService(Context.STORAGE_SERVICE);
+                    (StorageManager) requireContext().getSystemService(Context.STORAGE_SERVICE);
             Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
             Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
             Method getUuid = storageVolumeClazz.getMethod("getUuid");
@@ -441,7 +444,7 @@ public class CandidateFragment extends Fragment {
     }
 
     private void resetCandidates() {
-        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
+        requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.inventory_container, new CandidateFragment())
                 .commitNowAllowingStateLoss();
     }
@@ -475,7 +478,7 @@ public class CandidateFragment extends Fragment {
         stopChecker();
         provisioning.buildCandidateList_Task(() -> {
             try {
-                Objects.requireNonNull(getActivity()).runOnUiThread(this::buildCallback);
+                requireActivity().runOnUiThread(this::buildCallback);
             } catch (Exception e) {
                 // ignore (probably screen rotation)
             }
@@ -504,7 +507,7 @@ public class CandidateFragment extends Fragment {
     @UiThread
     private void moveAllSelected() {
         CrashWrapper.log("PV: Install Books");
-        ((ProvisioningActivity) Objects.requireNonNull(getActivity())).moveAllSelected();
+        ((ProvisioningActivity) requireActivity()).moveAllSelected();
     }
 
     // While we're on top, look to see if the directory changes (the user might add more files).

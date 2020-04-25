@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -88,13 +88,15 @@ public class SettingsActivity
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.settings_activity);
-        super.onCreate(savedInstanceState);
         ActivityComponent activityComponent = DaggerActivityComponent.builder()
                 .applicationComponent(AesopPlayerApplication.getComponent(this))
                 .activityModule(new ActivityModule(this))
                 .build();
         activityComponent.inject(this);
+
+        setTheme(globalSettings.colorTheme().styleId);
+        setContentView(R.layout.settings_activity);
+        super.onCreate(savedInstanceState);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

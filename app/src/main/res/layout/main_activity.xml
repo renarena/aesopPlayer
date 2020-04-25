@@ -69,6 +69,7 @@
         tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry" />
     <!-- Battery status doesn't work with Accessibility or Rtl -->
 
+    <!-- Ignore any color Theme for this text -->
     <TextView
         android:id="@+id/maintenance_warning"
         android:layout_width="wrap_content"
@@ -78,7 +79,7 @@
         android:gravity="center_horizontal"
         android:text="@string/title_maintenance"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="@color/buttonStopBackground"
+        android:textColor="@color/classicButtonStopBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainContainer"
         app:layout_constraintBottom_toBottomOf="parent" />
