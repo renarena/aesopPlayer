@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import com.donnKey.aesopPlayer.model.LibraryContentType;
 import com.donnKey.aesopPlayer.ui.ColorTheme;
 import com.donnKey.aesopPlayer.ui.UiControllerBookList;
+import com.donnKey.aesopPlayer.ui.settings.VersionName;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -77,6 +78,19 @@ public class GlobalSettings {
         FULL
     }
 
+    @SuppressWarnings("unused") // Used in xml, but use not detected by analyzer
+    public enum NewVersionAction {
+        NONE(0),
+        SETTINGS(1),
+        ALL(2);
+
+        public final int value;
+
+        NewVersionAction(int value) {
+            this.value = value;
+        }
+    }
+
     // TODO: figure out if these constants can somehow be shared with the keys in xml files.
     public static final String KEY_COLOR_THEME = "color_theme";
     public static final String KEY_KIOSK_MODE_SCREEN = "kiosk_mode_screen";
@@ -100,6 +114,12 @@ public class GlobalSettings {
     private static final String KEY_MAINTENANCE_MODE = "settings_maintenance_mode";
     public static final String KEY_ANALYTICS = "settings_analytics_preference";
     private static final String KEY_ANALYTICS_QUERIED = "analytics_queried_once";
+    public static final String KEY_NEW_VERSION_ACTION = "new_version_action_preference";
+    public static final String KEY_NEW_VERSION_SCREEN1 = "new_version_options_screen";
+    public static final String KEY_NEW_VERSION_SCREEN2 = "new_version_options_screen2";
+    public static final String KEY_NEW_VERSION_WEB_PAGE = "new_version_web_page";
+    public static final String KEY_NEW_VERSION_POLICY = "new_version_policy";
+    public static final String KEY_NEW_VERSION_VERSION = "new_version_version";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     // --Commented out by Inspection (2/25/2019 2:47 PM):private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -107,18 +127,28 @@ public class GlobalSettings {
 
     private static final String KEY_BOOKS_EVER_INSTALLED = "action_history.books_ever_installed";
     private static final String KEY_SETTINGS_EVER_ENTERED = "action_history.settings_ever_entered";
+    private static final String KEY_STORED_VERSION = "stored_version";
 
     public static final String TAG_KIOSK_DIALOG = "tag_kiosk_dialog";
 
     private final Resources resources;
     private final SharedPreferences sharedPreferences;
 
-    public boolean forceRestart = false;
+    public boolean versionIsCurrent;
+    public boolean versionUpdated = false;
+
+    // We changed analytics: must restart completely
+    public boolean forceAppRestart = false;
 
     @Inject
     public GlobalSettings(Resources resources, SharedPreferences sharedPreferences) {
         this.resources = resources;
         this.sharedPreferences = sharedPreferences;
+
+        VersionName currentVersion = new VersionName(BuildConfig.VERSION_NAME);
+        final String storedVersion = sharedPreferences.getString(KEY_STORED_VERSION, "v0.0.0");
+        VersionName storedVersion1 = new VersionName(storedVersion);
+        this.versionIsCurrent = storedVersion1.compareTo(currentVersion) >=0 ;
     }
 
     public int getJumpBackPreferenceMs() {
@@ -259,6 +289,17 @@ public class GlobalSettings {
     // True->certain features temporarily disabled (actual settings NOT changed).
     public boolean isMaintenanceMode() {
         return sharedPreferences.getBoolean(KEY_MAINTENANCE_MODE, false);
+    }
+
+    public NewVersionAction getNewVersionAction() {
+        final String stringValue = sharedPreferences.getString(
+                GlobalSettings.KEY_NEW_VERSION_ACTION,
+                resources.getString(R.string.pref_new_version_action_default_value));
+        return NewVersionAction.valueOf(stringValue);
+    }
+
+    public void setStoredVersion(String versionName) {
+        sharedPreferences.edit().putString(KEY_STORED_VERSION, versionName).apply();
     }
 
     public SettingsKioskMode getKioskMode() {

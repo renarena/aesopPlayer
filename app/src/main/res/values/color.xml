@@ -30,8 +30,6 @@
     <color name="half_transparent">#80000000</color>
 
     <color name="medium_dark_grey">#505050</color>
-    <!-- there may be a name for this color, but it's the color used as the default background for settings -->
-    <color name="classicActionBarBackgroundColor">#303030</color>
 
     <color name="classicPlaybackTextColor">#ffffff</color>
     <color name="classicPlaybackBackground">#008856</color>

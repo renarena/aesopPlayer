@@ -87,6 +87,16 @@
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privilege currently granted</string>
     <string name="pref_kiosk_already_unlocked_toast">Already unlocked</string>
     <string name="pref_kiosk_mode_broken">Not available on Android 10 or later.</string>
+    <string name="announce_new_features">New Features Available</string>
+    <string name="new_version_web_page">Go to the web page for details of recent changes.</string>
+    <string name="pref_new_version_info">New Version Information</string>
+    <string name="pref_new_version_actions">Action when a new Version is installed.</string>
+    <string name="pref_new_version_action_default_value" translatable="false">SETTINGS</string>
+    <string name="pref_new_version_actions_title">Latest new version information.</string>
+    <string name="pref_summary_of_features_for">Summary of features for %s.</string>
+    <string name="pref_say_new_version">A new version of the Aesop Player, with feature changes you may find useful, has been automatically installed on this device.</string>
+    <string name="pref_not_again">This message will not be displayed again until a newer version with major feature changes is installed.</string>
+    <string name="pref_can_revisit">You can revisit the settings in this screen from the New Versions Settings entry.</string>
     <string name="pref_no_browser_toast">Cannot open website: no web browser found.</string>
     <string name="pref_playback_options_screen_title">Playback settings…</string>
     <string name="pref_playback_speed_title">Playback speed</string>
@@ -258,4 +268,6 @@
         <item quantity="other">these %d books</item>
     </plurals>
 
+    // Change this with each release as a newline-separated list
+    <string name="release_new_features">Stop Points\nHigh Contrast Option\nUpdate Notification</string>
 </resources>

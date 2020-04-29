@@ -72,4 +72,13 @@ Bug fix so that the hint for swiping to change books is visibly displayed.
 Technical changes to the player and metadata reader to widen the range of books that can
 be successfully played (and/or title displayed).
 
+When the version changes significantly, notify the user of the
+existence of the change with a pointer to the web page.
+The major and minor parts of the version (vx.y) are considered
+significant. The revision is not involved in the comparison, but  if
+there's a tag part (as from git describe) it does affect things.
+The last item in the strings.xml file is a string
+summarizing the changes (just a short name) that should be updated
+for each new release.
+
 Web page only: add note about fre:ac for easy ripping.

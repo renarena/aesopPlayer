@@ -31,6 +31,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 
 import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -67,9 +68,37 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         setPreferencesFromResource(R.xml.preferences_main, rootKey);
+
+        PreferenceScreen screen = getPreferenceScreen();
+        Preference pref;
+        // Only show one variant of the new version screen
+        if (globalSettings.versionIsCurrent || globalSettings.getNewVersionAction() == GlobalSettings.NewVersionAction.NONE) {
+            pref = getPreferenceManager().findPreference(GlobalSettings.KEY_NEW_VERSION_SCREEN1);
+        }
+        else {
+            pref = getPreferenceManager().findPreference(GlobalSettings.KEY_NEW_VERSION_SCREEN2);
+        }
+        assert pref != null;
+        screen.removePreference(pref);
+
         setupFaq();
         setupPolicy();
         setupVersionSummary();
+    }
+
+    private void updateNewVersionSummary() {
+        Preference pref;
+        if (globalSettings.versionIsCurrent || globalSettings.getNewVersionAction() == GlobalSettings.NewVersionAction.NONE) {
+            pref = findPreference(GlobalSettings.KEY_NEW_VERSION_SCREEN2);
+        }
+        else {
+            pref = findPreference(GlobalSettings.KEY_NEW_VERSION_SCREEN1);
+        }
+        GlobalSettings.NewVersionAction action = globalSettings.getNewVersionAction();
+        String[] actions = getResources().getStringArray(R.array.new_version_action_entries);
+        if (pref != null) {
+            pref.setSummary(actions[action.value]);
+        }
     }
 
     @Override
@@ -83,6 +112,18 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         updateSnoozeDelaySummary(sharedPreferences);
         updateBlinkRateSummary(sharedPreferences);
         updateSettingsInterlockSummary(sharedPreferences);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (globalSettings.versionUpdated) {
+            // If we changed the visibility of the NewVersionSettings stuff, refresh
+            globalSettings.versionUpdated = false;
+            requireActivity().recreate();
+        }
+        updateNewVersionSummary();
     }
 
     @Override
@@ -178,7 +219,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             CrashWrapper.start(getContext(), true);
         }
         else {
-            globalSettings.forceRestart = true;
+            globalSettings.forceAppRestart = true;
 
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(requireContext())
                     .setMessage(R.string.info_will_restart)

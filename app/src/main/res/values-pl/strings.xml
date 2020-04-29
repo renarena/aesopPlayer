@@ -100,6 +100,15 @@
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Przywilej obecnie przyznany</string>
     <string name="pref_kiosk_already_unlocked_toast">Już odblokowany</string>
     <string name="pref_kiosk_mode_broken">Niedostępne w systemie Android 10 lub nowszym.</string>
+    <string name="announce_new_features">Dostępne Nowe Funkcje</string>
+    <string name="new_version_web_page">Przejdź do strony internetowej, aby uzyskać szczegółowe informacje na temat ostatnich zmian.</string>
+    <string name="pref_new_version_info">Informacje o nowej wersji</string>
+    <string name="pref_new_version_actions">Działanie po zainstalowaniu nowej wersji.</string>
+    <string name="pref_new_version_actions_title">Najnowsze informacje o nowej wersji.</string>
+    <string name="pref_summary_of_features_for">Podsumowanie funkcji dla %s.</string>
+    <string name="pref_say_new_version">Nowa wersja Aesop Player, ze zmianami potrzebnych funkcji, została automatycznie zainstalowana na tym urządzeniu.</string>
+    <string name="pref_not_again">Ten komunikat nie będzie wyświetlany ponownie, dopóki nie zostanie zainstalowana nowsza wersja z ważnymi zmianami funkcji.</string>
+    <string name="pref_can_revisit">Możesz powrócić do ustawień na tym ekranie z pozycji Ustawienia Nowych Wersji.</string>
     <string name="pref_no_browser_toast">Nie można otworzyć strony: brak przeglądarki.</string>
     <string name="pref_playback_options_screen_title">Ustawienia odtwarzania…</string>
     <string name="pref_playback_speed_title">Prędkość odtwarzania</string>
@@ -240,4 +249,8 @@
         <item quantity="few">te %d książki</item> <!-- 2,3,4 -->
         <item quantity="many">te %d książek</item> <!-- 0,5,6 -->
     </plurals>
+
+    <!-- This must be a newline-separated list; be careful as the tools don't preserve newlines -->
+    <string name="release_new_features">Punkty zatrzymania\nOpcja wysokiego kontrastu\nZaktualizuj powiadomienie</string>
+
 </resources>

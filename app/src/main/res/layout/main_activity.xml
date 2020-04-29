@@ -84,6 +84,22 @@
         app:layout_constraintTop_toBottomOf="@+id/mainContainer"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+        <!-- Ignore any color Theme for this text -->
+    <TextView
+        android:id="@+id/new_version_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="30"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center_horizontal"
+        android:text="@string/announce_new_features"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/classicButtonStartBackground"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mainContainer"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     </com.donnKey.aesopPlayer.ui.TouchTransparentLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

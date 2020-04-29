@@ -74,6 +74,16 @@
         <item>LANDSCAPE_LOCKED</item>
         <item>LANDSCAPE_REVERSE_LOCKED</item>
     </string-array>
+    <string-array name="new_version_action_entries">
+        <item>No Notification</item>
+        <item>Notify via Settings only</item>
+        <item>Notify via Settings and on Books screen</item>
+    </string-array>
+    <string-array name="new_version_action_values" translatable="false">
+        <item>NONE</item>
+        <item>SETTINGS</item>
+        <item>ALL</item>
+    </string-array>
     <string-array name="playback_speed_entries">
         <item>Very fast</item>
         <item>Fast</item>

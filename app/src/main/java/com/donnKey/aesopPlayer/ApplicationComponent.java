@@ -51,6 +51,7 @@ import com.donnKey.aesopPlayer.ui.provisioning.ProvisioningActivity;
 import com.donnKey.aesopPlayer.ui.settings.KioskSelectionPreference;
 import com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment;
 import com.donnKey.aesopPlayer.ui.settings.MainSettingsFragment;
+import com.donnKey.aesopPlayer.ui.settings.NewVersionSettingsFragment;
 import com.donnKey.aesopPlayer.ui.settings.PlaybackSettingsFragment;
 import com.donnKey.aesopPlayer.ui.classic.FragmentPlayback;
 
@@ -90,6 +91,7 @@ public interface ApplicationComponent {
     void inject(AesopPlayerDeviceAdmin fragment);
     void inject(UiControllerBookList fragment);
     void inject(RewindSound rewindSound);
+    void inject(NewVersionSettingsFragment newVersionSettingsFragment);
 
     Player createAudioBookPlayer();
     DemoSamplesInstaller createDemoSamplesInstaller();

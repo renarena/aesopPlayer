@@ -24,7 +24,9 @@
     SOFTWARE.
 
 -->
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
     <!-- Base application theme. -->
     <style name="AppTheme.Base" parent="Theme.AppCompat.NoActionBar">
@@ -66,8 +68,8 @@
 
         <item name="startSettingsIcon">@drawable/ic_settings_black_24dp</item>
         <!-- There doesn't seem to be a theme-using way to get to the action bar's background
-        color (that's only a Drawable, anyway), so we handle it manually with our own color -->
-        <item name="actionBarBackground">@color/classicActionBarBackgroundColor</item>
+        color (that's only a Drawable, anyway), so we handle it manually -->
+        <item name="actionBarBackground" tools:ignore="PrivateResource">@color/background_material_dark</item>
     </style>
 
     <style name="AppThemeHighContrast" parent="AppTheme.Base">

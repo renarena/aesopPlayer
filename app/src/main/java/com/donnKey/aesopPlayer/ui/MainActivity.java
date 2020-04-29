@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private ActivityManager activityManager;
     private StatusBarCollapser statusBarCollapser;
     private TextView maintenanceMessage;
+    private TextView newFeaturesMessage;
 
     // Used for Oreo and up suppression of status bar.
     private boolean isPaused = false;
@@ -167,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
         maintenanceMessage = findViewById(R.id.maintenance_warning);
+        newFeaturesMessage = findViewById(R.id.new_version_message);
 
         // (Needs above initialization)
         statusBarCollapser = new StatusBarCollapser();
@@ -183,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Override
     protected void onStart() {
         // If the user turned off analytics, it won't take until we restart.
-        if (globalSettings.forceRestart) {
-            globalSettings.forceRestart = false; // Should be the case, but to be sure...
+        if (globalSettings.forceAppRestart) {
+            globalSettings.forceAppRestart = false; // Should be the case, but to be sure...
             restartMe();
         }
 
@@ -212,7 +214,17 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         isPaused = false;
         restorer.cancelRestore();
         kioskModeSwitcher.switchToCurrentKioskMode(this);
-        maintenanceMessage.setVisibility(globalSettings.isMaintenanceMode() ? View.VISIBLE : View.GONE);
+        if (globalSettings.isMaintenanceMode()) {
+            maintenanceMessage.setVisibility(View.VISIBLE);
+            newFeaturesMessage.setVisibility(View.GONE);
+        }
+        else {
+            maintenanceMessage.setVisibility(View.GONE);
+            newFeaturesMessage.setVisibility(
+                !globalSettings.versionIsCurrent
+                    && globalSettings.getNewVersionAction() == GlobalSettings.NewVersionAction.ALL
+                    ? View.VISIBLE : View.GONE);
+        }
 
         if (!justCreated.get() && !controller.justDidPauseActionAndReset()) {
             // We toast for kiosk active here because it looks better after the screen changes stop.
