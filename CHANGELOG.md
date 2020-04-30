@@ -77,6 +77,7 @@ existence of the change with a pointer to the web page.
 The major and minor parts of the version (vx.y) are considered
 significant. The revision is not involved in the comparison, but  if
 there's a tag part (as from git describe) it does affect things.
+
 The last item in the strings.xml file is a string
 summarizing the changes (just a short name) that should be updated
 for each new release.
