@@ -244,6 +244,36 @@
     <string name="dialog_title_ungroup_book">Rozgrupuj książkę</string>
     <string name="error_unzip_into_existing_directory">Katalog %s już istnieje podczas rozwijania pliku zip</string>
 
+    <!-- for translations of arrays.xml -->
+    <string name="array_short">Krótki</string>
+    <string name="array_long">Długie</string>
+    <string name="array_slow">Powolny</string>
+    <string name="array_fast">Szybka</string>
+    <string name="array_none">Żaden</string>
+    <string name="array_never">Nigdy</string>
+    <string name="array_stop">Zatrzyma</string>
+    <string name="array_normal">Normalna</string>
+    <string name="array_regular">Standardowy</string>
+    <string name="array_high_contrast">Wysoki kontrast</string>
+    <string name="array_landscape_auto">Pozioma, automatyczne obracanie</string>
+    <string name="array_locked_landscape">Zablokowana poziomo</string>
+    <string name="array_locked_landscape_reversed">Zablokowana poziomo, odwrotnie</string>
+    <string name="array_playback_fast">Duża</string>
+    <string name="array_playback_normal">Zwykła</string>
+    <string name="array_playback_moderate">Umiarkowana</string>
+    <string name="array_playback_slow">Mała</string>
+    <string name="array_playback_very_slow">Bardzo mała</string>
+    <string name="array_playback_very_fast">Bardzo duża</string>
+    <string name="array_stop_and_resume_on_face_up">Zatrzymaj, i wznów gdy urządzenie jest skierowane do góry.</string>
+    <string name="array_press_second_settings_icon_simultaneously">Jednocześnie kliknij drugą ikonę ustawień</string>
+    <string name="array_tap_settings_icon_repeatedly">Dotknij ikony ustawień kilka razy</string>
+    <string name="array_simple_kiosk">Prosty Kiosk</string>
+    <string name="array_application_pinning">Przypinanie Aplikacji</string>
+    <string name="array_full_kiosk">Pełny Kiosk</string>
+    <string name="array_no_notification">Brak powiadomienia</string>
+    <string name="array_notify_via_settings_only">Powiadom tylko za pomocą Ustawień</string>
+    <string name="array_notify_via_settings_and_on_books_screen">Powiadom za pomocą Ustawień i na ekranie Książki</string>
+
     <plurals name="numberOfBooks">
         <item quantity="one">ta %d książka</item>
         <item quantity="few">te %d książki</item> <!-- 2,3,4 -->

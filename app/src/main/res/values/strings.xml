@@ -263,6 +263,36 @@
     <string name="dialog_cannot_make_group">Unable to create group directory.</string>
     <string name="dialog_cannot_rename_group">Renaming %s to %s failed.</string>
 
+    <!-- For translations of strings in arrays.xml -->
+    <string name="array_short">Short</string>
+    <string name="array_long">Long</string>
+    <string name="array_slow">Slow</string>
+    <string name="array_fast">Fast</string>
+    <string name="array_none">None</string>
+    <string name="array_never">Never</string>
+    <string name="array_stop">Stop</string>
+    <string name="array_normal">Normal</string>
+    <string name="array_regular">Regular</string>
+    <string name="array_high_contrast">High-contrast</string>
+    <string name="array_landscape_auto">Landscape Auto</string>
+    <string name="array_locked_landscape">Locked Landscape</string>
+    <string name="array_locked_landscape_reversed">Locked Landscape Reversed</string>
+    <string name="array_no_notification">No Notification</string>
+    <string name="array_notify_via_settings_only">Notify via Settings only</string>
+    <string name="array_notify_via_settings_and_on_books_screen">Notify via Settings and on Books screen</string>
+    <string name="array_playback_very_fast">Very fast</string>
+    <string name="array_playback_fast">Fast</string>
+    <string name="array_playback_normal">Normal</string>
+    <string name="array_playback_moderate">Moderate</string>
+    <string name="array_playback_slow">Slow</string>
+    <string name="array_playback_very_slow">Very slow</string>
+    <string name="array_stop_and_resume_on_face_up">Stop, and resume on face up</string>
+    <string name="array_press_second_settings_icon_simultaneously">Press second settings icon simultaneously</string>
+    <string name="array_tap_settings_icon_repeatedly">Tap settings icon repeatedly</string>
+    <string name="array_simple_kiosk">Simple Kiosk</string>
+    <string name="array_application_pinning">Application Pinning</string>
+    <string name="array_full_kiosk">Full Kiosk</string>
+
     <plurals name="numberOfBooks">
         <item quantity="one">this %d book</item>
         <item quantity="other">these %d books</item>
