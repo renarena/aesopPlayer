@@ -1,6 +1,5 @@
 # Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /home/marcin/Android/Sdk/tools/proguard/proguard-android.txt
+# Studio generates a default file... this just extends it
 # You can edit the include path and order by changing the proguardFiles
 # directive in build.gradle.
 #
@@ -15,6 +14,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# Just to remember the spelling if needed
+#-dontobfuscate
 
 # EventBus
 -keepclassmembers class ** {
@@ -44,6 +46,14 @@
 -keepattributes *Annotation*,EnclosingMethod,Signature
 -keepclasseswithmembers class * {
   public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+# Jaudiotagger (Shows up as ugly chapter titles if it fails.)
+#-keep class org.jaudiotagger.audio.Audio** {
+#  *;
+#}
+-keep class org.jaudiotagger.tag.** {
+  *;
 }
 
 # Google Play Services library

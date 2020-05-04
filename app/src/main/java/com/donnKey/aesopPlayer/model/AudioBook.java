@@ -116,8 +116,9 @@ public class AudioBook {
             return metadataTitle(audioFile);
         }
         catch (Exception e) {
-            // Ignore any errors
-            return new TitleAndAuthor(null, null);
+            // Errors in getting the title are not fatal, but we don't want to hide them.
+            // Intentionally not translated. Other reads below just ignore it.
+            return new TitleAndAuthor("Aesop Error: Tag Read Failed", "" + e);
         }
     }
 
