@@ -83,3 +83,7 @@ summarizing the changes (just a short name) that should be updated
 for each new release.
 
 Web page only: add note about fre:ac for easy ripping.
+
+## Version 1.1.1
+Fix problem with getting audio tag data to form titles (only affected
+released versions... proGuard dependency issue.)
