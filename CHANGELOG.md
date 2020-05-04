@@ -87,3 +87,7 @@ Web page only: add note about fre:ac for easy ripping.
 ## Version 1.1.1
 Fix problem with getting audio tag data to form titles (only affected
 released versions... proGuard dependency issue.)
+
+## Version 1.1.2
+Fix problem with hang if the computation of the book size hasn't
+finished before the book is started.
