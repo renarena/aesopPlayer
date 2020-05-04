@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -40,6 +40,7 @@ import android.util.Log;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.BookPosition;
+import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -81,9 +82,7 @@ public class PlaybackService
     private static final PlaybackStoppingEvent PLAYBACK_STOPPING_EVENT = new PlaybackStoppingEvent();
     private static final PlaybackStoppedEvent PLAYBACK_STOPPED_EVENT = new PlaybackStoppedEvent();
 
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
-    @SuppressWarnings("WeakerAccess")
     @Inject public EventBus eventBus;
 
     private Player player;
@@ -181,9 +180,9 @@ public class PlaybackService
             return State.PREPARATION;
         } else if (userPaused) {
             return State.PAUSED;
-        }
-        else {
-            Preconditions.checkNotNull(playbackInProgress);
+        } else if (playbackInProgress == null) {
+            return State.IDLE;
+        } else {
             return State.PLAYBACK;
         }
     }
@@ -460,6 +459,9 @@ public class PlaybackService
             CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.DurationQuery.onFinished");
             if (isQueryOnly) {
                 queries.remove(this);
+                // We skip snooze here since it happens "for no good reason" when the
+                // query is done.
+                UiUtil.SnoozeDisplay.suspend();
                 EventBus.getDefault().post(new CurrentBookChangedEvent(this.audioBook));
             }
             else {
@@ -467,6 +469,7 @@ public class PlaybackService
                 durationQueryInProgress = null;
                 playbackInProgress = new AudioBookPlayback(
                         player, handler, audioBook, globalSettings.getJumpBackPreferenceMs());
+                playbackInProgress.start();
             }
         }
 
