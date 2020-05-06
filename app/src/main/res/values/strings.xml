@@ -172,6 +172,14 @@
     <string name="info_will_restart">Aesop must restart to activate this change. This will occur when you exit Settings.</string>
     <string name="info_info">Information</string>
 
+    <!-- Accessibility help (not all collected here) -->
+    <string name="stopButton">Stop Playback</string>
+    <string name="book_title_button">Book Title</string>
+    <string name="book_time_button">Book Current Position</string>
+    <string name="return_to_settings_screen">Return to Settings Screen</string>
+    <string name="book_selected">Book Selected</string>
+    <string name="select_all">Select/Unselect All</string>
+
     <!-- Below are for provisioning activity -->
     <string name="title_activity_provisioning">Update Books</string>
     <string name="title_home">New Books</string>

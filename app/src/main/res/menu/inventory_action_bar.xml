@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@
     <item
         android:id="@+id/check_all"
         android:checkable="true"
+        android:contentDescription="@string/select_all"
         android:title=""
         app:actionViewClass="androidx.appcompat.widget.AppCompatCheckBox"
         app:showAsAction="always" />

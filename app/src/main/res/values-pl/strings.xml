@@ -154,6 +154,14 @@
     <string name="info_will_restart">Aesop musi zostać ponownie uruchomiony, aby aktywować tę zmianę. Stanie się to po opuszczeniu Ustawień.</string>
     <string name="info_info">Informacja</string>
 
+    <!-- Accessibility help (not all collected here) -->
+    <string name="stopButton">Zatrzymaj odtwarzanie</string>
+    <string name="book_title_button">Tytuł książki</string>
+    <string name="book_time_button">Aktualna pozycja książki</string>
+    <string name="return_to_settings_screen">Wróć do ekranu ustawień</string>
+    <string name="book_selected">Książka wybrana</string>
+    <string name="select_all">Zaznacz/Odznacz wszystko</string>
+
     <string name="content_description_fragment_init_logo">Logo tej aplikacji podczas uruchamiania</string>
     <string name="title_activity_provisioning">Aktualizacja Książek</string>
     <string name="title_home">Nowych Książek</string>

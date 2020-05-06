@@ -37,6 +37,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="0dp"
         android:paddingEnd="10dp"
+        android:contentDescription="@string/book_selected"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -47,6 +47,7 @@
 
     <CheckBox
         android:id="@+id/selected"
+        android:contentDescription="@string/book_selected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -123,6 +124,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/transparent"
+        android:contentDescription="@string/book_title_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/book_title"
         app:layout_constraintStart_toEndOf="@+id/selected"
@@ -133,6 +135,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/transparent"
+        android:contentDescription="@string/book_time_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/current_position"
         app:layout_constraintStart_toStartOf="@+id/current_position"

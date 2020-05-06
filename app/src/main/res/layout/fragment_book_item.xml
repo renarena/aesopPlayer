@@ -37,7 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/transparent"
-        android:contentDescription="@string/settings_title"
+        android:importantForAccessibility="no"
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintEnd_toStartOf="@id/copyBooksInstruction"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -66,6 +66,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/transparent"
+        android:contentDescription="@string/settings_title"
         app:layout_constraintBottom_toBottomOf="@id/imageView"
         app:layout_constraintEnd_toEndOf="@id/imageView"
         app:layout_constraintStart_toStartOf="@id/imageView"
@@ -95,13 +96,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/transparent"
-                android:contentDescription="@string/settings_title_2"
+                android:importantForAccessibility="no"
                 app:srcCompat="?attr/startSettingsIcon" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/settingsButton2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/settings_title_2"
                 android:background="@color/transparent" />
         </FrameLayout>
 
@@ -127,6 +129,7 @@
         android:layout_height="0dp"
         android:background="@color/transparent"
         android:theme="@style/buttonStartOverlay"
+        android:contentDescription="@string/button_start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

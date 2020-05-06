@@ -120,13 +120,19 @@ public class Storage implements AudioBook.UpdateObserver {
         try {
             jsonPosition.put(FIELD_POSITION_FILE_INDEX, position.fileIndex);
             jsonPosition.put(FIELD_POSITION_SEEK, position.seekPosition);
-            JSONArray jsonDurations = new JSONArray(audioBook.getFileDurations());
-            jsonAudioBook.put(FIELD_FILE_DURATIONS, jsonDurations);
+            List<Long> durations = audioBook.getFileDurations();
+            if (durations != null) {
+                JSONArray jsonDurations = new JSONArray(audioBook.getFileDurations());
+                jsonAudioBook.put(FIELD_FILE_DURATIONS, jsonDurations);
+            }
             jsonAudioBook.put(FIELD_POSITION, jsonPosition);
             jsonAudioBook.putOpt(FIELD_COLOUR_SCHEME, audioBook.getColourScheme());
             jsonAudioBook.put(FIELD_POSITION_COMPLETED, audioBook.getCompleted());
-            JSONArray jsonStops = new JSONArray(audioBook.getBookStops());
-            jsonAudioBook.put(FIELD_BOOK_STOPS, jsonStops);
+            List<Long> stops = audioBook.getBookStops();
+            if (stops != null) {
+                JSONArray jsonStops = new JSONArray(stops);
+                jsonAudioBook.put(FIELD_BOOK_STOPS, jsonStops);
+            }
             jsonAudioBook.put(FIELD_MAX_POSITION, audioBook.getMaxPosition());
 
             SharedPreferences.Editor editor = preferences.edit();
