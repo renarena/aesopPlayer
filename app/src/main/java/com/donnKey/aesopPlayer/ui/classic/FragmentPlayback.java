@@ -255,6 +255,12 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
                         R.drawable.hint_flip_to_stop, globalSettings::setFlipToStopHintShown);
                 overlay.show();
             }
+            else if (!globalSettings.volumeDragHintShown()) {
+                HintOverlay overlay = new HintOverlay(
+                        view, R.id.flipToStopHintOverlayStub, R.string.hint_volume_drag,
+                        R.drawable.hint_volume_drag, globalSettings::setVolumeDragHintShown);
+                overlay.show();
+            }
         }
     }
 

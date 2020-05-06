@@ -34,6 +34,7 @@
     <string name="hint_browsing">Przeciągnij\naby przeglądać książki</string>
     <string name="hint_settings">Ustawienia:\ntapnij 5 razy</string>
     <string name="hint_flip_to_stop">Odłóż ekranem do dołu aby zatrzymać</string>
+    <string name="hint_volume_drag">Przeciągnij, aby dostosować głośność i szybkość odtwarzania</string>
     <string name="back_suppressed_by_kiosk">Wyjście zablokowane (tryb kiosku włączony)</string>
     <string name="notificationChannelPlayback">Odtwarzanie dźwięku</string>
     <string name="settings_title">Ustawienia</string>

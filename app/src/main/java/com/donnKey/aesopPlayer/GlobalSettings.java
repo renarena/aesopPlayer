@@ -124,6 +124,7 @@ public class GlobalSettings {
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     // --Commented out by Inspection (2/25/2019 2:47 PM):private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
     private static final String KEY_FLIPTOSTOP_HINT_SHOWN = "hints.fliptostop.hint_shown";
+    private static final String KEY_VOLUMEDRAG_HINT_SHOWN = "hints.volumedrag.hint_shown";
 
     private static final String KEY_BOOKS_EVER_INSTALLED = "action_history.books_ever_installed";
     private static final String KEY_SETTINGS_EVER_ENTERED = "action_history.settings_ever_entered";
@@ -278,6 +279,14 @@ public class GlobalSettings {
 
     public void setFlipToStopHintShown() {
         sharedPreferences.edit().putBoolean(KEY_FLIPTOSTOP_HINT_SHOWN, true).apply();
+    }
+
+    public boolean volumeDragHintShown() {
+        return sharedPreferences.getBoolean(KEY_VOLUMEDRAG_HINT_SHOWN, false);
+    }
+
+    public void setVolumeDragHintShown() {
+        sharedPreferences.edit().putBoolean(KEY_VOLUMEDRAG_HINT_SHOWN, true).apply();
     }
 
     @SuppressLint("ApplySharedPref")

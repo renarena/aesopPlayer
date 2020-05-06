@@ -95,3 +95,6 @@ finished before the book is started.
 ## Version 1.1.3
 Fix a number of accessibility issues and a potential crash shown by
 automatic testing.
+
+Add a hint on the SECOND time playback is started about the existence of
+the on-screen volume and speed controls.
