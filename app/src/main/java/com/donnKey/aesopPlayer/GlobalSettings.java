@@ -132,6 +132,8 @@ public class GlobalSettings {
 
     public static final String TAG_KIOSK_DIALOG = "tag_kiosk_dialog";
 
+    private static final String DEFAULT_VERSION = "v0.0.0";
+
     private final Resources resources;
     private final SharedPreferences sharedPreferences;
 
@@ -146,10 +148,18 @@ public class GlobalSettings {
         this.resources = resources;
         this.sharedPreferences = sharedPreferences;
 
-        VersionName currentVersion = new VersionName(BuildConfig.VERSION_NAME);
-        final String storedVersion = sharedPreferences.getString(KEY_STORED_VERSION, "v0.0.0");
-        VersionName storedVersion1 = new VersionName(storedVersion);
-        this.versionIsCurrent = storedVersion1.compareTo(currentVersion) >=0 ;
+        if (!browsingHintShown()) {
+            // browsingHintShown is a proxy for "did we ever get here on this device"
+            // since the browsing hint MUST be the first click.
+            setStoredVersion(BuildConfig.VERSION_NAME);
+            this.versionIsCurrent = true;
+        }
+        else {
+            VersionName currentVersion = new VersionName(BuildConfig.VERSION_NAME);
+            final String storedVersion = sharedPreferences.getString(KEY_STORED_VERSION, DEFAULT_VERSION);
+            VersionName storedVersion1 = new VersionName(storedVersion);
+            this.versionIsCurrent = storedVersion1.compareTo(currentVersion) >= 0;
+        }
     }
 
     public int getJumpBackPreferenceMs() {
