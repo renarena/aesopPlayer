@@ -59,6 +59,9 @@ public class ClassicBookList extends Fragment implements BookListUi {
     private BookListPagerAdapter bookAdapter;
     private UiControllerBookList uiControllerBookList;
 
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
+    private UiUtil.SnoozeDisplay snooze;
+
     @SuppressWarnings("WeakerAccess")
     @Inject public AnalyticsTracker analyticsTracker;
     @SuppressWarnings("WeakerAccess")
@@ -73,6 +76,9 @@ public class ClassicBookList extends Fragment implements BookListUi {
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_book_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
+
+        // This should be early so no buttons go live before this
+        snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         bookPager = view.findViewById(R.id.bookListPager);
         bookPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {

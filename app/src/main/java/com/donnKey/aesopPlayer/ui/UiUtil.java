@@ -58,6 +58,7 @@ public class UiUtil {
         private View snoozeOverlay;
         private TextView snoozeCounter;
         static private boolean suspended;
+        static private boolean suspend_major;
 
         @SuppressWarnings("SameReturnValue")
         @SuppressLint("ClickableViewAccessibility")
@@ -71,6 +72,10 @@ public class UiUtil {
             }
 
             if (suspended) {
+                return;
+            }
+
+            if (suspend_major) {
                 return;
             }
 
@@ -129,6 +134,17 @@ public class UiUtil {
 
         static void resume() {
             suspended = false;
+        }
+
+        // There are also a few places where we simply don't want a snooze... during startup
+        // and coming back from settings. The timing for resuming from those is different
+        // than the ones above, so we have two distinct states to maintain.
+        static public void suspendMajor() {
+            suspend_major = true;
+        }
+
+        static public void resumeMajor() {
+            suspend_major = false;
         }
     }
 

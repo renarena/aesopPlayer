@@ -67,8 +67,6 @@ public class FragmentBookItem extends BookListChildFragment {
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
 
     private @Nullable UiControllerBookList controller;
-    @SuppressWarnings({"unused", "FieldCanBeLocal"})
-    private UiUtil.SnoozeDisplay snooze;
 
     @Override
     public View onCreateView(
@@ -78,10 +76,6 @@ public class FragmentBookItem extends BookListChildFragment {
 
         View view = inflater.inflate(R.layout.fragment_book_item, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
-
-        // This should be early so no buttons go live before this
-        // TODO: determine if we want to suspend snoozeDelay on initial startup
-        snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
 
         Bundle args = getArguments();
         Objects.requireNonNull(args);

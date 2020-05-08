@@ -43,6 +43,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.base.Preconditions;
@@ -185,6 +186,7 @@ public class SettingsActivity
         enteringSettings = false;
         super.onStop();
         orientationDelegate.onStop();
+        UiUtil.SnoozeDisplay.resumeMajor();
         cancelBlockEventOnStart();
         DeviceMotionDetector.resume();
     }
@@ -236,6 +238,12 @@ public class SettingsActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        UiUtil.SnoozeDisplay.suspendMajor();
+        super.onBackPressed();
     }
 
     private void blockEventsOnStart() {

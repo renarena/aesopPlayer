@@ -251,11 +251,4 @@
         app:layout_constraintTop_toTopOf="@id/totalLength"
         tools:text="Completed" />
 
-    <!-- last is on top, so don't move this -->
-    <include
-        android:id="@+id/include"
-        layout="@layout/snooze_overlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

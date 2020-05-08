@@ -119,11 +119,11 @@ public class UiControllerMain implements ServiceConnection {
 
     private static boolean justPaused; // set when we perform an action that will trigger a pause
                                        // event that we don't want a kiosk toast from in MainActivity
-    public boolean justDidPauseActionAndReset() {
-        boolean result = justPaused;
-        justPaused = false;
-        return result;
-    }
+   boolean justDidPauseActionAndReset() {
+       boolean result = justPaused;
+       justPaused = false;
+       return result;
+   }
 
     void onActivityPause() {
         CrashWrapper.log(Log.DEBUG, TAG, "UI: onActivityPause, state: " + currentState.stateId());
@@ -311,6 +311,7 @@ public class UiControllerMain implements ServiceConnection {
     private UiControllerPlayback showPlayback(boolean animate) {
         Objects.requireNonNull(playbackService);
         PlaybackUi playbackUi = mainUi.switchToPlayback(animate);
+        UiUtil.SnoozeDisplay.resumeMajor();
         return playbackControllerFactory.create(playbackService, playbackUi);
     }
 

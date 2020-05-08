@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018-2019 Donn S. Terry
+    Copyright (c) 2018-2020 Donn S. Terry
     Copyright (c) 2015-2017 Marcin Simonides
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -48,5 +48,12 @@
         android:layout_height="match_parent"
         android:visibility="gone"
         android:layout="@layout/hint_vertical_image" />
+
+    <!-- last is on top, so don't move this -->
+    <include
+        android:id="@+id/include"
+        layout="@layout/snooze_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </FrameLayout>
