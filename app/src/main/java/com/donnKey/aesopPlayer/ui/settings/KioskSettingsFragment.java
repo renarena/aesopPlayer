@@ -117,6 +117,15 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title;
         }
         else { // Q
+            // This can be worked around, but both the possible workarounds trigger additional
+            // scrutiny by the Play Store security policy people. Adding a no-op Accessibility
+            // Service <service> to the Manifest (and the user enabling it), or acquiring
+            // the SYSTEM_ALERT_WINDOW permission have the same effect of allowing the
+            // Activity that the Home and Recents buttons take off screen to be restored
+            // in MainActivity. (For Pie and below it is possible without the additional permissions.)
+            // The recovery, when it does work, is slow and ugly, even as compared to Pie.
+            // We'll wait until there is a clear use case where App Pinning won't work before
+            // fighting that battle.
             kioskPolicies[SIMPLE_].possible = true;
             kioskPolicies[SIMPLE_].available = false;
             kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken;
