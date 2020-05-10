@@ -93,10 +93,12 @@ Fix problem with hang if the computation of the book size hasn't
 finished before the book is started.
 
 ## Version 1.1.3 (pending release)
-Fix a number of accessibility issues and a potential crash shown by
+Fix a number of accessibility issues and some potential crashes shown by
 automatic testing.
 
 Add a hint on the SECOND time playback is started about the existence of
 the on-screen volume and speed controls.
 
 Don't do "Button Delay" at startup and when returning from Settings.
+
+Web page only: more thorough explanation of Simple Kiosk not on Android 10.

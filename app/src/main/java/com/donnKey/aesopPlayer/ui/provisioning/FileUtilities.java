@@ -42,10 +42,12 @@ import static com.donnKey.aesopPlayer.ui.provisioning.Provisioning.Severity.SEVE
 
 public class FileUtilities {
 
+    @SuppressWarnings("WeakerAccess")
     public interface StringCallback {
         void Callback(String s);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public interface ErrorCallback {
         void Callback(Provisioning.Severity severity, String text);
     }
@@ -84,6 +86,9 @@ public class FileUtilities {
     static boolean expandInnerZips(File targetDir,
                                           StringCallback progress, ErrorCallback logError) {
         String[] filenames = targetDir.list();
+        if (filenames == null) {
+            return true;
+        }
 
         for (String fn: filenames) {
             if (isZip(fn)) {
@@ -164,7 +169,7 @@ public class FileUtilities {
                 }
             }
             else {
-                if (!mkdirs(newFile.getParentFile(), logError)) {
+                if (!mkdirs(targetTmp, logError)) {
                     return false;
                 }
                 try (OutputStream to = new FileOutputStream(newFile))
@@ -312,6 +317,9 @@ public class FileUtilities {
         }
 
         String[] files = from.list();
+        if (files == null) {
+            return true;
+        }
 
         for (String file: files) {
             File f = new File(from, file);
@@ -357,6 +365,10 @@ public class FileUtilities {
         }
 
         String[] files = tree.list();
+
+        if (files == null) {
+            return true;
+        }
 
         for (String file: files) {
             File f = new File(tree, file);
@@ -430,6 +442,11 @@ public class FileUtilities {
         File parent = new File(parentPath);
         if (parent.isDirectory()) {
             String[] files = parent.list();
+
+            if (files == null) {
+                return null;
+            }
+
             for (String fileName:files) {
                 File f = new File(parent, fileName);
                 String t;
