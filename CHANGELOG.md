@@ -101,4 +101,9 @@ the on-screen volume and speed controls.
 
 Don't do "Button Delay" at startup and when returning from Settings.
 
-Web page only: more thorough explanation of Simple Kiosk not on Android 10.
+Make Simple Kiosk work on Android 10, although it's not recommended because
+it still is (unfixably) ugly. Make App Pinning more attractive; it's the
+best choice if not using Full Kiosk. Update web page to reflect these
+changes.
+
+

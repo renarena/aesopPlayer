@@ -109,6 +109,17 @@
             android:name=".service.DemoSamplesInstallerService"
             android:exported="false" />
 
+        <service android:name=".accessibility.AesopAccessibility"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:label="@string/accessibility_service_label">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service" />
+        </service>
+
         <receiver
             android:name=".AesopPlayerDeviceAdmin"
             android:description="@string/device_admin_description"

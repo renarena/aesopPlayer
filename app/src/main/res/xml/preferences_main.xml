@@ -55,16 +55,16 @@
         app:entries="@array/settings_interlock_entries"
         app:entryValues="@array/settings_interlock_values"
         app:title="@string/pref_settings_interlock_title" />
+    <PreferenceScreen
+        app:key="kiosk_mode_screen"
+        app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"
+        app:title="@string/pref_kiosk_mode_screen_title" />
     <ListPreference
         app:key="color_theme"
         app:title="@string/pref_color_theme_title"
         app:entries="@array/color_theme_entries"
         app:entryValues="@array/color_theme_values"
         app:defaultValue="@string/pref_color_theme_default_value"/>
-    <PreferenceScreen
-        app:key="kiosk_mode_screen"
-        app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"
-        app:title="@string/pref_kiosk_mode_screen_title" />
     <SwitchPreference
         app:key="awaken_on_proximity_preference"
         app:defaultValue="true"

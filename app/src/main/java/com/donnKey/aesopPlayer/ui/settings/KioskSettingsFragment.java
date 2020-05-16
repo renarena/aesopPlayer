@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,11 +24,15 @@
  */
 package com.donnKey.aesopPlayer.ui.settings;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 
@@ -37,6 +41,7 @@ import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerDeviceAdmin;
 import com.donnKey.aesopPlayer.KioskModeSwitcher;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.accessibility.AesopAccessibility;
 import com.donnKey.aesopPlayer.events.DeviceAdminChangeEvent;
 
 import java.util.Objects;
@@ -67,7 +72,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
     // This really should be an array with enum subscripts that we can guarantee the ordinal
     // of, but Java just won't do that. (Radio buttons are array-based.)
-    class KioskPolicy {
+    static class KioskPolicy {
         boolean available;
         boolean possible;
         int subTitle;
@@ -82,6 +87,10 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         }
     }
 
+    private boolean tentativeMode_isSet = false;
+    private static GlobalSettings.SettingsKioskMode tentativeMode;
+    private boolean any_permNeeded = false;
+
     private final KioskPolicy[] kioskPolicies = new KioskPolicy[]{
             new KioskPolicy(GlobalSettings.SettingsKioskMode.NONE, NONE_),
             new KioskPolicy(GlobalSettings.SettingsKioskMode.SIMPLE, SIMPLE_),
@@ -90,7 +99,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(Objects.requireNonNull(getActivity())).inject(this);
+        AesopPlayerApplication.getComponent(requireActivity()).inject(this);
         super.onCreate(savedInstanceState);
     }
 
@@ -100,42 +109,88 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         updateKioskModeSummary();
     }
 
+    @Override
+    public void onResume() {
+        // If this resume is due to coming back from the Intent used to start the
+        // Accessibility mode, we have work to do, depending on what the user did there.
+        if (any_permNeeded && !AesopAccessibility.isAccessibilityConnected()) {
+            new AlertDialog.Builder(requireActivity())
+                    .setTitle(R.string.pref_must_enable_accessibility)
+                    .setMessage(R.string.pref_why_accessibility)
+                    .setPositiveButton(android.R.string.ok, (a, b)-> startKioskSelectionFragment())
+                    .setIcon(R.drawable.ic_launcher)
+                    .show();
+            // any_permNeeded will be updated by the NewValueListener below.
+        }
+        else if (tentativeMode_isSet){
+            setNewKioskMode(tentativeMode);
+            tentativeMode_isSet = false;
+            any_permNeeded = false;
+        }
+        super.onResume();
+    }
+
     private void updateKioskModeSummary() {
+        // The user can pop up a dialog from the current screen. However, the dialog
+        // varies a lot depending on the actual state of the device. The factors include
+        // the current running Android version and whether Accessibility is enabled,
+        // and whether we're the device owner.
+        // We also don't want to change the mode until the user has enabled accessibility if it's
+        // needed. The criteria for when accessibility is needed depends on the kiosk mode the
+        // user selects, so we ask for it only when we need it, and come back if the user
+        // doesn't set it, so they can select another mode if they don't want to use
+        // accessibility.
         kioskPolicies[NONE_].possible = true;
         kioskPolicies[NONE_].available = true;
         kioskPolicies[NONE_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_disables;
+        boolean simple_permissionsNeeded = false;
+        boolean pinning_permissionsNeeded = false;
 
-        // Simple Mode
-        if (Build.VERSION.SDK_INT < 19) { //K
+        // Simple Mode has lots of possibilities
+        if (Build.VERSION.SDK_INT < 19) {
+            // JB and prior: not available
             kioskPolicies[SIMPLE_].possible = false;
             kioskPolicies[SIMPLE_].available = false;
             kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_summary_old_version;
         }
-        else if (Build.VERSION.SDK_INT < 29) { //L - P
+        else if (Build.VERSION.SDK_INT < 21) {
+            // KK: Simple only
             kioskPolicies[SIMPLE_].possible = true;
             kioskPolicies[SIMPLE_].available = true;
-            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title;
+            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title_recommended;
+        }
+        else if (Build.VERSION.SDK_INT < 29) {
+            // L-P: simple or pinning or full, suggest pinning
+            kioskPolicies[SIMPLE_].possible = true;
+            kioskPolicies[SIMPLE_].available = true;
+            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title_use_pinning;
         }
         else { // Q
-            // This can be worked around, but both the possible workarounds trigger additional
-            // scrutiny by the Play Store security policy people. Adding a no-op Accessibility
-            // Service <service> to the Manifest (and the user enabling it), or acquiring
-            // the SYSTEM_ALERT_WINDOW permission have the same effect of allowing the
-            // Activity that the Home and Recents buttons take off screen to be restored
-            // in MainActivity. (For Pie and below it is possible without the additional permissions.)
-            // The recovery, when it does work, is slow and ugly, even as compared to Pie.
-            // We'll wait until there is a clear use case where App Pinning won't work before
-            // fighting that battle.
+            // In native Q (and above?), restarting the activity after pressing Home
+            // or Recents (aka Overview) doesn't work without additional permissions.
+            // Adding a no-op Accessibility Service <service> to the Manifest
+            // (and the user enabling it), or acquiring the SYSTEM_ALERT_WINDOW permission
+            // have the same effect of allowing that.
+            // (For Pie and below it is possible without the additional permissions.)
+            // The recovery from Back (on Q), when it does work, is slow and ugly, even as compared to Pie.
+            simple_permissionsNeeded = !AesopAccessibility.isAccessibilityConnected();
+            if (simple_permissionsNeeded) {
+                kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken_need_acc;
+            }
+            else {
+                kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken_acc_OK;
+            }
             kioskPolicies[SIMPLE_].possible = true;
-            kioskPolicies[SIMPLE_].available = false;
-            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken;
+            kioskPolicies[SIMPLE_].available = true;
         }
 
         // App Pinning and Full.
         ConfirmDialogPreference preferenceUnregisterDeviceOwner =
                 findPreference(KEY_UNREGISTER_DEVICE_OWNER);
 
-        if (Build.VERSION.SDK_INT < 21) { // L
+        if (Build.VERSION.SDK_INT < 21) {
+            // KK and below: no pinning or full Kiosk
+            // ... device owner not available: display nothing
             if (preferenceUnregisterDeviceOwner != null) {
                 // Already did it
                 getPreferenceScreen().removePreference(preferenceUnregisterDeviceOwner);
@@ -150,12 +205,18 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_full_summary_old_version;
         }
         else {
+            // L and up: pinning/full Kiosk available
+
+            // Display device owner state/allow unregister.
+            // The user must confirm that they want to un-register the device owner,
+            // so set up the dialog.
             Objects.requireNonNull(preferenceUnregisterDeviceOwner).setOnConfirmListener(this::disableDeviceOwner);
-            updateUnregisterDeviceOwner(AesopPlayerDeviceAdmin.isDeviceOwner(getActivity()));
+            boolean isDeviceOwner = AesopPlayerDeviceAdmin.isDeviceOwner(requireActivity());
+            updateUnregisterDeviceOwner(isDeviceOwner);
 
             kioskPolicies[PINNING_].possible = true;
 
-            if (AesopPlayerDeviceAdmin.isDeviceOwner(getActivity())) {
+            if (isDeviceOwner) {
                 kioskPolicies[PINNING_].available = false;
                 kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_3_pinning;
                 kioskPolicies[FULL_].possible = true;
@@ -164,27 +225,103 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             }
             else {
                 kioskPolicies[PINNING_].available = true;
-                kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning;
+                if (AesopAccessibility.isAccessibilityConnected() || Build.VERSION.SDK_INT < 28) {
+                    kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning_acc_OK;
+                }
+                else {
+                    // API 28 started putting up "Got It" warning.
+                    kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning_need_acc;
+                    pinning_permissionsNeeded = true;
+                }
                 kioskPolicies[FULL_].possible = true;
                 kioskPolicies[FULL_].available = false;
                 kioskPolicies[FULL_].subTitle = R.string.settings_device_owner_required_alert;
             }
         }
+        // Make the lambda callback below happy
+        final boolean pinning_permNeeded = pinning_permissionsNeeded;
+        final boolean simple_permNeeded = simple_permissionsNeeded;
 
+        // Set the short summary for the current screen
         Preference kioskModeScreen = findPreference(KEY_KIOSK_SELECTION);
+        int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
+        Objects.requireNonNull(kioskModeScreen).setSummary(summaryStringId);
+
+        // Set up the dialog screen including the callback
         KioskSelectionPreference preferenceFilteredList = (KioskSelectionPreference) kioskModeScreen;
         Objects.requireNonNull(preferenceFilteredList).setPolicies(kioskPolicies);
         preferenceFilteredList.setOnNewValueListener((mode) -> {
-                GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
-                // This is where we actually change the mode.
-                globalSettings.setKioskModeNow(mode);
-                // If we have any one-time prep work, do it here.
-                kioskModeSwitcher.changeStaticKioskMode(oldMode, mode, (AppCompatActivity)getActivity());
-            }
-        );
+            // Respond to the user's selection. If there's other one-time permission
+            // stuff in the future, it'd go here as well
 
-        int summaryStringId = kioskModeSwitcher.getKioskModeSummary();
-        Objects.requireNonNull(kioskModeScreen).setSummary(summaryStringId);
+            // We need to know what the mode the user selected was to decide if we want to
+            // pop up the Accessibility Dialog.
+            any_permNeeded = false;
+            switch (mode) {
+                case NONE:
+                case FULL:
+                    break;
+                case SIMPLE:
+                    any_permNeeded = simple_permNeeded;
+                    break;
+                case PINNING:
+                    any_permNeeded = pinning_permNeeded;
+                    break;
+            }
+
+            if (any_permNeeded & !AesopAccessibility.isAccessibilityConnected()) {
+                // Start enable Accessibility activity. The accessibility service notes when it's turned on or off.
+                // Can't get here on prior to Pie (28) because there's no "Got It" popup.
+                if (Build.VERSION.SDK_INT < 29) {
+                    // Ick.
+                    // On Pie, the Back button (bottom of screen) works as you'd expect.
+                    // However the back-arrow at the top moves out of accessibility settings
+                    // into more general settings, and you don't automatically return to the app.
+                    // On Q it works as you'd expect: both buttons do the same thing: return to the app.
+                    // I was unable to find a workaround.
+                    // Consequently, since it's a one-time thing, just warn the user.
+                    new AlertDialog.Builder(requireActivity())
+                            .setTitle(R.string.back_arrow_caution)
+                            .setMessage(R.string.back_arrow_text)
+                            .setPositiveButton(android.R.string.ok, (a, b)-> {
+                                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            } )
+                            .setIcon(R.drawable.ic_launcher)
+                            .show();
+                }
+                else {
+                    Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+                tentativeMode = mode;
+                tentativeMode_isSet = true;
+            } else {
+                // Below calls updateKioskModeSummary, but it's not recursion... we're in
+                // a lambda called from the dialog.
+                setNewKioskMode(mode);
+                tentativeMode_isSet = false;
+            }
+        });
+    }
+
+    private void setNewKioskMode(GlobalSettings.SettingsKioskMode mode) {
+        GlobalSettings.SettingsKioskMode oldMode = globalSettings.getKioskMode();
+        kioskModeSwitcher.changeStaticKioskMode(oldMode, mode, (AppCompatActivity)getActivity());
+        globalSettings.setKioskModeNow(mode);
+        updateKioskModeSummary();
+    }
+
+    private void startKioskSelectionFragment() {
+        // See also SettingsActivity.java
+        Preference kioskModeScreen = findPreference(KEY_KIOSK_SELECTION);
+        assert kioskModeScreen != null;
+        DialogFragment dialogFragment =
+                KioskSelectionFragmentCompat.newInstance(kioskModeScreen.getKey());
+        dialogFragment.setTargetFragment(this, 0);
+        dialogFragment.show(requireActivity().getSupportFragmentManager(), TAG_KIOSK_DIALOG);
     }
 
     @Override
@@ -204,12 +341,12 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         return R.string.pref_kiosk_mode_screen_title;
     }
 
-    // Event is from AesopPlayerDeviceAdmin
+    // Event is from AesopPlayerDeviceAdmin to let us know adb changed something.
     public void onEvent(@SuppressWarnings("unused") DeviceAdminChangeEvent deviceAdminChangeEvent) {
         // Kiosk mode just got forced to NONE if it was FULL or PINNING
         updateKioskModeSummary();
 
-        FragmentManager mgr =  Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+        FragmentManager mgr =  requireActivity().getSupportFragmentManager();
         KioskSelectionFragmentCompat dialog = (KioskSelectionFragmentCompat)mgr.findFragmentByTag(TAG_KIOSK_DIALOG);
         if (dialog != null) {
             dialog.deviceOwnerChanged();

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,6 +39,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.donnKey.aesopPlayer.accessibility.AesopAccessibility;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.ui.HomeActivity;
 import com.donnKey.aesopPlayer.ui.KioskModeHandler;
@@ -172,6 +173,8 @@ public class KioskModeSwitcher {
                 break;
             }
             case PINNING:
+                AesopAccessibility.activateCheck();
+                // drop thru
             case FULL: {
                 // (Remember, this case can't be reached for <21 because the choice is not offered
                 // Be cautious not to over-call startAppPinning: it fires the dialog about app
@@ -293,6 +296,7 @@ public class KioskModeSwitcher {
 
         PackageManager pm = context.getPackageManager();
         ResolveInfo resolveInfo = pm.resolveActivity(homeIntent, 0);
+        assert resolveInfo != null;
         if (resolveInfo.activityInfo.name.equals("com.android.internal.app.ResolverActivity")) {
 
             // Tell the user what's going to happen and then do it (in lambda) after OK.
@@ -332,7 +336,7 @@ public class KioskModeSwitcher {
         static void setPreferredHomeActivity(Context context, Class activityClass) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            Preconditions.checkNotNull(dpm);
+            assert dpm != null;
             IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MAIN);
             intentFilter.addCategory(Intent.CATEGORY_HOME);
             intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -347,7 +351,7 @@ public class KioskModeSwitcher {
         static void clearPreferredHomeActivity(Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            Preconditions.checkNotNull(dpm);
+            assert dpm != null;
             ComponentName adminComponentName =
                     new ComponentName(context, AesopPlayerDeviceAdmin.class);
             dpm.clearPackagePersistentPreferredActivities(

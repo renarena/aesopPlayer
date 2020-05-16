@@ -73,11 +73,13 @@
     <string name="pref_kiosk_mode_screen_summary_pinned">Application Pinning enabled</string>
     <string name="pref_kiosk_mode_screen_summary_full">Full kiosk mode enabled</string>
     <string name="pref_kiosk_mode_screen_summary_2_disables">Disables Current Selection</string>
-    <string name="pref_kiosk_mode_screen_summary_2_pinning">Asks for permission on each startup</string>
+    <string name="pref_kiosk_mode_screen_summary_2_pinning_acc_OK">Recommended.</string>
+    <string name="pref_kiosk_mode_screen_summary_2_pinning_need_acc">Recommended. You will be asked to enable Accessibility.</string>
     <string name="pref_kiosk_mode_screen_summary_3_pinning">Pinning is not available when Full Kiosk is Enabled.</string>
     <string name="pref_kiosk_mode_screen_summary_2_full">Automatically locks device on startup</string>
     <string name="pref_kiosk_mode_full_title">Full mode - prevent exiting the application (recommended)</string>
-    <string name="pref_kiosk_mode_simple_title">Simple mode - best effort within constraints</string>
+    <string name="pref_kiosk_mode_simple_title_recommended">Recommended.</string>
+    <string name="pref_kiosk_mode_simple_title_use_pinning">Application Pinning preferred, will work within constraints</string>
     <string name="pref_kiosk_mode_any_summary_off">Disabled</string>
     <string name="pref_kiosk_mode_any_summary_on">Enabled</string>
     <string name="pref_kiosk_mode_simple_summary_old_version">Android 4.4 or newer required</string>
@@ -87,7 +89,14 @@
     <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Privilege not currently held</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privilege currently granted</string>
     <string name="pref_kiosk_already_unlocked_toast">Already unlocked</string>
-    <string name="pref_kiosk_mode_broken">Not available on Android 10 or later.</string>
+    <string name="pref_kiosk_mode_broken_need_acc">Not recommended. You will be asked to enable Accessibility.</string>
+    <string name="pref_kiosk_mode_broken_acc_OK">Not recommended.</string>
+    <string name="accessibility_service_description">Used for Kiosk mode only. When enabling Kiosk mode, the Player will request this if the specific device requires it for the selected Kiosk mode.</string>
+    <string name="accessibility_service_label" translatable="false">Aesop Player</string>
+    <string name="pref_why_accessibility">The Kiosk Mode you have selected requires that Accessibility be enabled to give acceptable results.\n\nChoose another mode or enable Accessibility.</string>
+    <string name="pref_must_enable_accessibility">Accessibility must be enabled</string>
+    <string name="back_arrow_caution">Caution - Odd behavior ahead</string>
+    <string name="back_arrow_text">For this Android version, leave the screens you are about to enter using the Back button (at the bottom of the screen), not the left arrow at the top. If something goes wrong just restart the Player.</string>
     <string name="announce_new_features">New Features Available</string>
     <string name="new_version_web_page">Go to the web page for details of recent changes.</string>
     <string name="pref_new_version_info">New Version Information</string>
