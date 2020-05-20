@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -41,15 +41,16 @@ import javax.inject.Inject;
 public class AesopPlayerApplication extends androidx.multidex.MultiDexApplication {
 
     private static final String AUDIOBOOKS_DIRECTORY = "AudioBooks";
-    // For the moment we continue to use the Homer samples.
-    private static final String DEMO_SAMPLES_URL =
-            "https://donnkey.github.io/aesopPlayer/samples/TheAesopAudiobookSamples.zip";
+    public static final String WEBSITE_URL = "https://donnkey.github.io/aesopPlayer/";
+    //Use with Jekyll --host 0.0.0.0 if testing locally:
+    //public static final String WEBSITE_URL = "http://my_local_server:4000/aesopPlayer/";
+
+    private static final String DEMO_SAMPLES_URL = WEBSITE_URL + "samples/TheAesopAudiobookSamples.zip";
 
     private ApplicationComponent component;
     private MediaStoreUpdateObserver mediaStoreUpdateObserver;
     private static Context applicationContext;
 
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
     @Inject public AnalyticsTracker analyticsTracker;  // Force creation of the tracker early.
 

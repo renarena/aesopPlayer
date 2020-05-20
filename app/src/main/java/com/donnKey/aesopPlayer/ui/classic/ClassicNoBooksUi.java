@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -51,25 +51,21 @@ import com.donnKey.aesopPlayer.ui.NoBooksUi;
 import com.donnKey.aesopPlayer.ui.UiControllerNoBooks;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 
-import java.util.Objects;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
 
 public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
 
-    @SuppressWarnings("WeakerAccess")
     @Inject public GlobalSettings globalSettings;
 
     private UiControllerNoBooks controller;
     private View view;
     private ProgressUi progressUi;
 
-    @SuppressWarnings("WeakerAccess")
     public @Inject @Named("AUDIOBOOKS_DIRECTORY") String audioBooksDirectoryName;
 
-    private static final String INSTALL_URL = "https://donnkey.github.io/aesopPlayer/provisioning.html";
+    private static final String INSTALL_URL = AesopPlayerApplication.WEBSITE_URL + "provisioning.html";
 
     @Override
     public View onCreateView(
@@ -92,7 +88,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
         String provisioningMessage =
                 getString(R.string.noBooksWebsiteLoc, INSTALL_URL);
         toProvisioning.setText(Html.fromHtml(provisioningMessage));
-        toProvisioning.setOnClickListener(v -> MainSettingsFragment.openUrl(Objects.requireNonNull(getContext()),INSTALL_URL));
+        toProvisioning.setOnClickListener(v -> MainSettingsFragment.openUrl(requireContext(),INSTALL_URL));
 
         UiUtil.connectToSettings(view, globalSettings);
 

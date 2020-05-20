@@ -25,6 +25,7 @@ package com.donnKey.aesopPlayer.ui.settings;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -122,6 +123,7 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
 
             KioskSettingsFragment.KioskPolicy policy = kioskPolicies[position];
             text2.setText(policy.subTitle);
+            text2.setMovementMethod(LinkMovementMethod.getInstance());
             if (!policy.possible) {
                 text1.setTextColor(getResources().getColor(android.R.color.darker_gray));
                 text2.setTextColor(getResources().getColor(android.R.color.darker_gray));
@@ -129,10 +131,9 @@ public class KioskSelectionFragmentCompat extends PreferenceDialogFragmentCompat
             else {
                 text1.setTextColor(getResources().getColor(android.R.color.white));
                 text2.setTextColor(getResources().getColor(android.R.color.white));
-
             }
-            button.setVisibility(policy.available? View.VISIBLE : View.INVISIBLE);
 
+            button.setVisibility(policy.available? View.VISIBLE : View.INVISIBLE);
             button.setChecked(policy.kioskMode == currentSelected);
 
             view.setOnClickListener((v)-> {

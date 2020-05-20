@@ -29,6 +29,9 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.SpannedString;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,6 +67,8 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     @Inject
     public GlobalSettings globalSettings;
 
+    private static final String DEVICE_OWNER_URL = AesopPlayerApplication.WEBSITE_URL + "install-full-kiosk.html";
+
     // These have to match the row numbers in the RadioButton list
     private static final int NONE_ = 0;
     private static final int SIMPLE_ = 1;
@@ -75,7 +80,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     static class KioskPolicy {
         boolean available;
         boolean possible;
-        int subTitle;
+        Spanned subTitle;
         final GlobalSettings.SettingsKioskMode kioskMode;
         final int slot;
 
@@ -142,7 +147,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         // accessibility.
         kioskPolicies[NONE_].possible = true;
         kioskPolicies[NONE_].available = true;
-        kioskPolicies[NONE_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_disables;
+        kioskPolicies[NONE_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_2_disables);
         boolean simple_permissionsNeeded = false;
         boolean pinning_permissionsNeeded = false;
 
@@ -151,19 +156,19 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             // JB and prior: not available
             kioskPolicies[SIMPLE_].possible = false;
             kioskPolicies[SIMPLE_].available = false;
-            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_summary_old_version;
+            kioskPolicies[SIMPLE_].subTitle = getSpannableString(R.string.pref_kiosk_mode_simple_summary_old_version);
         }
         else if (Build.VERSION.SDK_INT < 21) {
             // KK: Simple only
             kioskPolicies[SIMPLE_].possible = true;
             kioskPolicies[SIMPLE_].available = true;
-            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title_recommended;
+            kioskPolicies[SIMPLE_].subTitle = getSpannableString(R.string.pref_kiosk_mode_simple_title_recommended);
         }
         else if (Build.VERSION.SDK_INT < 29) {
             // L-P: simple or pinning or full, suggest pinning
             kioskPolicies[SIMPLE_].possible = true;
             kioskPolicies[SIMPLE_].available = true;
-            kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_simple_title_use_pinning;
+            kioskPolicies[SIMPLE_].subTitle = getSpannableString(R.string.pref_kiosk_mode_simple_title_use_pinning);
         }
         else { // Q
             // In native Q (and above?), restarting the activity after pressing Home
@@ -175,10 +180,10 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             // The recovery from Back (on Q), when it does work, is slow and ugly, even as compared to Pie.
             simple_permissionsNeeded = !AesopAccessibility.isAccessibilityConnected();
             if (simple_permissionsNeeded) {
-                kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken_need_acc;
+                kioskPolicies[SIMPLE_].subTitle = getSpannableString(R.string.pref_kiosk_mode_broken_need_acc);
             }
             else {
-                kioskPolicies[SIMPLE_].subTitle = R.string.pref_kiosk_mode_broken_acc_OK;
+                kioskPolicies[SIMPLE_].subTitle = getSpannableString(R.string.pref_kiosk_mode_broken_acc_OK);
             }
             kioskPolicies[SIMPLE_].possible = true;
             kioskPolicies[SIMPLE_].available = true;
@@ -198,11 +203,11 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
             kioskPolicies[PINNING_].possible = false;
             kioskPolicies[PINNING_].available = false;
-            kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_full_summary_old_version;
+            kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_full_summary_old_version);
 
             kioskPolicies[FULL_].possible = false;
             kioskPolicies[FULL_].available = false;
-            kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_full_summary_old_version;
+            kioskPolicies[FULL_].subTitle = getSpannableString(R.string.pref_kiosk_mode_full_summary_old_version);
         }
         else {
             // L and up: pinning/full Kiosk available
@@ -218,24 +223,24 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
             if (isDeviceOwner) {
                 kioskPolicies[PINNING_].available = false;
-                kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_3_pinning;
+                kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_3_pinning);
                 kioskPolicies[FULL_].possible = true;
                 kioskPolicies[FULL_].available = true;
-                kioskPolicies[FULL_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_full;
+                kioskPolicies[FULL_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_2_full);
             }
             else {
                 kioskPolicies[PINNING_].available = true;
                 if (AesopAccessibility.isAccessibilityConnected() || Build.VERSION.SDK_INT < 28) {
-                    kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning_acc_OK;
+                    kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_2_pinning_acc_OK);
                 }
                 else {
                     // API 28 started putting up "Got It" warning.
-                    kioskPolicies[PINNING_].subTitle = R.string.pref_kiosk_mode_screen_summary_2_pinning_need_acc;
+                    kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_2_pinning_need_acc);
                     pinning_permissionsNeeded = true;
                 }
                 kioskPolicies[FULL_].possible = true;
                 kioskPolicies[FULL_].available = false;
-                kioskPolicies[FULL_].subTitle = R.string.settings_device_owner_required_alert;
+                kioskPolicies[FULL_].subTitle = Html.fromHtml(getString(R.string.settings_device_owner_required_alert, DEVICE_OWNER_URL));
             }
         }
         // Make the lambda callback below happy
@@ -374,5 +379,9 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
         }
         AesopPlayerDeviceAdmin.clearDeviceOwner(getActivity());
         updateKioskModeSummary();
+    }
+
+    private Spanned getSpannableString(int resId, Object ... formatArgs) {
+        return new SpannedString(getString(resId, formatArgs));
     }
 }

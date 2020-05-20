@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,6 +34,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,6 +62,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -105,12 +108,12 @@ public class DemoSamplesInstallerService extends Service {
 
     // It's a bit ugly the the service communicates with other components both via
     // a LocalBroadcastManager and an EventBus.
-    @SuppressWarnings("WeakerAccess")
     @Inject public EventBus eventBus;
     private DownloadAndInstallThread downloadAndInstallThread;
     private boolean isDownloading = false;
     private long lastProgressUpdateNanos = 0;
     private static DemoSamplesInstallerService instance;
+    private static final String TAG = "DemoSamplesInstallerService";
 
     @Nullable
     @Override
@@ -123,7 +126,7 @@ public class DemoSamplesInstallerService extends Service {
         int action = intent.getIntExtra(ACTION_EXTRA, -1);
         switch(action) {
             case ACTION_START_DOWNLOAD: {
-                CrashWrapper.log("DemoSamplesInstallerService: starting download");
+                CrashWrapper.log(TAG + ": starting download");
                 Preconditions.checkState(downloadAndInstallThread == null);
                 String downloadUri = intent.getDataString();
 
@@ -139,12 +142,12 @@ public class DemoSamplesInstallerService extends Service {
                     downloadAndInstallThread = new DownloadAndInstallThread(this, result, downloadUri);
                     downloadAndInstallThread.start();
                 } catch (MalformedURLException e) {
-                    onFailed(e.getMessage());
+                    onFailed(e.getMessage() != null ? e.getMessage() : TAG + ": start exception message unknown");
                 }
                 break;
             }
             case ACTION_CANCEL_DOWNLOAD:
-                CrashWrapper.log("DemoSamplesInstallerService: cancelling download");
+                CrashWrapper.log(TAG + ": cancelling download");
                 if (downloadAndInstallThread != null) {
                     isDownloading = false;
                     downloadAndInstallThread.interrupt();
@@ -160,14 +163,14 @@ public class DemoSamplesInstallerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        CrashWrapper.log("DemoSamplesInstallerService: created");
+        CrashWrapper.log(TAG + ": created");
         AesopPlayerApplication.getComponent(getApplicationContext()).inject(this);
         instance = this;
     }
 
     @Override
     public void onDestroy() {
-        CrashWrapper.log("DemoSamplesInstallerService: destroying");
+        CrashWrapper.log(TAG + ": destroying");
         if (downloadAndInstallThread != null)
             downloadAndInstallThread.interrupt();
         instance = null;
@@ -188,7 +191,7 @@ public class DemoSamplesInstallerService extends Service {
     }
 
     private void onInstallStarted() {
-        CrashWrapper.log("DemoSamplesInstallerService: install started");
+        CrashWrapper.log(TAG + ": install started");
         isDownloading = false;
         Intent intent = new Intent(BROADCAST_INSTALL_STARTED_ACTION);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -199,11 +202,11 @@ public class DemoSamplesInstallerService extends Service {
                 getApplicationContext(),
                 R.string.demo_samples_service_notification_install,
                 android.R.drawable.stat_sys_download_done);
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        Objects.requireNonNull(notificationManager).notify(NOTIFICATION_ID, notification);
     }
 
     private void onInstallFinished() {
-        CrashWrapper.log("DemoSamplesInstallerService: install finished");
+        CrashWrapper.log(TAG + ": install finished");
         Intent intent = new Intent(BROADCAST_INSTALL_FINISHED_ACTION);
         eventBus.post(new DemoSamplesInstallationFinishedEvent(true, null));
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -214,7 +217,7 @@ public class DemoSamplesInstallerService extends Service {
     }
 
     private void onFailed(@NonNull String errorMessage) {
-        CrashWrapper.log("DemoSamplesInstallerService: download or install failed: " + errorMessage);
+        CrashWrapper.log(Log.DEBUG, TAG,"download or install failed: " + errorMessage);
         isDownloading = false;
         eventBus.post(new DemoSamplesInstallationFinishedEvent(false, errorMessage));
         Intent intent = new Intent(BROADCAST_FAILED_ACTION);
@@ -291,7 +294,7 @@ public class DemoSamplesInstallerService extends Service {
 
                 resultHandler.onInstallFinished();
             } catch (IOException e) {
-                resultHandler.onFailed(e.getMessage());
+                resultHandler.onFailed(e.getMessage() != null ? e.getMessage() : TAG + ": run exception message unknown");
             }
         }
 
@@ -303,7 +306,12 @@ public class DemoSamplesInstallerService extends Service {
 
             OutputStream output = new BufferedOutputStream(new FileOutputStream(tmpFile));
             // The samples file is at AesopPlayerApplication#DEMO_SAMPLES_URL
-            HttpsURLConnection connection = (HttpsURLConnection) downloadUrl.openConnection();
+            HttpsURLConnection connection;
+            try {
+                connection = (HttpsURLConnection) downloadUrl.openConnection();
+            } catch (Exception e) {
+                throw new IOException("The server for the samples is not correctly configured (not https?)");
+            }
             // Disable gzip, apparently Java and/or Android's okhttp has problems with it
             // (possibly https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7003462).
             connection.setRequestProperty("accept-encoding", "identity");

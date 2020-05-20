@@ -43,7 +43,7 @@ import de.greenrobot.event.EventBus;
 
 public class NewVersionSettingsFragment extends BaseSettingsFragment {
 
-    private static final String SUMMARY_URL = "https://donnkey.github.io/aesopPlayer/features.html#futures";
+    private static final String SUMMARY_URL = AesopPlayerApplication.WEBSITE_URL + "features.html#futures";
 
     @Inject
     public EventBus eventBus;

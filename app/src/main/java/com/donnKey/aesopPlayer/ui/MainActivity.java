@@ -41,6 +41,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -60,6 +63,7 @@ import com.donnKey.aesopPlayer.concurrency.SimpleFuture;
 import com.donnKey.aesopPlayer.ui.settings.SettingsActivity;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -70,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private static final int TTS_CHECK_CODE = 1;
     private static final String KIOSK_MODE_ENABLE_ACTION = "KioskModeEnable";
     private static final String ENABLE_EXTRA = "Enable";
+    private static final String ANALYTICS_URL = AesopPlayerApplication.WEBSITE_URL + "install-configure.html";
 
     @SuppressWarnings("FieldCanBeLocal")
     private MainUiComponent mainUiComponent;
@@ -254,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
         // Do nothing, this activity takes state from the PlayerService and the AudioBookManager.
     }
 
@@ -487,7 +492,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private void doesUserAllowAnalytics() {
         if (!globalSettings.getAnalyticsQueried()) {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
-                    .setMessage(R.string.permission_rationale_analytics)
+                    .setMessage(Html.fromHtml(getString(R.string.permission_rationale_analytics, ANALYTICS_URL)))
                     .setTitle(R.string.permission_rationale_analytics_title)
                     .setIcon(R.drawable.ic_launcher);
             dialogBuilder.setPositiveButton(R.string.permission_kind_allow,
@@ -497,7 +502,9 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                     });
             dialogBuilder.setNegativeButton(R.string.permission_kind_disallow,
                     (dialogInterface, i) -> globalSettings.setAnalytics(false));
-            dialogBuilder.create().show();
+            AlertDialog dialog = dialogBuilder.create();
+            dialog.show();
+            ((TextView) Objects.requireNonNull(dialog.findViewById(android.R.id.message))).setMovementMethod(LinkMovementMethod.getInstance());
         }
 
         globalSettings.setAnalyticsQueried(true);
@@ -508,6 +515,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         Intent newActivity = new Intent(context, AesopPlayerApplication.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 5551212, newActivity, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        assert mgr != null;
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
         System.exit(0);
     }
@@ -599,6 +607,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 statusBarManager = Class.forName("android.app.StatusBarManager");
                 // Prior to API 17, the method to call is 'collapse()'
                 // API 17 onwards, the method to call is `collapsePanels()`
+                //noinspection JavaReflectionMemberAccess
                 collapseStatusBar = statusBarManager.getMethod("collapsePanels"); // private api
             }
             catch (Exception e) { // possible ClassNotFound

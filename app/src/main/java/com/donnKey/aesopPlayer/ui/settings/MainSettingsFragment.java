@@ -53,7 +53,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     private static final String KEY_POLICY = "data_usage_preference";
     private static final String KEY_VERSION = "version_preference";
 
-    private static final String FAQ_URL = "https://donnkey.github.io/aesopPlayer/faq.html";
+    private static final String FAQ_URL = AesopPlayerApplication.WEBSITE_URL + "faq.html";
 
     @Inject public AudioBookManager audioBookManager;
     @Inject public GlobalSettings globalSettings;
