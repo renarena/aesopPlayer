@@ -652,7 +652,7 @@ and to be numbered <code>01</code> ...  <code>09</code> <code>10</code> <code>11
 so they'll sort correctly.
 If you use Aesop's New Books install screen to do the final installation, it will use 
 <a href="#name-normalization">Name Normalization</a>
-to convert any one-digit numbers it finds to two-digit ones (with a zero), 
+to convert short (without zeros) numbers it finds to longer ones (with zeros as needed), 
 which fixes both the track number problem and any one-digit date or time information the ripping tool 
 <span class="more_info">
 <span class="popup">
@@ -893,7 +893,7 @@ The download icon will have a line above it (mnemonically, the book left in plac
 Occasionally you may run across a book where files were named without the leading zeros in sequence numbers
 suggested above.
 The Aesop Player by default fixes any audio file or directory names (except that for the whole book) that it finds
-containing single-digit numbers. The numbers are silently converted to 2 digit numbers (with a zero added).
+containing too-short numbers. The numbers are silently converted to multi-digit numbers (with zeros added as needed).
 Although we have not (yet) seen a book where doing this would cause a problem (and many instances where it helps)
 it is possible to disable this by unchecking "Normalize Book Names" using the "More" button (#8 on 
 <a href="#new-books">New Books</a>)). 

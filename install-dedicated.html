@@ -253,7 +253,7 @@ One of the worst things that can happen with an application like this is that it
 unusable by the <em>user</em> (as described in <a href="features.html#roles">Roles</a>).
 Accidental button presses are a significant risk for this sort of user, and fequently
 users would be unable to recover from, or even recongize the consequences of, an accidental press of 
-one of the system buttons.
+one of the system buttons. (A press that, for example, returned them to a Home screen they don't know exists.)
 For typical users, the Android system tries to protect users from losing control of the system by
 making these same buttons very powerful, and hard to disable.
 However, for this sort of user that instead makes things worse.
@@ -273,10 +273,16 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	Advantages:
 	<dd>
 	<ul>
-	    <li>Works on older Androids (4.4/API 19 and above), including possibly the Kindle Fire.
+	    <li>Works on older Androids (4.4/Kit Kat/API-19 up), 
+		<span class="more_info"> 
+		<span class="popup">
 		We have not recently tested with the Kindle Fire. 
 		It has worked in the past, but be sure to test it thoroughly before committing to it.
-	    <li>Doesn't require any setup outside the app. (Does require granting permissions when selecting this mode for the first time. It will guide you.)
+		</span>
+		including possibly the Kindle Fire.
+		</span>
+	    <li>Doesn't require any setup outside the app. 
+		(Does require granting permissions when selecting this mode for the first time. It will guide you.)
 	    <li>Doesn't interfere with the phone's normal use when not running.
 	</ul>
 	</dd>
@@ -284,13 +290,16 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	<dd>
 	<ul>
 	    <li>Can be ugly and slow at times.
-	    <li> Does not 
+	    <li> 
 		<span class="more_info"> 
 		<span class="popup">
-		We're looking into it, but it may take some time. It's harder than it looks.
+		    The folks at Google <em>mostly</em> rightly see disabling the system buttons,
+		    as discussed above, as a potential system security problem.
+		    On Android Q, further changes made Simple Kiosk barely possible, and even less attractive.
 		</span>
-		currently</span>
-		work on Android 10 (Q) or above. (Use App Pinning (or Full Kiosk) instead.)
+		Works poorly
+		</span>
+		on Android 10 (Q) or above. (Use Application Pinning (or Full Kiosk) instead.)
 	    <li>Not guaranteed to be always effective.  (99.9%, but there are probably ways around it.)
 	    <li>Does not return to Aesop after device restart.
 	</ul>
@@ -304,9 +313,16 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 		    </span>
 		    older devices. 
 		</span>
-	    On newer devices where Kiosk mode or 
-	    Application Pinning is available (and where it works), it still can be useful when the 
-	    device cannot be dedicated to a single use full-time, and for some reason Application Pinning is a problem.
+	    On newer devices where Full Kiosk mode or Application Pinning is available, that is strongly preferred.
+	    Simple Kiosk can be useful when the device cannot be dedicated to a single use full-time,
+	    and for some reason Application Pinning 
+		<span class="more_info">
+		    <span class="popup">
+		    We currently know of no reason that Application Pinning would not work well. Please contact us
+		    if you run into any problems.
+		    </span>
+		is a problem.
+		</span>
 	</p>
     </li>
     <li>
@@ -322,6 +338,7 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	    <li>Works well and smoothly.
 	    <li>Highly reliable.
 	    <li>Doesn't interfere with the phone's normal use when not running.
+	    <li>Works nicely with <a href="#maintenance-mode">Maintenance Mode</a>.
 	</ul>
 	</dd>
 	Disadvantages:
@@ -329,14 +346,13 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	<ul>
 	    <li>Requires Android 5.0 or above.
 	    <li>Isn't designed to be as resistant to intentional misuse as Full Kiosk mode.
-	    <li>Requires a few extra taps to ignore recurrent popups (discussed below).
 	    <li>Does not return to Aesop after device restart.
 	</ul>
 	</dd>
 	</dl>
 	<p>
-	    Application pinning is preferred if you have the appropriate hardware unless actual use shows you need Full Kiosk mode
-	    for its stricter controls.
+	    Application pinning is preferred if you have an appropriate device unless actual use shows 
+	    you need Full Kiosk mode for its stricter controls.
 	</p>
     </li>
     <li>
@@ -348,6 +364,7 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	    <li>Works well and smoothly.
 	    <li>Highly reliable once app and device is fully configured.
 	    <li>Automatically returns to Aesop after device restart and other major changes.
+	    <li>Works nicely with <a href="#maintenance-mode">Maintenance Mode</a>.
 	</ul>
 	</dd>
 	Disadvantages:
@@ -357,7 +374,6 @@ To prevent accidental pushes of the system buttons we provide three choices, eac
 	    <li>Requires computer and cable to for one-time setup, and a technical person to use them.
 	    <li>Requires significant one-time setup including removal of any accounts.
 	    <li>Leaves device in a state where it's not very usable for any other purpose.
-	    <li>Disables Application Pinning mode (see below).
 	    <li>Upgrading to a new version of the player should be done with great care (see below).
 	</ul>
 	</dd>
@@ -407,6 +423,7 @@ in Android.
 The consequence of that to Aesop is that only one of the two is possible at any given time.
 If you have the privilege for Full Kiosk Mode, you cannot use Application Pinning; if you don't,
 then of course you can't use Full mode.
+If you are using Full Kiosk Mode, Application Pinning offers no additional benefit.
 </p>
 <p>
 Simple Kiosk and Application Pinning are your two best choices initially.
@@ -428,6 +445,9 @@ Simple Kiosk Mode:
     <ul>
 	<li>On some devices (depending on Android version) it will ask for the permissions necessary to control the status 
 	    bar so it cannot be accidentally pulled down. Grant it.
+	<li>On Android Q and above, if you do choose to try Simple Kiosk (not recommended), 
+	    it will ask you to enable the Accessibility Service.
+	    Grant it by clicking on the Aesop Icon in the new window, and then enabling the service with the switch.
 	<li>On all devices it will ask to set the Home Application; the procedure varies slightly depending on the device revision, 
 	    but in general it involves clicking OK on the message warning what will happen, selecting Aesop Player from a few alternatives, 
 	    clicking "Always", and possibly clicking on another OK. 
@@ -443,25 +463,20 @@ Simple Kiosk Mode:
     </ul>
 </dd>
 Application Pinning Mode:
-    <dd>
-    <div style="margin-left: 2em;">
-    Each time you go to the playback screen after starting Application Pinning (and when you aren't in 
-    <a href="#maintenance-mode">Maintenance Mode</a>),
-    it will ask you to confirm 
-    <span class="more_info">
-    <span class="popup">
-    Some older devices may not pop up the 'Got it' message but will pin Aesop anyway (there will be a Toast.)
-    </span>
-    application pinning.
-    </span>
-    Click "Got It" (or "OK" or something similar depending on Android model). 
-    The double-button-press it describes in that popup will work to exit pinning, 
-    but Application Pinning will be restored each time you enter the playback screen.
-    </p>
-    <p>
-    Also on some devices there may be a second popup about Full Screen Mode (which may only appear once). You can click on that to ignore it as well.
-    </div>
-    </dd>
+    <ul>
+	<li>On some devices (depending on Android version) it will ask you to enable the Accessibility Service.
+	    Grant it by clicking on the Aesop Icon in the new window, and then enabling the service with the switch.
+	<li>Each time you go to the Book List screen from Settings after starting Application Pinning 
+	    (and when you aren't in <a href="#maintenance-mode">Maintenance Mode</a>),
+	    a blue popup may appear for a moment, and an "Application Pinned" Toast message may be displayed.
+	    These are informative and you can ignore them. You can also ignore the "Application Unpinned" message
+	    when entering Settings.
+	<li>On some devices there may be a second popup about Full Screen Mode (which should only appear once).
+	    You can click on that to ignore it as well.
+	<li>If you should happen to get to the No Books screen (when there are no books installed), the link
+	    to the website is not available, as defined by Application Pinning. Go to Mainenance Mode.
+	    You can still download the samples.
+    <ul>
 </dl>
 </div>
 
@@ -483,8 +498,7 @@ turn it off.
 Turning off Maintenance Mode restores the pror settings. 
 </p>
 <p>
-Maintenance mode is in practice in effect whenever you are in Settings or managing books. When using Application Pinning,
-the "Got It" message mentioned above will be displayed when you return to the books screen.
+Maintenance mode is in practice in effect whenever you are in Settings or managing books. 
 </p>
 
 <h3>Here's How</h3>
@@ -493,14 +507,15 @@ Go to <strong>Aesop Settings</strong> (the "gear" icon) &rarr;
 Click the greyed-out "gear" button at the bottom right of the Settings screen.
 </p>
 Turn it off (click the now-bright icon in the same location) before resuming normal use.
-The bright red "gear" icon is your reminder that it's on in Settings mode, and Aesop displays "Maintenance Mode" on the playback screen.
+The bright red "gear" icon is your reminder that it's on in Settings mode, and Aesop displays "Maintenance Mode" on 
+the Books and Playback screens.
 (You can see that in the image at the top of this page.)
 </p>
 <p>
 When maintaining the player remotely, it's useful to be reminded as to whether it's in face-down-paused mode since you cannot see the physical device.
 When it is in that state, the word "Paused" is displayed instead of "Stop".
 Tapping that button will put it back in the Book List state.
-("Paused" isn't really different than playing other than nothing is actually playing, and it works exactly as "Stop" does.) 
+("Paused" isn't really different than playing other than nothing is actually playing, and this action works exactly as "Stop" does.) 
 When maintenance is complete, you can return to that book (or any other) and tap Start, and it will immediately (and silently)
 move to the Paused state if the device is still face-down.
 </p>
