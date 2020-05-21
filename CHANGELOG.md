@@ -110,3 +110,7 @@ changes.
 Fix URLs in dialogs to be clickable. Housekeeping in handling the
 path to the website. Improve error handling if connection to Samples  
 Download website fails.
+
+Fix unzip of books when zip file doesn't contain explicit directory entry.
+Handle file renumbering when more than 100 files, separate handling of
+audio files and directories to avoid renumbering unnecessarily.

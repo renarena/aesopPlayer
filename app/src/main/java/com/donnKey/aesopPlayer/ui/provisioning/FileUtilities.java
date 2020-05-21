@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -42,12 +43,10 @@ import static com.donnKey.aesopPlayer.ui.provisioning.Provisioning.Severity.SEVE
 
 public class FileUtilities {
 
-    @SuppressWarnings("WeakerAccess")
     public interface StringCallback {
         void Callback(String s);
     }
 
-    @SuppressWarnings("WeakerAccess")
     public interface ErrorCallback {
         void Callback(Provisioning.Severity severity, String text);
     }
@@ -58,8 +57,9 @@ public class FileUtilities {
         return path.endsWith(".zip") || path.endsWith(".ZIP");
     }
 
-    // Convert single digits to 2 digits (with 0), but not in the extension.
-    private static String fixSingleDigits(String name) {
+    // Do a substitution in the body, but not extension, of a filename.
+    // Used to convert n-1 to n digits (with 0)
+    private static String fixDigits(String name, String regex, String subst) {
         int dot = name.lastIndexOf('.');
         String extension = "";
         if (dot > 0) {
@@ -67,8 +67,6 @@ public class FileUtilities {
             name = name.substring(0,dot);
         }
 
-        String regex = "(^|\\D)(\\d)(\\D|$)";
-        String subst = "$10$2$3";
         // Do it twice just in case we get a1b2c (or 1.2), which doesn't fix the 2 in just one pass.
         name = name.replaceAll(regex, subst);
         name = name.replaceAll(regex, subst);
@@ -154,22 +152,31 @@ public class FileUtilities {
     {
         ZipEntry subFile;
         while ((subFile = zipData.getNextEntry()) != null) {
-            File newFile = new File(targetTmp, subFile.getName());
-            progress.Callback(subFile.getName());
+            String newFile_name = subFile.getName();
+            File newFile = new File(targetTmp, newFile_name);
+            progress.Callback(newFile_name);
             if (subFile.isDirectory()) {
                 if (!mkdirs(newFile, logError)) {
                     return false;
                 }
             }
-            else if (isZip(subFile.getName())) {
+            else if (isZip(newFile_name)) {
                 ZipInputStream newZipData = new ZipInputStream(zipData);
-                File newTargetTmp = new File(targetTmp, subFile.getName().substring(0, subFile.getName().length()-4));
+                File newTargetTmp = new File(targetTmp, newFile_name.substring(0, newFile_name.length()-4));
                 if (!innerUnzipAll(newZipData, newTargetTmp, progress, logError)) {
                     return false;
                 }
             }
             else {
-                if (!mkdirs(targetTmp, logError)) {
+                // There isn't necessarily a zip directory entry prior to a file that goes into
+                // a new sub-directory. Sort that out.
+                File targetTmpDir = targetTmp;
+                int pathEnd = newFile_name.lastIndexOf('/');
+                if (pathEnd >= 0) {
+                    String dirPath = newFile_name.substring(0,pathEnd);
+                    targetTmpDir = new File(targetTmp,dirPath);
+                }
+                if (!mkdirs(targetTmpDir, logError)) {
                     return false;
                 }
                 try (OutputStream to = new FileOutputStream(newFile))
@@ -179,13 +186,13 @@ public class FileUtilities {
                 catch (IOException e) {
                     logError.Callback(SEVERE, String.format(getAppContext()
                                     .getString(R.string.error_unzip_single_file_with_exception),
-                            newFile.getName(), e.getLocalizedMessage()));
+                            newFile_name, e.getLocalizedMessage()));
                     return false;
                 }
                 catch (SecurityException e) {
                     logError.Callback(SEVERE, String.format(getAppContext()
                                     .getString(R.string.error_unzip_single_file_with_exception),
-                            newFile.getName(), e.getLocalizedMessage()));
+                            newFile_name, e.getLocalizedMessage()));
                     return false;
                 }
             }
@@ -357,8 +364,9 @@ public class FileUtilities {
         return true;
     }
 
-    // Fix filenames containing single digits to add a leading zero so it will sort correctly
+    // Fix filenames containing single digits to add leading zeros so it will sort correctly
     // when file names contain some sort of sequence number that isn't already with leading zeros
+    // Tne number of leading zeros is determined by the number of files to be renamed.
     static boolean treeNameFix(File tree, ErrorCallback logError) {
         if (!tree.exists()) {
             throw new RuntimeException("Attempt to fix-up names in nonexistent directory");
@@ -370,29 +378,68 @@ public class FileUtilities {
             return true;
         }
 
-        for (String file: files) {
+        ArrayList<String> dirs = new ArrayList<>();
+        ArrayList<String> audio = new ArrayList<>();
+        for (String file : files) {
             File f = new File(tree, file);
             if (f.isDirectory()) {
                 if (!treeNameFix(f, logError)) {
                     return false;
                 }
-                File t = new File(tree, fixSingleDigits(file));
-                if (!f.getName().equals(t.getName())) {
-                    if (!renameTo(f, t, logError)) {
-                        return false;
-                    }
-                }
+                dirs.add(file);
+            } else if (FilesystemUtil.isAudioPath(file)) {
+                audio.add(file);
             }
-            else {
-                if (FilesystemUtil.isAudioPath(file)) {
-                    // Only fix names on audio files, in case there are others.
-                    File t = new File(tree, fixSingleDigits(file));
-                    if (!f.getName().equals(t.getName())) {
-                        if (!renameTo(f, t, logError)) {
-                            return false;
-                        }
-                    }
+        }
+        // We rename audio files and directories separately.
+        // Primarily this is for the case where there are both random files
+        // and directories in a single directory, so we don't rename
+        // if there aren't at least 10 directories (or audio files, but
+        // mixed audio and other files seems pretty weird).
+        if (!fixNames(dirs, tree, logError)) {
+            return false;
+        }
+        return fixNames(audio, tree, logError);
+    }
+
+    static private boolean fixNames(ArrayList<String> files, File tree, ErrorCallback logError) {
+        // If there are enough files...
+        if (files.size() < 10) {
+            return true;
+        }
+        // Convert all single digits to two
+        if (!fileNameFix(files, tree, "(^|\\D)(\\d)(\\D|$)", "$10$2$3", logError)) {
+            return false;
+        }
+
+        // Note: fileNameFix changed the entry in 'files' as well as on the disk.
+
+        // All 2 digits to 3 if there are more than 100 files (yes, double rename of 10 files)
+        if (files.size() < 100) {
+            return true;
+        }
+        if (!fileNameFix(files, tree, "(^|\\D)(\\d\\d)(\\D|$)", "$10$2$3", logError)) {
+            return false;
+        }
+
+        // Similarly, 3 to 4. Hopefully no-one is foolish enough to actually need this, because
+        // it becomes a performance issue system wide.
+        if (files.size() < 1000) {
+            return true;
+        }
+        return fileNameFix(files, tree, "(^|\\D)(\\d\\d\\d)(\\D|$)", "$10$2$3", logError);
+    }
+
+    static private boolean fileNameFix(ArrayList<String> files, File tree, String p1, String p2, ErrorCallback logError)
+    {
+        for (int i=0; i<files.size(); i++) {
+            File f = new File(tree, files.get(i));
+            File t = new File(tree, fixDigits(files.get(i), p1, p2));
+            if (!f.getName().equals(t.getName())) {
+                if (!renameTo(f, t, logError)) {
+                    return false;
                 }
+                files.set(i,t.getName());
             }
         }
         return true;
