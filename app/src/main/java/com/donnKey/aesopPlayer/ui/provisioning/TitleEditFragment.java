@@ -141,15 +141,12 @@ public class TitleEditFragment extends Fragment {
         normalizeButton.setOnClickListener((v) ->
                 finalTitle.setText(AudioBook.titleCase(Objects.requireNonNull(finalTitle.getText()).toString())));
 
-        addAuthorButton.setEnabled(author.getText() != null);
-        addAuthorButton.setOnClickListener((v) -> {
-            String a = author.getText().toString();
-            if (a.length() > 0) {
-                String s = Objects.requireNonNull(finalTitle.getText()).toString();
-                s += " - " + a;
-                finalTitle.setText(s);
-            }
-        });
+        if (author.getText() != null) {
+            addAuthorButton.setEnabled(true);
+            author.setEnabled(true);
+            author.setOnClickListener((v) -> doAddAuthor(author));
+            addAuthorButton.setOnClickListener((v) -> doAddAuthor(author));
+        }
 
         doneButton.setOnClickListener((v) -> {
             String s = Objects.requireNonNull(finalTitle.getText()).toString();
@@ -198,6 +195,16 @@ public class TitleEditFragment extends Fragment {
 
         return view;
     }
+
+    private void doAddAuthor(TextView author) {
+        String a = author.getText().toString();
+        if (a.length() > 0) {
+            String s = Objects.requireNonNull(finalTitle.getText()).toString();
+            s += " - " + a;
+            finalTitle.setText(s);
+        }
+    }
+
 
     class inputFilter implements TextWatcher {
         boolean textChanged;

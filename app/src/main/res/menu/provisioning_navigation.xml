@@ -38,9 +38,9 @@
 
     <item
         android:id="@+id/navigation_settings"
+        android:title="@string/title_settings"
         android:contentDescription="@string/return_to_settings_screen"
-        android:icon="@drawable/ic_settings_white_24dp"
-        android:title="@string/title_settings" />
+        android:icon="@drawable/ic_settings_white_24dp" />
 
     <item
         android:id="@+id/navigation_maintenance"

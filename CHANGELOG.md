@@ -92,7 +92,7 @@ released versions... proGuard dependency issue.)
 Fix problem with hang if the computation of the book size hasn't
 finished before the book is started.
 
-## Version 1.1.3 (pending release)
+## Version 1.1.3
 Fix a number of accessibility issues and some potential crashes shown by
 automatic testing.
 

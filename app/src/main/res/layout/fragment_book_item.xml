@@ -41,7 +41,7 @@
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintEnd_toStartOf="@id/copyBooksInstruction"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintHorizontal_weight="15"
+        app:layout_constraintHorizontal_weight="18"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="?attr/startSettingsIcon" />
@@ -80,7 +80,7 @@
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintHorizontal_weight="15"
+        app:layout_constraintHorizontal_weight="18"
         app:layout_constraintStart_toEndOf="@id/copyBooksInstruction"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -200,6 +200,7 @@
             android:layout_height="match_parent"
             android:background="@color/transparent"
             android:gravity="center_vertical|center"
+            android:importantForAccessibility="no"
             android:text="@string/button_start"
             android:textAllCaps="true"
             android:textColor="?attr/buttonStartTextColor"
