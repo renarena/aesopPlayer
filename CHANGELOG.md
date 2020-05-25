@@ -102,13 +102,13 @@ the on-screen volume and speed controls.
 Don't do "Button Delay" at startup and when returning from Settings.
 
 Make Simple Kiosk work on Android 10, although it's not recommended because
-it still is (unfixably) ugly. Make App Pinning more attractive by getting  
-rid of the "Got It" message on Pie and above. Pinning (where available) is  the
+it still is (unfixably) ugly. Make App Pinning more attractive by getting
+rid of the "Got It" message on Pie and above. Pinning (where available) is the
 best choice if not using Full Kiosk. Update web page to reflect these
 changes.
 
 Fix URLs in dialogs to be clickable. Housekeeping in handling the
-path to the website. Improve error handling if connection to Samples  
+path to the website. Improve error handling if connection to Samples
 Download website fails.
 
 Fix unzip of books when zip file doesn't contain explicit directory entry.
