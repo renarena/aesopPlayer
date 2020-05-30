@@ -99,9 +99,15 @@
             <a href="http://audiobookstore.com">audiobookstore.com</a> or
             <a href="http://www.downpour.com">Downpour</a>
             (you probably know the best ones in your country).<br>
-            Look for DRM-free (usually) MP3 downloads.</li>
-        <li>Libraries: it's often possible to borrow audiobooks at the local
-            library.</li>
+            Look for DRM-free, (usually) MP3 downloads.</li>
+        <li>Libraries: it's often possible to borrow audiobooks at the local library. 
+        These can be as CDs, or electronically from at least 
+            <a href="https://www.overdrive.com/">OverDrive</a>
+        or rbDigital (or both). 
+        (If your library provides rbDigital, it is best accessed through your library. rbDigital does
+        not appear to have a library patron focused general website.)
+        Some FAQs below cover that in more detail.
+        </li>
         <li>Free classics: there are many services and non-profit projects that
             provide free audiobooks (mostly classics).<br>
             Here are a few that provide books in English:
@@ -113,10 +119,411 @@
                 (go to each chapter to download it in an MP3 file - you'll need to manually collate into a complete book).
             <li><a href="http://www.gutenberg.org/browse/categories/2">Project Gutenberg</a>
                 (Computer read - click on "More Files" to find a .zip of the whole book.)
-            <li><a href="https://www.overdrive.com/">Overdrive</a>
-                (If your local library is connected to Overdrive, this is a source for current books.)
             </ul>
         </ul>
+
+    - question: How do I download books from OverDrive?
+      answer: >
+        <p>There are many ways to do this. We'll cover two here. They have different advantages depending on exactly
+        how you are using the device.
+        They both start with a common prerequisite: setting up an OverDrive account.
+        <p>
+          You will need an account with a library that provides OverDrive. 
+          Go to the
+          <a href=""https://www.overdrive.com/>OverDrive website</a>
+          and click on <em>Find a library</em> to get a listing and map of nearby libraries.
+          That list can be long, so scroll down until you find a convenient library you're eligible for.
+          You will have to sign up for the library on its website, or possibly go to the physical library once.
+          Most libraries are very welcoming, so they'll try to make it easy, but it will vary a lot.
+          <br>
+          If there's any special signup you need for web access, do that at the same time.
+          <br>
+          Once you are signed up with a library, you can create an OverDrive account if you wish and check out
+          audiobooks there, or you can do it directly on the library's web page. The experience of searching
+          can be somewhat different on the OverDrive versus the library's website, so try both to see which
+          you like. Both choices should let you filter (select) on Media Type to select only audiobooks.
+          <br>
+          <p>
+          The OverDrive Website provides a lot of help.
+          If things go wrong, that's a very good place to start.
+          It's also a good place to start to see if there's a variation on these sequences 
+          that would work better for you.
+          </p>
+        <p>
+        <strong>Alternative #1: Using the Android Overdrive App</strong>
+        </p>
+        <p>
+        Prerequisites:
+        </p>
+          <ul>
+              <li>
+              You will definitely need to set up an OverDrive account from your library account.
+              Your library's web page should show you how to do that.
+              </li>
+
+              <li>
+              You will need to install the OverDrive Play Store App on your device.
+              <ul>
+                  <li>
+                  Go to Google Play Store on the device and search for OverDrive.
+                  Install the OverDrive app (not Libby).
+                  <li>
+                  Start it, and log in with the OverDrive credentials you established when signing up with
+                  your library.
+                  <li>
+                  Click the "Hamburger" menu at the upper left, then Settings.
+                  <li>
+                  Scroll down a way until you find "Save downloaded titles to".
+                  <li>
+                  The radio button for "File storage" may be selected. If not, select it.
+                  (Be sure to do this before downloading any books!)
+                  <small>If there's more than one "File storage", you can use that if space is an issue,
+                  but be sure to select the right directory in Aesop.</small>
+                  <li>
+                  Note the path name below the button. 
+                  Mine is
+                  <br>
+                  <em>/storage/emulated/0/Android/data/com.overdrive.mobile.android.mediaconsole/files</em>. 
+                  <br>
+                  This is likely to vary slightly between devices, but the part starting with "Android" probably
+                  will be constant (and that's the important part).
+              </ul>
+              <p>
+              OverDrive for Android is a book reader, but it will link to a web browser for your libraries 
+              (there can be several) from which you can search for and check out books.
+              </p>
+              </li>
+          </ul>
+        <p>
+        Process:
+        </p>
+        <ul>
+          <li>
+          Using the app, or on your PC, check out a book from your library using either the 
+          OverDrive web page or your library page.
+          If you use OverDrive's search, it will ultimately take you to your library's website to check out the book.
+          Don't download the book yet (just ignore that).
+          If it offers you a choice of formats, choose a format that Aesop supports, probably .mp3.
+          <li>
+          Now, using the Android OverDrive app, log in to OverDrive if you aren't already.
+          <li>
+          Go to your Bookshelf (there are several ways depending on exactly
+          how you got there... use the "Hamburger" menu if nothing else). 
+          An empty Bookshelf is just one or more empty squares with a big "+" and your library name in it.
+          <li>
+          Click on the library name. 
+          You will have to log in with your library credentials (not Overdrive) when you get to
+          your library (once only, probably).
+          <li>
+          Click on the "Loans" icon (it looks like several books on a bookshelf) or go to 
+          "Hamburger" menu->Account->Loans. 
+          (This assumes your library is similar to mine.)
+          Find your book. 
+          <li>
+          Click on download. It will download an .odm file to <strong>Download</strong>, which takes just a moment.
+          <li>
+          Return to the OverDrive app (use the device's "Back" key).
+          <li>
+          By default it should automatically start downloading the book(s) you selected, and remove the .odm files.
+          If it doesn't, check Settings to see that automatic download is enabled, and then consult the OverDrive
+          website for further help.
+          You can manually control the downloads from the app as well.
+          This step can take a while to complete.
+          OverDrive appears to intelligently manage having multiple books downloading simultaneously itself.
+          <li> 
+          Install the book into the Aesop Player:
+          <ul>
+              <li>
+              Start Aesop, go to Settings, then New Books.
+              <li>
+              Click on the three dots at the upper right, and select "Select Directory containing New Books".
+              <li>
+              It will open a File Search tool. Go up in the storage heirarchy until you reach the top.
+              (This varies with Android model and the prior history of book installation, so you may have
+              to try a few things. In some cases it may present a choice called "Internal". If so, select that.)
+              <li>
+              If you are in the right place, you'll find a directory named "Android". Select it, and then
+              in turn "data", "com.overdrive.mobile.android.mediaconsole", "files", and then "OverDrive".
+              (Pretty much the name you noted above, but if it doesn't match, use what you found above!)
+              <li>
+              That should have the Book Title(s) in it. Select the directory ("OverDrive"), don't go into the book.
+              <li>
+              You will return to the Aesop New Books screen, with the downloaded titles listed.
+              <li>
+              Touch up the titles 
+              <a href="provisioning.html#fix-titles">if needed</a>
+              (they are likely to be fine) on the New Books screen and then install the
+              book(s) by clicking "Install".
+          </ul>
+          </ul>
+        <p>
+        The book will be ready to play at this point, and you can manage it in the usual ways.
+        You can delete it in the usual ways when you're done, but this does not return the book.
+        Use your OverDrive account to return it, using whichever interface is most convenient:
+        from the web page, you can click the three dots just to the right of the textual title (not the cover) in
+        OverDrive's bookshelf view; 
+        in the OverDrive app, use a long-press on the book in the Bookshelf to start deletion.
+        Or you can return it directly from the library web page.
+        </p>
+        Notes:
+        </p>
+        <ul>
+        <li>
+        Please honor the Copyright and delete any expired copies.
+        </ul>
+        <p>
+        <small>Things change; this worked as of May 2020.</small>
+        <p>
+        &nbsp;
+        <p>
+
+        <strong>Alternative #2: Using a Windows PC</strong>
+        </p>
+        <p>
+        You will need a Windows PC (or emulation).
+        Again, there are lots of variations.
+        </p>
+        <p>
+        Prerequisites:
+        </p>
+          <ul>
+              <li>
+              An OverDrive login isn't strictly needed; the .odm file (see below) is your authentication.
+              <li>
+              You will need to install OverDrive for Windows, not Libby, on your PC. (I haven't worked out the
+              procedures for other machines, but they should be similar.)
+              <br>
+              Go to the Windows Store entry for
+              <a href="https://www.microsoft.com/en-us/p/overdrive-library-ebooks-audiobooks/9wzdncrfj3sr?activetab=pivot:overviewtab"/>OverDrive</a>,
+              click "Get", and install like any other Windows App.
+              <br> <small>
+              You can also go to the 
+              <a href="https://www.overdrive.com"/>OverDrive website</a>,
+              then scroll down to the bottom and click Help (on the left)
+              then "Getting Started", then item "1" and click on "The Original OverDrive App" bullet item,
+              then a new item "1" and click the "Windows Store" bullet item.
+              If you're not on a Windows PC, there are several other choices that might match your PC.
+              </small>
+              </p>
+              <p>
+              OverDrive for Windows is a book reader, not a library search program.
+              It does not link to any websites.
+              </p>
+              </li>
+          </ul>
+        <p>
+        Process:
+        </p>
+        <ul>
+          <li>
+          On your PC, check out a book from your library using either the OverDrive web page or your library page.
+          If you use OverDrive's search, it will ultimately take you to your library's website to check out the book.
+          <li>
+          At some point in the checkout process it will ask if you about the book format.
+          Choose one that the Aesop Player supports.
+          Usually there will be just one choice, .mp3, which is ideal.
+          (If it doesn't offer any choices the Aesop Player supports, the book is probably in some protected form
+          and you'll have to choose a different book.)
+          It will ask if you want to download the book.  Do so.
+          <em>This does not actually download the book.</em>
+          It downloads a small file with just the information to actualy get the book, and only takes a moment.
+          It will be something like "Book Name.odm". 
+          <li>
+          Switch to the OverDrive for Windows application. You can click on the .odm file that was downloaded,
+          or use File>Open to open it in the OverDrive application. You don't log in to OverDrive for Windows.
+          <li>
+          You can then select which parts you want to download (to keep the download sizes smaller), but typically
+          you'd download the whole book. That will take a while depending on how fast your connection is.
+          <li> 
+          Now transfer the book to the Aesop Player.
+            <ul>
+              <li>
+              If your device isn't connected to the PC with a USB cable yet, do so. 
+              If it asks, set it to File Transfer mode.
+              <li>
+              Click on the book in the OverDrive for Windows screen (even if there's only one).
+              <li>
+              Click "Transfer" on the top edge of the OverDrive screen. 
+              It will open the "Transfer Wizard".
+              Click Next.
+              <li>
+              If you have more than one candidate device, select your target device.
+              <li>
+              Click "Advanced Options". 
+              <li>
+              Click "Browse" and browse to the AudioBooks directory; click on AudioBooks itself.
+              <li>
+              Click on "Create New Folder"; name it with the book title you'll want to use.
+              (Otherwise it will be called "New Folder".)
+              <li>
+              Click OK, OK again, and when it's done copying (which will be quick), Finish.
+            </ul>
+        </ul>
+        <p>
+        The book will be ready to play at this point (it was installed directly, not using the New Books
+        Screen).
+        You can edit the title if you need to as described under 
+        <a href="provisioning.html#fix-titles">Managing Books</a>.
+        You can delete it in the usual ways when you're done, but this does not return the book.
+        Use your library account to return it.
+        You will also want to remove the .odm files from your Downloads directory now and then, once they've been
+        read by OverDrive for windows they serve no purpose.
+        </p>
+        <p>
+        In the step above where you selected a device, you can also select a USB thumb drive. In that case be
+        sure to use "Advanced Options" to create a folder, as it will otherwise place the .mp3 files on the
+        root of the thumb drive (which would mix up the chapters if you downloaded more than one book). 
+        You can transfer from a thumb drive to the Aesop Player as described <a href="provisioning.html#usb">here</a>.
+        <p>
+        Notes:
+        </p>
+        <ul>
+        <li>
+        Please honor the Copyright and delete any expired copies as the OverDrive application requests.
+        <li>
+        If you right-click the book title in the OverDrive PC application,
+        you can select Properties to find out more about the book including
+        the exact rights you have.
+        </li>
+        </ul>
+        <p>
+        <small>Things change; this worked as of May 2020.</small>
+
+    - question: How do I download books from rbDigital?
+      answer: >
+        <p>
+        rbDigital's audiobook offerings are a mixture of titles with DRM and titles without.
+        They call the titles with DRM "protected".
+        Since the Aesop Player does not have DRM capability, only those titles that are offered without DRM can be used.
+        You can set the rbDigital search parameters to only show non-DRM (non-protected) titles.
+        Note that books within a single series may have a mixture of protected and non-protected titles;
+        you may not wish to start series with such a mixture. (No, it's not always the first that's not protected.)
+        <p>
+        (rbDigital used to be called "One Click Digital", so you may see that name in some places.)
+        </p>
+        <p>
+        There is a way to download and install books that is similar to Alternative #2 for OverDrive, but
+        it is more difficult to do than that for OverDrive; we will provide just a variant similar to #1 for OverDrive.
+        There is an rbDigital application you can download for your PC, but we won't use it here.
+        </p>
+        <p>
+        Prerequisites:
+        </p>
+          <ul>
+              <li>
+              An account with a library that provides rbDigital. Contact your library as for OverDrive;
+              you will have to ask or check your library's website to see if it supports rbDigital.
+              <br>
+              Once you are signed up with a library, you will need to create an rbDigital signin from
+              your library's website (using an email address and your choice of password).
+              Your library's Website should provide more information.
+              </li>
+              <li>
+              Log into rbDigital to prepare a setting to use it with Aesop.
+              <li>
+              On the rbDigital web page, click the "Hamburger" icon at the upper left, then "My Account",
+              then Settings.
+              <li>
+              Under AudioBooks, click the radio button for "Download Zip Files". 
+              Click Save (which may be offscreen depending on the device... scroll down.)
+              <li>
+              Logging in on your device:
+              You can do everything through your library's website. 
+              But you can can go directly to rbDigital's site for your library from your device. 
+              When logged in to rbDigital through your library, look in your browser's address bar; 
+              you'll see a web address that looks like
+              <span style="white-space: nowrap">
+              <font face=courier>
+              &lt;some abbreviation of your library's name>.rbdigital.com.
+              </font>
+              </span>
+              You can use that either on your device or from your PC to go directly to rbDigital.
+          </ul>
+        <p>
+        Process:
+        </p>
+        <ul>
+          You can check out a book either from your PC, or on the device.
+          The large screen on the PC is preferable for browsing, but you should follow a somewhat different
+          procedure if you do that.
+          <ul>
+          <li>
+          From a PC:
+          <ul>
+              <li>
+              Log into rbDigital web site on your PC.
+              <li>
+              Check out a book from the rbDigital web page. 
+              Be sure to filter on "not Protected" to get books Aesop Player can play; it will not download
+              books in zip format if they are protected.
+              <li>
+              It will immediately start downloading the zip file as you requested in 
+              Settings when you first set rbDigital up.
+              Cancel that download from your web browser; you can let it finish, but it won't be used and just
+              takes up space you'll have to recover someday.
+              At least as of this writing there doesn't seem to be a way to prevent the download from starting.
+              (The obvious settings had no effect.)
+              <li>
+              Now proceed to the rbDigital web site on your Device, and go to Checked Out in the "Hamburger" menu.
+              <li>
+              Click on the book you want to download.
+              <li>
+              Under the green Play button, you will find a smaller "Download Chapters" button. Click that.
+              It will start a download of the zip file of the book.
+          </ul>
+          <li>
+          From your device's browser:
+          <ul>
+              <li>
+              Log into rbDigital on your device.
+              <li>
+              Check out a book from the rbDigital web page. 
+              Be sure to filter on "not Protected" to get books Aesop Player can play; it will not download
+              books in zip format if they are protected.
+              <li>
+              When you tap Checkout, it will immediately start downloading the zip file for the book.
+              Let that complete.
+          </ul>
+          <li>
+          For both:
+          <ul>
+              <li>
+              You can browse to other books and start downloads for them while earlier books are downloading.
+              Don't start too many at once because too many downloads will slow things down 
+                - the number varies with the device and the internet connection.
+              <li>
+              The zip file of each book will be in the Android <strong>Download</strong> directory, 
+              and is organized similarly to those from other zip file providers such as LibriVox.
+          </ul>
+        </ul>
+        </p>
+        <p>
+        At this point the book is <em>almost</em> like any other zip file, and you could proceed exactly as you did in 
+        <a href="getting-started.html#managing-books">Getting Started</a>.
+        <strong>However</strong>, it may not have a usable title; 
+        you can 
+        <a href="provisioning.html#fix-titles">fix that</a>
+        in the New Books screen by clicking the title and filling it in. 
+        (It's likely that one of the fields on the book title screen will have a start on a title you can then edit,
+        but that is coincidence: the information to create a good title is simply not present.)
+        It also may have a preview file (the same one you get when you click "Preview" on the book's web page).
+        It falls alpabetically after the book content, with an unnumbered file name containing "PRE".
+        You can delete the file with a file manager after you have installed the book, 
+        or just ignore it when it plays after the end of the book.
+        </p>
+        <p>
+        You can delete the book in the usual ways when you're done, but this does not return the book.
+        Use your rbDigital account to return it.
+        </p>
+        Notes:
+        </p>
+        <ul>
+        <li>
+        Please honor the Copyright and delete any expired copies.
+        </li>
+        </ul>
+        <p>
+        <small>Things change; this worked as of May 2020.</small>
 
     - question: Can I use audiobooks from Audible?
       answer: >
@@ -124,7 +531,7 @@
         Unfortunately subscription services like Audible that use DRM are not supported and they
         don't provide MP3 files for download.
         </p>
-        <p>See the previous question on some tips where to get books.</b>
+        <p>See the earlier question on some tips where to get books.</b>
 
 - section: Troubleshooting
   questions:
