@@ -260,6 +260,9 @@
     <string name="dialog_title_group_books">Grupa do łączenia elementów książki</string>
     <string name="dialog_title_ungroup_book">Rozgrupuj książkę</string>
     <string name="error_unzip_into_existing_directory">Katalog %s już istnieje podczas rozwijania pliku zip</string>
+    <string name="deletePath">Usuń wpis</string>
+    <string name="download_dir_set_source">Ustaw katalog źródłowy</string>
+    <string name="download_dir_new">Wybierz Nowy</string>
 
     <!-- for translations of arrays.xml -->
     <string name="array_short">Krótki</string>
@@ -298,6 +301,13 @@
     </plurals>
 
     <!-- This must be a newline-separated list; be careful as the tools don't preserve newlines -->
-    <string name="release_new_features">Punkty zatrzymania\nOpcja wysokiego kontrastu\nZaktualizuj powiadomienie</string>
+    <string name="release_new_features">\n
+        Punkty zatrzymania\n
+        Opcja wysokiego kontrastu\n
+        Zaktualizuj powiadomienie\n
+        Obsługa prostego kiosku dla Androida Q\n
+        Pobierz historię katalogów, nowy interfejs użytkownika\n
+        Poprawki błędów
+    </string>
 
 </resources>

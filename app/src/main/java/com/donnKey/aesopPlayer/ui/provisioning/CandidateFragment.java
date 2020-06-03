@@ -43,6 +43,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -70,6 +72,7 @@ import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,8 +99,9 @@ public class CandidateFragment extends Fragment {
 
     static final int REQUEST_DIR_LOOKUP = 1234;
     private static final String KEY_MOST_RECENT_SOURCE_DIR = "most_recent_source_dir_preference";
-    private SharedPreferences preferences;
     private RecyclerView view;
+
+    private AlertDialog directoriesAlertDialog;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -111,22 +115,30 @@ public class CandidateFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = (RecyclerView)inflater.inflate(R.layout.fragment_candidate_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
-        preferences = globalSettings.appSharedPreferences();
+        SharedPreferences preferences = globalSettings.appSharedPreferences();
         this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
 
-        provisioning.candidateDirectory = new File(
-                preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,
-                    defaultCandidateDirectory.getPath()));
+        provisioning.downloadDirs = globalSettings.getDownloadDirectories();
+        boolean doUpdateDirs = false;
+        if (provisioning.downloadDirs == null) {
+            provisioning.downloadDirs = new ArrayList<>();
+            // Using KEY_MOST_RECENT_SOURCE_DIR is a backwards-compat thing that won't be
+            // needed someday. It's not ever written back.
+            provisioning.downloadDirs.add(0,
+                preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,defaultCandidateDirectory.getPath()));
+            doUpdateDirs = true;
+        }
+        provisioning.candidateDirectory = new File(provisioning.downloadDirs.get(0));
         if (!provisioning.candidateDirectory.exists() || !provisioning.candidateDirectory.isDirectory()) {
             // Some emulators don't appear to come with a Download dir. It seems unlikely that
             // any real device wouldn't, but we can get here bogus-ly on an emulator.
             Toast.makeText(getContext(), getString(R.string.warning_toast_using_default_source),Toast.LENGTH_LONG).show();
             provisioning.candidateDirectory = defaultCandidateDirectory;
             provisioning.candidates.clear();
-
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(KEY_MOST_RECENT_SOURCE_DIR, provisioning.candidateDirectory.getPath());
-            editor.apply();
+            doUpdateDirs = true;
+        }
+        if (doUpdateDirs) {
+            updateDownloadDirs();
         }
 
         provisioning.windowTitle = getString(R.string.fragment_title_add_books);
@@ -163,9 +175,16 @@ public class CandidateFragment extends Fragment {
 
         ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar);
-        actionBar.setTitle(provisioning.windowTitle);
-        actionBar.setSubtitle(provisioning.windowSubTitle);
         actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
+
+        View actionBarTitleFrame = actionBar.getCustomView();
+        actionBarTitleFrame.setOnClickListener((v)-> showDirectoriesDialog());
+        TextView clickableTitle = actionBarTitleFrame.findViewById(R.id.title);
+        clickableTitle.setText(provisioning.windowTitle);
+        TextView clickableSubTitle = actionBarTitleFrame.findViewById(R.id.subtitle);
+        clickableSubTitle.setText(provisioning.windowSubTitle);
+        ImageView downIcon = actionBarTitleFrame.findViewById(R.id.downIcon);
+        downIcon.setVisibility(View.VISIBLE);
 
         ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.VISIBLE);
@@ -256,37 +275,40 @@ public class CandidateFragment extends Fragment {
             return true;
 
         case R.id.search_dir:
-            // We want to find/load from internal, removable SD, and USB.
-            if (Build.VERSION.SDK_INT >= 21) { // L
-                // This is the "right way" for L and above, but it's a lot more complicated
-                // at the result end.
-
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.putExtra("android.content.extra.SHOW_ADVANCED",true);
-                // DocumentsContract.EXTRA_INITIAL_URI: would be useful, but requires API26.
-                // (It also requires a URI as argument.) No workaround discoverable.
-                startActivityForResult(intent, REQUEST_DIR_LOOKUP);
-            }
-            else {
-                // Down-level; works well enough on those
-                final Intent chooserIntent = new Intent (requireContext().getApplicationContext(),
-                        DirectoryChooserActivity.class);
-
-                final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-                        .newDirectoryName("unused")
-                        .initialDirectory(provisioning.candidateDirectory.getPath())
-                        .allowReadOnlyDirectory(true)
-                        .allowNewDirectoryNameModification(true) // does initialDir - false->usual place
-                        .build();
-
-                chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
-                startActivityForResult(chooserIntent, REQUEST_DIR_LOOKUP);
-            }
-            dirLookupPending = true;
-
+            showDirectoriesDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void userSelectDirectory() {
+        // We want to find/load from internal, removable SD, and USB.
+        if (Build.VERSION.SDK_INT >= 21) { // L
+            // This is the "right way" for L and above, but it's a lot more complicated
+            // at the result end.
+
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.putExtra("android.content.extra.SHOW_ADVANCED",true);
+            // DocumentsContract.EXTRA_INITIAL_URI: would be useful, but requires API26.
+            // (It also requires a URI as argument.) No workaround discoverable.
+            startActivityForResult(intent, REQUEST_DIR_LOOKUP);
+        }
+        else {
+            // Down-level; works well enough on those
+            final Intent chooserIntent = new Intent (requireContext().getApplicationContext(),
+                    DirectoryChooserActivity.class);
+
+            final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+                    .newDirectoryName("unused")
+                    .initialDirectory(provisioning.candidateDirectory.getPath())
+                    .allowReadOnlyDirectory(true)
+                    .allowNewDirectoryNameModification(true) // does initialDir - false->usual place
+                    .build();
+
+            chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+            startActivityForResult(chooserIntent, REQUEST_DIR_LOOKUP);
+        }
+        dirLookupPending = true;
     }
 
     // Sometimes we get a UUID that isn't in mounts; this us ugly, but converts it to a real path.
@@ -296,13 +318,16 @@ public class CandidateFragment extends Fragment {
         try {
             StorageManager mStorageManager =
                     (StorageManager) requireContext().getSystemService(Context.STORAGE_SERVICE);
-            Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+            Method getVolumeList = Objects.requireNonNull(mStorageManager).getClass().getMethod("getVolumeList");
             Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
             Method getUuid = storageVolumeClazz.getMethod("getUuid");
             //noinspection JavaReflectionMemberAccess
             Method getPath = storageVolumeClazz.getMethod("getPath");
             Object result = getVolumeList.invoke(mStorageManager);
-            final int length = Array.getLength(result);
+            int length = 0;
+            if (result != null) {
+                length = Array.getLength(result);
+            }
 
             for (int i = 0; i < length; i++) {
                 Object storageVolumeElement = Array.get(result, i);
@@ -417,7 +442,7 @@ public class CandidateFragment extends Fragment {
                     // Down-level; works well enough on those
                     if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
                         pathToDir = new File(
-                                Objects.requireNonNull(data).getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
+                                Objects.requireNonNull(Objects.requireNonNull(data).getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR)));
                     }
                     else {
                         return;
@@ -434,10 +459,7 @@ public class CandidateFragment extends Fragment {
             }
 
             provisioning.candidateDirectory = pathToDir;
-
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(KEY_MOST_RECENT_SOURCE_DIR, pathToDir.getPath());
-            editor.apply();
+            updateDownloadDirs();
 
             // EVERYTHING changed... start from scratch.
             provisioning.candidates.clear();
@@ -564,5 +586,55 @@ public class CandidateFragment extends Fragment {
 
     void notifyDataSetChanged() {
         recycler.notifyDataSetChanged();
+    }
+
+    private void updateDownloadDirs() {
+        // Move the name of the current candidateDirectory to the head of the list
+        // of potential download dirs, removing it if it exists.
+        String current = provisioning.candidateDirectory.getPath();
+        provisioning.downloadDirs.remove(current);
+        provisioning.downloadDirs.remove(current); // just to be sure it doesn't duplicate
+        provisioning.downloadDirs.add(0,current);
+
+        globalSettings.setDownloadDirectories(provisioning.downloadDirs);
+    }
+
+    private void removeFromDownloadDirs(String s) {
+        // Remove an entry
+        provisioning.downloadDirs.remove(s);
+        provisioning.downloadDirs.remove(s); // just to be sure it doesn't duplicate
+
+        globalSettings.setDownloadDirectories(provisioning.downloadDirs);
+    }
+
+    private void showDirectoriesDialog() {
+        DirectoriesViewAdapter directoriesViewAdapter
+            = new DirectoriesViewAdapter(requireActivity(), provisioning.downloadDirs,
+                (s)->{
+                    // Item body clicked... select
+                    provisioning.candidateDirectory = new File(s);
+                    updateDownloadDirs();
+
+                    // EVERYTHING changed... start from scratch.
+                    provisioning.candidates.clear();
+                    resetCandidates();
+                    directoriesAlertDialog.dismiss();
+                },
+                (s)->{
+                    // Item delete icon clicked...
+                    removeFromDownloadDirs(s);
+                    directoriesAlertDialog.dismiss();
+                }
+                );
+
+        directoriesAlertDialog = new AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.download_dir_set_source)
+            .setIcon(R.drawable.ic_launcher)
+            .setAdapter(directoriesViewAdapter,null)
+            .setPositiveButton(R.string.download_dir_new,
+                (a, b)-> userSelectDirectory()
+            )
+            .setNegativeButton(R.string.cancel_label, null)
+            .show();
     }
 }

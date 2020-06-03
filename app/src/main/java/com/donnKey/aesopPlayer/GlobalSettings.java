@@ -36,6 +36,11 @@ import com.donnKey.aesopPlayer.ui.ColorTheme;
 import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 import com.donnKey.aesopPlayer.ui.settings.VersionName;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -120,6 +125,7 @@ public class GlobalSettings {
     public static final String KEY_NEW_VERSION_WEB_PAGE = "new_version_web_page";
     public static final String KEY_NEW_VERSION_POLICY = "new_version_policy";
     public static final String KEY_NEW_VERSION_VERSION = "new_version_version";
+    private static final String KEY_DIRS_LIST = "dirs_list";
 
     private static final String KEY_BROWSING_HINT_SHOWN = "hints.browsing_hint_shown";
     // --Commented out by Inspection (2/25/2019 2:47 PM):private static final String KEY_SETTINGS_HINT_SHOWN = "hints.settings.hint_shown";
@@ -165,14 +171,12 @@ public class GlobalSettings {
     public int getJumpBackPreferenceMs() {
         String valueString = sharedPreferences.getString(
                 KEY_JUMP_BACK, resources.getString(R.string.pref_jump_back_default_value));
-        assert valueString != null;
         return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(valueString));
     }
 
     public long getSleepTimerMs() {
         String valueString = sharedPreferences.getString(
                 KEY_SLEEP_TIMER, resources.getString(R.string.pref_sleep_timer_default_value));
-        assert valueString != null;
         return TimeUnit.SECONDS.toMillis(Long.parseLong(valueString));
     }
 
@@ -186,7 +190,6 @@ public class GlobalSettings {
     public float getPlaybackSpeed() {
         final String valueString = sharedPreferences.getString(
                 KEY_PLAYBACK_SPEED, resources.getString(R.string.pref_playback_speed_default_value));
-        assert valueString != null;
         return Float.parseFloat(valueString);
     }
 
@@ -200,14 +203,12 @@ public class GlobalSettings {
         }
         final String valueString = sharedPreferences.getString(
                 KEY_SNOOZE_DELAY, resources.getString(R.string.pref_snooze_time_default_value));
-        assert valueString != null;
         return Integer.parseInt(valueString);
     }
 
     public int getBlinkRate() {
         final String valueString = sharedPreferences.getString(
                 KEY_BLINK_RATE, resources.getString(R.string.pref_blink_rate_default_value));
-        assert valueString != null;
         return Integer.parseInt(valueString);
     }
 
@@ -263,6 +264,7 @@ public class GlobalSettings {
         sharedPreferences.edit().putBoolean(KEY_SETTINGS_EVER_ENTERED, true).apply();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean browsingHintShown() {
         return sharedPreferences.getBoolean(KEY_BROWSING_HINT_SHOWN, false);
     }
@@ -415,6 +417,43 @@ public class GlobalSettings {
 
     public void setArchiveBooks(boolean b) {
         sharedPreferences.edit().putBoolean(KEY_ARCHIVE_BOOKS, b).apply();
+    }
+
+    public void setDownloadDirectories(ArrayList<String> dirs) {
+        // Can't use get/putStringSet because it's unordered.
+        if (dirs == null) {
+            return;
+        }
+        try {
+            JSONObject jsonDirList = new JSONObject();
+            JSONArray jsonDirs = new JSONArray(dirs);
+            jsonDirList.put(KEY_DIRS_LIST, jsonDirs);
+            sharedPreferences.edit().putString(KEY_DIRS_LIST, jsonDirList.toString()).apply();
+        } catch (Exception e) {
+            /* don't bother */
+        }
+    }
+
+    public ArrayList<String> getDownloadDirectories() {
+        String jsonDirs = sharedPreferences.getString(KEY_DIRS_LIST, null);
+        if (jsonDirs == null) {
+            return null;
+        }
+        try {
+            ArrayList<String> downloadDirs = null;
+            JSONObject jsonObject = (JSONObject) new JSONTokener(jsonDirs).nextValue();
+            JSONArray jsonDownloadDirs = jsonObject.optJSONArray(KEY_DIRS_LIST);
+            if (jsonDownloadDirs != null) {
+                final int count = jsonDownloadDirs.length();
+                downloadDirs = new ArrayList<>(count);
+                for (int i = 0; i < count; ++i) {
+                    downloadDirs.add(jsonDownloadDirs.getString(i));
+                }
+            }
+            return downloadDirs;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public SharedPreferences appSharedPreferences() {

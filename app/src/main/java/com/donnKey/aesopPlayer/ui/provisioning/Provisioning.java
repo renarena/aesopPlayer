@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -129,6 +130,7 @@ public class Provisioning extends ViewModel {
 
     // The cached data we're operating on:
 
+    ArrayList<String> downloadDirs = null;
     // ... current directory containing new books and the books
     File candidateDirectory;
     long candidatesTimestamp;
@@ -233,7 +235,11 @@ public class Provisioning extends ViewModel {
         // Must run inside a task; will be slow particularly for zips
         // We call notifier several times so that there's indication of progress to
         // the user while the long operations of digging into a zip file happen.
-        List<String> files = Arrays.asList(candidateDirectory.list());
+        String[] dirList = candidateDirectory.list();
+        if (dirList == null) {
+            return;
+        }
+        List<String> files = Arrays.asList(dirList);
         Collections.sort(files, String::compareToIgnoreCase);
 
         Candidate candidate = null;
@@ -328,7 +334,7 @@ public class Provisioning extends ViewModel {
             //noinspection ResultOfMethodCallIgnored
             audio.delete();
             //noinspection ResultOfMethodCallIgnored
-            audio.getParentFile().delete();
+            Objects.requireNonNull(audio.getParentFile()).delete();
         }
     }
 
@@ -638,7 +644,7 @@ public class Provisioning extends ViewModel {
                 if (archiveBooks) {
                     // Get the path every time in case there are several AudioBook directories:
                     // We'll always leave them on the same physical filesystem.
-                    File toDir = new File(bookDir.getParentFile().getParentFile(),
+                    File toDir = new File(Objects.requireNonNull(bookDir.getParentFile()).getParentFile(),
                             audioBooksDirectoryName + ".old");
                     if (toDir.exists()) {
                         if (!toDir.canWrite()) {

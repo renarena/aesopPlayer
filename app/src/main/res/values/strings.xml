@@ -280,6 +280,9 @@
     <string name="dialog_colliding_group">Group already exists; no action</string>
     <string name="dialog_cannot_make_group">Unable to create group directory.</string>
     <string name="dialog_cannot_rename_group">Renaming %s to %s failed.</string>
+    <string name="download_dir_set_source">Set Source Directory</string>
+    <string name="download_dir_new">Select New</string>
+    <string name="deletePath">Delete entry</string>
 
     <!-- For translations of strings in arrays.xml -->
     <string name="array_short">Short</string>
@@ -317,5 +320,11 @@
     </plurals>
 
     // Change this with each release as a newline-separated list
-    <string name="release_new_features">Stop Points\nHigh Contrast Option\nUpdate Notification</string>
+    <string name="release_new_features">\n
+        Stop Points\n
+        High Contrast Option\n
+        Update Notification\n
+        Android Q Simple Kiosk support\n
+        Download Directories history, new UI\n
+        Bugfixes</string>
 </resources>

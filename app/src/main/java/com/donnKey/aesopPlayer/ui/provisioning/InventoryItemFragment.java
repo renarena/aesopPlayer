@@ -34,6 +34,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -125,9 +127,16 @@ public class InventoryItemFragment extends Fragment {
 
         provisioning.setListener(() -> handler.post(this::booksChanged));
 
-        actionBar.setTitle(provisioning.windowTitle);
         setTotalSubtitle();
-        actionBar.setSubtitle(provisioning.windowSubTitle);
+
+        View actionBarTitleFrame = actionBar.getCustomView();
+        actionBarTitleFrame.setClickable(false);
+        TextView clickableTitle = actionBarTitleFrame.findViewById(R.id.title);
+        clickableTitle.setText(provisioning.windowTitle);
+        TextView clickableSubTitle = actionBarTitleFrame.findViewById(R.id.subtitle);
+        clickableSubTitle.setText(provisioning.windowSubTitle);
+        ImageView downIcon = actionBarTitleFrame.findViewById(R.id.downIcon);
+        downIcon.setVisibility(View.GONE);
 
         ((ProvisioningActivity) requireActivity()).activeInventoryFragment = this;
     }

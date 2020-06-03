@@ -114,3 +114,15 @@ Download website fails.
 Fix unzip of books when zip file doesn't contain explicit directory entry.
 Handle file renumbering when more than 100 files, separate handling of
 audio files and directories to avoid renumbering unnecessarily.
+
+## Version 1.1.4
+
+Keep a history of (unique) directories used as downloads dirs. Access
+that thru a popup triggered by clicking the DownLoad dir item
+in the Add Books page. Clicking on a history entry changes directly
+to that entry. New entries are added from the popup, and entries
+can be deleted from there by clicking on a delete item entry.
+
+This goes with a web page change on how to install downloadable
+books from OverDrive and rbDigital and the long path to the
+directory OverDrive uses for that.

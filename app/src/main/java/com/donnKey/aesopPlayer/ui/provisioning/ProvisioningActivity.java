@@ -24,6 +24,7 @@
 package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -46,7 +47,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import de.greenrobot.event.EventBus;
 
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -118,8 +122,17 @@ public class ProvisioningActivity extends AppCompatActivity
 
         ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar);
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setBackgroundDrawable(new ColorDrawable(colorFromAttribute(this,R.attr.actionBarBackground)));
+
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        assert inflater != null;
+        @SuppressLint("InflateParams")  // false positive special case
+        View viewCustom = inflater.inflate(R.layout.activity_provisioning_custom_actionbar, null);
+        ActionBar.LayoutParams layout = new ActionBar.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        // We must use layout explicitly or it doesn't do constraint layout "0dp" items correctly.
+        actionBar.setCustomView(viewCustom, layout);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     // Used to tell MainActivity that we're here on purpose.
@@ -436,22 +449,24 @@ public class ProvisioningActivity extends AppCompatActivity
             if (c.isSelected) {
                 File ungroupDir = new File(c.oldDirPath);
                 File parent = ungroupDir.getParentFile();
-                for (String fn : ungroupDir.list()) {
-                    File newLoc = new File(parent, fn);
-                    File oldLoc = new File(ungroupDir,fn);
-                    int n = 0;
-                    while (!oldLoc.renameTo(newLoc)) {
-                        if (n++ > 3) {
-                            break;
+                if (ungroupDir.list() != null) {
+                    for (String fn : Objects.requireNonNull(ungroupDir.list())) {
+                        File newLoc = new File(parent, fn);
+                        File oldLoc = new File(ungroupDir, fn);
+                        int n = 0;
+                        while (!oldLoc.renameTo(newLoc)) {
+                            if (n++ > 3) {
+                                break;
+                            }
+                            new AlertDialog.Builder(this)
+                                    .setTitle(getString(R.string.dialog_title_ungroup_book))
+                                    .setIcon(R.drawable.ic_launcher)
+                                    .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), oldLoc.getPath(), newLoc.getPath()))
+                                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                                    .show();
+                            fn += ".collision";
+                            newLoc = new File(parent, fn);
                         }
-                        new AlertDialog.Builder(this)
-                                .setTitle(getString(R.string.dialog_title_ungroup_book))
-                                .setIcon(R.drawable.ic_launcher)
-                                .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), oldLoc.getPath(), newLoc.getPath()))
-                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
-                                .show();
-                        fn += ".collision";
-                        newLoc = new File(parent, fn);
                     }
                 }
                 // Unless we couldn't empty the directory, this wouldn't fail. If we couldn't empty
