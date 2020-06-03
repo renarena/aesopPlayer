@@ -70,7 +70,7 @@ We'll discuss the details in various places.
     <li>
     Select/deselect this book.
     <li>
-    Name of directory being displayed.
+    Name of directory being used. Click to change that.
     <li>
     Select/deselect all books.
     <li>
@@ -486,22 +486,34 @@ for more on that.
 <h3 id="download-dir" class="anchor-target">...from Other Book Sources on your Device</h3>
 </p>
 <p>
-If you have books on your device that aren't already in <code>Download</code>, you can direct the installer to get books from there instead.
+If you have books on your device that don't happen to be in <code>Download</code>, 
+you can direct the installer to get books from where they are instead.
 The most common reasons are that you are using Cloud storage (more on that 
 <a href="#cloud">here</a>), 
 or you are using physically external storage (see
 <a href="#usb">here</a>).
 To select a new place to load books from, simply click on the 
-<a href="#new-books">three vertical dots (item 8)</a>
-on the upper right of the screen 
-(&vellip;)(called "More" in Android-speak).
-You will see "Select Directory containing New Books"; click that and a new screen will be displayed.
-Use it to find the directory you want, select "Comfirm" or "Select" and it will return you to the Add Books screen, with the new list of books displayed.
+<a href="#new-books">name of the current directory (item 5)</a>
+on the upper part of the Add Books screen.
+You will see a popup window titled "Set Source Directory"; click SELECT&nbsp;NEW and a new screen will be displayed.
+Use that to find the directory you want (the one containing the books, not a specific book), 
+select "Comfirm" or "Select" and it will return you to the Add Books screen, 
+with the new list of books displayed.
 You can then proceed as you previously have.
+<p>
+Once you have selected a new source directory, the Aesop Player will remember the prior directories
+you have used to install books from.
+If you click on the name of the current download directory again, it will list the rememberd ones,
+and you can click on the saved name to go back to it. (Some names get quite long!)
+Clicking on the red "X" will delete the entry.
 </p>
 <p>
-You may have noticed an option "Retain after copy" when you did the above.
-Normally the player will move (not copy) books, but if you select "Retain after copy", it will leave the original alone and make a copy.
+Normally the player deletes the source book as it moves them to <code>AudioBooks</code> because they are so large.
+You can have it retain them instead by clicking on the 
+<a href="#new-books">three vertical dots (item 8)</a>
+on the upper right of the screen 
+(&vellip;)(called "More" in Android-speak)
+and clicking on <strong>Retain after copy</strong>".
 See <a href="#more-books-copying">below</a>.
 </p>
 <h3 id="sd" class="anchor-target">...from SD Drives</h3>
@@ -525,7 +537,9 @@ There's probably a way to make it work, but it may take a couple of tries.
 <p>
 The same tools to select a directory to copy from apply to removable physical storage.
 <p>
-Use the same "Select Directory" screen to select a directory on removable storage.
+Click on the current Downloads directory to use the 
+"Set Source Directory" screen to select a directory 
+on removable storage.
 The exact selection process varies depending on the Android version: on some devices the 
 <span class="more_info">
 <span class="popup">
@@ -540,12 +554,16 @@ It can't hurt to simply try experiment if it isn't obvious, just don't click Sel
 </p>
 <h3 id="usb" class="anchor-target">...from USB Drives</h3>
 <p>
-External physical storage can also be a USB drive ("stick", "thumb drive") that is connected to the device using an "On The Go" cable.
-This is useful because you can load the USB drive on a PC, and then install books when you have the player in hand, likely at
-a location without either a computer or Internet connection.
-Just plug the USB drive into the device using the cable, then start the "Select Directory&hellip;" activity and find the drive.
+External physical storage can also be a USB drive ("stick", "thumb drive") that is connected to the device using an 
+"On The Go" cable.
+This is useful because you can load the USB drive on a PC, and then install books when you have the player in hand,
+frequently at a location without either a computer or Internet connection.
+Just plug the USB drive into the device using the cable, 
+then click the current Download directory and use the "Set Source Directory" screen
+to find the (possibly remembered) drive.
 When done, you can unplug the USB drive and the player will detect that and revert to <code>Download</code>.
-Support for USB drives is spotty on older (particularly Android 4) devices. You should test it if you will want to use it.
+Support for USB drives is spotty on older (particularly Android 4) devices. 
+You should test it if you will want to use it.
 <br>
 The same idea applies to easily physically removable SD cards, but these are very rare - it usually requires powering down the device to change SD cards.
 </p>
@@ -566,9 +584,12 @@ Putting books on to the Cloud and having them automatically downloaded (ready to
 with a remotely administered book reader.
 <br>
 <small>
-Technically&hellip; If they're already in Aesop Book format, they can be put directly into <code>AudioBooks</code> &mdash; Aesop will handle that correctly.
-However, depending on the specific Cloud provider, you might find that books appear and disappear unexpectedly, and if you try to play an
-incomplete download it may yield confusing results. Your tradeoff: convenience vs. consistent behavior. 
+Technically&hellip; If they're already in Aesop Book format, 
+they can be put directly into <code>AudioBooks</code> &mdash; Aesop will handle that correctly.
+However, depending on the specific Cloud provider, you might find that books appear and disappear unexpectedly, 
+and if you try to play an incomplete download it may yield confusing results. 
+(It could also upload an unintended book to the cloud.)
+Your tradeoff: convenience vs. consistent behavior. 
 </small>
 </p>
 <p>
@@ -756,7 +777,7 @@ title change.
 <p>
 Normally, completely deleting books you no longer want is the best solution, but on occasion keeping them is useful.
 If you click the three vertical dots (&vellip;) ("More") 
-(#8 on <a href="#inventory-screen">Book Inventory</a>), you can select "Archive",
+(#8 on <a href="#inventory-screen">Book Inventory</a>), you can select <strong>Archive</strong>,
 and it will put any books you delete in the directory 
 <span class="more_info">
 <span class="popup">
@@ -802,7 +823,7 @@ Be sure no other books are checked.
 <p>
 Now click the "More" button 
 (#8 on <a href="#inventory-screen">Inventory Screen</a>)
-and then <b>Group Selected Books</b>.
+and then <strong>Group Selected Books</strong>.
 Aesop Player will ask for confirmation, and then combine the checked books into a single new book.
 </p>
 <p>
@@ -820,7 +841,7 @@ to fix that. Aesop Player will maintain any file extensions.
 <h4>Ungrouping</h4>
 <p>
 Mistakes do happen, so it is possible to ungroup a grouped book back to the individual books
-by clicking <b>Ungroup one book</b> under "More".
+by clicking <strong>Ungroup one book</strong> under "More".
 Only one book can be ungrouped at a time.
 Doing this into a 
 <a href="#download-dir">download directory</a>
@@ -895,7 +916,7 @@ suggested above.
 The Aesop Player by default fixes any audio file or directory names (except that for the whole book) that it finds
 containing too-short numbers. The numbers are silently converted to multi-digit numbers (with zeros added as needed).
 Although we have not (yet) seen a book where doing this would cause a problem (and many instances where it helps)
-it is possible to disable this by unchecking "Normalize Book Names" using the "More" button (#8 on 
+it is possible to disable this by unchecking <strong>Normalize Book Names</strong> using the "More" button (#8 on 
 <a href="#new-books">New Books</a>)). 
 <h3>Book Progress</h3>
 <p>

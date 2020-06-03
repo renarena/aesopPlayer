@@ -150,7 +150,7 @@
           that would work better for you.
           </p>
         <p>
-        <strong>Alternative #1: Using the Android Overdrive App</strong>
+        <strong>Alternative #1: Using the Android OverDrive App</strong>
         </p>
         <p>
         Prerequisites:
@@ -212,7 +212,7 @@
           An empty Bookshelf is just one or more empty squares with a big "+" and your library name in it.
           <li>
           Click on the library name. 
-          You will have to log in with your library credentials (not Overdrive) when you get to
+          You will have to log in with your library credentials (not OverDrive) when you get to
           your library (once only, probably).
           <li>
           Click on the "Loans" icon (it looks like several books on a bookshelf) or go to 
@@ -236,9 +236,10 @@
               <li>
               Start Aesop, go to Settings, then New Books.
               <li>
-              Click on the three dots at the upper right, and select "Select Directory containing New Books".
+              Click on the current download directory (just under "Add Books").
+              Then click on SELECT&nbsp;NEW.
               <li>
-              It will open a File Search tool. Go up in the storage heirarchy until you reach the top.
+              That will open a File Search tool. Go up in the storage heirarchy until you reach the top.
               (This varies with Android model and the prior history of book installation, so you may have
               to try a few things. In some cases it may present a choice called "Internal". If so, select that.)
               <li>
@@ -250,10 +251,19 @@
               <li>
               You will return to the Aesop New Books screen, with the downloaded titles listed.
               <li>
+              <a href="provisioning.html#fix-titles">
               Touch up the titles 
-              <a href="provisioning.html#fix-titles">if needed</a>
-              (they are likely to be fine) on the New Books screen and then install the
+              </a>
+              if needed (they are likely to be fine) on the New Books screen and then install the
               book(s) by clicking "Install".
+              <li> 
+              <strong>Note:</strong>
+              Thats a lot of clicks to get to the directory containing the OverDrive books.
+              The Aesop Player will remember a history of the various download directories you've used,
+              and instead of clicking SELECT&nbsp;NEW above, you can click on the directory name it has remembered
+              for you. 
+              More details
+              <a href="provisioning.html#download-dir">here</a>.
           </ul>
           </ul>
         <p>
@@ -370,10 +380,10 @@
         read by OverDrive for windows they serve no purpose.
         </p>
         <p>
-        In the step above where you selected a device, you can also select a USB thumb drive. In that case be
+        In the step above where you selected a device, you can also select a USB drive. In that case be
         sure to use "Advanced Options" to create a folder, as it will otherwise place the .mp3 files on the
-        root of the thumb drive (which would mix up the chapters if you downloaded more than one book). 
-        You can transfer from a thumb drive to the Aesop Player as described <a href="provisioning.html#usb">here</a>.
+        root of the USB drive (which would mix up the chapters if you downloaded more than one book). 
+        You can transfer from a USB drive to the Aesop Player as described <a href="provisioning.html#usb">here</a>.
         <p>
         Notes:
         </p>
@@ -404,7 +414,7 @@
         <p>
         There is a way to download and install books that is similar to Alternative #2 for OverDrive, but
         it is more difficult to do than that for OverDrive; we will provide just a variant similar to #1 for OverDrive.
-        There is an rbDigital application you can download for your PC, but we won't use it here.
+        There are rbDigital applications you can download for your PC and device, but we won't them it here.
         </p>
         <p>
         Prerequisites:
@@ -419,7 +429,7 @@
               Your library's Website should provide more information.
               </li>
               <li>
-              Log into rbDigital to prepare a setting to use it with Aesop.
+              Log into rbDigital (via the web page) to prepare a setting to use it with Aesop.
               <li>
               On the rbDigital web page, click the "Hamburger" icon at the upper left, then "My Account",
               then Settings.
@@ -442,10 +452,11 @@
         <p>
         Process:
         </p>
-        <ul>
-          You can check out a book either from your PC, or on the device.
+          <p>
+          You can check out a book either using your PC, or on the device.
           The large screen on the PC is preferable for browsing, but you should follow a somewhat different
           procedure if you do that.
+          </p>
           <ul>
           <li>
           From a PC:
@@ -464,15 +475,17 @@
               At least as of this writing there doesn't seem to be a way to prevent the download from starting.
               (The obvious settings had no effect.)
               <li>
-              Now proceed to the rbDigital web site on your Device, and go to Checked Out in the "Hamburger" menu.
+              Now proceed to the rbDigital web site on your Device (not the app), 
+              and go to Checked Out in the "Hamburger" menu.
               <li>
-              Click on the book you want to download.
+              Click on the book you want to download. (Don't click "Download" from the multi-book
+              screen, you have to go to the individual book to get the right format.)
               <li>
               Under the green Play button, you will find a smaller "Download Chapters" button. Click that.
               It will start a download of the zip file of the book.
           </ul>
           <li>
-          From your device's browser:
+          From your device's browser (not the app):
           <ul>
               <li>
               Log into rbDigital on your device.
@@ -507,7 +520,7 @@
         (It's likely that one of the fields on the book title screen will have a start on a title you can then edit,
         but that is coincidence: the information to create a good title is simply not present.)
         It also may have a preview file (the same one you get when you click "Preview" on the book's web page).
-        It falls alpabetically after the book content, with an unnumbered file name containing "PRE".
+        It falls alphabetically after the book content, with an unnumbered file name containing "PRE".
         You can delete the file with a file manager after you have installed the book, 
         or just ignore it when it plays after the end of the book.
         </p>
@@ -515,6 +528,7 @@
         You can delete the book in the usual ways when you're done, but this does not return the book.
         Use your rbDigital account to return it.
         </p>
+        <p>
         Notes:
         </p>
         <ul>
@@ -522,6 +536,7 @@
         Please honor the Copyright and delete any expired copies.
         </li>
         </ul>
+        </p>
         <p>
         <small>Things change; this worked as of May 2020.</small>
 
