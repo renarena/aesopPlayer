@@ -172,13 +172,34 @@ public class KioskModeSwitcher {
                 KioskModeHandler.controlStatusBarExpansion(context, true);
                 break;
             }
-            case PINNING:
+            case PINNING: {
+                // See note just below for why this:
                 AesopAccessibility.activateCheck();
-                // drop thru
-            case FULL: {
-                // (Remember, this case can't be reached for <21 because the choice is not offered
+
                 // Be cautious not to over-call startAppPinning: it fires the dialog about app
                 // pinning even when it's already pinned.
+                startAppPinning(activity);
+                setNavigationVisibility(activity, false);
+
+                // For the purposes of suppressing the "Got It" popup (see AesopAccessibility),
+                // we need to GUARANTEE an accessibility event after the lock task takes. Simply
+                // sending a generic accessibility event doesn't seem to work because it's (I think)
+                // "behind" the popup. However a Toast does work (yielding a NOTIFICATION_STATE_CHANGED).
+                // Make the toast text match what the system uses.
+                // All Android versions tested showed an occasional failure without this.
+                // L.0 simply NEVER worked when using "Back" (hardware) button to exit settings.
+                // P & Q *almost* always worked without this.
+                // This also must occur so that it occurs after the system puts up the screen
+                // pinning notice.
+                // (When testing: test startup, exiting settings via back arrow and the back button,
+                // and separately startup from "apps" after killing any previous instance. Each of
+                // those showed odd failures.)
+                Toast.makeText(activity, R.string.screen_pinning_toast, Toast.LENGTH_SHORT).show();
+                break;
+            }
+
+            case FULL: {
+                // (Remember, this case can't be reached for <21 because the choice is not offered
                 startAppPinning(activity);
                 setNavigationVisibility(activity,false);
                 break;
@@ -213,16 +234,10 @@ public class KioskModeSwitcher {
         return Build.VERSION.SDK_INT >= 21 && API21.isLockTaskPermitted(context);
     }
 
-    private void startAppPinning(AppCompatActivity activity) {
-        Preconditions.checkState(Build.VERSION.SDK_INT >= 21);
-        //noinspection ConstantConditions
+    private static void startAppPinning(AppCompatActivity activity) {
         if(Build.VERSION.SDK_INT >= 21) { // L
-            try {
-                activity.startLockTask();
-                // The system provides a Toast when it does this.
-            } catch (Exception e) {
-                // Shouldn't be possible
-            }
+            // The system provides a Toast when it does this.
+            activity.startLockTask();
         }
     }
 

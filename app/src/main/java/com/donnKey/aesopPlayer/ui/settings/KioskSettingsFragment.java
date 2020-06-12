@@ -194,7 +194,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 findPreference(KEY_UNREGISTER_DEVICE_OWNER);
 
         if (Build.VERSION.SDK_INT < 21) {
-            // KK and below: no pinning or full Kiosk
+            // 4.x (JB) and below: no pinning or full Kiosk
             // ... device owner not available: display nothing
             if (preferenceUnregisterDeviceOwner != null) {
                 // Already did it
@@ -230,11 +230,12 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             }
             else {
                 kioskPolicies[PINNING_].available = true;
-                if (AesopAccessibility.isAccessibilityConnected() || Build.VERSION.SDK_INT < 28) {
+                // N.B. API21 is weird, but AesopAccessibility works around it. If that should
+                // become a problem, a fix to change behavior here might be needed.
+                if (AesopAccessibility.isAccessibilityConnected()) {
                     kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_2_pinning_acc_OK);
                 }
                 else {
-                    // API 28 started putting up "Got It" warning.
                     kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_2_pinning_need_acc);
                     pinning_permissionsNeeded = true;
                 }

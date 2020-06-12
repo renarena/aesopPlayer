@@ -148,44 +148,12 @@ public class TitleEditFragment extends Fragment {
             addAuthorButton.setOnClickListener((v) -> doAddAuthor(author));
         }
 
-        doneButton.setOnClickListener((v) -> {
-            String s = Objects.requireNonNull(finalTitle.getText()).toString();
-            s = s.replace('/', '-'); // shouldn't happen, but...
-            s = s.trim();
-            if (!s.contains(" ")) {
-                // In the case of a one word title (e.g. "Kidnapped!") be sure there's a space
-                // (Although the author field will usually cover it.)
-                s += " ";
-            }
-            if (provisioning.fragmentParameter instanceof Provisioning.Candidate) {
-                Provisioning.Candidate candidate = (Provisioning.Candidate)provisioning.fragmentParameter;
-                candidate.bookTitle = s;
-                candidate.newDirName = s;
-                candidate.collides = false;
-            }
-            else {
-                // N.B. Already validated on the way in
-                AudioBook book = (AudioBook)provisioning.fragmentParameter;
-
-                if (!book.renameTo(s)) {
-                    doneButton.setText(getString(R.string.user_error_bad_book_name));
-                    doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
-                    doneButton.setEnabled(false);
-                    return;
-                }
-                book.setTitle(s);
-
-                provisioning.booksEvent();
-            }
-
-            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-            fragmentManager.popBackStack();
-        });
+        doneButton.setOnClickListener(this::doTitleChange);
 
         if (collides) {
             doneButton.setText(getString(R.string.user_error_duplicate_book_name));
             doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
-            doneButton.setEnabled(false);
+            doneButton.setOnClickListener(null);
         }
 
         cancelButton.setOnClickListener((v) -> {
@@ -194,6 +162,44 @@ public class TitleEditFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void doTitleChange(View v) {
+        String s = Objects.requireNonNull(finalTitle.getText()).toString();
+        s = s.replace('/', '-'); // shouldn't happen, but...
+        s = s.trim();
+        if (!s.contains(" ")) {
+            // In the case of a one word title (e.g. "Kidnapped!") be sure there's a space
+            // (Although the author field will usually cover it.)
+            // N.B. (6/2020) API 21 and 22 Emulators (but not others) treat a filename
+            // with a trailing space as an error (yields an EINVAL). That causes the sample
+            // file Hamlet to not install. The PreLaunch reports shows correct installation
+            // of Hamlet on Android 5 (API 21), so that seems an emulator bug.
+            s += " ";
+        }
+        if (provisioning.fragmentParameter instanceof Provisioning.Candidate) {
+            Provisioning.Candidate candidate = (Provisioning.Candidate)provisioning.fragmentParameter;
+            candidate.bookTitle = s;
+            candidate.newDirName = s;
+            candidate.collides = false;
+        }
+        else {
+            // N.B. Already validated on the way in
+            AudioBook book = (AudioBook)provisioning.fragmentParameter;
+
+            if (!book.renameTo(s)) {
+                doneButton.setText(getString(R.string.user_error_bad_book_name));
+                doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
+                doneButton.setOnClickListener(null);
+                return;
+            }
+            book.setTitle(s);
+
+            provisioning.booksEvent();
+        }
+
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        fragmentManager.popBackStack();
     }
 
     private void doAddAuthor(TextView author) {
@@ -235,12 +241,15 @@ public class TitleEditFragment extends Fragment {
             if (errMsg != null) {
                 doneButton.setText(errMsg);
                 doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
-                doneButton.setEnabled(false);
+                // (Don't use setEnabled(false) to turn off the button: the error text is unreadable
+                // due to the low contrast that yields).
+                doneButton.setOnClickListener(null);
                 return;
             }
 
             doneButton.setBackgroundColor(colorFromAttribute(requireContext(), R.attr.buttonStartBackground));
             doneButton.setEnabled(true);
+            doneButton.setOnClickListener(TitleEditFragment.this::doTitleChange);
             doneButton.setText(getString(R.string.title_edit_accept_button));
 
             int curPos = finalTitle.getSelectionStart();

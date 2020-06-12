@@ -85,10 +85,12 @@ public class DemoSamplesInstaller {
 
         boolean anythingInstalled = false;
         File[] books = sourceDirectory.listFiles();
-        for (File bookDirectory : books) {
-            boolean success = installSingleBook(bookDirectory, audioBooksDirectory);
-            if (success)
-                anythingInstalled = true;
+        if (books != null) {
+            for (File bookDirectory : books) {
+                boolean success = installSingleBook(bookDirectory, audioBooksDirectory);
+                if (success)
+                    anythingInstalled = true;
+            }
         }
 
         return anythingInstalled;
@@ -115,17 +117,19 @@ public class DemoSamplesInstaller {
             Files.touch(sampleIndicator);
 
             File[] files = sourceBookDirectory.listFiles((dir, filename) -> !TITLES_FILE_NAME.equals(filename));
-            int count = files.length;
-            String[] installedFilePaths = new String[count];
+            if (files != null) {
+                int count = files.length;
+                String[] installedFilePaths = new String[count];
 
-            for (int i = 0; i < count; ++i) {
-                File srcFile = files[i];
-                File dstFile = new File(bookDirectory, srcFile.getName());
-                Files.copy(srcFile, dstFile);
-                installedFilePaths[i] = dstFile.getAbsolutePath();
+                for (int i = 0; i < count; ++i) {
+                    File srcFile = files[i];
+                    File dstFile = new File(bookDirectory, srcFile.getName());
+                    Files.copy(srcFile, dstFile);
+                    installedFilePaths[i] = dstFile.getAbsolutePath();
+                }
+
+                MediaScannerConnection.scanFile(context, installedFilePaths, null, null);
             }
-
-            MediaScannerConnection.scanFile(context, installedFilePaths, null, null);
 
             return true;
         } catch(IOException exception) {
@@ -142,12 +146,14 @@ public class DemoSamplesInstaller {
             String titlesString = Files.toString(file, Charset.forName(TITLES_FILE_CHARSET));
             JSONObject titles = (JSONObject) new JSONTokener(titlesString).nextValue();
             String languageCode = locale.getLanguage();
-            String localizedTitle = titles.optString(languageCode, null);
-            if (localizedTitle == null)
-                localizedTitle = titles.getString(DEFAULT_TITLE_FIELD);
+            String localizedTitle = titles.optString(languageCode, titles.getString(DEFAULT_TITLE_FIELD));
 
             if (!localizedTitle.contains(" ")) {
                 // Be sure the title contains a space so it's used rather than the metadata
+                // N.B. (6/2020) API 21 and 22 Emulators (but not others) treat a filename
+                // with a trailing space as an error (yields an EINVAL). That causes
+                // Hamlet to not install. The PreLaunch reports shows correct installation
+                // of Hamlet on Android 5 (API 21), so that seems an emulator bug.
                 localizedTitle += " ";
             }
             return localizedTitle;

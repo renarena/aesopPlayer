@@ -162,6 +162,7 @@
     <string name="samplesDownloadNotificationTitle">Przykładowe audiobooki dla Aesop Playera</string>
     <string name="info_will_restart">Aesop musi zostać ponownie uruchomiony, aby aktywować tę zmianę. Stanie się to po opuszczeniu Ustawień.</string>
     <string name="info_info">Informacja</string>
+    <string name="screen_pinning_toast">Ekran przypięty</string>
 
     <!-- Accessibility help (not all collected here) -->
     <string name="stopButton">Zatrzymaj odtwarzanie</string>

@@ -126,3 +126,12 @@ can be deleted from there by clicking on a delete item entry.
 This goes with a web page change on how to install downloadable
 books from OverDrive and rbDigital and the long path to the
 directory OverDrive uses for that.
+
+The emulator doesn't behave exactly the same as real hardware
+when doing Application Pinning for API 21-27.
+Get the change in 1.1.3 working for working for those APIs.
+
+Fix low-contrast text when Title Edit cannot proceed due to an
+illegal name.
+
+Minor bugfixes.

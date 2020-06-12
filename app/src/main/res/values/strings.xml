@@ -181,6 +181,9 @@
     <string name="content_description_fragment_init_logo">This application\'s logo during startup</string>
     <string name="info_will_restart">Aesop must restart to activate this change. This will occur when you exit Settings.</string>
     <string name="info_info">Information</string>
+    <!-- Should exactly match what Android uses to say the screen is pinned. That's the resource
+         name they use but it's not available in the android.R.strings -->
+    <string name="screen_pinning_toast">Screen pinned</string>
 
     <!-- Accessibility help (not all collected here) -->
     <string name="stopButton">Stop Playback</string>
