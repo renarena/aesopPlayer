@@ -135,3 +135,7 @@ Fix low-contrast text when Title Edit cannot proceed due to an
 illegal name.
 
 Minor bugfixes.
+
+## Version 1.1.5
+
+Minor bugfixes.
