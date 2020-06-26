@@ -34,7 +34,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -217,7 +216,7 @@ public class DemoSamplesInstallerService extends Service {
     }
 
     private void onFailed(@NonNull String errorMessage) {
-        CrashWrapper.log(Log.DEBUG, TAG,"download or install failed: " + errorMessage);
+        CrashWrapper.log(TAG,"download or install failed: " + errorMessage);
         isDownloading = false;
         eventBus.post(new DemoSamplesInstallationFinishedEvent(false, errorMessage));
         Intent intent = new Intent(BROADCAST_FAILED_ACTION);
@@ -341,7 +340,7 @@ public class DemoSamplesInstallerService extends Service {
                 try {
                     connection.setSSLSocketFactory(new TlsSSLSocketFactory());
                 } catch (KeyManagementException | NoSuchAlgorithmException e) {
-                    CrashWrapper.logException(e);
+                    CrashWrapper.recordException(e);
                     // Nothing much to do here, the app will attempt the download and most likely
                     // fail.
                 }

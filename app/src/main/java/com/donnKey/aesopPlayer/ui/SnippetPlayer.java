@@ -25,7 +25,6 @@
 package com.donnKey.aesopPlayer.ui;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBook;
@@ -93,7 +92,7 @@ public class SnippetPlayer implements PlaybackController.Observer {
 
     @Override
     public void onPlaybackError(File path) {
-        CrashWrapper.log(Log.DEBUG, TAG,"Unable to play snippet: " + path.toString());
+        CrashWrapper.log(TAG,"Unable to play snippet: " + path.toString());
     }
 
     @Override

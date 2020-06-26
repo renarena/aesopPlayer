@@ -36,7 +36,6 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import androidx.core.content.ContextCompat;
-import android.util.Log;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.BookPosition;
@@ -108,7 +107,7 @@ public class PlaybackService
 
     @Override
     public void onDestroy() {
-        CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.onDestroy");
+        CrashWrapper.log(TAG, "PlaybackService.onDestroy");
         super.onDestroy();
         stopPlayback();
     }
@@ -141,7 +140,7 @@ public class PlaybackService
             findQuery: {
                 // There should be a query in progress.
                 // Re-purpose it to start playback (almost always there's only one, but...)
-                CrashWrapper.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create DurationQuery");
+                CrashWrapper.log(TAG,"PlaybackService.startPlayback: create DurationQuery");
                 for (DurationQuery q : queries) {
                     if (q.audioBook == book) {
                         q.isQueryOnly = false;
@@ -154,7 +153,7 @@ public class PlaybackService
                 // Shouldn't ever happen, but just in case
                 durationQueryInProgress = new DurationQuery(player, book, false);
             } else {
-                CrashWrapper.log(Log.DEBUG, TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
+                CrashWrapper.log(TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
                 playbackInProgress = new AudioBookPlayback(
                         player, handler, book, globalSettings.getJumpBackPreferenceMs());
                 playbackInProgress.start();
@@ -166,7 +165,7 @@ public class PlaybackService
         // With debug enabled exoplayer can take a very long time to do this operation.
         // (As in 10s of seconds.)
         if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
-            CrashWrapper.log(Log.DEBUG, TAG,"PlaybackService.computeDuration: create DurationQuery");
+            CrashWrapper.log(TAG,"PlaybackService.computeDuration: create DurationQuery");
             Player queryPlayer = AesopPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
             DurationQuery queryQuery = new DurationQuery(queryPlayer, book, true);
             queries.add(queryQuery);
@@ -229,7 +228,7 @@ public class PlaybackService
             playbackInProgress.stop();
         }
 
-        CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.stopPlayback");
+        CrashWrapper.log(TAG, "PlaybackService.stopPlayback");
         onPlaybackEnded();
     }
 
@@ -239,7 +238,7 @@ public class PlaybackService
         // Notifications should request TRANSIENT_CAN_DUCK so they won't interfere.
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
                 focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.onAudioFocusChange");
+            CrashWrapper.log(TAG, "PlaybackService.onAudioFocusChange");
             stopPlayback();
         }
     }
@@ -252,7 +251,7 @@ public class PlaybackService
     }
 
     private void onPlaybackEnded() {
-        CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.onPlaybackEnded");
+        CrashWrapper.log(TAG, "PlaybackService.onPlaybackEnded");
         durationQueryInProgress = null;
         playbackInProgress = null;
 
@@ -262,7 +261,7 @@ public class PlaybackService
     }
 
     private void onPlayerReleased() {
-        CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.onPlayerReleased");
+        CrashWrapper.log(TAG, "PlaybackService.onPlayerReleased");
         if (playbackInProgress != null || durationQueryInProgress != null) {
             onPlaybackEnded();
         }
@@ -275,6 +274,7 @@ public class PlaybackService
     private void requestAudioFocus() {
         AudioManager audioManager =
                 (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        assert audioManager != null;
         audioManager.requestAudioFocus(
                 this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
@@ -282,6 +282,7 @@ public class PlaybackService
     private void dropAudioFocus() {
         AudioManager audioManager =
                 (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        assert audioManager != null;
         audioManager.abandonAudioFocus(this);
     }
 
@@ -389,7 +390,7 @@ public class PlaybackService
         @Override
         public void onPlaybackEnded() {
             boolean hasMoreToPlay = audioBook.advanceFile();
-            CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.AudioBookPlayback.onPlaybackEnded: " +
+            CrashWrapper.log(TAG, "PlaybackService.AudioBookPlayback.onPlaybackEnded: " +
                     (hasMoreToPlay ? "more to play" : "finished"));
             if (hasMoreToPlay) {
                 BookPosition position = audioBook.getLastPosition();
@@ -456,7 +457,7 @@ public class PlaybackService
 
         @Override
         public void onFinished() {
-            CrashWrapper.log(Log.DEBUG, TAG, "PlaybackService.DurationQuery.onFinished");
+            CrashWrapper.log(TAG, "PlaybackService.DurationQuery.onFinished");
             if (isQueryOnly) {
                 queries.remove(this);
                 // We skip snooze here since it happens "for no good reason" when the
@@ -507,7 +508,7 @@ public class PlaybackService
             currentVolume -= VOLUME_DOWN_STEP;
             player.setPlaybackVolume(currentVolume);
             if (currentVolume <= 0) {
-                CrashWrapper.log(Log.DEBUG, TAG, "SleepFadeOut stop");
+                CrashWrapper.log(TAG, "SleepFadeOut stop");
                 stopPlayback();
             } else {
                 handler.postDelayed(this, STEP_INTERVAL_MS);
@@ -525,7 +526,9 @@ public class PlaybackService
 
         // We'll not try to deal with changing audio devices while playing
         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        assert audioManager != null;
         MediaRouter mediaRouter = (MediaRouter)getApplicationContext().getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        assert mediaRouter != null;
         SharedPreferences preferences = globalSettings.appSharedPreferences();
 
         MediaRouter.RouteInfo routeInfo = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);
@@ -540,7 +543,9 @@ public class PlaybackService
 
     private void restoreSoundInfo() {
         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        assert audioManager != null;
         MediaRouter mediaRouter = (MediaRouter)getApplicationContext().getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        assert mediaRouter != null;
         SharedPreferences preferences = globalSettings.appSharedPreferences();
 
         MediaRouter.RouteInfo routeInfo = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);

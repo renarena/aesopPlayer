@@ -111,7 +111,7 @@ public class SoundBank {
 
             return new Sound(track, frameCount, sampleRate);
         } catch (IOException e) {
-            CrashWrapper.logException(e);
+            CrashWrapper.recordException(e);
             return null;
         }
     }

@@ -42,6 +42,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -138,7 +139,7 @@ public class AudioBookManager {
             public void onException(@NonNull Throwable t) {
                 isInitialized = true;
                 // TODO: clear the list of books?
-                CrashWrapper.logException(t);
+                CrashWrapper.recordException(t);
             }
         });
     }
@@ -149,7 +150,7 @@ public class AudioBookManager {
             // The first scan may fail if it is just after booting and the SD card is not yet
             // mounted. Retry in a while. If it's still empty, then it really is empty and
             // post that.
-            Handler handler = new Handler(Looper.myLooper());
+            Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
             handler.postDelayed(this::scanFiles, TimeUnit.SECONDS.toMillis(10));
             isFirstScan = 1;
             return;

@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
@@ -109,7 +108,7 @@ public class UiControllerPlayback {
     }
 
     public void stopPlayback() {
-        CrashWrapper.log(Log.DEBUG, TAG, "UiControllerPlayback.stopPlayback");
+        CrashWrapper.log(TAG, "UiControllerPlayback.stopPlayback");
         getAudioBookBeingPlayed().insertStop(playbackService.getCurrentTotalPositionMs());
         playbackService.stopPlayback();
     }

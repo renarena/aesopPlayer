@@ -133,7 +133,7 @@ public class DemoSamplesInstaller {
 
             return true;
         } catch(IOException exception) {
-            CrashWrapper.logException(exception);
+            CrashWrapper.recordException(exception);
             deleteTree(bookDirectory,(a,b)->CrashWrapper.log("DemoSamplesInstaller: Unable to clean " + audioBooksDirectory + " after failure."));
             return false;
         }
@@ -158,7 +158,7 @@ public class DemoSamplesInstaller {
             }
             return localizedTitle;
         } catch(IOException | JSONException | ClassCastException exception) {
-            CrashWrapper.logException(exception);
+            CrashWrapper.recordException(exception);
             return null;
         }
     }

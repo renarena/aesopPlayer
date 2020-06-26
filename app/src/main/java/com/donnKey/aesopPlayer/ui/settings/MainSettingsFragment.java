@@ -26,7 +26,6 @@ package com.donnKey.aesopPlayer.ui.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -163,7 +162,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         Objects.requireNonNull(preference).setSummary(BuildConfig.VERSION_NAME);
         preference.setOnPreferenceClickListener(preference1 -> {
             if (BuildConfig.DEBUG) {
-                CrashWrapper.log(Log.DEBUG, TAG, "Forced Crash");
+                CrashWrapper.log(TAG, "Forced Crash");
                 CrashWrapper.crash();
             }
             return true;

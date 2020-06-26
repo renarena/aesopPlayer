@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
@@ -75,8 +74,7 @@ public class UiControllerMain implements ServiceConnection {
 
     private static @Nullable PlaybackService playbackService;
 
-    @SuppressWarnings("NullableProblems")
-    private @NonNull State currentState;
+    private State currentState;
 
     @Inject
     UiControllerMain(@NonNull AppCompatActivity activity,
@@ -110,7 +108,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void onActivityStart() {
-        CrashWrapper.log(Log.DEBUG, TAG,"UI: onActivityStart");
+        CrashWrapper.log(TAG,"UI: onActivityStart");
         if (!audioBookManager.isInitialized()) {
             scanAudioBookFiles();
         }
@@ -126,12 +124,12 @@ public class UiControllerMain implements ServiceConnection {
    }
 
     void onActivityPause() {
-        CrashWrapper.log(Log.DEBUG, TAG, "UI: onActivityPause, state: " + currentState.stateId());
+        CrashWrapper.log(TAG, "UI: onActivityPause, state: " + currentState.stateId());
         currentState.onActivityPause();
     }
 
     void onActivityStop() {
-        CrashWrapper.log(Log.DEBUG, TAG,
+        CrashWrapper.log(TAG,
                 "UI: stopping in state " + currentState.stateId() + " (activity stop)");
 
         // Leave the FSM unchanged and let restart do everything
@@ -166,7 +164,7 @@ public class UiControllerMain implements ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder service) {
-        CrashWrapper.log(Log.DEBUG, TAG, "onServiceConnected");
+        CrashWrapper.log(TAG, "onServiceConnected");
         Preconditions.checkState(playbackService == null);
         playbackService = ((PlaybackService.ServiceBinder) service).getService();
         maybeSetInitialState();
@@ -180,7 +178,7 @@ public class UiControllerMain implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
-        CrashWrapper.log(Log.DEBUG, TAG, "onServiceDisconnected");
+        CrashWrapper.log(TAG, "onServiceDisconnected");
         playbackService = null;
     }
 
@@ -282,7 +280,7 @@ public class UiControllerMain implements ServiceConnection {
     private void changeState(StateFactory newStateFactory) {
         // Since this might be a new instance of the class, we have to do a
         // state change even when it's the same state so listeners are right.
-        CrashWrapper.log(Log.DEBUG, TAG, "UI: change state: " + currentState.stateId() + " to " + newStateFactory);
+        CrashWrapper.log(TAG, "UI: change state: " + currentState.stateId() + " to " + newStateFactory);
         currentState.onLeaveState();
         currentState = newStateFactory.create(this, currentState);
 
@@ -336,7 +334,7 @@ public class UiControllerMain implements ServiceConnection {
                     return new BookListState(mainController, previousState);
                 }
                 else {
-                    CrashWrapper.log(Log.DEBUG, TAG, "UI: ...BOOK_LIST forced to NO_BOOKS");
+                    CrashWrapper.log(TAG, "UI: ...BOOK_LIST forced to NO_BOOKS");
                     return new NoBooksState(mainController, previousState);
                 }
             }

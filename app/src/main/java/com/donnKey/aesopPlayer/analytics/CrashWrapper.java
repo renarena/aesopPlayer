@@ -26,12 +26,10 @@ package com.donnKey.aesopPlayer.analytics;
 
 import android.content.Context;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import io.fabric.sdk.android.Fabric;
-
-public class CrashWrapper //extends com.crashlytics.android.Crashlytics
+public class CrashWrapper
 {
     // Be sure to follow this pattern for any new methods you want to use from Crashlytics.
 
@@ -46,37 +44,33 @@ public class CrashWrapper //extends com.crashlytics.android.Crashlytics
         // Caution here: this is apparently a device-global, persistent setting.
         // In case anything went wrong, just be sure we know the state.
         FirebaseAnalytics.getInstance(applicationContext).setAnalyticsCollectionEnabled(enabled);
-        if (enabled) {
-            Fabric.with(applicationContext, new Crashlytics());
-        }
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(enabled);
     }
 
-    public static void logException(Throwable t) {
+    public static void recordException(Throwable t) {
         if (enabled) {
-            com.crashlytics.android.Crashlytics.logException(t);
+            FirebaseCrashlytics.getInstance().recordException(t);
         }
     }
 
     public static void log(String s) {
         if (enabled) {
-            com.crashlytics.android.Crashlytics.log(s);
+            FirebaseCrashlytics.getInstance().log(s);
         }
     }
 
-    public static void log(int debug, String tag, String s) {
+    public static void log(String tag, String s) {
         if (enabled) {
-            com.crashlytics.android.Crashlytics.log(debug, tag, s);
+            FirebaseCrashlytics.getInstance().log("E/" + tag + s);
         }
     }
 
     public static void crash() {
         if (enabled) {
-            Crashlytics.getInstance().crash();
+            throw new RuntimeException("Test Crash");
         }
         else {
-            // This should crash the app, but never get uploaded to Firebase
-            int i = 0;
-            int j = 1/i;
+            throw new RuntimeException("Unreported test crash");
         }
     }
 }

@@ -37,7 +37,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
@@ -111,7 +110,7 @@ public class UiControllerNoBooks {
                 activity,
                 new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
                 PERMISSION_REQUEST_DOWNLOADS);
-        CrashWrapper.log(Log.DEBUG, TAG, "startSamplesInstallation, "
+        CrashWrapper.log(TAG, "startSamplesInstallation, "
                 + (permissionsAlreadyGranted ? "has permissions" : "requesting permissions"));
         if (permissionsAlreadyGranted)
             doStartSamplesInstallation();
@@ -127,7 +126,7 @@ public class UiControllerNoBooks {
     public void abortSamplesInstallation() {
         Preconditions.checkState(DemoSamplesInstallerService.isDownloading()
                 || DemoSamplesInstallerService.isInstalling());
-        CrashWrapper.log(Log.DEBUG, TAG, "abortSamplesInstallation, isDownloading: " +
+        CrashWrapper.log(TAG, "abortSamplesInstallation, isDownloading: " +
                 DemoSamplesInstallerService.isDownloading());
         // Can't cancel installation.
         if (DemoSamplesInstallerService.isDownloading()) {
@@ -167,7 +166,7 @@ public class UiControllerNoBooks {
 
     private void showInstallProgress(boolean isAlreadyInstalling) {
         Preconditions.checkState(progressReceiver == null);
-        CrashWrapper.log(Log.DEBUG, TAG, "showInstallProgress, " +
+        CrashWrapper.log(TAG, "showInstallProgress, " +
                 (isAlreadyInstalling ? "installation in progress" : "starting installation"));
         NoBooksUi.InstallProgressObserver uiProgressObserver =
                 ui.showInstallProgress(isAlreadyInstalling);
@@ -182,7 +181,7 @@ public class UiControllerNoBooks {
 
     private void stopProgressReceiver() {
         Preconditions.checkState(progressReceiver != null);
-        CrashWrapper.log(Log.DEBUG, TAG, "stopProgressReceiver");
+        CrashWrapper.log(TAG, "stopProgressReceiver");
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(progressReceiver);
         progressReceiver.stop();
         progressReceiver = null;
@@ -208,7 +207,7 @@ public class UiControllerNoBooks {
             if (observer == null)
                 return;
 
-            CrashWrapper.log(Log.DEBUG, TAG, "progress receiver: " + intent.getAction());
+            CrashWrapper.log(TAG, "progress receiver: " + intent.getAction());
             if (DemoSamplesInstallerService.BROADCAST_DOWNLOAD_PROGRESS_ACTION.equals(
                     intent.getAction())) {
                 int transferredBytes = intent.getIntExtra(

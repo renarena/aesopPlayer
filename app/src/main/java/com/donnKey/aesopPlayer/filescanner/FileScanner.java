@@ -36,6 +36,7 @@ import com.donnKey.aesopPlayer.util.MediaScannerUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -88,7 +89,7 @@ public class FileScanner {
 
     private static void ensureAudioBooksDirectory(Context applicationContext, File path) {
         if (!path.exists()) {
-            if (path.getParentFile().canWrite()) {
+            if (Objects.requireNonNull(path.getParentFile()).canWrite()) {
                 if (path.mkdirs()) {
                     // The MediaScanner doesn't work so well with directories (registers them as regular
                     // files) so make it scan a dummy.
@@ -98,13 +99,13 @@ public class FileScanner {
                             MediaScannerUtil.scanAndDeleteFile(applicationContext, dummyFile);
                         }
                     } catch (IOException e) {
-                        CrashWrapper.logException(e);
+                        CrashWrapper.recordException(e);
                     }
                 }
             } else {
                 // This should not happen because permissions are granted by this point.
                 // But it does, at least on some unofficial CyanogenMod systems.
-                CrashWrapper.logException(new Exception(
+                CrashWrapper.recordException(new Exception(
                         "Unable to write to: " + path.getParentFile().getAbsolutePath()));
             }
         }
