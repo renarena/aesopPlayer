@@ -316,8 +316,7 @@ public class Provisioning extends ViewModel {
         }
 
         if (candidate.bookTitle == null || candidate.bookTitle.length() <= 0){
-            candidate.bookTitle = AudioBook.filenameCleanup(candidate.newDirName);
-            candidate.bookTitle = AudioBook.titleCase(candidate.bookTitle);
+            candidate.bookTitle = AudioBook.filenameGuessTitle(candidate.newDirName);
         }
 
         // If the audio file is in the cache dir, it's extracted from a zip, and should

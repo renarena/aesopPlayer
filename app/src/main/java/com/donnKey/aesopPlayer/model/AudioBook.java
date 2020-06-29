@@ -144,6 +144,10 @@ public class AudioBook {
     }
 
     static public String computeTitle (TitleAndAuthor title) {
+        if (title.title == null || title.title.equals("")) {
+            // empty title; use the default.
+            return null;
+        }
         String newTitle = title.title;
         if (title.author != null) {
             newTitle += " - " + title.author;
@@ -450,6 +454,52 @@ public class AudioBook {
         if (dot>0 && name.length()-dot <= 4) {
             name = name.substring(0,dot);
         }
+        return name;
+    }
+
+    public static String filenameGuessTitle(String name) {
+        // If we're installing a book and haven't found a good title, try to infer
+        // something from the directory/zip file name. Informed guesswork at best.
+        if (name == null) {
+            return "Unknown Title";
+        }
+
+        int dot = name.lastIndexOf('.');
+        if (dot>0 && name.length()-dot <= 4) {
+            name = name.substring(0,dot);
+        }
+
+        name = name.replace('/', '-');
+
+        // delete all pure-digit, underscore-delimited, strings
+        name = name.replaceAll("(^|_)\\d+(_|$)", "_");
+
+        // Underscore->space (so it's a word boundary!)
+        name = name.replace('_', ' ');
+
+        // delete the words mp3, 64kb, and librivox if present
+        // (Not that I dislike Librivox, but it doesn't belong in a spoken title.)
+        name = name.replaceAll("(?i)\\bmp3\\b", " ");
+        name = name.replaceAll("(?i)\\b64kb\\b", " ");
+        name = name.replaceAll("(?i)\\blibrivox\\b", " ");
+
+        // delete things that look like serial numbers (with a leading letter, then all digits)
+        name = name.replaceAll("\\b[A-Za-z]\\d+\\b", "");
+
+        // Convert camel case to separate words
+        name = name.replaceAll("(\\p{javaLowerCase})(\\p{javaUpperCase})(\\p{javaLowerCase})", "$1 $2$3");
+
+        // clean up any multiple spaces
+        name = name.replaceAll(" +", " ");
+        name = name.replaceAll("^ ", "");
+        name = name.replaceAll(" $", "");
+
+        name = AudioBook.titleCase(name);
+
+        if (name.length() <= 0) {
+            return "Unknown Title";
+        }
+
         return name;
     }
 
