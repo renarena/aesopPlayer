@@ -69,7 +69,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
         holder.selected.setOnCheckedChangeListener(null);
 
         holder.book = provisioning.bookList[position].book;
-        holder.bookTitle.setText(holder.book.getTitle());
+        holder.bookTitle.setText(holder.book.getDisplayTitle());
         holder.view.setBackgroundColor(colorFromAttribute(holder.view.getContext(),
                 holder.book.getColourScheme().backgroundColourAttrId));
         holder.bookDirectory.setText(holder.book.getDirectoryName());

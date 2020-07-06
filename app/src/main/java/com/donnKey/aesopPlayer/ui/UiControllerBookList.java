@@ -109,14 +109,14 @@ public class UiControllerBookList {
         // Except in maintenance mode, so it doesn't chatter when being remotely maintained.
         if (!previousBook.equals(bookId)) {
             if (!globalSettings.isMaintenanceMode()) {
-                speak(book.getTitle());
+                speak(book.getDisplayTitle());
             }
             previousBook = bookId;
         }
         // Otherwise, don't do it very often (This is policy that might change)
         else if (now - lastTitleAnnouncedAt > MINIMUM_INTERVAL_BETWEEN_TITLES) {
             if (!globalSettings.isMaintenanceMode()) {
-                speak(book.getTitle());
+                speak(book.getDisplayTitle());
             }
         }
         lastTitleAnnouncedAt = now;

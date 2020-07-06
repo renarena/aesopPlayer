@@ -83,7 +83,7 @@ public class FragmentBookItem extends BookListChildFragment {
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
             TextView textView = view.findViewById(R.id.title);
-            textView.setText(book.getTitle());
+            textView.setText(book.getDisplayTitle());
 
             @ColorInt int textColour = colorFromAttribute(requireContext(),
                 book.getColourScheme().textColourAttrId);

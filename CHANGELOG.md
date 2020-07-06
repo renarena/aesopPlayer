@@ -137,5 +137,12 @@ illegal name.
 Minor bugfixes.
 
 ## Version 1.1.5
+Extract a possible title from the directory name (guesswork) if there's nothing better.
 
-Minor bugfixes.
+Extract a title and author from a .opf file if one is present. Pretty up title extraction
+logic to make it cleaner. Do a better job of removing book title from chapter titles.
+
+Make unzipping a lot faster by using files instead of streams. Necessary for .opf change
+when .opf is in a zip file.
+
+Minor bugfixes. Android Studio 4 gradle and lib updates.

@@ -202,7 +202,7 @@ public class AudioBookManager {
         }
 
         if (audioBooks.size() > 0) {
-            Collections.sort(audioBooks, (lhs, rhs) -> lhs.getTitle().compareToIgnoreCase(rhs.getTitle()));
+            Collections.sort(audioBooks, (lhs, rhs) -> lhs.getDisplayTitle().compareToIgnoreCase(rhs.getDisplayTitle()));
 
             assignColoursToNewBooks();
         }

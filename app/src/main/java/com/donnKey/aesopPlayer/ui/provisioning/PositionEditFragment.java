@@ -98,7 +98,7 @@ public class PositionEditFragment extends Fragment {
         ((ProvisioningActivity) requireActivity()).navigation.
                 setVisibility(View.GONE);
 
-        title.setText(book.getTitle());
+        title.setText(book.getDisplayTitle());
 
         String positionStr = formatDurationShort(currentTotalMs);
         positionStr = getString(R.string.pref_current_position_note, positionStr);
@@ -131,6 +131,7 @@ public class PositionEditFragment extends Fragment {
                     InputMethodManager imm = (InputMethodManager)
                             requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
+                    Objects.requireNonNull(imm);
                     imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
                     actionId = EditorInfo.IME_ACTION_DONE;
                 }
@@ -164,6 +165,7 @@ public class PositionEditFragment extends Fragment {
         editor.requestFocus();
         InputMethodManager imm = (InputMethodManager)
                 requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        Objects.requireNonNull(imm);
         imm.showSoftInput(editor, InputMethodManager.SHOW_FORCED);
     }
 
@@ -173,6 +175,7 @@ public class PositionEditFragment extends Fragment {
         // Method for hiding the keyboard is obscure at best, but it works
         InputMethodManager imm = (InputMethodManager)
                 requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        Objects.requireNonNull(imm);
         imm.hideSoftInputFromWindow(editor.getWindowToken(), 0);
         super.onStop();
     }

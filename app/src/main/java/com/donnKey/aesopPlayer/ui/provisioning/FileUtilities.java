@@ -23,6 +23,7 @@
  */
 package com.donnKey.aesopPlayer.ui.provisioning;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,8 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
@@ -105,6 +109,10 @@ public class FileUtilities {
                     return false;
                 }
                 deleteTree(oldZip, logError);
+                // Just in case there's a nested zip (unlikely in the extreme).
+                if (!expandInnerZips(newDir, progress, logError)) {
+                    return false;
+                }
                 continue;
             }
             File file = new File(targetDir, fn);
@@ -129,9 +137,8 @@ public class FileUtilities {
             deleteTree(targetTmp,logError);
         }
 
-        try (FileInputStream fileData = new FileInputStream(zipName);
-             ZipInputStream zipData = new ZipInputStream(fileData)
-        ) {
+        try ( ZipFile zipData = new ZipFile(zipName) )
+        {
             if (innerUnzipAll(zipData, targetTmp, progress, logError)) {
                 // All went well, rename
                 return renameTo(targetTmp, targetDir, logError);
@@ -146,12 +153,20 @@ public class FileUtilities {
         }
     }
 
-    private static boolean innerUnzipAll(ZipInputStream zipData, File targetTmp,
-                                        StringCallback progress, ErrorCallback logError)
-            throws IOException
-    {
-        ZipEntry subFile;
-        while ((subFile = zipData.getNextEntry()) != null) {
+    private static boolean innerUnzipAll(ZipFile zipData, File targetTmp,
+                                        StringCallback progress, ErrorCallback logError) {
+        /*
+           Nested zip files are possible, but we haven't seen one yet for audiobooks.
+           Big performance concern here: we'd either have to extract the inner zip
+           as a new file or use a zip stream to unpack it. Zip streams are VERY slow
+           compared to files, but if the inner zip is big, we hit space issues
+           However, when unpacking a book, we call expandInnerZips() after this runs,
+           so any book will get cleaned up. (And probably we don't want to do that for
+           non-books anyway.)
+         */
+        Enumeration<? extends ZipEntry> entryList = zipData.entries();
+        while (entryList.hasMoreElements()) {
+            ZipEntry subFile = entryList.nextElement();
             String newFile_name = subFile.getName();
             File newFile = new File(targetTmp, newFile_name);
             progress.Callback(newFile_name);
@@ -160,15 +175,8 @@ public class FileUtilities {
                     return false;
                 }
             }
-            else if (isZip(newFile_name)) {
-                ZipInputStream newZipData = new ZipInputStream(zipData);
-                File newTargetTmp = new File(targetTmp, newFile_name.substring(0, newFile_name.length()-4));
-                if (!innerUnzipAll(newZipData, newTargetTmp, progress, logError)) {
-                    return false;
-                }
-            }
             else {
-                // There isn't necessarily a zip directory entry prior to a file that goes into
+                // There isn't necessarily a zip Directory Entry prior to a file that goes into
                 // a new sub-directory. Sort that out.
                 File targetTmpDir = targetTmp;
                 int pathEnd = newFile_name.lastIndexOf('/');
@@ -179,9 +187,10 @@ public class FileUtilities {
                 if (!mkdirs(targetTmpDir, logError)) {
                     return false;
                 }
-                try (OutputStream to = new FileOutputStream(newFile))
+                try (BufferedInputStream from = new BufferedInputStream(zipData.getInputStream(subFile));
+                     OutputStream to = new FileOutputStream(newFile))
                 {
-                    IOUtils.copy(zipData, to);
+                    IOUtils.copy(from, to);
                 }
                 catch (IOException e) {
                     logError.Callback(SEVERE, String.format(getAppContext()
@@ -196,16 +205,20 @@ public class FileUtilities {
                     return false;
                 }
             }
-            zipData.closeEntry();
         }
         return true;
     }
 
-    private static String getZipAudioPath(File zipFile, String sourceName) {
-        try (FileInputStream fileData = new FileInputStream(zipFile);
-             ZipInputStream zipData = new ZipInputStream(fileData)
-        ) {
-            return innerGetZipAudioPath(zipData, sourceName);
+    public static File findZipFileMatching(File zipFile, FileFilter filter) {
+        String baseName = zipFile.getName();
+        int extensionPos = baseName.lastIndexOf('.');
+        if (extensionPos > 0) {
+            baseName = baseName.substring(0, extensionPos);
+        }
+
+        try (ZipFile fileData = new ZipFile(zipFile))
+        {
+            return innerFindZipFileMatching(baseName, fileData, filter);
         }
         catch (IOException e) {
             // ignore
@@ -213,24 +226,24 @@ public class FileUtilities {
         return null;
     }
 
-    private static String innerGetZipAudioPath(ZipInputStream inputData, String sourceName) {
+    private static File innerFindZipFileMatching(String tmpdirName, ZipFile inputData, FileFilter filter) {
         try {
-            ZipEntry zipMember;
-            while ((zipMember = inputData.getNextEntry()) != null) {
-                String name = zipMember.getName();
-                if (FilesystemUtil.isAudioPath(name)) {
+            Enumeration<? extends ZipEntry> entryList = inputData.entries();
+            while (entryList.hasMoreElements()) {
+                ZipEntry entry = entryList.nextElement();
+                String name = entry.getName();
 
+                if (filter.filterFunc(name)) {
                     // Some zippers put in a partial path name as the filename; for this,
                     // just strip that out.
                     File longName = new File("", name);
                     name = longName.getName();
 
-                    // Make a copy of the data file in <cacheDir>/<sourceName>/name
-                    // We want a "real" audio file name there, so we use the source
-                    // name to make it unique (so we don't collide when 2 books both
-                    // have a "Chapter 1.mp3", e.g.)
+                    // Make a copy of the data file in <cacheDir>/basename(zipFile)/name
+                    // We use the source name to make it unique (so we don't collide when 2 books both
+                    // have a "Book.opf", e.g.)
                     File cache = getAppContext().getCacheDir();
-                    File tmpDir = new File(cache,sourceName);
+                    File tmpDir = new File(cache, tmpdirName);
                     if (tmpDir.exists()) {
                         // Just in case
                         deleteTree(tmpDir, (a,b)->{});
@@ -239,24 +252,29 @@ public class FileUtilities {
                         return null;
                     }
                     File targetFile = new File(tmpDir, name);
-                    try(OutputStream toStream = new FileOutputStream(targetFile)) {
-                        IOUtils.copy(inputData, toStream);
+                    try (BufferedInputStream from = new BufferedInputStream(inputData.getInputStream(entry));
+                         OutputStream to = new FileOutputStream(targetFile))
+                    {
+                        IOUtils.copy(from, to);
                     }
-                    return targetFile.getPath();
+                    // files closed by try-with-resources
+                    return targetFile;
                 }
-                if (isZip(name)) {
-                    // nested zip file.
-                    ZipInputStream zipData = new ZipInputStream(inputData);
-                    return innerGetZipAudioPath(zipData, sourceName);
-                }
+                /*
+                   Nested zip files are possible, but we haven't seen one yet for audiobooks.
+                   Big performance concern here: we'd either have to extract the inner zip
+                   as a new file or use a zip stream to do this. Zip streams are VERY slow compared
+                   to files, but if the inner zip is big, we hit space issues.
+                   For picking individual files, we'll assume we won't need to deal with that.
+                 */
             }
         }
         catch (IOException e) {
             // ignore
         }
+
         return null;
     }
-
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean mkdirs(File f, ErrorCallback logError)
@@ -430,6 +448,7 @@ public class FileUtilities {
         return fileNameFix(files, tree, "(^|\\D)(\\d\\d\\d)(\\D|$)", "$10$2$3", logError);
     }
 
+    @SuppressWarnings("SameParameterValue")
     static private boolean fileNameFix(ArrayList<String> files, File tree, String p1, String p2, ErrorCallback logError)
     {
         for (int i=0; i<files.size(); i++) {
@@ -474,36 +493,52 @@ public class FileUtilities {
         return true;
     }
 
-    // Find the first audio file (name) in the tree and return it; if it's
-    // in a zip file, unpack it into cacheDir and return that. (parentPath may
-    // be an audio file directly.)
-    static String getAudioPath(String parentPath, String sourceName) {
-        if (FilesystemUtil.isAudioPath(parentPath)) {
+    // Find the (first) file in parentPath with the desired pattern and return the File
+    // The pattern is whatever filter looks for
+    public static File findFileMatching(File parentPath, FileFilter filter) {
+        if (filter.filterFunc(parentPath.getName())) {
             return parentPath;
         }
-        if (isZip(parentPath)) {
-            File f = new File(parentPath);
-            // The result will be in CacheDir
-            return getZipAudioPath(f, sourceName);
-        }
-        File parent = new File(parentPath);
-        if (parent.isDirectory()) {
-            String[] files = parent.list();
 
+        if (isZip(parentPath.getName())) {
+            // The result will be in CacheDir
+            return findZipFileMatching(parentPath, filter);
+        }
+
+        if (parentPath.isDirectory()) {
+            String[] files = parentPath.list();
             if (files == null) {
                 return null;
             }
-
+            // Sorted for predictability
+            Arrays.sort(files, String::compareTo);
             for (String fileName:files) {
-                File f = new File(parent, fileName);
-                String t;
-                if ((t = getAudioPath(f.getPath(), sourceName)) != null) {
+                File t = findFileMatching(new File(parentPath,fileName), filter);
+                if (t != null) {
                     return t;
                 }
             }
-            return null;
         }
 
         return null;
+    }
+
+    public static void removeIfTemp(File file) {
+        File cache = getAppContext().getCacheDir();
+        String cacheName = cache.getPath();
+        if (file.getName().regionMatches(0, cacheName, 0, cacheName.length())) {
+            // It's in a directory named by the original dir name in which it was found;
+            // delete both directory and file. This should never fail, but if it does
+            // Android will clean up later, and there's nothing sensible to do about it
+            // since it has no consequence for the user.
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+            //noinspection ResultOfMethodCallIgnored
+            Objects.requireNonNull(file.getParentFile()).delete();
+        }
+    }
+
+    public interface FileFilter {
+        boolean filterFunc(String name);
     }
 }

@@ -60,7 +60,6 @@ import androidx.lifecycle.ViewModel;
 import de.greenrobot.event.EventBus;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
-import static com.donnKey.aesopPlayer.ui.provisioning.FileUtilities.treeNameFix;
 
 // Serves as a cache for inter-fragment communication
 public class Provisioning extends ViewModel {
@@ -74,7 +73,7 @@ public class Provisioning extends ViewModel {
     static class Candidate {
         String newDirName;
         String oldDirPath;
-        String audioPath;
+        File audioPath;
         String audioFile;
         String metadataTitle;
         String metadataAuthor;
@@ -95,13 +94,12 @@ public class Provisioning extends ViewModel {
             this.collides = false;
         }
 
-        void fill (String dirName, String dirPath, String audioPath) {
+        void fill (@NonNull String dirName, @NonNull String dirPath, @NonNull File audioPath) {
             this.newDirName = dirName;
             this.oldDirPath = dirPath;
             this.audioPath = audioPath;
 
-            File f = new File(audioPath);
-            this.audioFile = f.getName();
+            this.audioFile = audioPath.getName();
         }
     }
 
@@ -253,17 +251,16 @@ public class Provisioning extends ViewModel {
             candidate.newDirName = AudioBook.filenameCleanup(fileName);
             notifier.notifier();
 
-            File file = new File(candidateDirectory, fileName);
-            String pathToTarget = file.getPath();
+            File pathToTarget = new File(candidateDirectory, fileName);
 
             // This might return a file in the cache dir, which should later be deleted.
             // This can be expensive depending on the content
-            String audioPath = FileUtilities.getAudioPath(pathToTarget, candidate.newDirName);
+            File audioPath = FileUtilities.findFileMatching(pathToTarget, FilesystemUtil::isAudioPath);
 
             if (audioPath != null) {
                 candidate.fill(
                         AudioBook.filenameCleanup(fileName),
-                        pathToTarget,
+                        pathToTarget.getPath(),
                         audioPath);
 
                 if (scanForDuplicateAudioBook(candidate.newDirName)) {
@@ -301,40 +298,24 @@ public class Provisioning extends ViewModel {
     }
 
     @WorkerThread
-    private void computeBookTitle(Candidate candidate) {
+    private void computeBookTitle(@NonNull Candidate candidate) {
         // candidate.audioPath must be filled in, or this wouldn't be a candidate.
-        AudioBook.TitleAndAuthor title;
-        title = AudioBook.metadataTitle(candidate.audioPath);
+        AudioBook.TitleAndAuthor title = AudioBook.extractTitle(new File(candidate.oldDirPath), candidate.audioPath);
 
         candidate.metadataTitle = title.title;
         candidate.metadataAuthor = title.author;
-        candidate.bookTitle = AudioBook.computeTitle(title);
 
         if (candidate.newDirName.contains(" ")) {
             candidate.bookTitle = AudioBook.filenameCleanup(candidate.newDirName);
-            return;
         }
-
-        if (candidate.bookTitle == null || candidate.bookTitle.length() <= 0){
-            candidate.bookTitle = AudioBook.filenameGuessTitle(candidate.newDirName);
+        else {
+            candidate.bookTitle = AudioBook.computeTitle(title);
         }
 
         // If the audio file is in the cache dir, it's extracted from a zip, and should
         // be tossed now that we've processed it. Otherwise, it's a real file and should
         // be left alone.
-        File cache = getAppContext().getCacheDir();
-        String cacheName = cache.getPath();
-        if (candidate.audioPath.regionMatches(0, cacheName,0,cacheName.length())) {
-            File audio = new File(candidate.audioPath);
-            // It's in a directory named by the original dir name in which it was found;
-            // delete both directory and file. This should never fail, but if it does
-            // Android will clean up later, and there's nothing sensible to do about it
-            // since it has no consequence for the user.
-            //noinspection ResultOfMethodCallIgnored
-            audio.delete();
-            //noinspection ResultOfMethodCallIgnored
-            Objects.requireNonNull(audio.getParentFile()).delete();
-        }
+        FileUtilities.removeIfTemp(candidate.audioPath);
     }
 
     @WorkerThread
@@ -421,7 +402,7 @@ public class Provisioning extends ViewModel {
                 candidate.isSelected = false;
                 candidates.remove(candidate);
                 if (renameFiles) {
-                    treeNameFix(newTree, this::logResult);
+                    FileUtilities.treeNameFix(newTree, this::logResult);
                 }
             }
 
@@ -508,6 +489,13 @@ public class Provisioning extends ViewModel {
                 }
                 candidate.isSelected = false;
 
+                // Just in case there are any inner zips that we unpacked.
+                if (!FileUtilities.expandInnerZips(toDir,
+                        (fn) -> progress.progress(ProgressKind.SEND_TOAST, fn),
+                        this::logResult)) {
+                    break;
+                }
+
                 if (!retainBooks) {
                     if (!fromDir.delete()) {
                         logResult(Severity.SEVERE, String.format(getAppContext().getString(R.string.error_could_not_delete_book), fromDir.getPath()));
@@ -588,7 +576,7 @@ public class Provisioning extends ViewModel {
             }
 
             if (renameFiles) {
-                treeNameFix(newTree, this::logResult);
+                FileUtilities.treeNameFix(newTree, this::logResult);
             }
 
             if (retainBooks) {
@@ -649,7 +637,7 @@ public class Provisioning extends ViewModel {
                         if (!toDir.canWrite()) {
                             logResult(Severity.SEVERE, String.format(getAppContext().getString(
                                     R.string.error_archive_target_not_writable),
-                                    toDir.getPath(), book.book.getTitle()));
+                                    toDir.getPath(), book.book.getDisplayTitle()));
                             //noinspection UnnecessaryLabelOnContinueStatement
                             continue DeleteLoop;
                         }

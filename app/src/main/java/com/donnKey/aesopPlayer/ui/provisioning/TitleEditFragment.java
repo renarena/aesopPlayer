@@ -101,21 +101,22 @@ public class TitleEditFragment extends Fragment {
             finalTitle.setText(candidate.bookTitle);
             directoryName.setText(AudioBook.filenameCleanup(candidate.newDirName));
             audioFileName.setText(AudioBook.filenameCleanup(candidate.audioFile));
-            audioTitle.setText(AudioBook.filenameCleanup(candidate.metadataTitle));
-            author.setText(AudioBook.filenameCleanup(candidate.metadataAuthor));
+            // Filename cleanup already done
+            audioTitle.setText(candidate.metadataTitle);
+            author.setText(candidate.metadataAuthor);
             collides = candidate.collides;
         }
         else if (provisioning.fragmentParameter instanceof AudioBook) {
             AudioBook book = (AudioBook)provisioning.fragmentParameter;
 
-            AudioBook.TitleAndAuthor titleAndAuthor
-                    = AudioBook.metadataTitle(book.getFile(book.getLastPosition()));
-            originalTitle = book.getTitle();
-            finalTitle.setText(book.getTitle());
+            AudioBook.TitleAndAuthor titleAndAuthor = book.getTitleInfo();
+            originalTitle = book.getDisplayTitle();
+            finalTitle.setText(book.getDisplayTitle());
             directoryName.setText(AudioBook.filenameCleanup(book.getPath().getName()));
-            audioFileName.setText(AudioBook.filenameCleanup(book.getFile(book.getLastPosition()).getName()));
-            audioTitle.setText(AudioBook.filenameCleanup(titleAndAuthor.title));
-            author.setText(AudioBook.filenameCleanup(titleAndAuthor.author));
+            audioFileName.setText(AudioBook.filenameCleanup(book.getFile(book.getBegin()).getName()));
+            // Filename cleanup already done
+            audioTitle.setText(titleAndAuthor.title);
+            author.setText(titleAndAuthor.author);
         }
         else {
             throw new RuntimeException("Improper Parameter to TitleEditFragment");
@@ -139,7 +140,7 @@ public class TitleEditFragment extends Fragment {
         audioFileName.setOnClickListener((v) -> finalTitle.setText(audioFileName.getText()));
         audioTitle.setOnClickListener((v) -> finalTitle.setText(audioTitle.getText()));
         normalizeButton.setOnClickListener((v) ->
-                finalTitle.setText(AudioBook.titleCase(Objects.requireNonNull(finalTitle.getText()).toString())));
+                finalTitle.setText(AudioBook.titleClean(Objects.requireNonNull(finalTitle.getText()).toString())));
 
         if (author.getText() != null) {
             addAuthorButton.setEnabled(true);

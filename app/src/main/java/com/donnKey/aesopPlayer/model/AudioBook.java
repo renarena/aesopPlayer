@@ -28,6 +28,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.donnKey.aesopPlayer.ui.provisioning.FileUtilities;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -55,6 +57,7 @@ import de.greenrobot.event.EventBus;
 public class AudioBook {
 
     static public class TitleAndAuthor {
+        // These fields should be case-correct and free of _ and / characters.
         public final String title;
         public final String author;
         TitleAndAuthor(String title, String author) {
@@ -75,16 +78,18 @@ public class AudioBook {
     private BookPosition lastPosition;
     private long totalDuration = UNKNOWN_POSITION;
     private boolean completed = false;
+    private TitleAndAuthor titleInfo;
+    private String displayTitle;
 
     private UpdateObserver updateObserver;
 
-    public AudioBook(FileSet fileSet) {
+    public AudioBook(@NonNull FileSet fileSet) {
         this.fileSet = fileSet;
         this.lastPosition = new BookPosition(0, 0);
         this.fileDurations = new ArrayList<>(fileSet.files.length);
     }
 
-    public File getFile(BookPosition position) {
+    public File getFile(@NonNull BookPosition position) {
         return fileSet.files[position.fileIndex];
     }
 
@@ -94,35 +99,10 @@ public class AudioBook {
 
     void replaceFileSet(FileSet fileSet) {
         this.fileSet = fileSet;
-        this.albumTitle = null;
-    }
-
-    private String albumTitle;
-
-    static public TitleAndAuthor metadataTitle(String fileName) {
-        try {
-            File audioFile = new File(fileName);
-            return metadataTitle(audioFile);
-        }
-        catch (Exception e) {
-            // Ignore any errors
-            return new TitleAndAuthor(null, null);
-        }
+        this.displayTitle = null;
     }
 
     static public TitleAndAuthor metadataTitle(File file) {
-        try {
-            AudioFile audioFile = AudioFileIO.read(file);
-            return metadataTitle(audioFile);
-        }
-        catch (Exception e) {
-            // Errors in getting the title are not fatal, but we don't want to hide them.
-            // Intentionally not translated. Other reads below just ignore it.
-            return new TitleAndAuthor("Aesop Error: Tag Read Failed", "" + e);
-        }
-    }
-
-    private static TitleAndAuthor metadataTitle(AudioFile audioFile) {
         // MediaMetadataRetriever (the obvious choice) simply doesn't work,
         // not returning metadata that's clearly there.
         // (StackOverflow rumor has it that it's a Samsung issue in part.)
@@ -132,60 +112,99 @@ public class AudioBook {
         String newTitle = null;
 
         try {
+            AudioFile audioFile = AudioFileIO.read(file);
             Tag tag = audioFile.getTag();
-            newTitle = tag.getFirst(FieldKey.ALBUM);
-            author = tag.getFirst(FieldKey.ARTIST);
+            if (tag != null) {
+                newTitle = titleClean(tag.getFirst(FieldKey.ALBUM));
+                author = titleClean(tag.getFirst(FieldKey.ARTIST));
+            }
         }
         catch (Exception e) {
             // Ignore any errors
         }
 
+        if (newTitle == null || newTitle.isEmpty()) {
+            return null;
+        }
+
+        if (author == null) {
+            author = "";
+        }
+
         return new TitleAndAuthor(newTitle, author);
     }
 
-    static public String computeTitle (TitleAndAuthor title) {
-        if (title.title == null || title.title.equals("")) {
-            // empty title; use the default.
-            return null;
-        }
+    static public String computeTitle (@NonNull TitleAndAuthor title) {
+        Preconditions.checkState(title.title != null && !title.title.isEmpty());
+
         String newTitle = title.title;
-        if (title.author != null) {
+        if (title.author != null && !title.author.isEmpty()) {
             newTitle += " - " + title.author;
         }
-
-        // If any underscores get to here, get rid of them... they look
-        // (and worse, sound) awful.
-        newTitle = titleCase(newTitle);
 
         return newTitle;
     }
 
     public void setTitle(String title) {
-        albumTitle = title;
+        displayTitle = title;
     }
 
-    public String getTitle() {
-        if (albumTitle != null) {
-            return albumTitle;
+    private String getRawTitle() {
+        if (titleInfo == null) {
+            titleInfo = extractTitle(fileSet.path, fileSet.files[0]);
+        }
+        return titleInfo.title;
+    }
+
+    public TitleAndAuthor getTitleInfo() {
+        if (titleInfo == null) {
+            titleInfo = extractTitle(fileSet.path, fileSet.files[0]);
+        }
+        return titleInfo;
+    }
+
+    public String getDisplayTitle() {
+        if (titleInfo == null) {
+            titleInfo = extractTitle(fileSet.path, fileSet.files[0]);
+        }
+
+        if (displayTitle != null) {
+            return displayTitle;
         }
 
         if (fileSet.directoryName.indexOf(' ') >= 0) {
             // Spaces in the name -> it's supposed to be human-readable
-            albumTitle = fileSet.directoryName;
-            return albumTitle;
+            displayTitle = fileSet.directoryName;
+            return displayTitle;
         }
-        else {
-            String fileName = fileSet.files[lastPosition.fileIndex].getPath();
-            // Get it from the metadata
-            TitleAndAuthor title = metadataTitle(fileName);
 
-            albumTitle = computeTitle(title);
+        displayTitle = computeTitle(titleInfo);
+        return displayTitle;
+    }
 
-            if (albumTitle == null || albumTitle.length() <= 0) {
-                albumTitle = titleCase(fileSet.directoryName);
-            }
+    @NonNull
+    public static TitleAndAuthor extractTitle(File bookPath, File audioPath)
+    {
+        TitleAndAuthor title = null;
+
+        // First, get it from an associated information (.opf) file
+        File opf = FileUtilities.findFileMatching(bookPath, (name)->name.endsWith(".opf"));
+        if (opf != null) {
+            title = new OpfParser().getTitle(opf);
+            FileUtilities.removeIfTemp(opf);
         }
-        return albumTitle;
+
+        // Then get it from the metadata
+        if (title == null) {
+            title = metadataTitle(audioPath);
+        }
+
+        if (title == null) {
+            // filenameGuessTitle is the last gasp... it guarantees SOME title.
+            title = new TitleAndAuthor(filenameGuessTitle(bookPath.getName()), "");
+        }
+
+        return title;
     }
 
     public String getId() {
@@ -199,6 +218,7 @@ public class AudioBook {
     public String getChapter() {
         // Do this only if we haven't done it before
         if (lastPosition.fileIndex != lastFileIndex) {
+            chapterTitle = null;
             String fileName = fileSet.files[lastPosition.fileIndex].getPath();
             // Get it from the metadata
             // See above about MediaMetadataRetriever.
@@ -206,31 +226,48 @@ public class AudioBook {
                 File file = new File(fileName);
                 AudioFile audioFile = AudioFileIO.read(file);
                 Tag tag = audioFile.getTag();
-                chapterTitle = tag.getFirst(FieldKey.TITLE);
+                if (tag != null) {
+                    chapterTitle = tag.getFirst(FieldKey.TITLE);
+                }
             }
             catch (Exception e) {
                 // Ignore any errors
             }
 
-            if (chapterTitle == null || chapterTitle.length() <= 0) {
-
+            if (chapterTitle == null || chapterTitle.isEmpty()) {
                 // No metadata chapter title... fake it.
                 fileName = fileSet.files[lastPosition.fileIndex].getName(); // name, not path
-                // Get rid of ".mp3" (etc.)
-                chapterTitle = fileName.substring(0, fileName.lastIndexOf("."));
-                // clean up _s
-                chapterTitle = titleCase(chapterTitle);
+                chapterTitle = filenameGuessTitle(fileName);
+            }
 
-                // Guess if the title is repeated in the chapter name and remove that
-                String title = getTitle();
-                int titleLoc = chapterTitle.indexOf(title);
+            // Guess if the book title is repeated in the chapter name and remove that
+            String title = getRawTitle();
+            int titleLoc = StringUtils.indexOfIgnoreCase(chapterTitle,title);
 
-                if (titleLoc >= 0 && chapterTitle.length() > title.length()) {
-                    // If the chapter title is the book title... nothing
-                    chapterTitle = chapterTitle.substring(0, titleLoc)
-                                 + chapterTitle.substring(titleLoc + title.length());
+            if (titleLoc >= 0 && chapterTitle.length() > title.length()) {
+                // If the chapter title is the book title do nothing
+                char ch;
+                int start = titleLoc;
+                while (start > 0 &&
+                    ((ch = chapterTitle.charAt(start-1)) == ' ' || ch == ':' || ch == '-')) {
+                    start--;
+                }
+                int end = titleLoc + title.length();
+                int len = chapterTitle.length();
+                while (end < len-1 &&
+                    ((ch = chapterTitle.charAt(end+1)) == ' ' || ch == ':' || ch == '-')) {
+                    end++;
+                }
+                String pad = "";
+                if (start > 0 && end < len-1) {
+                    pad = " ";
+                }
+                String newTitle = chapterTitle.substring(0, start) + pad + (end < len ? chapterTitle.substring(end+1) : "");
+                if (!newTitle.isEmpty()) {
+                    chapterTitle = newTitle;
                 }
             }
+
             lastFileIndex = lastPosition.fileIndex;
         }
 
@@ -251,7 +288,11 @@ public class AudioBook {
         return lastPosition;
     }
 
-    public long toMs(BookPosition position) {
+    public BookPosition getBegin() {
+        return new BookPosition(0, 0);
+    }
+
+    public long toMs(@NonNull BookPosition position) {
         int fullFileCount = position.fileIndex;
 
         if (fullFileCount <= fileDurations.size()) {
@@ -457,12 +498,15 @@ public class AudioBook {
         return name;
     }
 
-    public static String filenameGuessTitle(String name) {
+    @NonNull
+    public static String filenameGuessTitle(String n) {
         // If we're installing a book and haven't found a good title, try to infer
         // something from the directory/zip file name. Informed guesswork at best.
-        if (name == null) {
+        // It will always return some non-null string.
+        if (n == null) {
             return "Unknown Title";
         }
+        String name = n;
 
         int dot = name.lastIndexOf('.');
         if (dot>0 && name.length()-dot <= 4) {
@@ -494,16 +538,17 @@ public class AudioBook {
         name = name.replaceAll("^ ", "");
         name = name.replaceAll(" $", "");
 
-        name = AudioBook.titleCase(name);
+        name = titleCase(name);
 
-        if (name.length() <= 0) {
-            return "Unknown Title";
+        if (name.isEmpty()) {
+            return titleClean(n);
         }
 
         return name;
     }
 
-    public static String deBlank(String name) {
+    @NonNull
+    public static String deBlank(@NonNull String name) {
         return name.replace(" ", "");
     }
 
@@ -516,15 +561,21 @@ public class AudioBook {
         return false;
     }
 
+    public static String titleClean(String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return str.replace('_', ' ')
+                  .replace('/', '-');
+    }
+
     public static String titleCase(String str) {
         if (str == null) {
             return null;
         }
 
-        return WordUtils.capitalizeFully(
-                str.replace('_', ' ')
-                   .replace('/', '-')
-                );
+        return WordUtils.capitalizeFully(titleClean(str));
     }
 
     // Keep a list of a few places the user stopped/paused the player: the NUMBER_OF_STOPS
@@ -613,6 +664,6 @@ public class AudioBook {
     @NonNull
     @Override
     public String toString() {
-        return getTitle() + " " + super.toString();
+        return getDisplayTitle() + " " + super.toString();
     }
 }
