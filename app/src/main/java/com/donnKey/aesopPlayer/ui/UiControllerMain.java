@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -153,7 +153,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public void onEvent(PlaybackFatalErrorEvent event) {
+    public void onEvent(@NonNull PlaybackFatalErrorEvent event) {
         mainUi.onPlaybackError(event.path);
     }
 
@@ -277,7 +277,7 @@ public class UiControllerMain implements ServiceConnection {
         return audioBookManager.getCurrentBook();
     }
 
-    private void changeState(StateFactory newStateFactory) {
+    private void changeState(@NonNull StateFactory newStateFactory) {
         // Since this might be a new instance of the class, we have to do a
         // state change even when it's the same state so listeners are right.
         CrashWrapper.log(TAG, "UI: change state: " + currentState.stateId() + " to " + newStateFactory);
@@ -438,7 +438,11 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final DeviceMotionDetector motionDetector;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
-            UiUtil.SnoozeDisplay.resume();
+            if (!(previousState instanceof BookListState)) {
+                // No snooze if this is a no-op state change (for side-effect)
+                UiUtil.SnoozeDisplay.resume();
+            }
+
             bookListController = mainController.showBookList(
                     !(previousState instanceof InitState) && !(previousState instanceof BookListState));
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
@@ -483,7 +487,10 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final DeviceMotionDetector motionDetector;
 
         PlaybackState(@NonNull UiControllerMain mc, @NonNull State previousState) {
-            UiUtil.SnoozeDisplay.resume();
+            if (!(previousState instanceof BookListState)) {
+                // No snooze if this is a no-op state change (for side-effect)
+                UiUtil.SnoozeDisplay.resume();
+            }
             mainController = mc;
             if (!(previousState instanceof PausedState))
             {

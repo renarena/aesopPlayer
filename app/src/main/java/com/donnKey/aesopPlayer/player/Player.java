@@ -29,6 +29,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
@@ -50,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import de.greenrobot.event.EventBus;
 
@@ -67,7 +70,7 @@ public class Player {
     }
 
     public PlaybackController createPlayback() {
-        return new PlaybackControllerImpl(new Handler(Looper.myLooper()));
+        return new PlaybackControllerImpl(new Handler(Objects.requireNonNull(Looper.myLooper())));
     }
 
     public DurationQueryController createDurationQuery(List<File> files) {
@@ -221,9 +224,9 @@ public class Player {
         }
 
         @Override
-        public void onPlayerError(ExoPlaybackException error) {
+        public void onPlayerError(@NonNull ExoPlaybackException error) {
             eventBus.post(new PlaybackErrorEvent(
-                    error.getMessage(),
+                    error.getMessage() != null ? error.getMessage() : "Untitled Player exception",
                     exoPlayer.getDuration(),
                     exoPlayer.getCurrentPosition(),
                     getFormatDescription()));
@@ -279,7 +282,7 @@ public class Player {
         private Observer observer;
         private boolean releaseOnIdle = false;
 
-        private DurationQueryControllerImpl(List<File> files) {
+        private DurationQueryControllerImpl(@NonNull List<File> files) {
             Preconditions.checkArgument(!files.isEmpty());
             this.iterator = files.iterator();
         }
@@ -304,8 +307,9 @@ public class Player {
                 case com.google.android.exoplayer2.Player.STATE_READY:
                     observer.onDuration(currentFile, exoPlayer.getDuration());
                     boolean hasNext = processNextFile();
-                    if (!hasNext)
+                    if (!hasNext) {
                         exoPlayer.stop();
+                    }
                     break;
                 case com.google.android.exoplayer2.Player.STATE_IDLE:
                     exoPlayer.removeListener(this);

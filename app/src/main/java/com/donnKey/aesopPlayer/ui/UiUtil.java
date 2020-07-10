@@ -54,7 +54,7 @@ import javax.inject.Singleton;
 @Singleton
 public class UiUtil {
 
-    static public class SnoozeDisplay {
+    public static class SnoozeDisplay {
         private View snoozeOverlay;
         private TextView snoozeCounter;
         static private boolean suspended;
@@ -128,27 +128,27 @@ public class UiUtil {
         // for one apparent (to a human) event. Those places that don't want a snooze lockout
         // can call suspend(); the playback FSM resets it with a call to resume()
         // when an actual state change is made.
-        static public void suspend() {
+        public static void suspend() {
             suspended = true;
         }
 
-        static void resume() {
+        public static void resume() {
             suspended = false;
         }
 
         // There are also a few places where we simply don't want a snooze... during startup
         // and coming back from settings. The timing for resuming from those is different
         // than the ones above, so we have two distinct states to maintain.
-        static public void suspendMajor() {
+        public static void suspendMajor() {
             suspend_major = true;
         }
 
-        static public void resumeMajor() {
+        public static void resumeMajor() {
             suspend_major = false;
         }
     }
 
-    static public void startBlinker(View view, @NonNull GlobalSettings globalSettings) {
+    public static void startBlinker(View view, @NonNull GlobalSettings globalSettings) {
         ViewFlipper flipper;
 
         // time in MS for a cycle
@@ -174,7 +174,7 @@ public class UiUtil {
     // If none of those prove resistant to mishandling, settings button followed
     // by a volume key looks like a possibility.
     @SuppressLint("ClickableViewAccessibility") // Accessibility not appropriate for some options
-    static public void connectToSettings(View view, @NonNull GlobalSettings globalSettings) {
+    public static void connectToSettings(@NonNull View view, @NonNull GlobalSettings globalSettings) {
 
         // All versions start with this gone, so be sure
         final View settingsButton2box = view.findViewById(R.id.settingsButton2box);
@@ -218,7 +218,7 @@ public class UiUtil {
 
         @SuppressLint("ClickableViewAccessibility") // Accessibility not appropriate for this option
         @Override
-        public boolean onTouch(View view, MotionEvent event) {
+        public boolean onTouch(View view, @NonNull MotionEvent event) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
                     lastToast = Toast.makeText(context, R.string.press_other_gear_prompt, Toast.LENGTH_LONG);
@@ -250,8 +250,9 @@ public class UiUtil {
     }
 
     // Where we are in the current book
+    @NonNull
     @SuppressLint("DefaultLocale")
-    static public String formatDuration(long currentMs) {
+    public static String formatDuration(long currentMs) {
         long hours = TimeUnit.MILLISECONDS.toHours(currentMs);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMs) % 60;
         long seconds = TimeUnit.MILLISECONDS.toSeconds(currentMs) % 60;
@@ -259,8 +260,9 @@ public class UiUtil {
         return String.format("%d:%02d:%02d", hours, minutes, seconds);
     }
 
+    @NonNull
     @SuppressLint("DefaultLocale")
-    static public String formatDurationShort(long currentMs) {
+    public static String formatDurationShort(long currentMs) {
         long hours = TimeUnit.MILLISECONDS.toHours(currentMs);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMs) % 60;
 
@@ -268,7 +270,7 @@ public class UiUtil {
     }
 
     @ColorInt
-    static public int colorFromAttribute(Context context, @AttrRes int attributeId) {
+    public static int colorFromAttribute(@NonNull Context context, @AttrRes int attributeId) {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(attributeId, value, true);
         return context.getResources().getColor(value.resourceId);

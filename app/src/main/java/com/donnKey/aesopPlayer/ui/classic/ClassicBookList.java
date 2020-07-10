@@ -79,6 +79,8 @@ public class ClassicBookList extends Fragment implements BookListUi {
 
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);
+        // Make it a one-shot suppression, just in case
+        UiUtil.SnoozeDisplay.resume();
 
         bookPager = view.findViewById(R.id.bookListPager);
         bookPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {

@@ -28,6 +28,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.donnKey.aesopPlayer.service.PlaybackService;
 import com.donnKey.aesopPlayer.ui.provisioning.FileUtilities;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
@@ -80,6 +81,7 @@ public class AudioBook {
     private boolean completed = false;
     private TitleAndAuthor titleInfo;
     private String displayTitle;
+    private PlaybackService.DurationQuery bookDurationQuery;
 
     private UpdateObserver updateObserver;
 
@@ -91,6 +93,14 @@ public class AudioBook {
 
     public File getFile(@NonNull BookPosition position) {
         return fileSet.files[position.fileIndex];
+    }
+
+    public PlaybackService.DurationQuery getBookDurationQuery() {
+        return bookDurationQuery;
+    }
+
+    public void setBookDurationQuery(PlaybackService.DurationQuery bookDurationQuery) {
+        this.bookDurationQuery = bookDurationQuery;
     }
 
     void setUpdateObserver(UpdateObserver updateObserver) {
@@ -326,10 +336,12 @@ public class AudioBook {
             fileDurations.add(durationMs);
             if (fileDurations.size() == fileSet.files.length) {
                 totalDuration = fileDurationSum(fileSet.files.length);
+                // Notify the display the book changed, but no snooze
+                UiUtil.SnoozeDisplay.suspend();
                 EventBus.getDefault().post(new AudioBooksChangedEvent(LibraryContentType.EMPTY));
                 // EMPTY is no-op
             }
-            // Update the stored state (N.B. that can contain deleted books.)
+            // Update the stored state (N.B.: that can contain deleted books.)
             notifyUpdateObserver();
         }
     }

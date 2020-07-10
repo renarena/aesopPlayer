@@ -37,6 +37,7 @@ import com.donnKey.aesopPlayer.events.CurrentBookChangedEvent;
 import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 import com.donnKey.aesopPlayer.filescanner.FileScanner;
 import com.donnKey.aesopPlayer.filescanner.FileSet;
+import com.donnKey.aesopPlayer.service.PlaybackService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,6 +49,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+
+import static com.donnKey.aesopPlayer.ui.UiControllerMain.getPlaybackService;
 
 @ApplicationScope
 public class AudioBookManager {
@@ -61,7 +64,7 @@ public class AudioBookManager {
 
     @Inject
     @MainThread
-    public AudioBookManager(EventBus eventBus, FileScanner fileScanner, Storage storage) {
+    public AudioBookManager(@NonNull EventBus eventBus, FileScanner fileScanner, Storage storage) {
         this.fileScanner = fileScanner;
         this.storage = storage;
         eventBus.register(this);
@@ -186,6 +189,9 @@ public class AudioBookManager {
                 audioBook.setUpdateObserver(storage);
                 audioBooks.add(audioBook);
                 audioBooksChanged = true;
+                // If this is a newly inserted book, start the sizing process so it's done soon.
+                PlaybackService playbackService = getPlaybackService();
+                Objects.requireNonNull(playbackService).computeDuration(audioBook);
             }
             else {
                 if (!book.getDirectoryName().equals(fileSet.directoryName)) {
@@ -245,6 +251,7 @@ public class AudioBookManager {
         }
     }
 
+    @NonNull
     @MainThread
     private List<ColourScheme> getColoursInRange(int startIndex, int endIndex) {
         List<ColourScheme> colours = new ArrayList<>();

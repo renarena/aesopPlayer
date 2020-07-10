@@ -145,4 +145,8 @@ logic to make it cleaner. Do a better job of removing book title from chapter ti
 Make unzipping a lot faster by using files instead of streams. Necessary for .opf change
 when .opf is in a zip file.
 
+Change duration queries to start sooner; allow playback to start while the duration query
+is in progress - some books have many small files and duration queries can be very long.
+Change housekeeping details on duration queries to be simpler.
+
 Minor bugfixes. Android Studio 4 gradle and lib updates.

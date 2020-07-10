@@ -109,7 +109,10 @@ public class UiControllerPlayback {
 
     public void stopPlayback() {
         CrashWrapper.log(TAG, "UiControllerPlayback.stopPlayback");
-        getAudioBookBeingPlayed().insertStop(playbackService.getCurrentTotalPositionMs());
+        AudioBook book = getAudioBookBeingPlayed();
+        if (book != null) {
+            book.insertStop(playbackService.getCurrentTotalPositionMs());
+        }
         playbackService.stopPlayback();
     }
 
@@ -119,7 +122,7 @@ public class UiControllerPlayback {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-    public void onEvent(PlaybackProgressedEvent event) {
+    public void onEvent(@NonNull PlaybackProgressedEvent event) {
         ui.onPlaybackProgressed(event.playbackTotalPositionMs);
     }
 

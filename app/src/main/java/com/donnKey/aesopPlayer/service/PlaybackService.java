@@ -39,7 +39,7 @@ import androidx.core.content.ContextCompat;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.BookPosition;
-import com.donnKey.aesopPlayer.ui.UiUtil;
+import com.google.android.gms.common.internal.Asserts;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -56,7 +56,6 @@ import com.donnKey.aesopPlayer.player.Player;
 
 import java.io.File;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -69,7 +68,6 @@ public class PlaybackService
 
     public enum State {
         IDLE,
-        PREPARATION,
         PLAYBACK,
         PAUSED
     }
@@ -85,12 +83,10 @@ public class PlaybackService
     @Inject public EventBus eventBus;
 
     private Player player;
-    private DurationQuery durationQueryInProgress;
     private AudioBookPlayback playbackInProgress;
     private Handler handler;
     private boolean userPaused;
     private final SleepFadeOut sleepFadeOut = new SleepFadeOut();
-    private final Vector<DurationQuery> queries = new Vector<>();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -113,8 +109,6 @@ public class PlaybackService
     }
 
     public void startPlayback(AudioBook book) {
-        Preconditions.checkState(durationQueryInProgress == null);
-
         if (playbackInProgress != null) {
             Preconditions.checkState(player != null);
             // Just believe whatever's already there
@@ -132,51 +126,41 @@ public class PlaybackService
                     getApplicationContext(),
                     R.string.playback_service_notification,
                     android.R.drawable.ic_media_play);
+
             ContextCompat.startForegroundService(
                     this, new Intent(this, PlaybackService.class));
             startForeground(NOTIFICATION_ID, notification);
 
-            if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION)
-            findQuery: {
-                // There should be a query in progress.
-                // Re-purpose it to start playback (almost always there's only one, but...)
-                CrashWrapper.log(TAG,"PlaybackService.startPlayback: create DurationQuery");
-                for (DurationQuery q : queries) {
-                    if (q.audioBook == book) {
-                        q.isQueryOnly = false;
-                        durationQueryInProgress = q;
-                        queries.remove(q);
-                        break findQuery;
-                    }
+            if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
+                if (book.getBookDurationQuery() == null) {
+                    // Shouldn't ever happen, but just in case
+                    book.setBookDurationQuery(new DurationQuery(player, book));
                 }
-
-                // Shouldn't ever happen, but just in case
-                durationQueryInProgress = new DurationQuery(player, book, false);
-            } else {
-                CrashWrapper.log(TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
-                playbackInProgress = new AudioBookPlayback(
-                        player, handler, book, globalSettings.getJumpBackPreferenceMs());
-                playbackInProgress.start();
             }
+
+            // Start playback even if the duration query isn't done; we'll update the screen later
+            CrashWrapper.log(TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
+            playbackInProgress = new AudioBookPlayback(
+                    player, handler, book, globalSettings.getJumpBackPreferenceMs());
+            playbackInProgress.start();
         }
     }
 
-    public void computeDuration(AudioBook book) {
+    public void computeDuration(@NonNull AudioBook book) {
         // With debug enabled exoplayer can take a very long time to do this operation.
         // (As in 10s of seconds.)
         if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
-            CrashWrapper.log(TAG,"PlaybackService.computeDuration: create DurationQuery");
-            Player queryPlayer = AesopPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
-            DurationQuery queryQuery = new DurationQuery(queryPlayer, book, true);
-            queries.add(queryQuery);
+            if (book.getBookDurationQuery() == null) {
+                CrashWrapper.log(TAG, "PlaybackService.computeDuration: create DurationQuery");
+                Player queryPlayer = AesopPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
+                book.setBookDurationQuery(new DurationQuery(queryPlayer, book));
+            }
         }
     }
 
     public State getState() {
         if (player == null) {
             return State.IDLE;
-        } else if (durationQueryInProgress != null) {
-            return State.PREPARATION;
         } else if (userPaused) {
             return State.PAUSED;
         } else if (playbackInProgress == null) {
@@ -216,14 +200,14 @@ public class PlaybackService
     }
 
     public AudioBook getAudioBookBeingPlayed() {
-        Preconditions.checkNotNull(playbackInProgress);
+        if (playbackInProgress == null) {
+            return null;
+        }
         return playbackInProgress.audioBook;
     }
 
     public void stopPlayback() {
-        if (durationQueryInProgress != null)
-            durationQueryInProgress.stop();
-        else if (playbackInProgress != null) {
+        if (playbackInProgress != null) {
             captureSoundInfo();
             playbackInProgress.stop();
         }
@@ -252,7 +236,6 @@ public class PlaybackService
 
     private void onPlaybackEnded() {
         CrashWrapper.log(TAG, "PlaybackService.onPlaybackEnded");
-        durationQueryInProgress = null;
         playbackInProgress = null;
 
         stopSleepTimer();
@@ -262,7 +245,7 @@ public class PlaybackService
 
     private void onPlayerReleased() {
         CrashWrapper.log(TAG, "PlaybackService.onPlayerReleased");
-        if (playbackInProgress != null || durationQueryInProgress != null) {
+        if (playbackInProgress != null) {
             onPlaybackEnded();
         }
         player = null;
@@ -420,34 +403,24 @@ public class PlaybackService
         }
     }
 
-    class DurationQuery implements DurationQueryController.Observer {
+    public class DurationQuery implements DurationQueryController.Observer {
 
         // DurationQueries are a bit tricky:
         // We want to display the total book time, but we must actually have exoplayer
         // scan all the files to get the total time. And that can take a long time.
         // We remember the length after we've done that once, but with a new batch
         // of books, and with the user browsing, we want to do the scans in the background.
-        // But if the user actually starts a book, we want the completion of the scan
-        // to start the player. We thus create a list of duration scans in progress
-        // and if the user starts a book, we find it in the list and convert it to the
-        // query that starts playback. We also call back to the display to update
-        // the time once we have it. There's frequently a visible delay the first
-        // time the book is displayed, but no other effect.
+        // If the user starts a book that's currently being scanned for length, that should
+        // be fine because the scan will be and remain ahead. That's also true for fast forward.
         private final AudioBook audioBook;
-        private final DurationQueryController controller;
-        private boolean isQueryOnly;
 
-        private DurationQuery(Player player, AudioBook audioBook, boolean queryOnly) {
+        private DurationQuery(@NonNull Player player, @NonNull AudioBook audioBook) {
             this.audioBook = audioBook;
-            isQueryOnly = queryOnly;
+            audioBook.setBookDurationQuery(this);
 
             List<File> files = audioBook.getFilesWithNoDuration();
-            controller = player.createDurationQuery(files);
+            DurationQueryController controller = player.createDurationQuery(files);
             controller.start(this);
-        }
-
-        void stop() {
-            controller.stop();
         }
 
         @Override
@@ -457,21 +430,11 @@ public class PlaybackService
 
         @Override
         public void onFinished() {
+            Asserts.checkState(audioBook.getTotalDurationMs() != AudioBook.UNKNOWN_POSITION);
             CrashWrapper.log(TAG, "PlaybackService.DurationQuery.onFinished");
-            if (isQueryOnly) {
-                queries.remove(this);
-                // We skip snooze here since it happens "for no good reason" when the
-                // query is done.
-                UiUtil.SnoozeDisplay.suspend();
-                EventBus.getDefault().post(new CurrentBookChangedEvent(this.audioBook));
-            }
-            else {
-                Preconditions.checkState(durationQueryInProgress == this);
-                durationQueryInProgress = null;
-                playbackInProgress = new AudioBookPlayback(
-                        player, handler, audioBook, globalSettings.getJumpBackPreferenceMs());
-                playbackInProgress.start();
-            }
+            audioBook.setBookDurationQuery(null);
+            // Tell Storage the book changed.
+            EventBus.getDefault().post(new CurrentBookChangedEvent(this.audioBook));
         }
 
         @Override
