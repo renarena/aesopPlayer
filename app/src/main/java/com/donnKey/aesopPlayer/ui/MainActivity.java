@@ -149,9 +149,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Suspend snoozes until we've come up the first time
-        UiUtil.SnoozeDisplay.suspendMajor();
-
         restorer.cancelRestore();
         super.onCreate(savedInstanceState);
 

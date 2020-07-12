@@ -336,8 +336,7 @@ public class AudioBook {
             fileDurations.add(durationMs);
             if (fileDurations.size() == fileSet.files.length) {
                 totalDuration = fileDurationSum(fileSet.files.length);
-                // Notify the display the book changed, but no snooze
-                UiUtil.SnoozeDisplay.suspend();
+                // Notify the display the book changed (it won't snooze)
                 EventBus.getDefault().post(new AudioBooksChangedEvent(LibraryContentType.EMPTY));
                 // EMPTY is no-op
             }

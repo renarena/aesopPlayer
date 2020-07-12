@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,9 +34,9 @@ import java.io.File;
  */
 public interface MainUi {
 
-    @NonNull BookListUi switchToBookList(boolean animate);
+    @NonNull BookListUi switchToBookList(boolean animate, boolean snooze);
     @NonNull NoBooksUi switchToNoBooks(boolean animate);
-    @NonNull PlaybackUi switchToPlayback(boolean animate);
+    @NonNull PlaybackUi switchToPlayback(boolean animate, boolean snooze);
     @NonNull InitUi switchToInit();
     void onPlaybackError(File path);
 }

@@ -43,7 +43,6 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.common.base.Preconditions;
@@ -123,7 +122,7 @@ public class SettingsActivity
         mainThreadHandler = new Handler(getMainLooper());
     }
 
-    private boolean onNavigationItemSelectedListener (MenuItem item) {
+    private boolean onNavigationItemSelectedListener (@NonNull MenuItem item) {
         switch (item.getItemId()) {
         case R.id.navigation_inventory:
         case R.id.navigation_candidates:
@@ -186,13 +185,12 @@ public class SettingsActivity
         enteringSettings = false;
         super.onStop();
         orientationDelegate.onStop();
-        UiUtil.SnoozeDisplay.resumeMajor();
         cancelBlockEventOnStart();
         DeviceMotionDetector.resume();
     }
 
     @Override
-    public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
+    public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, @NonNull Preference pref) {
         // Instantiate the new Fragment
         final Bundle args = pref.getExtras();
         final Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(
@@ -230,7 +228,7 @@ public class SettingsActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //noinspection SwitchStatementWithTooFewBranches
         switch(item.getItemId()) {
             case android.R.id.home:
@@ -238,12 +236,6 @@ public class SettingsActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        UiUtil.SnoozeDisplay.suspendMajor();
-        super.onBackPressed();
     }
 
     private void blockEventsOnStart() {
@@ -272,8 +264,8 @@ public class SettingsActivity
         kioskModeHandler.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
-    static public void setMenuItemProperties(AppCompatActivity activity,
-                                             MenuItem item,
+    static public void setMenuItemProperties(@NonNull AppCompatActivity activity,
+                                             @NonNull MenuItem item,
                                              int resIconDrawable, int resColor) {
         int id = item.getItemId();
 

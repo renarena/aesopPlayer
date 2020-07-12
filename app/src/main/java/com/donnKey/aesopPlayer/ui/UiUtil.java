@@ -57,8 +57,7 @@ public class UiUtil {
     public static class SnoozeDisplay {
         private View snoozeOverlay;
         private TextView snoozeCounter;
-        static private boolean suspended;
-        static private boolean suspend_major;
+        static private boolean enabled;
 
         @SuppressWarnings("SameReturnValue")
         @SuppressLint("ClickableViewAccessibility")
@@ -67,15 +66,12 @@ public class UiUtil {
                 final View view,
                 final int time) {
 
+            if (!enabled) {
+                return;
+            }
+            enabled = false;
+
             if (time <= 0) {
-                return;
-            }
-
-            if (suspended) {
-                return;
-            }
-
-            if (suspend_major) {
                 return;
             }
 
@@ -124,27 +120,8 @@ public class UiUtil {
             SnoozeDisplayFor(fragment, view, time);
         }
 
-        // It turns out that the callers of this class can be called multiple times
-        // for one apparent (to a human) event. Those places that don't want a snooze lockout
-        // can call suspend(); the playback FSM resets it with a call to resume()
-        // when an actual state change is made.
-        public static void suspend() {
-            suspended = true;
-        }
-
-        public static void resume() {
-            suspended = false;
-        }
-
-        // There are also a few places where we simply don't want a snooze... during startup
-        // and coming back from settings. The timing for resuming from those is different
-        // than the ones above, so we have two distinct states to maintain.
-        public static void suspendMajor() {
-            suspend_major = true;
-        }
-
-        public static void resumeMajor() {
-            suspend_major = false;
+        public static void enableOneUse() {
+            enabled = true;
         }
     }
 

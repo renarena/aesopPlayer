@@ -287,9 +287,9 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @NonNull
-    private UiControllerBookList showBookList(boolean animate) {
+    private UiControllerBookList showBookList(boolean animate, boolean snooze) {
         analyticsTracker.onBookListDisplayed();
-        BookListUi bookListUi = mainUi.switchToBookList(animate);
+        BookListUi bookListUi = mainUi.switchToBookList(animate, snooze);
         return bookListControllerFactory.create(this, bookListUi);
     }
 
@@ -306,10 +306,9 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @NonNull
-    private UiControllerPlayback showPlayback(boolean animate) {
+    private UiControllerPlayback showPlayback(boolean animate, boolean snooze) {
         Objects.requireNonNull(playbackService);
-        PlaybackUi playbackUi = mainUi.switchToPlayback(animate);
-        UiUtil.SnoozeDisplay.resumeMajor();
+        PlaybackUi playbackUi = mainUi.switchToPlayback(animate, snooze );
         return playbackControllerFactory.create(playbackService, playbackUi);
     }
 
@@ -438,13 +437,9 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final DeviceMotionDetector motionDetector;
 
         BookListState(@NonNull UiControllerMain mainController, @NonNull State previousState) {
-            if (!(previousState instanceof BookListState)) {
-                // No snooze if this is a no-op state change (for side-effect)
-                UiUtil.SnoozeDisplay.resume();
-            }
-
             bookListController = mainController.showBookList(
-                    !(previousState instanceof InitState) && !(previousState instanceof BookListState));
+                    !(previousState instanceof InitState) && !(previousState instanceof BookListState),
+                    !(previousState instanceof BookListState));
             motionDetector = DeviceMotionDetector.getDeviceMotionDetector(this);
             // Motion detector doesn't get enabled here until we can give it a meaning.
 
@@ -487,17 +482,13 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final DeviceMotionDetector motionDetector;
 
         PlaybackState(@NonNull UiControllerMain mc, @NonNull State previousState) {
-            if (!(previousState instanceof BookListState)) {
-                // No snooze if this is a no-op state change (for side-effect)
-                UiUtil.SnoozeDisplay.resume();
-            }
             mainController = mc;
             if (!(previousState instanceof PausedState))
             {
                 // If was paused, this is all already set up
                 // ...previousState could be playback when awakening from stop
                 playbackController = mainController.showPlayback(
-                        !(previousState instanceof PlaybackState));
+                        !(previousState instanceof PlaybackState), !(previousState instanceof PlaybackState));
                 Preconditions.checkNotNull(playbackController);
                 playingAudioBook = mainController.currentAudioBook();
                 playbackController.startPlayback(playingAudioBook);
@@ -580,7 +571,6 @@ public class UiControllerMain implements ServiceConnection {
         private @NonNull final DeviceMotionDetector motionDetector;
 
         PausedState(@NonNull UiControllerMain mainController, @SuppressWarnings("unused") @NonNull State previousState) {
-            UiUtil.SnoozeDisplay.resume();
             this.mainController = mainController;
             // We're using the FSM global playbackController
 

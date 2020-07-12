@@ -228,6 +228,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         ffButton.setEnabled(false);
     }
 
+    @NonNull
     private String elapsedTime(long totalElapsedMs) {
         Objects.requireNonNull(controller);
         String duration = UiUtil.formatDuration(totalElapsedMs);
@@ -407,6 +408,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             isRunning = false;
         }
 
+        @NonNull
         private Animator createAnimation(View v, float x, float y, boolean reveal) {
             Rect viewRect = ViewUtils.getRelativeRect(commonParent, v);
             float startX = viewRect.left + x;

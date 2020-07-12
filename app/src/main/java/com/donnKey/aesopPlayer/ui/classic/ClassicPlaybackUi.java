@@ -38,12 +38,14 @@ public class ClassicPlaybackUi implements PlaybackUi {
     private final @NonNull ClassicMainUi mainUi;
     private final boolean animateOnInit;
     private final @NonNull RewindSound rewindSound;
+    private final boolean snooze;
 
     ClassicPlaybackUi(
-            @NonNull AppCompatActivity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit) {
+            @NonNull AppCompatActivity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit, boolean snooze) {
         this.fragment = new FragmentPlayback();
         this.mainUi = mainUi;
         this.animateOnInit = animateOnInit;
+        this.snooze = snooze;
         AesopPlayerApplication.getComponent(activity).inject(this);
 
         rewindSound = new RewindSound();
@@ -52,7 +54,7 @@ public class ClassicPlaybackUi implements PlaybackUi {
     @Override
     public void initWithController(@NonNull UiControllerPlayback controller) {
         fragment.setController(controller);
-        mainUi.showPlayback(fragment, animateOnInit);
+        mainUi.showPlayback(fragment, animateOnInit, snooze );
     }
 
     @Override

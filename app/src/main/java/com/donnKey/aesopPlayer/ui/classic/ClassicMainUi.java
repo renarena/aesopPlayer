@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,6 +36,7 @@ import com.donnKey.aesopPlayer.ui.BookListUi;
 import com.donnKey.aesopPlayer.ui.InitUi;
 import com.donnKey.aesopPlayer.ui.MainUi;
 import com.donnKey.aesopPlayer.ui.NoBooksUi;
+import com.donnKey.aesopPlayer.ui.UiUtil;
 
 import java.io.File;
 
@@ -52,29 +53,29 @@ class ClassicMainUi implements MainUi {
     }
 
     @NonNull @Override
-    public BookListUi switchToBookList(boolean animate) {
+    public BookListUi switchToBookList(boolean animate, boolean snooze) {
         ClassicBookList bookList = new ClassicBookList();
-        showPage(bookList, animate);
+        showPage(bookList, animate, snooze);
         return bookList;
     }
 
     @NonNull @Override
     public NoBooksUi switchToNoBooks(boolean animate) {
         ClassicNoBooksUi noBooks = new ClassicNoBooksUi();
-        showPage(noBooks, animate);
+        showPage(noBooks, animate, false);
         return noBooks;
     }
 
     @NonNull @Override
     public InitUi switchToInit() {
         ClassicInitUi init = new ClassicInitUi();
-        showPage(init,false);
+        showPage(init,false, false);
         return init;
     }
 
     @NonNull @Override
-    public ClassicPlaybackUi switchToPlayback(boolean animate) {
-        return new ClassicPlaybackUi(activity, this, animate);
+    public ClassicPlaybackUi switchToPlayback(boolean animate, boolean snooze) {
+        return new ClassicPlaybackUi(activity, this, animate, snooze );
     }
 
     @Override
@@ -83,16 +84,19 @@ class ClassicMainUi implements MainUi {
         Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
     }
 
-    void showPlayback(@NonNull FragmentPlayback playbackUi, boolean animate) {
-        showPage(playbackUi, animate);
+    void showPlayback(@NonNull FragmentPlayback playbackUi, boolean animate, boolean snooze) {
+        showPage(playbackUi, animate, snooze);
     }
 
-    private void showPage(@NonNull Fragment pageFragment, boolean animate) {
+    private void showPage(@NonNull Fragment pageFragment, boolean animate, boolean snooze) {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (animate)
             transaction.setCustomAnimations(R.animator.flip_right_in, R.animator.flip_right_out);
         transaction.replace(R.id.mainContainer, pageFragment);
+        if (snooze) {
+            UiUtil.SnoozeDisplay.enableOneUse();
+        }
         // Startup can occasionally fail due to an out-of-order call that interacts with
         // the Start/Stop/Resume stuff. I haven't figured out exactly what's wrong, but you
         // get a failure that some action cannot be taken after onSaveInstance is called.
