@@ -48,6 +48,7 @@ import com.donnKey.aesopPlayer.ui.BookListUi;
 import com.donnKey.aesopPlayer.ui.HintOverlay;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -117,7 +118,13 @@ public class ClassicBookList extends Fragment implements BookListUi {
 
     @Override
     public void updateBookList(List<AudioBook> audioBooks, int currentBookIndex) {
-        bookAdapter = new BookListPagerAdapter(getChildFragmentManager(), audioBooks);
+        // Make a shallow copy of the book list so that while we're working on a new one,
+        // the PagerAdapter doesn't notice those changes asynchronously. Since we're
+        // putting in a new list (rather than updating in place) anyway, the cost of
+        // the copy constructor is small.  (Otherwise we get random crashes if there's
+        // a lot of update activity.)
+        List<AudioBook> ab = new ArrayList<>(audioBooks);
+        bookAdapter = new BookListPagerAdapter(getChildFragmentManager(), ab);
         bookPager.setAdapter(bookAdapter);
         bookPager.setCurrentItem(
                 bookAdapter.bookIndexToViewIndex(currentBookIndex), false);

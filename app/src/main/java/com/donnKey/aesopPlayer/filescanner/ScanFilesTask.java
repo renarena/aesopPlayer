@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,7 +47,7 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
 
     private final @NonNull Context applicationContext;
 
-    ScanFilesTask(@NonNull Context applicationContext) {
+    public ScanFilesTask(@NonNull Context applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -56,6 +56,7 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
         return scanAudioBooksDirectories();
     }
 
+    @NonNull
     private List<FileSet> scanAudioBooksDirectories() {
         List<FileSet> fileSets = new ArrayList<>();
 
@@ -125,7 +126,8 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
     }
 
 
-    static private void addFilesRecursive(File directory, FileFilter filter, List<File> allFiles) {
+    static private void addFilesRecursive(@NonNull File directory, FileFilter filter,
+                                          List<File> allFiles) {
         File[] files = directory.listFiles(filter);
         // listFiles may return null. Skip such directories.
         if (files == null)

@@ -54,6 +54,7 @@ import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 
 public class FragmentBookItem extends BookListChildFragment {
 
+    @NonNull
     public static FragmentBookItem newInstance(String bookId) {
         FragmentBookItem newFragment = new FragmentBookItem();
         Bundle args = new Bundle();
@@ -82,6 +83,9 @@ public class FragmentBookItem extends BookListChildFragment {
         final String bookId = args.getString(ARG_BOOK_ID);
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
+            if (book == null) {
+                book = audioBookManager.getCurrentBook();
+            }
             TextView textView = view.findViewById(R.id.title);
             textView.setText(book.getDisplayTitle());
 

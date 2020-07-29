@@ -44,7 +44,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     private static final String KIOSK_MODE_ENABLE_ACTION = "KioskModeEnable";
     private static final String ENABLE_EXTRA = "Enable";
     private static final String ANALYTICS_URL = AesopPlayerApplication.WEBSITE_URL + "install-configure.html";
-
+    private static final String TAG = "MainActivity";
     @SuppressWarnings("FieldCanBeLocal")
     private MainUiComponent mainUiComponent;
 
@@ -435,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 try {
                     startActivity(installIntent);
                 } catch (ActivityNotFoundException e) {
-                    Log.w("MainActivity", "No activity to handle Text-to-Speech data installation.");
+                    CrashWrapper.log(TAG,  "No activity to handle Text-to-Speech data installation.");
                     if (ttsDeferred != null) {
                         ttsDeferred.setException(e);
                         ttsDeferred = null;
@@ -457,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
                 startActivityForResult(checkIntent, TTS_CHECK_CODE);
                 ttsDeferred = result;
             } catch (ActivityNotFoundException e) {
-                Log.w("MainActivity", "Text-to-Speech not available");
+                CrashWrapper.log(TAG, "Text-to-Speech not available");
                 result.setException(e);
                 // ttsDeferred stays unset because the exception is delivered.
             }

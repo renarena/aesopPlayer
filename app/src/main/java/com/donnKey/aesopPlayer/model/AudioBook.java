@@ -28,15 +28,16 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.donnKey.aesopPlayer.events.AnAudioBookChangedEvent;
 import com.donnKey.aesopPlayer.service.PlaybackService;
 import com.donnKey.aesopPlayer.ui.provisioning.FileUtilities;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.R;
-import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.filescanner.FileSet;
 import com.donnKey.aesopPlayer.filescanner.ScanFilesTask;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.util.DebugUtil;
+import com.google.common.primitives.UnsignedLong;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -121,16 +122,17 @@ public class AudioBook {
         String author = null;
         String newTitle = null;
 
-        try {
-            AudioFile audioFile = AudioFileIO.read(file);
-            Tag tag = audioFile.getTag();
-            if (tag != null) {
-                newTitle = titleClean(tag.getFirst(FieldKey.ALBUM));
-                author = titleClean(tag.getFirst(FieldKey.ARTIST));
+        if (file != null) {
+            try {
+                AudioFile audioFile = AudioFileIO.read(file);
+                Tag tag = audioFile.getTag();
+                if (tag != null) {
+                    newTitle = titleClean(tag.getFirst(FieldKey.ALBUM));
+                    author = titleClean(tag.getFirst(FieldKey.ARTIST));
+                }
+            } catch (Exception e) {
+                // Ignore any errors
             }
-        }
-        catch (Exception e) {
-            // Ignore any errors
         }
 
         if (newTitle == null || newTitle.isEmpty()) {
@@ -157,6 +159,7 @@ public class AudioBook {
 
     public void setTitle(String title) {
         displayTitle = title;
+        EventBus.getDefault().post(new AnAudioBookChangedEvent(this));
     }
 
     private String getRawTitle() {
@@ -328,17 +331,16 @@ public class AudioBook {
 
     public void offerFileDuration(File file, long durationMs) {
         int index = Arrays.asList(fileSet.files).indexOf(file);
-        Preconditions.checkState(index >= 0);
-        Preconditions.checkState(index <= fileDurations.size(), "Duration set out of order.");
+        Preconditions.checkState(index >= 0, "Attempt to size file failed: " + file.getName());
+        Preconditions.checkState(index <= fileDurations.size(), "Duration set out of order: " + file.getPath());
 
         // Only set the duration if unknown.
         if (index == fileDurations.size()) {
             fileDurations.add(durationMs);
             if (fileDurations.size() == fileSet.files.length) {
                 totalDuration = fileDurationSum(fileSet.files.length);
-                // Notify the display the book changed (it won't snooze)
-                EventBus.getDefault().post(new AudioBooksChangedEvent(LibraryContentType.EMPTY));
-                // EMPTY is no-op
+                // Notify the display the book info changed
+                EventBus.getDefault().post(new AnAudioBookChangedEvent(this));
             }
             // Update the stored state (N.B.: that can contain deleted books.)
             notifyUpdateObserver();
@@ -563,10 +565,11 @@ public class AudioBook {
         return name.replace(" ", "");
     }
 
-    public boolean renameTo(String s) {
+    public boolean renameTo(String s, FileUtilities.ErrorCallback errorCallback) {
         File newName = new File(fileSet.path.getParent(), s);
-        if (fileSet.path.renameTo(newName)) {
+        if (FileUtilities.renameTo(fileSet.path, newName, errorCallback)) {
             replaceFileSet(ScanFilesTask.createFileSet(newName));
+            setTitle(s);
             return true;
         }
         return false;
@@ -652,6 +655,63 @@ public class AudioBook {
             }
         }
         return Math.max(maxPosition, position);
+    }
+
+    public void setNewTime(long newBookPosition) {
+        long lengthMs = getTotalDurationMs();
+        if (newBookPosition < 0) {
+            return;
+        }
+        if (newBookPosition > lengthMs) {
+            newBookPosition = lengthMs;
+        }
+
+        updateTotalPosition(newBookPosition);
+        setCompleted(false);
+    }
+
+    public static long timeToMillis(@NonNull String durationString) {
+        // We can't use the time scanner because there are a few books longer than 24 hours.
+        if (durationString.length() == 0) {
+            // Error
+            return -1;
+        }
+
+        // Ask split to retain a trailing empty string ("hh:" in our usage)
+        String[] parts = durationString.split(":", -1);
+
+        long duration = 0;
+        try {
+            switch (parts.length) {
+                case 2:
+                    // ':' present - it's hh:mm (either could be empty)
+                    if (!parts[0].isEmpty()) {
+                        duration = UnsignedLong.valueOf(parts[0]).longValue() * 60;
+                    }
+                    if (!parts[1].isEmpty()) {
+                        duration += UnsignedLong.valueOf(parts[1]).longValue();
+                    }
+                    break;
+                case 1:
+                    // no ':' - it's just mm (or mmm)
+                    if (!parts[0].isEmpty()) {
+                        duration = UnsignedLong.valueOf(parts[0]).longValue(); // in minutes
+                    }
+                    break;
+                default:
+                    // nothing or nonsense
+                    return -1;
+            }
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+
+        if (duration > 35000) {
+            // A number slightly larger than that will overflow when converted to Millis, so
+            // don't allow the overflow. (That's a bit under 600 hours.)
+            duration = 35000;
+        }
+        return TimeUnit.MINUTES.toMillis(duration);
     }
 
     public List<Long> getBookStops() {

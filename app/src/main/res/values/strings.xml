@@ -215,8 +215,8 @@
     <string name="error_specific_file_system_full">Filesystem %s is full; consider deleting old books</string>
     <string name="error_duplicate_book_name">Duplicate Book Name %s</string>
     <string name="error_could_not_delete_book">Could not delete old book %s</string>
-    <string name="info_book_installed">Book %s installed</string>
-    <string name="info_book_removed">Book %s removed</string>
+    <string name="info_book_installed">Title %1$s installed (as %2$s)</string>
+    <string name="info_book_removed">Title %1$s removed (as %2$s)</string>
     <string name="error_could_not_copy_book_with_exception">Could not copy %1$s: %2$s</string>
     <string name="fragment_title_errors_new_books">Errors while Installing New Books</string>
     <string name="error_unzip_single_file_with_exception">Unzip single file failed: %1$s: %2$s</string>
@@ -224,7 +224,7 @@
     <string name="error_could_not_create_directory">Could not create directory %s</string>
     <string name="error_unzip_into_existing_directory">Directory %s already exists when expanding zip file</string>
     <string name="error_could_not_create_directory_with_exception">Could not create directory %1$s: %2$s</string>
-    <string name="error_could_not_rename">Could not rename %1$s to %2$s</string>
+    <string name="error_could_not_rename">Could not rename %1$s to %2$s: name collision?</string>
     <string name="error_could_not_rename_with_exception">Could not rename %1$s to %2$s: %3$s</string>
     <string name="error_could_not_create_books">Could not create Book directory %s</string>
     <string name="error_copy_single_failed">Copy single file failed: %1$s %2$s</string>

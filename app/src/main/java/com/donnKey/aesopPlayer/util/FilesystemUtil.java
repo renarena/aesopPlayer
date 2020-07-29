@@ -31,6 +31,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.system.StructStat;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.AudioBookManagerModule;
 
 import java.io.BufferedReader;
@@ -42,8 +44,9 @@ import java.util.List;
 
 public class FilesystemUtil {
 
-    private static final String[] SUPPORTED_SUFFIXES = {".mp3", ".m4a", ".ogg", ".m4b"};
+    private static final String[] SUPPORTED_SUFFIXES = {".mp3", ".mp4", ".m4a", ".ogg", ".m4b"};
 
+    @NonNull
     private static List<File> listRootDirs(Context context) {
         List<File> rootDirs = listStorageMounts();
         for (File rootDir : listSemiPermanentRootDirs(context)) {
@@ -68,6 +71,7 @@ public class FilesystemUtil {
     // This is likely to list attached SD cards, including those that are hidden from
     // Context.getExternalFilesDir()..
     // Some of the returned files may not be accessible due to permissions.
+    @NonNull
     private static List<File> listStorageMounts() {
         List<File> mounts = new ArrayList<>();
         File mountsFile = new File("/proc/mounts");
@@ -94,6 +98,7 @@ public class FilesystemUtil {
     // The Context.getExternalFilesDir() method only lists semi-permanent storage devices.
     //
     // See http://source.android.com/devices/storage/traditional.html#multiple-external-storage-devices
+    @NonNull
     private static List<File> listSemiPermanentRootDirs(Context context) {
         File[] filesDirs;
         if (Build.VERSION.SDK_INT < 19)
@@ -111,7 +116,6 @@ public class FilesystemUtil {
     }
 
     @SuppressLint("UsableSpace")
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean sameFilesystemAs(File file1, File file2) {
         if (Build.VERSION.SDK_INT < 21) {
             // This will work 99.9% of the time, but...
@@ -126,6 +130,7 @@ public class FilesystemUtil {
         }
     }
 
+    @NonNull
     public static List<File> fileSystemRoots(Context applicationContext) {
         List<File> dirsToScan = FilesystemUtil.listRootDirs(applicationContext);
         File defaultStorage = Environment.getExternalStorageDirectory();
@@ -148,6 +153,7 @@ public class FilesystemUtil {
         return result;
     }
 
+    @NonNull
     public static List<File> audioBooksDirs(Context context) {
         List<File> dirsToScan = FilesystemUtil.fileSystemRoots(context);
         List<File> result = new ArrayList<>();
@@ -169,7 +175,7 @@ public class FilesystemUtil {
         return result;
     }
 
-    public static boolean isAudioPath(String filename) {
+    public static boolean isAudioPath(@NonNull String filename) {
         String lowerCaseFileName = filename.toLowerCase();
         for (String suffix : SUPPORTED_SUFFIXES)
             if (lowerCaseFileName.endsWith(suffix))
@@ -178,13 +184,13 @@ public class FilesystemUtil {
         return false;
     }
 
-    public static boolean isAudioFile(File file) {
+    public static boolean isAudioFile(@NonNull File file) {
         return isAudioPath(file.getName());
     }
 
     @TargetApi(19)
     private static class API19 {
-        static File[] getExternalFilesDirs(Context context) {
+        static File[] getExternalFilesDirs(@NonNull Context context) {
             return context.getExternalFilesDirs(null);
         }
     }

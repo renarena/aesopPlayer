@@ -42,8 +42,11 @@ public class AesopPlayerApplication extends androidx.multidex.MultiDexApplicatio
 
     private static final String AUDIOBOOKS_DIRECTORY = "AudioBooks";
     public static final String WEBSITE_URL = "https://donnkey.github.io/aesopPlayer/";
-    //Use with Jekyll --host 0.0.0.0 if testing locally:
-    //public static final String WEBSITE_URL = "http://my_local_server:4000/aesopPlayer/";
+    // To use with a local server using http: rather than https: (and thus avoiding
+    // having to fuss with certificates) use a URI like the below. You'll also need
+    // to enable cleartext in network_security_config.xml.
+    // For Jekyll, add --host 0.0.0.0 to the command line.
+    // public static final String WEBSITE_URL = "http://my_local_server:4000/aesopPlayer/";
 
     private static final String DEMO_SAMPLES_URL = WEBSITE_URL + "samples/TheAesopAudiobookSamples.zip";
 

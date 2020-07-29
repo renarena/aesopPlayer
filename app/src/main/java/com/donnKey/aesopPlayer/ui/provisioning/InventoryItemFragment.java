@@ -52,7 +52,6 @@ import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
-import com.donnKey.aesopPlayer.ui.UiUtil;
 
 import java.util.Objects;
 
@@ -303,10 +302,6 @@ public class InventoryItemFragment extends Fragment {
     }
 
     private void setTotalSubtitle() {
-        provisioning.windowSubTitle = String.format(
-                getString(R.string.fragment_subtitle_total_length),
-                provisioning.partiallyUnknown ?
-                        getString(R.string.fragment_subtitle_total_length_greater_than) : "",
-                UiUtil.formatDuration(provisioning.totalTime));
+        provisioning.windowSubTitle = provisioning.getTotalTimeSubtitle();
     }
 }

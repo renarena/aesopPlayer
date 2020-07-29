@@ -175,7 +175,7 @@ public class ProvisioningActivity extends AppCompatActivity
         startActivityForResult(intent, ACTIVITY_REQUEST_PROVISIONING);
     }
 
-    private boolean onNavigationItemSelectedListener (MenuItem item) {
+    private boolean onNavigationItemSelectedListener (@NonNull MenuItem item) {
         switch (item.getItemId()) {
         case R.id.navigation_inventory:
             provisioning.currentFragment = item.getItemId();
@@ -231,7 +231,7 @@ public class ProvisioningActivity extends AppCompatActivity
     // Make the back button pop the stack rather than go all the way back to MainActivity.
     // The back button in the sub-fragments is owned by this fragment, so the code below goes here.
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //noinspection SwitchStatementWithTooFewBranches
         switch (item.getItemId()) {
         case android.R.id.home:
@@ -319,7 +319,7 @@ public class ProvisioningActivity extends AppCompatActivity
     private boolean renameFiles;
     private Toast lastToast;
     @UiThread
-    private void postMoveProgress_Inner(Provisioning.ProgressKind kind, String message) {
+    private void postMoveProgress_Inner(@NonNull Provisioning.ProgressKind kind, String message) {
         switch (kind) {
         case SEND_TOAST: {
             if (lastToast != null)
@@ -479,7 +479,8 @@ public class ProvisioningActivity extends AppCompatActivity
     }
 
     @UiThread
-    private void postDeleteProgress_Inner(Provisioning.ProgressKind kind, @SuppressWarnings("unused") String message) {
+    private void postDeleteProgress_Inner(@NonNull Provisioning.ProgressKind kind,
+                                          @SuppressWarnings("unused") String message) {
         switch (kind) {
         case SEND_TOAST:
         case FILESYSTEMS_FULL: {
@@ -513,6 +514,7 @@ public class ProvisioningActivity extends AppCompatActivity
         t.start();
     }
 
+    @WorkerThread
     private void deleteAllSelected_Task() {
         provisioning.deleteAllSelected_Task(this::postDeleteProgress);
     }

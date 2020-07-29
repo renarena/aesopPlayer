@@ -1,7 +1,7 @@
-/**
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2019 Donn S. Terry
+ * Copyright (c) 2018-2020 Donn S. Terry
  * Copyright (c) 2015-2017 Marcin Simonides
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +26,8 @@ package com.donnKey.aesopPlayer.analytics;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.events.DemoSamplesInstallationFinishedEvent;
@@ -39,6 +41,7 @@ import com.donnKey.aesopPlayer.model.AudioBook;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -79,7 +82,7 @@ public class AnalyticsTracker {
 
     @Inject
     public AnalyticsTracker(
-            Context context, GlobalSettings globalSettings, EventBus eventBus) {
+            Context context, GlobalSettings globalSettings, @NonNull EventBus eventBus) {
         this.globalSettings = globalSettings;
         eventBus.register(this);
 
@@ -89,7 +92,11 @@ public class AnalyticsTracker {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(AudioBooksChangedEvent event) {
+    public void onEvent(@NonNull AudioBooksChangedEvent event) {
+        if (event.contentType == null) {
+            // nothing interesting happened
+            return;
+        }
         if (event.contentType.supersedes(globalSettings.booksEverInstalled())) {
             Map<String, String> data = Collections.singletonMap(
                     BOOKS_INSTALLED_TYPE_KEY, event.contentType.name());
@@ -109,7 +116,7 @@ public class AnalyticsTracker {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(DemoSamplesInstallationFinishedEvent event) {
+    public void onEvent(@NonNull DemoSamplesInstallationFinishedEvent event) {
         if (event.success) {
             stats.logEvent(SAMPLES_DOWNLOAD_SUCCESS);
         } else {
@@ -135,14 +142,14 @@ public class AnalyticsTracker {
             long elapsedTimeS = TimeUnit.NANOSECONDS.toSeconds(
                     System.nanoTime() - currentlyPlayed.startTimeNano);
             Map.Entry<Long, String> bucket = PLAYBACK_DURATION_BUCKETS.floorEntry(elapsedTimeS);
-            data.put(BOOK_PLAYED_DURATION_KEY, bucket.getValue());
+            data.put(BOOK_PLAYED_DURATION_KEY, Objects.requireNonNull(bucket).getValue());
             currentlyPlayed = null;
             stats.logEvent(BOOK_PLAYED, data);
         }
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PlaybackErrorEvent event) {
+    public void onEvent(@NonNull PlaybackErrorEvent event) {
         Map<String, String> data = new TreeMap<>();
         data.put(PLAYBACK_ERROR_MESSAGE_KEY, event.errorMessage);
         data.put(PLAYBACK_ERROR_FORMAT_KEY, event.format);

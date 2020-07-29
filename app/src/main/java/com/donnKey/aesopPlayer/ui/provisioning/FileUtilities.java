@@ -23,6 +23,8 @@
  */
 package com.donnKey.aesopPlayer.ui.provisioning;
 
+import androidx.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,13 +59,13 @@ public class FileUtilities {
 
     static public final String UnzipTmpName = ".TmpDir";
 
-    static boolean isZip(String path) {
+    static boolean isZip(@NonNull String path) {
         return path.endsWith(".zip") || path.endsWith(".ZIP");
     }
 
     // Do a substitution in the body, but not extension, of a filename.
     // Used to convert n-1 to n digits (with 0)
-    private static String fixDigits(String name, String regex, String subst) {
+    private static String fixDigits(@NonNull String name, String regex, String subst) {
         int dot = name.lastIndexOf('.');
         String extension = "";
         if (dot > 0) {
@@ -85,8 +87,8 @@ public class FileUtilities {
     // Look for zip files in targetDir and unzip them recursively, in place.
     // Return true if all inner zips (if any) expanded, false on error.
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    static boolean expandInnerZips(File targetDir,
-                                          StringCallback progress, ErrorCallback logError) {
+    static boolean expandInnerZips(@NonNull File targetDir,
+                                   StringCallback progress, ErrorCallback logError) {
         String[] filenames = targetDir.list();
         if (filenames == null) {
             return true;
@@ -127,7 +129,7 @@ public class FileUtilities {
 
     // Recursively unzip a whole file to a directory; return true on success
     // Can log errors.
-    static public boolean unzipAll(File zipName, File targetDir,
+    static public boolean unzipAll(File zipName, @NonNull File targetDir,
                                    StringCallback progress, ErrorCallback logError) {
         // Get a temp directory and make sure it doesn't exist. (That's "free" housekeeping
         // if previously something had gone wrong.)
@@ -153,8 +155,8 @@ public class FileUtilities {
         }
     }
 
-    private static boolean innerUnzipAll(ZipFile zipData, File targetTmp,
-                                        StringCallback progress, ErrorCallback logError) {
+    private static boolean innerUnzipAll(@NonNull ZipFile zipData, File targetTmp,
+                                         StringCallback progress, ErrorCallback logError) {
         /*
            Nested zip files are possible, but we haven't seen one yet for audiobooks.
            Big performance concern here: we'd either have to extract the inner zip
@@ -209,7 +211,7 @@ public class FileUtilities {
         return true;
     }
 
-    public static File findZipFileMatching(File zipFile, FileFilter filter) {
+    public static File findZipFileMatching(@NonNull File zipFile, FileFilter filter) {
         String baseName = zipFile.getName();
         int extensionPos = baseName.lastIndexOf('.');
         if (extensionPos > 0) {
@@ -226,7 +228,7 @@ public class FileUtilities {
         return null;
     }
 
-    private static File innerFindZipFileMatching(String tmpdirName, ZipFile inputData, FileFilter filter) {
+    private static File innerFindZipFileMatching(String tmpdirName, @NonNull ZipFile inputData, FileFilter filter) {
         try {
             Enumeration<? extends ZipEntry> entryList = inputData.entries();
             while (entryList.hasMoreElements()) {
@@ -277,7 +279,7 @@ public class FileUtilities {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    static boolean mkdirs(File f, ErrorCallback logError)
+    static boolean mkdirs(@NonNull File f, ErrorCallback logError)
     {
         if (f.exists() && f.isDirectory()) {
             // (Trivially) succeeded
@@ -297,7 +299,7 @@ public class FileUtilities {
         return false;
     }
 
-    static boolean renameTo(File oldFile, File newFile, ErrorCallback logError)
+    public static boolean renameTo(@NonNull File oldFile, File newFile, ErrorCallback logError)
     {
         try {
             if (oldFile.renameTo(newFile)) {
@@ -313,7 +315,7 @@ public class FileUtilities {
         return false;
     }
 
-    static boolean atomicTreeCopy(File from, File to, StringCallback progress, ErrorCallback logError) {
+    static boolean atomicTreeCopy(File from, @NonNull File to, StringCallback progress, ErrorCallback logError) {
         // Get a temp directory and make sure it doesn't exist. (That's "free" housekeeping
         // if previously something had dong wrong.)
         File targetParent = to.getParentFile();
@@ -331,7 +333,7 @@ public class FileUtilities {
     }
 
     // Copy a tree; return true on success, error description is posted
-    private static boolean treeCopy(File from, File to, StringCallback progress, ErrorCallback logError) {
+    private static boolean treeCopy(@NonNull File from, File to, StringCallback progress, ErrorCallback logError) {
         if (!from.exists()) {
             throw new RuntimeException("Attempt to copy nonexistent directory");
         }
@@ -385,7 +387,7 @@ public class FileUtilities {
     // Fix filenames containing single digits to add leading zeros so it will sort correctly
     // when file names contain some sort of sequence number that isn't already with leading zeros
     // Tne number of leading zeros is determined by the number of files to be renamed.
-    static boolean treeNameFix(File tree, ErrorCallback logError) {
+    static boolean treeNameFix(@NonNull File tree, ErrorCallback logError) {
         if (!tree.exists()) {
             throw new RuntimeException("Attempt to fix-up names in nonexistent directory");
         }
@@ -420,7 +422,7 @@ public class FileUtilities {
         return fixNames(audio, tree, logError);
     }
 
-    static private boolean fixNames(ArrayList<String> files, File tree, ErrorCallback logError) {
+    static private boolean fixNames(@NonNull ArrayList<String> files, File tree, ErrorCallback logError) {
         // If there are enough files...
         if (files.size() < 10) {
             return true;
@@ -449,7 +451,7 @@ public class FileUtilities {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static private boolean fileNameFix(ArrayList<String> files, File tree, String p1, String p2, ErrorCallback logError)
+    static private boolean fileNameFix(@NonNull ArrayList<String> files, File tree, String p1, String p2, ErrorCallback logError)
     {
         for (int i=0; i<files.size(); i++) {
             File f = new File(tree, files.get(i));
@@ -465,7 +467,7 @@ public class FileUtilities {
     }
 
     // rm -rf might be a bit slower, but it's known thorough!
-    public static boolean deleteTree(File dir, ErrorCallback logError) {
+    public static boolean deleteTree(@NonNull File dir, ErrorCallback logError) {
         if (dir.exists()) {
             try {
                 String[] commands = new String[3];
@@ -495,7 +497,7 @@ public class FileUtilities {
 
     // Find the (first) file in parentPath with the desired pattern and return the File
     // The pattern is whatever filter looks for
-    public static File findFileMatching(File parentPath, FileFilter filter) {
+    public static File findFileMatching(@NonNull File parentPath, @NonNull FileFilter filter) {
         if (filter.filterFunc(parentPath.getName())) {
             return parentPath;
         }
@@ -523,7 +525,7 @@ public class FileUtilities {
         return null;
     }
 
-    public static void removeIfTemp(File file) {
+    public static void removeIfTemp(@NonNull File file) {
         File cache = getAppContext().getCacheDir();
         String cacheName = cache.getPath();
         if (file.getName().regionMatches(0, cacheName, 0, cacheName.length())) {

@@ -188,13 +188,12 @@ public class TitleEditFragment extends Fragment {
             // N.B. Already validated on the way in
             AudioBook book = (AudioBook)provisioning.fragmentParameter;
 
-            if (!book.renameTo(s)) {
+            if (!book.renameTo(s, (severity,text)->{})) {
                 doneButton.setText(getString(R.string.user_error_bad_book_name));
                 doneButton.setBackgroundColor(colorFromAttribute(requireContext(),R.attr.buttonStopPressedBackground));
                 doneButton.setOnClickListener(null);
                 return;
             }
-            book.setTitle(s);
 
             provisioning.booksEvent();
         }
@@ -203,7 +202,7 @@ public class TitleEditFragment extends Fragment {
         fragmentManager.popBackStack();
     }
 
-    private void doAddAuthor(TextView author) {
+    private void doAddAuthor(@NonNull TextView author) {
         String a = author.getText().toString();
         if (a.length() > 0) {
             String s = Objects.requireNonNull(finalTitle.getText()).toString();
@@ -232,7 +231,7 @@ public class TitleEditFragment extends Fragment {
                 errMsg = getString(R.string.user_error_title_too_long);
             }
             if (!originalTitle.equals(before)
-                && (provisioning.scanForDuplicateAudioBook(before))) {
+                && (provisioning.scanForDuplicateAudioBook(before) != null)) {
                 errMsg = getString(R.string.user_error_duplicate_book_name);
             }
             String s = before.trim();

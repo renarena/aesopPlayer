@@ -41,6 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -57,6 +58,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -92,6 +94,7 @@ public class DemoSamplesInstallerService extends Service {
     public static final String BROADCAST_FAILED_ACTION =
             CLASS_NAME + ".FAILED";
 
+    @NonNull
     public static Intent createDownloadIntent(Context context, Uri downloadUri) {
         Intent intent = new Intent(context, DemoSamplesInstallerService.class);
         intent.setData(downloadUri);
@@ -99,6 +102,7 @@ public class DemoSamplesInstallerService extends Service {
         return intent;
     }
 
+    @NonNull
     public static Intent createCancelIntent(Context context) {
         Intent intent = new Intent(context, DemoSamplesInstallerService.class);
         intent.putExtra(ACTION_EXTRA, ACTION_CANCEL_DOWNLOAD);
@@ -121,7 +125,7 @@ public class DemoSamplesInstallerService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
         int action = intent.getIntExtra(ACTION_EXTRA, -1);
         switch(action) {
             case ACTION_START_DOWNLOAD: {
@@ -297,6 +301,7 @@ public class DemoSamplesInstallerService extends Service {
             }
         }
 
+        @NonNull
         @WorkerThread
         private File downloadSamples() throws IOException {
             byte[] inputBuffer = new byte[DOWNLOAD_BUFFER_SIZE];
@@ -305,9 +310,14 @@ public class DemoSamplesInstallerService extends Service {
 
             OutputStream output = new BufferedOutputStream(new FileOutputStream(tmpFile));
             // The samples file is at AesopPlayerApplication#DEMO_SAMPLES_URL
-            HttpsURLConnection connection;
+            HttpURLConnection connection;
             try {
-                connection = (HttpsURLConnection) downloadUrl.openConnection();
+                connection = (HttpURLConnection)downloadUrl.openConnection();
+                if (!BuildConfig.DEBUG) {
+                    if (!(connection instanceof HttpsURLConnection)) {
+                        throw new IOException();
+                    }
+                }
             } catch (Exception e) {
                 throw new IOException("The server for the samples is not correctly configured (not https?)");
             }
@@ -334,15 +344,17 @@ public class DemoSamplesInstallerService extends Service {
             return tmpFile;
         }
 
-        private static void enableTlsOnAndroid4(HttpsURLConnection connection) {
+        private static void enableTlsOnAndroid4(HttpURLConnection connection) {
             // The internets say that this may be also needed on some API 21 phones...
             if (Build.VERSION.SDK_INT <= 21) {
-                try {
-                    connection.setSSLSocketFactory(new TlsSSLSocketFactory());
-                } catch (KeyManagementException | NoSuchAlgorithmException e) {
-                    CrashWrapper.recordException(e);
-                    // Nothing much to do here, the app will attempt the download and most likely
-                    // fail.
+                if (connection instanceof HttpsURLConnection) {
+                    try {
+                        ((HttpsURLConnection)connection).setSSLSocketFactory(new TlsSSLSocketFactory());
+                    } catch (KeyManagementException | NoSuchAlgorithmException e) {
+                        CrashWrapper.recordException(e);
+                        // Nothing much to do here, the app will attempt the download and most likely
+                        // fail.
+                    }
                 }
             }
         }

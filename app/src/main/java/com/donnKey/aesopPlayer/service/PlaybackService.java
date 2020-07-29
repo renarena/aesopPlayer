@@ -131,12 +131,7 @@ public class PlaybackService
                     this, new Intent(this, PlaybackService.class));
             startForeground(NOTIFICATION_ID, notification);
 
-            if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
-                if (book.getBookDurationQuery() == null) {
-                    // Shouldn't ever happen, but just in case
-                    book.setBookDurationQuery(new DurationQuery(player, book));
-                }
-            }
+            computeDuration(book);
 
             // Start playback even if the duration query isn't done; we'll update the screen later
             CrashWrapper.log(TAG,"PlaybackService.startPlayback: create AudioBookPlayback");
@@ -153,7 +148,7 @@ public class PlaybackService
             if (book.getBookDurationQuery() == null) {
                 CrashWrapper.log(TAG, "PlaybackService.computeDuration: create DurationQuery");
                 Player queryPlayer = AesopPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
-                book.setBookDurationQuery(new DurationQuery(queryPlayer, book));
+                new DurationQuery(queryPlayer, book);
             }
         }
     }

@@ -90,9 +90,6 @@ public class CandidateFragment extends Fragment {
     private CandidateRecyclerViewAdapter recycler;
     static private boolean dirLookupPending = false;
 
-    private final File defaultCandidateDirectory =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-
     private final Handler handler = new Handler();
     private final Handler checkHandler = new Handler();
     Menu optionsMenu;
@@ -125,7 +122,7 @@ public class CandidateFragment extends Fragment {
             // Using KEY_MOST_RECENT_SOURCE_DIR is a backwards-compat thing that won't be
             // needed someday. It's not ever written back.
             provisioning.downloadDirs.add(0,
-                preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,defaultCandidateDirectory.getPath()));
+                preferences.getString(KEY_MOST_RECENT_SOURCE_DIR,provisioning.defaultCandidateDirectory.getPath()));
             doUpdateDirs = true;
         }
         provisioning.candidateDirectory = new File(provisioning.downloadDirs.get(0));
@@ -133,7 +130,7 @@ public class CandidateFragment extends Fragment {
             // Some emulators don't appear to come with a Download dir. It seems unlikely that
             // any real device wouldn't, but we can get here bogus-ly on an emulator.
             Toast.makeText(getContext(), getString(R.string.warning_toast_using_default_source),Toast.LENGTH_LONG).show();
-            provisioning.candidateDirectory = defaultCandidateDirectory;
+            provisioning.candidateDirectory = provisioning.defaultCandidateDirectory;
             provisioning.candidates.clear();
             doUpdateDirs = true;
         }
@@ -500,7 +497,8 @@ public class CandidateFragment extends Fragment {
     @WorkerThread
     private void buildCandidateList_Task() {
         stopChecker();
-        provisioning.buildCandidateList_Task(() -> {
+        provisioning.buildCandidateList_Task(provisioning.candidateDirectory,
+            (s,t) -> {
             try {
                 requireActivity().runOnUiThread(this::buildCallback);
             } catch (Exception e) {

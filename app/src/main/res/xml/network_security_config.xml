@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <!-- For debug-overrides to actually work, add android:debuggable="true" to the Manifest,
+         or just temporarily move the lines around here -->
+    <debug-overrides>
+        <base-config cleartextTrafficPermitted="true"
+            tools:ignore="InsecureBaseConfiguration" />
+    </debug-overrides>
+</network-security-config>

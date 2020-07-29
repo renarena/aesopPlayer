@@ -99,9 +99,11 @@ public class AudioBookManager {
     }
 
     public void removeBook(AudioBook book) {
-        audioBooks.remove(book);
-        if (book == currentBook) {
-            currentBook = null;
+        synchronized (audioBooks) {
+            audioBooks.remove(book);
+            if (book == currentBook) {
+                currentBook = null;
+            }
         }
     }
 
@@ -112,9 +114,11 @@ public class AudioBookManager {
 
     @MainThread
     public AudioBook getById(String id) {
-        for (AudioBook book : audioBooks)
-            if (book.getId().equals(id))
-                return book;
+        synchronized (audioBooks) {
+            for (AudioBook book : audioBooks)
+                if (book.getId().equals(id))
+                    return book;
+        }
         return null;
     }
 
@@ -147,8 +151,9 @@ public class AudioBookManager {
         });
     }
 
-    @MainThread
     private void processScanResult(@NonNull List<FileSet> fileSets) {
+        // Posts an event when it completes. The event parameter is a LibraryContentType
+        // if anything changed, or null if nothing changed.
         if (isFirstScan > 1 && fileSets.isEmpty()) {
             // The first scan may fail if it is just after booting and the SD card is not yet
             // mounted. Retry in a while. If it's still empty, then it really is empty and
@@ -159,74 +164,81 @@ public class AudioBookManager {
             return;
         }
 
-        // This isn't very efficient but there shouldn't be more than a dozen audio books on the
-        // device.
-        List<AudioBook> booksToRemove = new ArrayList<>();
-        for (AudioBook audioBook : audioBooks) {
-            String id = audioBook.getId();
-            boolean isInFileSet = false;
-            for (FileSet fileSet : fileSets) {
-                if (id.equals(fileSet.id)) {
-                    isInFileSet = true;
-                    break;
-                }
-            }
-            if (!isInFileSet) {
-                booksToRemove.add(audioBook);
-            }
-        }
-        if (booksToRemove.contains(currentBook)) {
-            currentBook = null;
-        }
-        boolean audioBooksChanged = audioBooks.removeAll(booksToRemove);
+        boolean audioBooksChanged;
         LibraryContentType contentType = LibraryContentType.EMPTY;
 
-        for (FileSet fileSet : fileSets) {
-            AudioBook book = getById(fileSet.id);
-            if (book == null) {
-                AudioBook audioBook = new AudioBook(fileSet);
-                storage.readAudioBookState(audioBook);
-                audioBook.setUpdateObserver(storage);
-                audioBooks.add(audioBook);
-                audioBooksChanged = true;
-                // If this is a newly inserted book, start the sizing process so it's done soon.
-                PlaybackService playbackService = getPlaybackService();
-                Objects.requireNonNull(playbackService).computeDuration(audioBook);
-            }
-            else {
-                if (!book.getDirectoryName().equals(fileSet.directoryName)) {
-                    // A rename outside of Aesop
-                    book.replaceFileSet(fileSet);
-                    audioBooksChanged = true;
+        synchronized (audioBooks) {
+            // This isn't very efficient but there shouldn't be more than a dozen audio books on the
+            // device.
+            List<AudioBook> booksToRemove = new ArrayList<>();
+            for (AudioBook audioBook : audioBooks) {
+                String id = audioBook.getId();
+                boolean isInFileSet = false;
+                for (FileSet fileSet : fileSets) {
+                    if (id.equals(fileSet.id)) {
+                        isInFileSet = true;
+                        break;
+                    }
+                }
+                if (!isInFileSet) {
+                    booksToRemove.add(audioBook);
                 }
             }
-            LibraryContentType newContentType = fileSet.isDemoSample
-                    ? LibraryContentType.SAMPLES_ONLY : LibraryContentType.USER_CONTENT;
-            if (newContentType.supersedes(contentType)) {
-                contentType = newContentType;
+            if (booksToRemove.contains(currentBook)) {
+                currentBook = null;
+            }
+            audioBooksChanged = audioBooks.removeAll(booksToRemove);
+
+            for (FileSet fileSet : fileSets) {
+                AudioBook book = getById(fileSet.id);
+                if (book == null) {
+                    AudioBook audioBook = new AudioBook(fileSet);
+                    storage.readAudioBookState(audioBook);
+                    audioBook.setUpdateObserver(storage);
+                    audioBooks.add(audioBook);
+                    audioBooksChanged = true;
+                    // If this is a newly inserted book, start the sizing process so it's done soon.
+                    PlaybackService playbackService = getPlaybackService();
+                    if (playbackService != null) {
+                        playbackService.computeDuration(audioBook);
+                    }
+                }
+                else {
+                    if (!book.getDirectoryName().equals(fileSet.directoryName)) {
+                        // A rename outside of Aesop
+                        book.replaceFileSet(fileSet);
+                        audioBooksChanged = true;
+                    }
+                }
+                LibraryContentType newContentType = fileSet.isDemoSample
+                        ? LibraryContentType.SAMPLES_ONLY : LibraryContentType.USER_CONTENT;
+                if (newContentType.supersedes(contentType)) {
+                    contentType = newContentType;
+                }
+            }
+
+            if (audioBooks.size() > 0) {
+                Collections.sort(audioBooks, (lhs, rhs) -> lhs.getDisplayTitle().compareToIgnoreCase(rhs.getDisplayTitle()));
+
+                assignColoursToNewBooks();
+            }
+
+            storage.cleanOldEntries(this);
+
+            if (currentBook == null) {
+                String id = storage.getCurrentAudioBook();
+                if (getById(id) == null && audioBooks.size() > 0)
+                    id = audioBooks.get(0).getId();
+
+                if (id != null)
+                    setCurrentBook(id);
             }
         }
 
-        if (audioBooks.size() > 0) {
-            Collections.sort(audioBooks, (lhs, rhs) -> lhs.getDisplayTitle().compareToIgnoreCase(rhs.getDisplayTitle()));
-
-            assignColoursToNewBooks();
+        if (!(audioBooksChanged || isFirstScan > 0)) {
+            contentType = null;
         }
-
-        storage.cleanOldEntries(this);
-
-        if (currentBook == null) {
-            String id = storage.getCurrentAudioBook();
-            if (getById(id) == null && audioBooks.size() > 0)
-                id = audioBooks.get(0).getId();
-
-            if (id != null)
-                setCurrentBook(id);
-        }
-
-        if (audioBooksChanged || isFirstScan > 0) {
-            EventBus.getDefault().post(new AudioBooksChangedEvent(contentType));
-        }
+        EventBus.getDefault().post(new AudioBooksChangedEvent(contentType));
 
         isFirstScan = 0;
     }

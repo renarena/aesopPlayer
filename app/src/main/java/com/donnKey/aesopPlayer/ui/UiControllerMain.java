@@ -38,6 +38,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+import com.donnKey.aesopPlayer.events.AnAudioBookChangedEvent;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
@@ -143,9 +144,20 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-    public void onEvent(AudioBooksChangedEvent event) {
-            currentState.onBooksChanged(this);
+    public void onEvent(@NonNull AudioBooksChangedEvent event) {
+        if (event.contentType == null) {
+           // nothing interesting happened
+           return;
         }
+        CrashWrapper.log(TAG, "UI: Event: AudioBooksChangedEvent, state: " + currentState.stateId());
+        currentState.onBooksChanged(this);
+    }
+
+    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    public void onEvent(AnAudioBookChangedEvent event) {
+        CrashWrapper.log(TAG, "UI: Event: AnAudioBookChangedEvent, state: " + currentState.stateId());
+        currentState.onAnAudioBookChanged(event.book);
+    }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void onEvent(PlaybackStoppedEvent event) {
@@ -377,6 +389,8 @@ public class UiControllerMain implements ServiceConnection {
             Preconditions.checkState(false);
         }
 
+        void onAnAudioBookChanged(AudioBook book) { }
+
         abstract StateFactory stateId();
     }
 
@@ -459,6 +473,13 @@ public class UiControllerMain implements ServiceConnection {
             mainController.changeState(StateFactory.BOOK_LIST);
         }
 
+        @Override
+        void onAnAudioBookChanged(AudioBook book) {
+            // This could focus on just one book if that became useful,
+            // but shotgunning it works for now.
+            bookListController.updateAudioBooks();
+        }
+
         @SuppressWarnings("EmptyMethod")
         @Override
         public void onFaceDownStill() { /* ignore */ }
@@ -531,6 +552,15 @@ public class UiControllerMain implements ServiceConnection {
         }
 
         @Override
+        void onAnAudioBookChanged(AudioBook book) {
+            if (playingAudioBook == book) {
+                // If the book that just got updated is the current book,
+                // refresh the screen with the new data
+                mainController.changeState(StateFactory.PLAYBACK);
+            }
+        }
+
+        @Override
         public void onFaceDownStill() {
             Objects.requireNonNull(playbackController);
             switch (mainController.getGlobalSettings().getStopOnFaceDown()) {
@@ -597,6 +627,15 @@ public class UiControllerMain implements ServiceConnection {
                 // This will cause a state change
                 playbackController.stopPlayback();
                 playingAudioBook = null;
+            }
+        }
+
+        @Override
+        void onAnAudioBookChanged(AudioBook book) {
+            if (playingAudioBook == book) {
+                // If the book that just got updated is the current book,
+                // refresh the screen with the new data
+                mainController.changeState(StateFactory.PAUSED);
             }
         }
 

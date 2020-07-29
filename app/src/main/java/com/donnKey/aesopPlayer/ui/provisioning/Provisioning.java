@@ -24,6 +24,7 @@
 package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
+import android.os.Environment;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -33,6 +34,7 @@ import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 import com.donnKey.aesopPlayer.service.PlaybackService;
 import com.donnKey.aesopPlayer.ui.UiControllerMain;
+import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
 
 import org.apache.commons.compress.utils.IOUtils;
@@ -70,29 +72,22 @@ public class Provisioning extends ViewModel {
     // Types used in this cache
     public enum Severity {INFO, MILD, SEVERE}
 
+    @SuppressWarnings("FieldCanBeLocal")
+    final private int justALittleRead = 60; // seconds
+    public final File defaultCandidateDirectory =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
+
     static class Candidate {
-        String newDirName;
-        String oldDirPath;
-        File audioPath;
-        String audioFile;
-        String metadataTitle;
-        String metadataAuthor;
-        String bookTitle;
-        boolean isSelected;
-        boolean collides; // ... with existing directory name (not book name)
-
-        Candidate() {
-            this.newDirName = null;
-            this.oldDirPath = null;
-            this.audioPath = null;
-
-            this.audioFile = null;
-            this.metadataTitle = null;
-            this.metadataAuthor = null;
-            this.bookTitle = null;
-            this.isSelected = false;
-            this.collides = false;
-        }
+        String newDirName = null;
+        String oldDirPath = null;
+        File audioPath = null;
+        String audioFile = null;
+        String metadataTitle = null;
+        String metadataAuthor = null;
+        String bookTitle = null;
+        boolean isSelected = false;
+        boolean collides = false; // ... with existing directory name (not book name)
 
         void fill (@NonNull String dirName, @NonNull String dirPath, @NonNull File audioPath) {
             this.newDirName = dirName;
@@ -100,6 +95,26 @@ public class Provisioning extends ViewModel {
             this.audioPath = audioPath;
 
             this.audioFile = audioPath.getName();
+        }
+
+        @WorkerThread
+        void computeDisplayTitle() {
+            // candidate.audioPath must be filled in, or this wouldn't be a candidate.
+            AudioBook.TitleAndAuthor title = AudioBook.extractTitle(new File(oldDirPath), audioPath);
+
+            metadataTitle = title.title;
+            metadataAuthor = title.author;
+
+            if (newDirName.contains(" ")) {
+                bookTitle = AudioBook.filenameCleanup(newDirName);
+            } else {
+                bookTitle = AudioBook.computeTitle(title);
+            }
+
+            // If the audio file is in the cache dir, it's extracted from a zip, and should
+            // be tossed now that we've processed it. Otherwise, it's a real file and should
+            // be left alone.
+            FileUtilities.removeIfTemp(audioPath);
         }
     }
 
@@ -139,8 +154,13 @@ public class Provisioning extends ViewModel {
     long totalTime;
     boolean partiallyUnknown;
 
-    // ... support info
-    private List<File>audioBooksDirs = null;
+    String getTotalTimeSubtitle() {
+        return String.format(
+            getAppContext().getString(R.string.fragment_subtitle_total_length),
+            partiallyUnknown ?
+                    getAppContext().getString(R.string.fragment_subtitle_total_length_greater_than) : "",
+            UiUtil.formatDuration(totalTime));
+    }
 
     // ... error reporting
     static class ErrorInfo {
@@ -174,7 +194,7 @@ public class Provisioning extends ViewModel {
 
     final List<ErrorInfo>errorLogs = new ArrayList<>();
 
-    private void clearErrors() {
+    void clearErrors() {
         errorLogs.clear();
     }
 
@@ -203,13 +223,13 @@ public class Provisioning extends ViewModel {
 
         totalTime = 0;
         partiallyUnknown = false;
-        for (int i = 0; i< audioBooks.size(); i++) {
+        for (int i = 0; i < audioBooks.size(); i++) {
             AudioBook book = audioBooks.get(i);
 
             // A completed book that isn't in its first 10 seconds is likely being reread.
             // Don't suggest deletion.
             boolean preSelected = book.getCompleted()
-                    && TimeUnit.MILLISECONDS.toSeconds(book.toMs(book.getLastPosition())) < 10;
+                    && TimeUnit.MILLISECONDS.toSeconds(book.toMs(book.getLastPosition())) < justALittleRead;
             bookList[i] = new BookInfo(book, preSelected, !book.getPath().canWrite());
             long t = book.getTotalDurationMs();
             if (t != AudioBook.UNKNOWN_POSITION) {
@@ -229,7 +249,7 @@ public class Provisioning extends ViewModel {
     }
 
     @WorkerThread
-    void buildCandidateList_Task(NotifierCallback notifier) {
+    void buildCandidateList_Task(@NonNull File candidateDirectory, Progress progress) {
         // Must run inside a task; will be slow particularly for zips
         // We call notifier several times so that there's indication of progress to
         // the user while the long operations of digging into a zip file happen.
@@ -249,7 +269,7 @@ public class Provisioning extends ViewModel {
                 }
             }
             candidate.newDirName = AudioBook.filenameCleanup(fileName);
-            notifier.notifier();
+            progress.progress(ProgressKind.SEND_TOAST, candidate.newDirName);
 
             File pathToTarget = new File(candidateDirectory, fileName);
 
@@ -263,18 +283,18 @@ public class Provisioning extends ViewModel {
                         pathToTarget.getPath(),
                         audioPath);
 
-                if (scanForDuplicateAudioBook(candidate.newDirName)) {
+                if (scanForDuplicateAudioBook(candidate.newDirName) != null) {
                     candidate.collides = true;
                 }
-                notifier.notifier();
+                progress.progress(ProgressKind.SEND_TOAST, candidate.audioFile);
 
                 final Candidate c = candidate;
                 // Theoretically, we should throttle the number of threads, but since the number
                 // of books is small and these terminate soon enough...
                 Thread t = new Thread(()-> {
                     // This can be very expensive
-                    computeBookTitle(c);
-                    notifier.notifier();
+                    c.computeDisplayTitle();
+                    progress.progress(ProgressKind.BOOK_DONE, c.bookTitle);
                 });
                 t.setPriority(Thread.MIN_PRIORITY);
                 t.start();
@@ -293,29 +313,8 @@ public class Provisioning extends ViewModel {
         }
 
         // Just to be sure
-        notifier.notifier();
+        progress.progress(ProgressKind.ALL_DONE, "");
         candidatesTimestamp = candidateDirectory.lastModified();
-    }
-
-    @WorkerThread
-    private void computeBookTitle(@NonNull Candidate candidate) {
-        // candidate.audioPath must be filled in, or this wouldn't be a candidate.
-        AudioBook.TitleAndAuthor title = AudioBook.extractTitle(new File(candidate.oldDirPath), candidate.audioPath);
-
-        candidate.metadataTitle = title.title;
-        candidate.metadataAuthor = title.author;
-
-        if (candidate.newDirName.contains(" ")) {
-            candidate.bookTitle = AudioBook.filenameCleanup(candidate.newDirName);
-        }
-        else {
-            candidate.bookTitle = AudioBook.computeTitle(title);
-        }
-
-        // If the audio file is in the cache dir, it's extracted from a zip, and should
-        // be tossed now that we've processed it. Otherwise, it's a real file and should
-        // be left alone.
-        FileUtilities.removeIfTemp(candidate.audioPath);
     }
 
     @WorkerThread
@@ -324,38 +323,39 @@ public class Provisioning extends ViewModel {
         // new or removed collision.
         for (Candidate c: candidates) {
             if (c.newDirName != null) {
-                c.collides = scanForDuplicateAudioBook(c.newDirName);
+                c.collides = scanForDuplicateAudioBook(c.newDirName) != null;
             }
         }
     }
 
     @WorkerThread
-    boolean scanForDuplicateAudioBook(String dirname) {
-        if (audioBooksDirs == null) {
-            audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
-        }
+    String scanForDuplicateAudioBook(String dirname) {
         for (File currentAudioBooks : audioBooksDirs) {
             File possibleBook = new File(currentAudioBooks, dirname);
             if (possibleBook.exists()) {
-                return true;
+                return possibleBook.getPath();
             }
         }
-        return false;
+        return null;
     }
 
     @WorkerThread
     void moveAllSelected_Task(Progress progress, boolean retainBooks, boolean renameFiles) {
         clearErrors();
 
-        moveAllSelected_pass1(progress, retainBooks, renameFiles);
-        moveAllSelected_pass2(progress, retainBooks, renameFiles);
+        final Provisioning.Candidate[] currentCandidates
+                = candidates.toArray(new Provisioning.Candidate[0]);
+
+        moveAllSelected_pass1(currentCandidates, progress, retainBooks, renameFiles);
+        moveAllSelected_pass2(currentCandidates, progress, retainBooks, renameFiles);
 
         progress.progress(ProgressKind.ALL_DONE, null);
     }
 
     @SuppressLint("UsableSpace")
     @WorkerThread
-    private void moveAllSelected_pass1(Progress progress, boolean retainBooks, boolean renameFiles) {
+    private void moveAllSelected_pass1(Provisioning.Candidate[] currentCandidates,
+                                       Progress progress, boolean retainBooks, boolean renameFiles) {
         // Pass one: simple renames on the same file system (operations that don't change
         // the space used even temporarily). Thus avoiding interaction with the available space
         // checks.
@@ -365,8 +365,6 @@ public class Provisioning extends ViewModel {
             return;
         }
 
-        Provisioning.Candidate[] currentCandidates
-                = candidates.toArray(new Provisioning.Candidate[0]);
 
         // Iterate through all the files. If we need space to copy to, advance the pointer to
         // the several AudioBooks directories when needed.
@@ -399,6 +397,10 @@ public class Provisioning extends ViewModel {
             }
 
             if (newTree != null) {
+                logResult(Severity.INFO,
+                    String.format(getAppContext().getString(R.string.info_book_installed),
+                            candidate.bookTitle, newTree.getPath()));
+
                 candidate.isSelected = false;
                 candidates.remove(candidate);
                 if (renameFiles) {
@@ -412,7 +414,8 @@ public class Provisioning extends ViewModel {
 
     @SuppressLint("UsableSpace")
     @WorkerThread
-    private void moveAllSelected_pass2(Progress progress, boolean retainBooks, boolean renameFiles) {
+    private void moveAllSelected_pass2(@NonNull final Provisioning.Candidate[] currentCandidates,
+                                       Progress progress, boolean retainBooks, boolean renameFiles) {
         // Pass 2: These operations use space (copying or expanding archives)
         // Note: "moveToSameFs" shouldn't normally be called from here (everything got done in pass one)
         // It's a fail-soft in the case of is a nearly full file system than fails a directory move
@@ -425,10 +428,6 @@ public class Provisioning extends ViewModel {
         int nextDir = 0;
         File activeStorage = null;
 
-        Provisioning.Candidate[] currentCandidates
-                = candidates.toArray(new Provisioning.Candidate[0]);
-
-        // Iterate through all the files. If we need space to copy to, advance the pointer to
         // the several AudioBooks directories when needed.
         for (int candidateIndex = 0; candidateIndex < currentCandidates.length; /* void */) {
             Candidate candidate = currentCandidates[candidateIndex];
@@ -501,7 +500,9 @@ public class Provisioning extends ViewModel {
                         logResult(Severity.SEVERE, String.format(getAppContext().getString(R.string.error_could_not_delete_book), fromDir.getPath()));
                     }
                 }
-                logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
+                logResult(Severity.INFO,
+                        String.format(getAppContext().getString(R.string.info_book_installed),
+                                candidate.bookTitle, toDir.getPath()));
 
                 newTree = toDir;
             } else if (fromDir.isDirectory()) {
@@ -527,7 +528,9 @@ public class Provisioning extends ViewModel {
                     if (!retainBooks) {
                         FileUtilities.deleteTree(fromDir, this::logResult);
                     }
-                    logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
+                    logResult(Severity.INFO,
+                        String.format(getAppContext().getString(R.string.info_book_installed),
+                            candidate.bookTitle, toDir.getPath()));
 
                     newTree = toDir;
                 }
@@ -569,8 +572,9 @@ public class Provisioning extends ViewModel {
                     if (!retainBooks) {
                         FileUtilities.deleteTree(fromDir, this::logResult);
                     }
-                    logResult(Severity.INFO, String.format(getAppContext().getString(R.string.info_book_installed), fromDir.getPath()));
-
+                    logResult(Severity.INFO,
+                        String.format(getAppContext().getString(R.string.info_book_installed),
+                            candidate.bookTitle, toDir.getPath()));
                     newTree = toDir;
                 }
             }
@@ -584,8 +588,6 @@ public class Provisioning extends ViewModel {
             }
             progress.progress(ProgressKind.BOOK_DONE, fromDir.getName());
         }
-
-        progress.progress(ProgressKind.ALL_DONE, null);
     }
 
     @WorkerThread
@@ -663,6 +665,7 @@ public class Provisioning extends ViewModel {
                 progress.progress(ProgressKind.BOOK_DONE, null);
                 logResult(Severity.INFO,
                         String.format(getAppContext().getString(R.string.info_book_removed),
+                            book.book.getDisplayTitle(),
                             bookDir.getPath()));
             }
         }
@@ -686,7 +689,11 @@ public class Provisioning extends ViewModel {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-    public void onEvent(AudioBooksChangedEvent event) {
+    public void onEvent(@NonNull AudioBooksChangedEvent event) {
+        if (event.contentType == null) {
+            // nothing interesting happened
+            return;
+        }
         booksEvent();
     }
 
@@ -703,14 +710,9 @@ public class Provisioning extends ViewModel {
         void booksChanged();
     }
 
-    // For tasks that send notifications.
-    interface NotifierCallback {
-        void notifier();
-    }
+    public enum ProgressKind{SEND_TOAST, FILESYSTEMS_FULL, BOOK_DONE, ALL_DONE}
 
-    enum ProgressKind{SEND_TOAST, FILESYSTEMS_FULL, BOOK_DONE, ALL_DONE}
-
-    interface Progress {
+    public interface Progress {
         void progress(ProgressKind kind, String string);
     }
 }

@@ -42,7 +42,6 @@ import com.donnKey.aesopPlayer.model.BookPosition;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -140,7 +139,9 @@ public class PositionEditFragment extends Fragment {
                 String durationString = Objects.requireNonNull(editor.getText()).toString();
                 if (durationString.length() != 0)
                 {
-                    long duration = timeToMillis(durationString);
+                    // We know this string's format fairly accurately due to the filter below. However,
+                    // we can't use the time scanner because there are a few books longer than 24 hours.
+                    long duration = AudioBook.timeToMillis(durationString);
                     editor.setText(formatDurationShort(duration));
                 }
                 // We didn't process it, just a side-effect, so return false
@@ -148,7 +149,16 @@ public class PositionEditFragment extends Fragment {
             return false;
         });
 
-        doneButton.setOnClickListener((v) -> setNewTime());
+        doneButton.setOnClickListener((v) -> {
+                long duration = AudioBook.timeToMillis(Objects.requireNonNull(editor.getText()).toString());
+                if (duration >= 0) {
+                    // We know the format of the actual data pretty well here due to
+                    // UI, so this should always be the case.
+                    book.setNewTime(duration);
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    fragmentManager.popBackStack();
+                }
+            } );
 
         cancelButton.setOnClickListener((v) -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
@@ -178,70 +188,6 @@ public class PositionEditFragment extends Fragment {
         Objects.requireNonNull(imm);
         imm.hideSoftInputFromWindow(editor.getWindowToken(), 0);
         super.onStop();
-    }
-
-    private long timeToMillis(String durationString) {
-        // We know this string's format fairly accurately due to the filter below. However,
-        // we can't use the time scanner because there are a few books longer than 24 hours.
-        if (durationString.length() == 0)
-        {
-            // Ignore it.
-            return 0;
-        }
-
-        // Ask split to retain a trailing empty string ("hh:" in our usage)
-        String[] parts = durationString.split(":", -1);
-
-        long duration = 0;
-        switch (parts.length) {
-        case 2:
-            // ':' present - it's hh:mm (either could be empty)
-            if (parts[0].length() > 0) {
-                duration = Long.parseLong(parts[0]) * 60;
-            }
-            if (parts[1].length() > 0) {
-                duration += Long.parseLong(parts[1]);
-            }
-            break;
-        case 1:
-            // no ':' - it's just mm (or mmm)
-            if (parts[0].length() > 0) {
-                duration = Long.parseLong(parts[0]); // in minutes
-            }
-            break;
-        default:
-            // nothing or nonsense (should be impossible given the filter): zero
-            break;
-        }
-        if (duration > 35000) {
-            // A number slightly larger than that will overflow when converted to Millis, so
-            // don't allow the overflow. (That's a bit under 600 hours.)
-            duration = 35000;
-        }
-        return TimeUnit.MINUTES.toMillis(duration);
-    }
-
-    private void setNewTime() {
-
-        String durationString = Objects.requireNonNull(editor.getText()).toString();
-
-        if (durationString.length() == 0)
-        {
-            // Ignore it.
-            return;
-        }
-
-        long lengthMs = book.getTotalDurationMs();
-        long newBookPosition = timeToMillis(durationString);
-        if (newBookPosition > lengthMs) {
-            newBookPosition = lengthMs;
-        }
-
-        book.updateTotalPosition(newBookPosition);
-        book.setCompleted(false);
-
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        fragmentManager.popBackStack();
     }
 
     private static final Pattern legalDuration = Pattern.compile("^\\d*(:[0-5]?\\d?)?$");
