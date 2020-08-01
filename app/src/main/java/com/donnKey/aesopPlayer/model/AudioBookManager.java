@@ -28,16 +28,19 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 
 import com.donnKey.aesopPlayer.ApplicationScope;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.concurrency.SimpleFuture;
+import com.donnKey.aesopPlayer.events.AnAudioBookChangedEvent;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.events.CurrentBookChangedEvent;
 import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 import com.donnKey.aesopPlayer.filescanner.FileScanner;
 import com.donnKey.aesopPlayer.filescanner.FileSet;
 import com.donnKey.aesopPlayer.service.PlaybackService;
+import com.donnKey.aesopPlayer.util.AwaitResume;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -96,15 +99,6 @@ public class AudioBookManager {
     @MainThread
     public AudioBook getCurrentBook() {
         return currentBook;
-    }
-
-    public void removeBook(AudioBook book) {
-        synchronized (audioBooks) {
-            audioBooks.remove(book);
-            if (book == currentBook) {
-                currentBook = null;
-            }
-        }
     }
 
     @MainThread
@@ -273,5 +267,38 @@ public class AudioBookManager {
                 colours.add(colourScheme);
         }
         return colours;
+    }
+
+    private final AwaitResume booksChanged = new AwaitResume();
+
+    @WorkerThread
+    public void awaitDurationQueries() {
+        // Wait for the duration queries.
+        booksChanged.prepare();
+        while (true) {
+            boolean busy = false;
+            synchronized (audioBooks) {
+                for (AudioBook b : audioBooks) {
+                    if (b.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
+                        // below is no-op if it's already happening
+                        // (N.B. we should never get to this function if there haven't
+                        // already been duration queries made in other places... this is
+                        // just to be sure.)
+                        Objects.requireNonNull(getPlaybackService()).computeDuration(b);
+                        busy = true;
+                    }
+                }
+            }
+            if (!busy) {
+                return;
+            }
+
+            booksChanged.await();
+        }
+    }
+
+    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    public void onEvent(AnAudioBookChangedEvent event) {
+        booksChanged.resume();
     }
 }

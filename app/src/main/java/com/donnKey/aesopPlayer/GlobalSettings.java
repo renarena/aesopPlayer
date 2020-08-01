@@ -28,6 +28,7 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.os.Environment;
 
 import androidx.annotation.NonNull;
 
@@ -40,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -454,6 +456,46 @@ public class GlobalSettings {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public boolean getFilePollEnabled() {
+        return true;
+    }
+
+    public boolean getMailPollEnabled() {
+        return false;
+    }
+
+    public String getMailHostname() {
+        return "gmail.com";
+    }
+
+    public String getMailLogin() {
+        return "grandmaeas.ls@gmail.com";
+    }
+
+    public String getMailPassword() {
+        return "Insecure.Account";
+    }
+
+    public File getRemoteControlDir() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    }
+
+    long controlFileTimestamp=0;
+    public long getSavedControlFileTimestamp() {
+        return controlFileTimestamp;
+    }
+    public void setSavedControlFileTimestamp(long timestamp) {
+        controlFileTimestamp = timestamp;
+    }
+
+    long mailTimestamp=0;
+    public long getSavedMailTimestamp() {
+        return mailTimestamp;
+    }
+    public void setSavedMailTimestamp(long timestamp) {
+        mailTimestamp = timestamp;
     }
 
     public SharedPreferences appSharedPreferences() {

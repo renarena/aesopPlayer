@@ -123,6 +123,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.28.1'
 
+    // implementation 'commons-net:commons-net:3.6'
+    implementation 'com.sun.mail:android-mail:1.6.5'
+    implementation 'com.sun.mail:android-activation:1.6.5'
+
     implementation 'com.github.ozodrukh:CircularReveal:2.0.1@aar'
 
     // jitpack is not providing the "right" version right now; the AdrienPoupa version

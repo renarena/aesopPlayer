@@ -41,7 +41,8 @@ import javax.inject.Inject;
 public class AesopPlayerApplication extends androidx.multidex.MultiDexApplication {
 
     private static final String AUDIOBOOKS_DIRECTORY = "AudioBooks";
-    public static final String WEBSITE_URL = "https://donnkey.github.io/aesopPlayer/";
+    //public static final String WEBSITE_URL = "https://donnkey.github.io/aesopPlayer/";
+    public static final String WEBSITE_URL = "http://donnteH02:4000/aesopPlayer/";
     // To use with a local server using http: rather than https: (and thus avoiding
     // having to fuss with certificates) use a URI like the below. You'll also need
     // to enable cleartext in network_security_config.xml.

@@ -59,6 +59,7 @@ import com.donnKey.aesopPlayer.ui.provisioning.ProvisioningActivity;
 import com.donnKey.aesopPlayer.ui.classic.ClassicMainUiModule;
 import com.donnKey.aesopPlayer.ui.classic.DaggerClassicMainUiComponent;
 import com.donnKey.aesopPlayer.concurrency.SimpleFuture;
+import com.donnKey.aesopPlayer.ui.provisioning.RemoteAuto;
 import com.donnKey.aesopPlayer.ui.settings.SettingsActivity;
 
 import java.lang.reflect.Method;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Inject
     public KioskModeSwitcher kioskModeSwitcher;
 
+    private RemoteAuto remoteAuto;
     private PowerManager powerManager;
     private ActivityManager activityManager;
     private StatusBarCollapser statusBarCollapser;
@@ -184,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         });
 
         justCreated.start();
+        remoteAuto = new RemoteAuto(this);
     }
 
     @Override
@@ -210,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         controller.onActivityStart();
         orientationDelegate.onStart();
         batteryStatusProvider.start();
+        remoteAuto.start();
         handleIntent(getIntent());
     }
 

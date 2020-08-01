@@ -122,10 +122,12 @@ public class Provisioning extends ViewModel {
         final AudioBook book;
         boolean selected;
         final boolean unWritable;
-        BookInfo(AudioBook book, boolean selected, boolean unWritable) {
+        final boolean current;
+        BookInfo(AudioBook book, boolean selected, boolean unWritable, boolean current) {
             this.book = book;
             this.selected = selected;
             this.unWritable = unWritable;
+            this.current = current;
         }
     }
 
@@ -230,7 +232,8 @@ public class Provisioning extends ViewModel {
             // Don't suggest deletion.
             boolean preSelected = book.getCompleted()
                     && TimeUnit.MILLISECONDS.toSeconds(book.toMs(book.getLastPosition())) < justALittleRead;
-            bookList[i] = new BookInfo(book, preSelected, !book.getPath().canWrite());
+            bookList[i] = new BookInfo(book, preSelected, !book.getPath().canWrite(),
+                    book == audioBookManager.getCurrentBook());
             long t = book.getTotalDurationMs();
             if (t != AudioBook.UNKNOWN_POSITION) {
                 totalTime += book.getTotalDurationMs();
@@ -248,11 +251,16 @@ public class Provisioning extends ViewModel {
         refreshCollisionState();
     }
 
+    // All the tasks we spun off, so we can collect them later to be sure the task
+    // is complete before proceeding.
+    final List<Thread> candidatesSubTasks = new ArrayList<>();
+
     @WorkerThread
     void buildCandidateList_Task(@NonNull File candidateDirectory, Progress progress) {
         // Must run inside a task; will be slow particularly for zips
         // We call notifier several times so that there's indication of progress to
         // the user while the long operations of digging into a zip file happen.
+        candidatesSubTasks.clear();
         String[] dirList = candidateDirectory.list();
         if (dirList == null) {
             return;
@@ -298,6 +306,7 @@ public class Provisioning extends ViewModel {
                 });
                 t.setPriority(Thread.MIN_PRIORITY);
                 t.start();
+                candidatesSubTasks.add(t);
                 candidate = null;
             }
         }
@@ -315,6 +324,16 @@ public class Provisioning extends ViewModel {
         // Just to be sure
         progress.progress(ProgressKind.ALL_DONE, "");
         candidatesTimestamp = candidateDirectory.lastModified();
+    }
+
+    void joinCandidatesSubTasks() {
+        for (Thread t : candidatesSubTasks) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
     }
 
     @WorkerThread
@@ -337,6 +356,20 @@ public class Provisioning extends ViewModel {
             }
         }
         return null;
+    }
+
+    @WorkerThread
+    void moveOneFile_Task(Provisioning.Candidate candidate,
+                          Progress progress, boolean retainBooks, boolean renameFiles) {
+        clearErrors();
+
+        Provisioning.Candidate[] currentCandidates = new Provisioning.Candidate[1];
+        currentCandidates[0] = candidate;
+
+        moveAllSelected_pass1(currentCandidates, progress, retainBooks, renameFiles);
+        moveAllSelected_pass2(currentCandidates, progress, retainBooks, renameFiles);
+
+        progress.progress(ProgressKind.ALL_DONE, null);
     }
 
     @WorkerThread
@@ -660,7 +693,6 @@ public class Provisioning extends ViewModel {
                         continue DeleteLoop;
                     }
                 }
-                audioBookManager.removeBook(book.book);
                 book.selected = false;
                 progress.progress(ProgressKind.BOOK_DONE, null);
                 logResult(Severity.INFO,
@@ -670,6 +702,8 @@ public class Provisioning extends ViewModel {
             }
         }
 
+        // This has the side-effect of a mediaStoreUpdate, which re-syncs with the UI.
+        // (RemoteAuto does the same, slightly differently.)
         progress.progress(ProgressKind.ALL_DONE, null);
     }
 

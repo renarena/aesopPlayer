@@ -371,8 +371,8 @@ public class ProvisioningActivity extends AppCompatActivity
 
     @UiThread
     void moveAllSelected() {
-        retainBooks = globalSettings.getRetainBooks() && provisioning.candidateDirectory.canWrite();
-        renameFiles = globalSettings.getRenameFiles() && provisioning.candidateDirectory.canWrite();
+        retainBooks = globalSettings.getRetainBooks() || !provisioning.candidateDirectory.canWrite();
+        renameFiles = globalSettings.getRenameFiles();
         Thread t = new Thread(this::moveAllSelected_Task);
         t.start();
     }

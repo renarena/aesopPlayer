@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,6 +85,8 @@ public class FragmentBookItem extends BookListChildFragment {
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
             if (book == null) {
+                // shouldn't it be doing just the below, rather than as a parameter???????????
+                Log.w("AESOP " + getClass().getSimpleName(), "!!!!!!!!!!!!!! FragmentBookItem bad parameter" );
                 book = audioBookManager.getCurrentBook();
             }
             TextView textView = view.findViewById(R.id.title);
