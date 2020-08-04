@@ -28,13 +28,13 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.sun.mail.imap.IMAPBodyPart;
 import com.sun.mail.imap.IMAPStore;
+import com.sun.mail.util.MailConnectException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -49,6 +49,7 @@ import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -64,8 +65,16 @@ public class Mail {
     @Inject
     public GlobalSettings globalSettings;
 
+    static public final int SUCCESS = 0;
+    static public final int UNRECOGNIZED_HOST = 1;
+    static public final int UNRECOGNIZED_USER_PASSWORD = 2;
+    static public final int OTHER_ERROR = 3;
+    static public final int PENDING = 4;
+    static public final int UNRESOLVED = 5;
+
     private String login;
     private String password;
+    private final String deviceName;
     private final ArrayList<String> recipients = new ArrayList<>();
     private String subject = null;
     private String messageBody = null;
@@ -76,38 +85,64 @@ public class Mail {
 
     private long timestamp;
     private BufferedReader contentStream;
+    IMAPStore imapStore = null;
 
-    public Mail(@NonNull AppCompatActivity activity) {
-        Context appContext = activity.getApplicationContext();
-        AesopPlayerApplication.getComponent(appContext).inject(this);
+    public Mail(@NonNull Context context) {
+        AesopPlayerApplication.getComponent(context).inject(this);
         String baseHostname = globalSettings.getMailHostname();
         SMTPHostname = "smtp." + baseHostname;
         IMAPHostname = "imap." + baseHostname;
 
         login = globalSettings.getMailLogin();
         password = globalSettings.getMailPassword();
+        deviceName = globalSettings.getMailDeviceName();
     }
 
-    public boolean readMail(String desiredSubject)
-    {
-        boolean result = false;
-        inboundFrom = null;
+    private int initiateReader() {
+        imapStore = null;
+        int result;
 
         try {
             Properties props = new Properties();
             props.put("mail.imaps.host", IMAPHostname);
-            Session receiverSession = Session.getDefaultInstance(props,
-                new javax.mail.Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(login, password);
-                    }
-                });
+            //????????????????? Adjust timeout?
+            props.put("mail.imaps.connectiontimeout", "2000");
+            Session receiverSession = Session.getInstance(props,
+                    new javax.mail.Authenticator() {
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(login, password);
+                        }
+                    });
 
             // Get the store
-            IMAPStore imapStore = (IMAPStore) receiverSession.getStore("imaps");
+            imapStore = (IMAPStore) receiverSession.getStore("imaps");
             imapStore.connect(login, password);
+            result = SUCCESS;
+        }
+        catch (MailConnectException e) {
+            // thrown for bad hostname by connect
+            result = UNRECOGNIZED_HOST;
+        } catch (MessagingException e) {
+            // thrown for bad login/password by connect
+            result = UNRECOGNIZED_USER_PASSWORD;
+        } catch (Exception e) {
+            CrashWrapper.recordException(e);
+            result = OTHER_ERROR;
+        }
+        return result;
+    }
 
-            // And the default folder
+    public int readMail(String desiredSubject)
+    {
+        inboundFrom = null;
+
+        int result = initiateReader();
+        if (result != SUCCESS) {
+            return result;
+        }
+
+        try {
+            // Get the default folder
             Folder inbox = imapStore.getFolder("INBOX");
             inbox.open(Folder.READ_WRITE);
 
@@ -121,9 +156,15 @@ public class Mail {
             ReceivedDateTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.GT, today.getTime());
             SubjectTerm subjectTerm = new SubjectTerm(desiredSubject);
             AndTerm andTerm = new AndTerm(dateTerm, subjectTerm);
-            /* ????????????
-            FromTerm fromTerm = new FromTerm(new InternetAddress(inboundFrom));
-            andTerm = new AndTerm(andTerm, fromTerm);
+            if (!deviceName.isEmpty()) {
+                subjectTerm = new SubjectTerm(deviceName);
+                andTerm = new AndTerm(andTerm, subjectTerm);
+            }
+            /*??????????????
+            if (!deviceName.isEmpty()) {
+                FromTerm fromTerm = new FromTerm(new InternetAddress(inboundFrom));
+                andTerm = new AndTerm(andTerm, fromTerm);
+            }
              */
             Message[] messages = inbox.search(andTerm);
 
@@ -154,7 +195,7 @@ public class Mail {
                                     inboundFrom = messageFromNames[0].toString();
                                     Log.w("AESOP " + getClass().getSimpleName(), "Mail is from " + inboundFrom);
                                 }
-                                result = true;
+                                result = SUCCESS;
                                 break findMessage;
                             }
                         }
@@ -166,10 +207,10 @@ public class Mail {
             //inbox.close(true);
             inbox.close(false);
             imapStore.close();
-
         }
         catch (Exception e) {
-            Log.w("AESOP " + getClass().getSimpleName(), "SEND CRASHED");
+            Log.w("AESOP " + getClass().getSimpleName(), "READ CRASHED 2 " + e);
+            result = OTHER_ERROR;
             CrashWrapper.recordException(e);
             e.printStackTrace();
         }
@@ -214,6 +255,18 @@ public class Mail {
             CrashWrapper.recordException(e);
             e.printStackTrace();
         }
+    }
+
+    public int testConnection() {
+        int result = initiateReader();
+        try {
+            if (imapStore != null) {
+                imapStore.close();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return result;
     }
 
     @SuppressWarnings("UnusedReturnValue")

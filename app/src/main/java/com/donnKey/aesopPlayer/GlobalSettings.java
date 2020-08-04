@@ -41,7 +41,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -137,6 +136,15 @@ public class GlobalSettings {
     private static final String KEY_BOOKS_EVER_INSTALLED = "action_history.books_ever_installed";
     private static final String KEY_SETTINGS_EVER_ENTERED = "action_history.settings_ever_entered";
     private static final String KEY_STORED_VERSION = "stored_version";
+
+    public static final String KEY_REMOTE_PASSWORD = "remote_password";
+    public static final String KEY_REMOTE_HOST = "remote_hostname";
+    public static final String KEY_REMOTE_LOGIN = "remote_login";
+    public static final String KEY_REMOTE_DEVICE_NAME = "remote_device_name";
+    public static final String KEY_REMOTE_CONTROL_DIR = "remote_control_dir";
+    public static final String KEY_REMOTE_MAIL_POLL = "remote_mail_poll";
+    public static final String KEY_REMOTE_FILE_POLL = "remote_file_poll";
+    public static final String KEY_REMOTE_OPTIONS_SCREEN = "remote_options_screen";
 
     public static final String TAG_KIOSK_DIALOG = "tag_kiosk_dialog";
 
@@ -459,30 +467,36 @@ public class GlobalSettings {
     }
 
     public boolean getFilePollEnabled() {
-        return true;
+        return sharedPreferences.getBoolean(GlobalSettings.KEY_REMOTE_FILE_POLL, false);
     }
 
     public boolean getMailPollEnabled() {
-        return false;
+        return sharedPreferences.getBoolean(GlobalSettings.KEY_REMOTE_MAIL_POLL, false);
     }
 
     public String getMailHostname() {
-        return "gmail.com";
+        return sharedPreferences.getString(GlobalSettings.KEY_REMOTE_HOST, "");
     }
 
     public String getMailLogin() {
-        return "grandmaeas.ls@gmail.com";
+        return sharedPreferences.getString(GlobalSettings.KEY_REMOTE_LOGIN, "");
     }
 
     public String getMailPassword() {
-        return "Insecure.Account";
+        return sharedPreferences.getString(GlobalSettings.KEY_REMOTE_PASSWORD, "");
     }
 
-    public File getRemoteControlDir() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    public String getMailDeviceName() {
+        return sharedPreferences.getString(GlobalSettings.KEY_REMOTE_DEVICE_NAME, "");
+    }
+
+    public String getRemoteControlDir() {
+        return sharedPreferences.getString(GlobalSettings.KEY_REMOTE_CONTROL_DIR,
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
     }
 
     long controlFileTimestamp=0;
+    //???????????????? Fix me
     public long getSavedControlFileTimestamp() {
         return controlFileTimestamp;
     }

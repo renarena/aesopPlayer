@@ -56,6 +56,7 @@ import com.donnKey.aesopPlayer.ui.settings.MainSettingsFragment;
 import com.donnKey.aesopPlayer.ui.settings.NewVersionSettingsFragment;
 import com.donnKey.aesopPlayer.ui.settings.PlaybackSettingsFragment;
 import com.donnKey.aesopPlayer.ui.classic.FragmentPlayback;
+import com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -83,6 +84,7 @@ public interface ApplicationComponent {
     void inject(PlaybackService playbackService);
     void inject(DeviceMotionDetector deviceMotionDetector);
     void inject(PlaybackSettingsFragment fragment);
+    void inject(RemoteSettingsFragment fragment);
     void inject(InventoryItemFragment fragment);
     void inject(CandidateFragment fragment);
     // --Commented out by Inspection (5/10/2019 8:35 PM):void inject(CandidateRecyclerViewAdapter fragment);

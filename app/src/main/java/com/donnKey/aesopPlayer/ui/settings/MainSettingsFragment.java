@@ -100,6 +100,27 @@ public class MainSettingsFragment extends BaseSettingsFragment {
         }
     }
 
+    private void updateRemoteSummary() {
+        Preference pref;
+        pref = findPreference(GlobalSettings.KEY_REMOTE_OPTIONS_SCREEN);
+        String message = "";
+        if (globalSettings.getMailPollEnabled()) {
+            message = getString(R.string.remote_via_mail);
+        }
+        if (globalSettings.getFilePollEnabled()) {
+            if (!message.isEmpty()) {
+                message += getString(R.string.remote_via_and_word);
+            }
+            message += getString(R.string.remote_via_file);
+        }
+        if (message.isEmpty()) {
+            message = getString(R.string.remote_via_disabled);
+        }
+        if (pref != null) {
+            pref.setSummary(message);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -123,6 +144,7 @@ public class MainSettingsFragment extends BaseSettingsFragment {
             requireActivity().recreate();
         }
         updateNewVersionSummary();
+        updateRemoteSummary();
     }
 
     @Override

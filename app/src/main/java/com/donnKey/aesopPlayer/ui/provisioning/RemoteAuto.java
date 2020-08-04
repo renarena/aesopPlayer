@@ -51,6 +51,7 @@ import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 import com.donnKey.aesopPlayer.ui.UiUtil;
+import com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment;
 import com.donnKey.aesopPlayer.util.AwaitResume;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
 import com.google.android.gms.common.internal.Asserts;
@@ -107,10 +108,11 @@ public class RemoteAuto {
     private final String controlFileName = "AesopScript.txt";
     @SuppressWarnings("FieldCanBeLocal")
     private final String resultFileName = "AesopResult.txt";
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String mailSubjectFlag = "Aesop request";
 
     private final Context appContext;
     private final AppCompatActivity activity;
-    @SuppressWarnings("FieldCanBeLocal")
     private final String DateTimeFormat = "yyyy-MM-dd HH:mm:ss zzz";
 
     // ?????????????? Make these times sensible for real life, not testing
@@ -174,68 +176,57 @@ public class RemoteAuto {
     public void pollLoop() {
         while (true) {
             if (!enabled) {
+                // Give up until we get another start
                 Log.w("AESOP" + getClass().getSimpleName(), "not enabled");
                 return;
             }
-            Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle");
 
-            // Reset to the same initial state each cycle
-            // Start downloads in the same place each run
-            currentCandidateDir = downloadDir;
-            sendResultTo.clear();
-            resultLog.clear();
-            commands = null;
-            // "Almost always" defaults for installing
-            retainBooks = false;
-            renameFiles = true;
+            if (!RemoteSettingsFragment.getInRemoteSettings()) {
 
-            boolean workAvailable = false;
-            if (globalSettings.getFilePollEnabled()) {
-                workAvailable = pollControlFile();
-            }
-            if (!workAvailable && globalSettings.getMailPollEnabled()) {
-                workAvailable = pollMail();
-            }
+                controlDir = new File(globalSettings.getRemoteControlDir());
 
-            if (workAvailable) {
-                downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
-
-                @SuppressLint("SimpleDateFormat")
-                String currentDateAndTime = new SimpleDateFormat(DateTimeFormat).format(new Date());
-                logActivity("Start: " + currentDateAndTime);
-
-                // ?????????????????????? timeout???
-                // make commands a parameter?????????????
-                processFSM();
-
-                try {
-                    commands.close();
-                } catch (IOException e) {
-                    // ignored
-                }
+                // Reset to the same initial state each cycle
+                // Start downloads in the same place each run
+                currentCandidateDir = downloadDir;
+                sendResultTo.clear();
+                resultLog.clear();
                 commands = null;
+                // "Almost always" defaults for installing
+                retainBooks = false;
+                renameFiles = true;
 
-                // Tell the user about space remaining
-                final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
-                for (File activeStorage : audioBooksDirs) {
-                    logActivity("Space on " + activeStorage.getParent() + ": Using " +
-                        activeStorage.getUsableSpace()/1000000 + "Mb of " +
-                        activeStorage.getTotalSpace()/1000000 + "Mb (" +
-                            (int)(((float)activeStorage.getUsableSpace()/
-                                   (float)activeStorage.getTotalSpace())*100) + "%)");
+                // should get stream ????????????????????????
+                boolean workAvailable = false;
+                if (globalSettings.getFilePollEnabled()) {
+                    workAvailable = pollControlFile();
+                }
+                if (!workAvailable && globalSettings.getMailPollEnabled()) {
+                    workAvailable = pollMail();
                 }
 
-                // don't need the extra var, but suppress-lint objects ???????????????
-                @SuppressLint("SimpleDateFormat")
-                String currentDateAndTime2 = new SimpleDateFormat(DateTimeFormat).format(new Date());
-                logActivity("End: " + currentDateAndTime2);
+                if (workAvailable) {
+                    Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle");
+                    downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
 
-                Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
-                sendReport();
-                Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
+                    // ?????????????????????? timeout???
+                    // make commands a parameter?????????????
+                    processFSM();
 
-                downloadManager = null;
+                    try {
+                        commands.close();
+                    } catch (IOException e) {
+                        // ignored
+                    }
+                    commands = null;
+
+                    Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
+                    sendReport();
+                    Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
+
+                    downloadManager = null;
+                }
             }
+            else Log.w("AESOP " + getClass().getSimpleName(), "Remote settings forces skip");
 
             try {
                 Thread.sleep(interval);
@@ -254,7 +245,6 @@ public class RemoteAuto {
     // ??????????????????????? All actions here need to turn off the speaker (search for speak); see UiControllerBookList  108
     @WorkerThread
     private boolean pollControlFile() {
-        controlDir = globalSettings.getRemoteControlDir();
 
         File controlFile = new File(controlDir, controlFileName);
         if (!controlFile.exists()) {
@@ -280,9 +270,12 @@ public class RemoteAuto {
 
     @WorkerThread
     private boolean pollMail() {
+        Log.w("AESOP " + getClass().getSimpleName(), "poll mail");
         Mail mail = new Mail(activity);
         // Search is for a pattern, case insensitive
-        if (!mail.readMail("Aesop")) {
+        if (mail.readMail(mailSubjectFlag) != Mail.SUCCESS) {
+            //????????????????????????????? how to back off if/as necessary on conn error.
+            // (We can't get here unless it worked once!)
             return false;
         }
 
@@ -300,6 +293,10 @@ public class RemoteAuto {
 
     @WorkerThread
     void processFSM() {
+        @SuppressLint("SimpleDateFormat")
+        String currentDateAndTime = new SimpleDateFormat(DateTimeFormat).format(new Date());
+        logActivity("Start: " + currentDateAndTime);
+
         // Read and process each line of the input stream.
         while (true) {
             String line;
@@ -1010,20 +1007,37 @@ public class RemoteAuto {
         booksChangedEvent.resume();
     }
 
+    @SuppressLint("UsableSpace")
     @WorkerThread
     private void sendReport() {
         // Send the report of what happened. Write it locally to a file (next to the control file)
         // and mail it (if authorized). Always do both just in case the mail fails.
+
+        // Tell the user about space remaining
+        final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
+        for (File activeStorage : audioBooksDirs) {
+            logActivity("Space on " + activeStorage.getParent() + ": Using " +
+                    activeStorage.getUsableSpace()/1000000 + "Mb of " +
+                    activeStorage.getTotalSpace()/1000000 + "Mb (" +
+                    (int)(((float)activeStorage.getUsableSpace()/
+                            (float)activeStorage.getTotalSpace())*100) + "%)");
+        }
+
+        @SuppressLint("SimpleDateFormat")
+        String currentDateAndTime = new SimpleDateFormat(DateTimeFormat).format(new Date());
+        logActivity("End: " + currentDateAndTime);
 
         // ????????????? Remove when convenient
         for (String s:resultLog) {
             Log.w("AESOP " + getClass().getSimpleName(), "Log: " + s);
         }
 
+
+        File resultFile = new File(controlDir, resultFileName);
         try {
-            FileUtils.writeLines(new File(controlDir, resultFileName), resultLog);
+            FileUtils.writeLines(resultFile, resultLog);
         } catch (Exception e) {
-            Log.w("AESOP " + getClass().getSimpleName(), "File write exception " + e);
+            Log.w("AESOP " + getClass().getSimpleName(), "File write exception " +  resultFile.getPath() + " " + e);
             CrashWrapper.recordException(e);
         }
 

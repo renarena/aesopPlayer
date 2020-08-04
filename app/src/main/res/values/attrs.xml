@@ -42,6 +42,9 @@
     <attr name="ffRewindFillBackground" format="reference"/>
     <attr name="provisioningTextColor1" format="reference"/>
     <attr name="provisioningTextColor2" format="reference"/>
+    <attr name="provisioningTextColor3" format="reference"/>
+    <attr name="settingsProblemColor" format="reference"/>
+    <attr name="settingsConcernColor" format="reference"/>
 
     <attr name="startSettingsIcon" format="reference"/>
     <attr name="actionBarBackground" format="reference"/>

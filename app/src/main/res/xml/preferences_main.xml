@@ -28,6 +28,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainPreference">
+    <!-- ????????????????? move me!-->
+    <Preference
+        app:key="remote_options_screen"
+        app:fragment="com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment"
+        app:title="@string/remote_maintenance_screen" />
     <com.donnKey.aesopPlayer.ui.settings.PreferenceColorTitle
         app:key="new_version_options_screen"
         app:fragment="com.donnKey.aesopPlayer.ui.settings.NewVersionSettingsFragment"

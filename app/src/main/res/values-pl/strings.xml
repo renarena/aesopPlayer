@@ -55,8 +55,8 @@
     <string name="permission_rationale_simple_kiosk">Prosty tryb kiosku wymaga tych uprawnień.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Zgodę na powołanie uniknąć przypadkowego użycia paska stanu</string>
     <string name="permission_rationale_simple_default_app">Prosty tryb kiosku, musi ustawić domyślną aplikację.</string>
-    <string name="permission_rationale_home_screen">Jednorazowa konfiguracja aplikacji domyślnie.\nWybierz "OK" poniżej, następnie na kolejnym ekranie&#8230;\nWybierz "Aesop Player", a następnie "wszystkie"</string>
-    <string name="permission_rationale_home_screen_more1">&#8230;\nNastępnie na ostatnim ekranie "OK".</string> ,<!-- 8230 is "ellipsis" "..." -->
+    <string name="permission_rationale_home_screen">Jednorazowa konfiguracja aplikacji domyślnie.\nWybierz "OK" poniżej, następnie na kolejnym ekranie…;\nWybierz "Aesop Player", a następnie "wszystkie"</string>
+    <string name="permission_rationale_home_screen_more1">…;\nNastępnie na ostatnim ekranie "OK".</string>
     <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
     <string name="permission_rationale_home_screen_more3">\nZostanie wyświetlony ekran lista książek.</string>
     <string name="pref_data_use">Zobacz Data Use Policy</string>
@@ -104,6 +104,7 @@
     <string name="pref_kiosk_already_unlocked_toast">Już odblokowany</string>
     <string name="pref_kiosk_mode_broken_need_acc">Niepolecane.</string>
     <string name="pref_kiosk_mode_broken_acc_OK">Niepolecane. Zostaniesz poproszony o włączenie ułatwień Dostępu.</string>
+    <string name="pref_remote_options_screen_title">Ustawienia zdalnej książki…</string>
     <string name="accessibility_service_description">Używany tylko w trybie Kiosku. Po włączeniu trybu Kiosku, jeśli Twoje urządzenie wymaga Dostępnośc, poprosi o to.</string>
     <string name="pref_why_accessibility">Wybrany tryb Kiosku wymaga włączenia Dostępności, aby zapewnić akceptowalne wyniki.\n\nWybierz inny tryb lub włącz Dostępność.</string>
     <string name="pref_must_enable_accessibility">Dostępność musi być włączona</string>
@@ -264,6 +265,25 @@
     <string name="deletePath">Usuń wpis</string>
     <string name="download_dir_set_source">Ustaw katalog źródłowy</string>
     <string name="download_dir_new">Wybierz Nowy</string>
+
+    <string name="remote_maintenance_screen">Kontroluj zdalną konserwację książki…</string>
+    <string name="remote_via_mail">Przez eMail</string>
+    <string name="remote_via_and_word">" i "</string>
+    <string name="remote_via_file">Poprzez Udostępniony Plik</string>
+    <string name="remote_via_disabled">Wyłączony</string>
+    <string name="remote_must_have_credentials">Żadna poczta nie może zostać odebrana, dopóki nie zostanie podana poprawna nazwa hosta, login i hasło.</string>
+    <string name="remote_must_have_valid_directory">Katalog komunikatów musi być katalogiem z możliwością zapisu.</string>
+    <string name="remote_must_have_required">Proszę wypełnić wszystkie wymagane pola.</string>
+    <string name="remote_required_word">Wymagany</string>
+    <string name="remote_optional_word">Opcjonalny</string>
+    <string name="remote_disabled_word">Wyłączony</string>
+    <string name="remote_incomplete_state">Niekompletny</string>
+    <string name="remote_validated_state">Zatwierdzony</string>
+    <string name="remote_pending_state">Weryfikacyjny</string>
+    <string name="remote_other_state">Nierozpoznany błąd sieci.</string>
+    <string name="remote_unrecognized_host_state">Host nieznaleziony.</string>
+    <string name="remote_unrecognized_user_password_state">Nieprawidłowa kombinacja użytkownika i hasła.</string>
+    <string name="remote_unwriteable_state">Katalog nie do zapisu.</string>
 
     <!-- for translations of arrays.xml -->
     <string name="array_short">Krótki</string>

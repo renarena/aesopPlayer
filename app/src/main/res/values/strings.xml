@@ -58,8 +58,8 @@
     <string name="permission_rationale_simple_kiosk">Simple Kiosk mode requires these permissions.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Overlay permissions avoid accidental use of the status bar.</string>
     <string name="permission_rationale_simple_default_app">Simple Kiosk Mode Must Set the Default App.</string>
-    <string name="permission_rationale_home_screen">One-time setup for Default App.\nSelect "OK" below, then on next screen&#8230;\nSelect "Aesop Player", then "Always"</string>
-    <string name="permission_rationale_home_screen_more1">&#8230;\nThen on final screen "OK".</string> <!-- 8230 is "ellipsis" "..." -->
+    <string name="permission_rationale_home_screen">One-time setup for Default App.\nSelect "OK" below, then on next screen…;\nSelect "Aesop Player", then "Always"</string>
+    <string name="permission_rationale_home_screen_more1">…;\nThen on final screen "OK".</string>
     <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
     <string name="permission_rationale_home_screen_more3">\nThis will return to the Books List screen.</string>
     <string name="pref_data_use">View Data Use Policy</string>
@@ -91,6 +91,7 @@
     <string name="pref_kiosk_already_unlocked_toast">Already unlocked</string>
     <string name="pref_kiosk_mode_broken_need_acc">Not recommended. You will be asked to enable Accessibility.</string>
     <string name="pref_kiosk_mode_broken_acc_OK">Not recommended.</string>
+    <string name="pref_remote_options_screen_title">Remote book settings…</string>
     <string name="accessibility_service_description">Used for Kiosk mode only. When enabling Kiosk mode, the Player will request this if the specific device requires it for the selected Kiosk mode.</string>
     <string name="accessibility_service_label" translatable="false">Aesop Player</string>
     <string name="pref_why_accessibility">The Kiosk Mode you have selected requires that Accessibility be enabled to give acceptable results.\n\nChoose another mode or enable Accessibility.</string>
@@ -286,6 +287,25 @@
     <string name="download_dir_set_source">Set Source Directory</string>
     <string name="download_dir_new">Select New</string>
     <string name="deletePath">Delete entry</string>
+
+    <string name="remote_maintenance_screen">Control Remote Book Maintenance…</string>
+    <string name="remote_via_mail">Via eMail</string>
+    <string name="remote_via_and_word"> and </string> <!-- note the spaces! -->
+    <string name="remote_via_file">Via Shared File</string>
+    <string name="remote_via_disabled">Disabled</string>
+    <string name="remote_must_have_credentials">No mail can be received until a correct hostname, login and password are provided.</string>
+    <string name="remote_must_have_valid_directory">Directory for messages must be a writable directory.</string>
+    <string name="remote_must_have_required">All required fields must be provided.</string>
+    <string name="remote_required_word">Required</string>
+    <string name="remote_optional_word">Optional</string>
+    <string name="remote_disabled_word">Disabled</string>
+    <string name="remote_incomplete_state">Incomplete</string>
+    <string name="remote_validated_state">Validated</string>
+    <string name="remote_pending_state">Validating</string>
+    <string name="remote_other_state">Unrecognized Network Error.</string>
+    <string name="remote_unrecognized_host_state">Host not found.</string>
+    <string name="remote_unrecognized_user_password_state">Invalid user and password combination.</string>
+    <string name="remote_unwriteable_state">Directory not writeable.</string>
 
     <!-- For translations of strings in arrays.xml -->
     <string name="array_short">Short</string>
