@@ -98,6 +98,7 @@ public class InventoryItemFragment extends Fragment {
         if (provisioning.bookList == null) {
             // already done; redo (below) if things change enough
             provisioning.buildBookList();
+            provisioning.selectCompletedBooks();
         }
 
         setHasOptionsMenu(true);
@@ -237,6 +238,7 @@ public class InventoryItemFragment extends Fragment {
 
     private void booksChanged() {
         provisioning.buildBookList();
+        provisioning.selectCompletedBooks();
         recycler.notifyDataSetChanged();
         if (this.isVisible()) {
             setTotalSubtitle();

@@ -29,6 +29,7 @@ import android.os.Environment;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
@@ -123,9 +124,9 @@ public class Provisioning extends ViewModel {
         boolean selected;
         final boolean unWritable;
         final boolean current;
-        BookInfo(AudioBook book, boolean selected, boolean unWritable, boolean current) {
+        BookInfo(AudioBook book, boolean unWritable, boolean current) {
             this.book = book;
-            this.selected = selected;
+            this.selected = false;
             this.unWritable = unWritable;
             this.current = current;
         }
@@ -228,11 +229,7 @@ public class Provisioning extends ViewModel {
         for (int i = 0; i < audioBooks.size(); i++) {
             AudioBook book = audioBooks.get(i);
 
-            // A completed book that isn't in its first 10 seconds is likely being reread.
-            // Don't suggest deletion.
-            boolean preSelected = book.getCompleted()
-                    && TimeUnit.MILLISECONDS.toSeconds(book.toMs(book.getLastPosition())) < justALittleRead;
-            bookList[i] = new BookInfo(book, preSelected, !book.getPath().canWrite(),
+            bookList[i] = new BookInfo(book, !book.getPath().canWrite(),
                     book == audioBookManager.getCurrentBook());
             long t = book.getTotalDurationMs();
             if (t != AudioBook.UNKNOWN_POSITION) {
@@ -249,6 +246,17 @@ public class Provisioning extends ViewModel {
         }
 
         refreshCollisionState();
+    }
+
+    void selectCompletedBooks() {
+        //?????????????? How many seconds....
+        // A completed book that isn't in its first 10 seconds is likely being reread.
+        // Don't suggest deletion.
+        for (Provisioning.BookInfo book : bookList) {
+            book.selected = book.book.getCompleted()
+                && TimeUnit.MILLISECONDS.toSeconds(book.book.toMs(book.book.getLastPosition()))
+                    < justALittleRead;
+        }
     }
 
     // All the tasks we spun off, so we can collect them later to be sure the task
@@ -654,9 +662,8 @@ public class Provisioning extends ViewModel {
     }
 
     @WorkerThread
-    void deleteAllSelected_Task(Progress progress) {
+    void deleteAllSelected_Task(Progress progress, boolean archiveBooks) {
         clearErrors();
-        boolean archiveBooks = globalSettings.getArchiveBooks();
 
         DeleteLoop:
         for (Provisioning.BookInfo book : bookList) {
@@ -707,8 +714,74 @@ public class Provisioning extends ViewModel {
         progress.progress(ProgressKind.ALL_DONE, null);
     }
 
-    // Listen for external changes...
+    void groupAllSelected_execute(File newDir) {
+        CrashWrapper.log("PV: Group books selected");
+        clearErrors();
 
+        for (Provisioning.Candidate c: candidates) {
+            if (c.isSelected) {
+                File bookPath = new File(c.oldDirPath);
+
+                String renamedTo = c.newDirName;
+                if (!bookPath.isDirectory()) {
+                    // This is a zip or audio file, retain the extension
+                    // (We couldn't get here if it wasn't one of those because it's not a candidate)
+
+                    String bookDirName = bookPath.getName();
+                    String oldExtension;
+                    int dotLoc = bookDirName.lastIndexOf('.');
+                    oldExtension = bookDirName.substring(dotLoc);
+                    renamedTo += oldExtension;
+
+                    // de-blank in case it gets ungrouped - the result would be messy otherwise
+                    renamedTo = AudioBook.deBlank(renamedTo);
+                }
+
+                File toBook = new File(newDir, renamedTo);
+                if (!bookPath.renameTo(toBook)) {
+                    logResult(Severity.SEVERE, String.format(getAppContext().getString(
+                        R.string.cannot_rename_group),
+                        bookPath.getPath(), toBook.getPath()));
+                }
+            }
+        }
+    }
+
+    void unGroupSelected_execute() {
+        CrashWrapper.log("PV: Ungroup books selected");
+        clearErrors();
+
+        for (Provisioning.Candidate c: candidates) {
+            if (c.isSelected) {
+                File ungroupDir = new File(c.oldDirPath);
+                File parent = ungroupDir.getParentFile();
+                if (ungroupDir.list() != null) {
+                    for (String fn : Objects.requireNonNull(ungroupDir.list())) {
+                        File newLoc = new File(parent, fn);
+                        File oldLoc = new File(ungroupDir, fn);
+                        int n = 0;
+                        while (!oldLoc.renameTo(newLoc)) {
+                            if (n++ > 3) {
+                                logResult(Severity.SEVERE, String.format(getAppContext().getString(
+                                        R.string.cannot_rename_group),
+                                        oldLoc.getPath(), newLoc.getPath()));
+                                break;
+                            }
+                            fn += ".collision";
+                            newLoc = new File(parent, fn);
+                        }
+                    }
+                }
+                // Unless we couldn't empty the directory, this wouldn't fail. If we couldn't empty
+                // it, we know that from failures above. Nothing useful to do here.
+                //noinspection ResultOfMethodCallIgnored
+                ungroupDir.delete();
+                break;
+            }
+        }
+    }
+
+    // Listen for external changes...
     // ...remember a book changed event that occurred while we weren't looking.
     private boolean booksChanged;
     private BooksChangedListener listener;

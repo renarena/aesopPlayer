@@ -24,7 +24,6 @@
 
 package com.donnKey.aesopPlayer.ui.provisioning;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -38,15 +37,20 @@ import com.sun.mail.util.MailConnectException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.mail.Address;
 import javax.mail.BodyPart;
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -59,9 +63,10 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.search.AndTerm;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.ReceivedDateTerm;
+import javax.mail.search.SearchTerm;
 import javax.mail.search.SubjectTerm;
 
-public class Mail {
+public class Mail implements Iterable<Mail.Request>{
     @Inject
     public GlobalSettings globalSettings;
 
@@ -80,15 +85,18 @@ public class Mail {
     private String messageBody = null;
     private String inboundFrom = null;
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String mailSubject = "Aesop request";
+
     private final String SMTPHostname;
     private final String IMAPHostname;
 
-    private long timestamp;
-    private BufferedReader contentStream;
     IMAPStore imapStore = null;
+    Message[] messages;
+    Folder inbox;
 
-    public Mail(@NonNull Context context) {
-        AesopPlayerApplication.getComponent(context).inject(this);
+    public Mail() {
+        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
         String baseHostname = globalSettings.getMailHostname();
         SMTPHostname = "smtp." + baseHostname;
         IMAPHostname = "imap." + baseHostname;
@@ -98,7 +106,7 @@ public class Mail {
         deviceName = globalSettings.getMailDeviceName();
     }
 
-    private int initiateReader() {
+    public int open() {
         imapStore = null;
         int result;
 
@@ -132,90 +140,143 @@ public class Mail {
         return result;
     }
 
-    public int readMail(String desiredSubject)
-    {
+    public int readMail() {
         inboundFrom = null;
-
-        int result = initiateReader();
-        if (result != SUCCESS) {
-            return result;
-        }
+        int result = SUCCESS;
 
         try {
             // Get the default folder
-            Folder inbox = imapStore.getFolder("INBOX");
+            inbox = imapStore.getFolder("INBOX");
             inbox.open(Folder.READ_WRITE);
 
             // Get any candidate messages: the newest one with the appropriate subject line
             Calendar today = Calendar.getInstance();
-            today.roll(Calendar.DAY_OF_YEAR, false);
-            //?????????????????????? delete below
-            today.roll(Calendar.DAY_OF_YEAR, false);
-            today.roll(Calendar.DAY_OF_YEAR, false);
+            today.add(Calendar.MONTH, -1);
 
-            ReceivedDateTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.GT, today.getTime());
-            SubjectTerm subjectTerm = new SubjectTerm(desiredSubject);
-            AndTerm andTerm = new AndTerm(dateTerm, subjectTerm);
+            SearchTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.GT, today.getTime());
+            SearchTerm subjectTerm = new SubjectTerm(mailSubject);
+            SearchTerm andTerm = new AndTerm(dateTerm, subjectTerm);
             if (!deviceName.isEmpty()) {
                 subjectTerm = new SubjectTerm(deviceName);
                 andTerm = new AndTerm(andTerm, subjectTerm);
             }
-            /*??????????????
-            if (!deviceName.isEmpty()) {
+            /*?????????????? // filter on "self"?
+            if (!fromName.isEmpty()) {
                 FromTerm fromTerm = new FromTerm(new InternetAddress(inboundFrom));
                 andTerm = new AndTerm(andTerm, fromTerm);
             }
              */
-            Message[] messages = inbox.search(andTerm);
-
-            if (messages.length > 0) {
-                findMessage:
-                // Temporarily taking last ??????????????????????????????????????
-                for (int i = messages.length-1; i >= 0; i--)
-                //for (int i = 0; i<messages.length; i++)
-                {
-                    Message message = messages[i];
-                    //??????????? Should do this at some point
-                    //message.setFlag(Flags.Flag.DELETED, true);
-                    Object content = message.getContent();
-                    if (content instanceof MimeMultipart) {
-                        MimeMultipart mmp = (MimeMultipart) content;
-                        int count = mmp.getCount();
-                        for (int j = 0; j < count; j++) {
-                            BodyPart mimePart = mmp.getBodyPart(j);
-                            if (mimePart instanceof IMAPBodyPart
-                                    && mimePart.getContentType().contains("TEXT/PLAIN")) {
-                                IMAPBodyPart iMimePart = (IMAPBodyPart) mimePart;
-                                @SuppressWarnings("CharsetObjectCanBeUsed") InputStream cs = new ByteArrayInputStream(
-                                        ((String) (iMimePart.getContent())).getBytes("UTF-8"));
-                                contentStream = new BufferedReader(new InputStreamReader(cs));
-                                timestamp = message.getReceivedDate().getTime();
-                                Address[] messageFromNames = message.getFrom();
-                                if (messageFromNames != null && messageFromNames.length > 0) {
-                                    inboundFrom = messageFromNames[0].toString();
-                                    Log.w("AESOP " + getClass().getSimpleName(), "Mail is from " + inboundFrom);
-                                }
-                                result = SUCCESS;
-                                break findMessage;
-                            }
-                        }
-                    }
-                }
-            }
-
-            //?????????????????? should be:
-            //inbox.close(true);
-            inbox.close(false);
-            imapStore.close();
-        }
-        catch (Exception e) {
-            Log.w("AESOP " + getClass().getSimpleName(), "READ CRASHED 2 " + e);
+            messages = inbox.search(andTerm);
+        } catch (Exception e) {
             result = OTHER_ERROR;
             CrashWrapper.recordException(e);
             e.printStackTrace();
         }
 
         return result;
+    }
+
+    public class Request {
+        final Message message;
+        Request(Message message) {
+            this.message = message;
+        }
+
+        public Date sentTime() {
+            Date timestamp = null;
+            try {
+                timestamp = message.getReceivedDate();
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+            return timestamp;
+        }
+
+        public BufferedReader getInboundBodyStream() {
+            try {
+                Object content = message.getContent();
+                if (content instanceof MimeMultipart) {
+                    MimeMultipart mmp = (MimeMultipart) content;
+                    int count = mmp.getCount();
+                    for (int j = 0; j < count; j++) {
+                        BodyPart mimePart = mmp.getBodyPart(j);
+                        if (mimePart instanceof IMAPBodyPart
+                                && mimePart.getContentType().contains("TEXT/PLAIN")) {
+                            IMAPBodyPart iMimePart = (IMAPBodyPart) mimePart;
+                            @SuppressWarnings("CharsetObjectCanBeUsed")
+                            InputStream cs = new ByteArrayInputStream(
+                                ((String) (iMimePart.getContent())).getBytes("UTF-8"));
+                            return new BufferedReader(new InputStreamReader(cs));
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        public String getInboundSender() {
+            Address[] messageFromNames = new Address[0];
+            try {
+                messageFromNames = message.getFrom();
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+            if (messageFromNames != null && messageFromNames.length > 0) {
+                inboundFrom = messageFromNames[0].toString();
+                return inboundFrom;
+            }
+            return null;
+        }
+
+        public void delete()
+        {
+            try {
+                message.setFlag(Flags.Flag.DELETED, true);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Request> iterator() {
+        return new Iterator<Request>() {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < messages.length;
+            }
+
+            @Override
+            public Request next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                return new Request(messages[index++]);
+            }
+        };
+    }
+
+    public void close() {
+        try {
+            if (inbox != null) {
+                inbox.close(true);
+            }
+            if (imapStore != null) {
+                imapStore.close();
+            }
+        } catch (Exception e) {
+            Log.w("AESOP " + getClass().getSimpleName(), "CLOSE CRASHED 2 " + e);
+            CrashWrapper.recordException(e);
+            e.printStackTrace();
+        }
     }
 
     public void sendEmail() {
@@ -249,16 +310,15 @@ public class Mail {
 
             Transport.send(message);
 
-            Log.w("AESOP " + getClass().getSimpleName(), "Mail sent");
         } catch (Exception e) {
-            Log.w("AESOP " + getClass().getSimpleName(), "Mail failed");
             CrashWrapper.recordException(e);
             e.printStackTrace();
         }
     }
 
     public int testConnection() {
-        int result = initiateReader();
+        int result = open();
+        close();
         try {
             if (imapStore != null) {
                 imapStore.close();
@@ -295,15 +355,4 @@ public class Mail {
         return this;
     }
 
-    public long getInboundTimestamp() {
-        return timestamp;
-    }
-
-    public BufferedReader getInboundBodyStream() {
-        return contentStream;
-    }
-
-    public String getInboundSender() {
-        return inboundFrom;
-    }
 }

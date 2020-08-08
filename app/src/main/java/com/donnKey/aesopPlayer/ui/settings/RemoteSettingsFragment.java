@@ -356,7 +356,7 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
         Thread t = new Thread( () ->
         {
             AppCompatActivity activity = (AppCompatActivity) requireActivity();//.getParent());
-            Mail mail = new Mail(requireContext());
+            Mail mail = new Mail();
             mailValidated = mail.testConnection();
             activity.runOnUiThread(() ->
                 activity.getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit()

@@ -383,99 +383,48 @@ public class ProvisioningActivity extends AppCompatActivity
 
         CrashWrapper.log("PV: Group books selected");
         for (Provisioning.Candidate c: provisioning.candidates) {
+            // Find the first one, and derive a name from that
             if (c.isSelected) {
                 File bookPath = new File(c.oldDirPath);
-                if (newDir == null) {
-                    File baseFile = new File(c.oldDirPath);
-                    String baseName = baseFile.getName();
-                    int extensionPos = baseName.lastIndexOf('.');
-                    if (extensionPos > 0) {
-                        baseName = baseName.substring(0, extensionPos);
-                    }
-                    baseName += ".group";
-                    newDir = new File(bookPath.getParentFile(), baseName);
-
-                    if (newDir.exists()) {
-                        new AlertDialog.Builder(this)
-                                .setTitle(getString(R.string.dialog_title_group_books))
-                                .setIcon(R.drawable.ic_launcher)
-                                .setMessage(getString(R.string.dialog_colliding_group))
-                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
-                                .show();
-                        return;
-                    } else if (!newDir.mkdirs()) {
-                        new AlertDialog.Builder(this)
-                                .setTitle(getString(R.string.dialog_title_group_books))
-                                .setIcon(R.drawable.ic_launcher)
-                                .setMessage(getString(R.string.dialog_cannot_make_group))
-                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
-                                .show();
-                        return;
-                    }
+                File baseFile = new File(c.oldDirPath);
+                String baseName = baseFile.getName();
+                int extensionPos = baseName.lastIndexOf('.');
+                if (extensionPos > 0) {
+                    baseName = baseName.substring(0, extensionPos);
                 }
+                baseName += ".group";
+                newDir = new File(bookPath.getParentFile(), baseName);
 
-                String renamedTo = c.newDirName;
-                if (!bookPath.isDirectory()) {
-                    // This is a zip or audio file, retain the extension
-                    // (We couldn't get here if it wasn't one of those because it's not a candidate)
-
-                    String bookDirName = bookPath.getName();
-                    String oldExtension;
-                    int dotLoc = bookDirName.lastIndexOf('.');
-                    oldExtension = bookDirName.substring(dotLoc);
-                    renamedTo += oldExtension;
-
-                    // de-blank in case it gets ungrouped - the result would be messy otherwise
-                    renamedTo = AudioBook.deBlank(renamedTo);
-                }
-
-                File toBook = new File(newDir, renamedTo);
-                if (!bookPath.renameTo(toBook)) {
+                if (newDir.exists()) {
                     new AlertDialog.Builder(this)
                             .setTitle(getString(R.string.dialog_title_group_books))
                             .setIcon(R.drawable.ic_launcher)
-                            .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), bookPath.getPath(), toBook.getPath()))
+                            .setMessage(getString(R.string.dialog_colliding_group))
                             .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
                             .show();
+                    return;
+                } else if (!newDir.mkdirs()) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.dialog_title_group_books))
+                            .setIcon(R.drawable.ic_launcher)
+                            .setMessage(getString(R.string.dialog_cannot_make_group))
+                            .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
+                            .show();
+                    return;
                 }
+                break;
             }
         }
+
+        provisioning.groupAllSelected_execute(newDir);
+        postResults(getString(R.string.grouping_error));
     }
 
     @UiThread
     void unGroupSelected() {
         CrashWrapper.log("PV: Ungroup books selected");
-        for (Provisioning.Candidate c: provisioning.candidates) {
-            if (c.isSelected) {
-                File ungroupDir = new File(c.oldDirPath);
-                File parent = ungroupDir.getParentFile();
-                if (ungroupDir.list() != null) {
-                    for (String fn : Objects.requireNonNull(ungroupDir.list())) {
-                        File newLoc = new File(parent, fn);
-                        File oldLoc = new File(ungroupDir, fn);
-                        int n = 0;
-                        while (!oldLoc.renameTo(newLoc)) {
-                            if (n++ > 3) {
-                                break;
-                            }
-                            new AlertDialog.Builder(this)
-                                    .setTitle(getString(R.string.dialog_title_ungroup_book))
-                                    .setIcon(R.drawable.ic_launcher)
-                                    .setMessage(String.format(getString(R.string.dialog_cannot_rename_group), oldLoc.getPath(), newLoc.getPath()))
-                                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {})
-                                    .show();
-                            fn += ".collision";
-                            newLoc = new File(parent, fn);
-                        }
-                    }
-                }
-                // Unless we couldn't empty the directory, this wouldn't fail. If we couldn't empty
-                // it, we know that from failures above. Nothing useful to do here.
-                //noinspection ResultOfMethodCallIgnored
-                ungroupDir.delete();
-                break;
-            }
-        }
+        provisioning.unGroupSelected_execute();
+        postResults(getString(R.string.grouping_error));
     }
 
     @UiThread
@@ -493,6 +442,7 @@ public class ProvisioningActivity extends AppCompatActivity
         case ALL_DONE: {
             EventBus.getDefault().post(new MediaStoreUpdateEvent());
             provisioning.buildBookList();
+            provisioning.selectCompletedBooks();
             if (activeInventoryFragment != null) {
                 activeInventoryFragment.refreshSubtitle();
                 activeInventoryFragment.notifyDataSetChanged();
@@ -516,7 +466,8 @@ public class ProvisioningActivity extends AppCompatActivity
 
     @WorkerThread
     private void deleteAllSelected_Task() {
-        provisioning.deleteAllSelected_Task(this::postDeleteProgress);
+        boolean archiveBooks = globalSettings.getArchiveBooks();
+        provisioning.deleteAllSelected_Task(this::postDeleteProgress, archiveBooks);
     }
 
     @UiThread

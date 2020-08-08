@@ -64,11 +64,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.DateFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -108,12 +113,15 @@ public class RemoteAuto {
     private final String controlFileName = "AesopScript.txt";
     @SuppressWarnings("FieldCanBeLocal")
     private final String resultFileName = "AesopResult.txt";
-    @SuppressWarnings("FieldCanBeLocal")
-    private final String mailSubjectFlag = "Aesop request";
 
     private final Context appContext;
     private final AppCompatActivity activity;
-    private final String DateTimeFormat = "yyyy-MM-dd HH:mm:ss zzz";
+    //private final String DateTimeFormat = "yyyy-MM-dd HH:mm:ss zzz";
+
+    private boolean continueProcessing = true;
+    private boolean deleteMessage = true;
+    private boolean generateReport = true;
+    private Calendar processingStartTime = null;
 
     // ?????????????? Make these times sensible for real life, not testing
     // Conditional on DEBUG?
@@ -121,8 +129,8 @@ public class RemoteAuto {
     private final long interval = TimeUnit.SECONDS.toMillis(10);
     private final long startUpDelay = TimeUnit.SECONDS.toMillis(3);
 
-    final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     File controlDir;
+    final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     File currentCandidateDir;
 
     // Global state
@@ -130,11 +138,16 @@ public class RemoteAuto {
 
     // Per request state
     private final List<String> resultLog = new ArrayList<>();
-    private BufferedReader commands;
     private final ArrayList<String> sendResultTo = new ArrayList<>();
     private DownloadManager downloadManager;
-    boolean retainBooks;
-    boolean renameFiles;
+    private boolean retainBooks;
+    private boolean archiveBooks;
+    private boolean renameFiles;
+    private Calendar messageSentTime;
+    private int lineCounter; // counts non-comment lines
+
+    // Used to cause a rescan of the control file when the next at:run or at:every needs it.
+    private Calendar nextAtTime = Calendar.getInstance();
 
     // State needed for async downloads
     private long lastDownload = -1;
@@ -158,7 +171,6 @@ public class RemoteAuto {
 
     @UiThread
     public void start() {
-        Log.w("AESOP", "Remote start");
         enabled = true;
         // Do the work on a thread so we can directly call "long" operations,
         // since this is all logically synchronous.
@@ -170,6 +182,13 @@ public class RemoteAuto {
                 t.start(); },
                 startUpDelay);
     }
+
+    @UiThread
+    public void stop() {
+        Log.w("AESOP", "Remote stop");
+        enabled = false;
+    }
+
 
     @SuppressLint("UsableSpace")
     @WorkerThread
@@ -185,46 +204,19 @@ public class RemoteAuto {
 
                 controlDir = new File(globalSettings.getRemoteControlDir());
 
-                // Reset to the same initial state each cycle
-                // Start downloads in the same place each run
-                currentCandidateDir = downloadDir;
-                sendResultTo.clear();
-                resultLog.clear();
-                commands = null;
-                // "Almost always" defaults for installing
-                retainBooks = false;
-                renameFiles = true;
+                Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle");
+                // ????? how expensive is this?
+                downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
 
-                // should get stream ????????????????????????
-                boolean workAvailable = false;
                 if (globalSettings.getFilePollEnabled()) {
-                    workAvailable = pollControlFile();
+                    pollControlFile();
                 }
-                if (!workAvailable && globalSettings.getMailPollEnabled()) {
-                    workAvailable = pollMail();
-                }
-
-                if (workAvailable) {
-                    Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle");
-                    downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
-
+                if (globalSettings.getMailPollEnabled()) {
                     // ?????????????????????? timeout???
-                    // make commands a parameter?????????????
-                    processFSM();
-
-                    try {
-                        commands.close();
-                    } catch (IOException e) {
-                        // ignored
-                    }
-                    commands = null;
-
-                    Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
-                    sendReport();
-                    Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
-
-                    downloadManager = null;
+                    pollMail();
                 }
+
+                downloadManager = null;
             }
             else Log.w("AESOP " + getClass().getSimpleName(), "Remote settings forces skip");
 
@@ -236,69 +228,154 @@ public class RemoteAuto {
         }
     }
 
-    @UiThread
-    public void stop() {
-        Log.w("AESOP", "Remote stop");
-        enabled = false;
-    }
-
     // ??????????????????????? All actions here need to turn off the speaker (search for speak); see UiControllerBookList  108
     @WorkerThread
-    private boolean pollControlFile() {
+    private void pollControlFile() {
+        continueProcessing = true;
+        deleteMessage = true;
+        generateReport = true;
+        processingStartTime = Calendar.getInstance();
 
         File controlFile = new File(controlDir, controlFileName);
         if (!controlFile.exists()) {
-            return false;
+            return;
         }
 
         long timestamp = controlFile.lastModified();
         if (timestamp <= globalSettings.getSavedControlFileTimestamp()) {
-            return false;
+            if (nextAtTime.after(processingStartTime)) {
+                return;
+            }
         }
 
         // The file has been changed since last we looked.
+        BufferedReader commands;
         try {
             commands = new BufferedReader(new FileReader(controlFile));
         } catch (FileNotFoundException e) {
             logActivity("Control File failed open " + e);
-            return false;
+            return;
+        }
+
+        messageSentTime = Calendar.getInstance();
+        messageSentTime.setTimeInMillis(timestamp);
+
+        processCommands(commands);
+        if (generateReport) {
+            sendReport();
+        }
+
+        try {
+            commands.close();
+        } catch (IOException e) { /* ignored */ }
+
+        if (deleteMessage) {
+            // We can't actually delete it, but we can ignore it until the file
+            // is changed
+            //????????????????? this is per-run right now!!!!!!!!!!!!!
+            nextAtTime = Calendar.getInstance();
+            nextAtTime.add(Calendar.YEAR, 100);
         }
 
         globalSettings.setSavedControlFileTimestamp(timestamp);
-        return true;
     }
 
+    //?????? revisit
+    static Calendar lastRun = null;
     @WorkerThread
-    private boolean pollMail() {
+    private void pollMail() {
         Log.w("AESOP " + getClass().getSimpleName(), "poll mail");
-        Mail mail = new Mail(activity);
+        Mail mail = new Mail();
+
+        if (mail.open() != Mail.SUCCESS) {
+            return;
+        }
+
         // Search is for a pattern, case insensitive
-        if (mail.readMail(mailSubjectFlag) != Mail.SUCCESS) {
+        if (mail.readMail() != Mail.SUCCESS) {
             //????????????????????????????? how to back off if/as necessary on conn error.
             // (We can't get here unless it worked once!)
-            return false;
+            return;
         }
 
-        long timestamp = mail.getInboundTimestamp();
-        if (timestamp <= globalSettings.getSavedMailTimestamp()) {
-            return false;
+        for(Mail.Request request:mail) {
+            continueProcessing = true;
+            deleteMessage = true;
+            generateReport = true;
+            processingStartTime = Calendar.getInstance();
+
+            Log.w("AESOP " + getClass().getSimpleName(), "NOW is " + processingStartTime.getTime());
+
+            messageSentTime = Calendar.getInstance();
+            messageSentTime.setTime(request.sentTime());
+
+            // ??????????? DON'T DO THIS WHEN IN PRODUCTION
+            Calendar yesterday = (Calendar) processingStartTime.clone();
+            yesterday.add(Calendar.DAY_OF_YEAR, -1);
+
+            if (messageSentTime.before(yesterday)) {
+                // more than a day old... ignore
+                Log.w("AESOP " + getClass().getSimpleName(), "Ignoring old really old");
+                continue;
+            }
+            if (lastRun != null && lastRun.after(messageSentTime))  {
+                Log.w("AESOP " + getClass().getSimpleName(), "SKIP OLD MAIL");
+                continue;
+            }
+            /*
+            if (sentTime <= globalSettings.getSavedMailTimestamp()) {
+                Log.w("AESOP " + getClass().getSimpleName(), "SKIP OLD MAIL");
+                continue;
+            }
+             */
+
+            Log.w("AESOP " + getClass().getSimpleName(), "Processing");
+            BufferedReader commands = request.getInboundBodyStream();
+            // If there's no plain-text MIME body section, we'll get null here.
+            if (commands != null) {
+                processCommands(commands);
+                if (deleteMessage) {
+                    // ??????????????? Fix below or remove this comment
+                    request.delete();
+                }
+                if (generateReport) {
+                    sendResultTo.add(request.getInboundSender());
+                    sendReport();
+                }
+            }
+
+            lastRun = processingStartTime;
+            //globalSettings.setSavedMailTimestamp(sentTime.getTimeInMillis()/1000);
         }
-
-        commands = mail.getInboundBodyStream();
-        sendResultTo.add(mail.getInboundSender());
-
-        globalSettings.setSavedMailTimestamp(timestamp);
-        return true;
+        mail.close();
     }
 
     @WorkerThread
-    void processFSM() {
-        @SuppressLint("SimpleDateFormat")
-        String currentDateAndTime = new SimpleDateFormat(DateTimeFormat).format(new Date());
-        logActivity("Start: " + currentDateAndTime);
+    void processCommands(BufferedReader commands) {
+
+        // Reset to the same initial state each cycle
+        // Start downloads in the same place each run
+        currentCandidateDir = downloadDir;
+        sendResultTo.clear();
+        resultLog.clear();
+        lineCounter = 0;
+
+        // "Almost always" defaults for installing
+        retainBooks = false;
+        archiveBooks = false;
+        renameFiles = true;
+
+        String name = globalSettings.getMailDeviceName();
+        if (name == null) {
+            name = "";
+        }
+        if (!name.isEmpty()) {
+            name = "on: " + name;
+        }
+        logActivity("Start of request " + name + " at " + processingStartTime.getTime());
 
         // Read and process each line of the input stream.
-        while (true) {
+        while (continueProcessing) {
             String line;
             try {
                 line = commands.readLine();
@@ -347,9 +424,9 @@ public class RemoteAuto {
             }
 
             provisioning.clearErrors();
+            lineCounter++;
 
             String key = op0.substring(0, pos + 1).toLowerCase();
-            Log.w("AESOP" + getClass().getSimpleName(), "got key '" + key + "'");
             switch (key) {
                 case "file:":
                 case "ftp:":
@@ -374,7 +451,7 @@ public class RemoteAuto {
                         case "https:": {
                             if (downloadOnly && newTitle != null) {
                                 logActivityIndented("Cannot use 'downloadOnly' with new title");
-                                return;
+                                break;
                             }
 
                             String uri = downloadHttp(op0, newTitle);
@@ -423,11 +500,15 @@ public class RemoteAuto {
                     settingsCommands(operands);
                     break;
                 }
+                case "run:": {
+                    runCommands(operands);
+                    break;
+                }
                 case "mailto:": {
-                    if (globalSettings.getMailHostname() == null
-                        || globalSettings.getMailLogin() == null) {
-                            logActivityIndented("Mail connection not set up: mailto: ignored");
-                            break;
+                    Mail mail = new Mail();
+                    if (mail.testConnection() != Mail.SUCCESS) {
+                        logActivityIndented("Mail connection not set up: mailto: ignored");
+                        break;
                     }
                     String to = op0.substring("mailto:".length());
                     sendResultTo.add(to);
@@ -588,6 +669,7 @@ public class RemoteAuto {
             }
 
             provisioning.buildBookList();
+            provisioning.selectCompletedBooks();
 
             logActivityIndented("Current Books  " + provisioning.getTotalTimeSubtitle());
             logActivityIndented(" Length   Current        C W Title");
@@ -610,6 +692,7 @@ public class RemoteAuto {
         }
         case "books:clean": {
             provisioning.buildBookList();
+            provisioning.selectCompletedBooks();
             if (checkOperandsFor(operands, "all")) {
                 for (Provisioning.BookInfo b : provisioning.bookList) {
                     if (!b.current) {
@@ -738,7 +821,7 @@ public class RemoteAuto {
 
     @WorkerThread
     private void runDelete() {
-        provisioning.deleteAllSelected_Task(this::installProgress);
+        provisioning.deleteAllSelected_Task(this::installProgress, archiveBooks);
         postResults(null);
         bookListChanged();
     }
@@ -888,6 +971,92 @@ public class RemoteAuto {
 
             break;
         }
+        case "downloads:group": {
+            String target = findOperandString(operands);
+            if (target == null) {
+                logActivityIndented("A new book name is required");
+                return;
+            }
+
+            buildCandidateList();
+
+            String partialTitle;
+            int candidates = 0;
+            Provisioning.Candidate firstCandidate = null;
+            while((partialTitle = findOperandString(operands)) != null) {
+                Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
+                if (candidate == null) {
+                    logActivityIndented("No unique match found for " + partialTitle);
+                    candidates = -10000;
+                }
+                if (firstCandidate == null) {
+                    firstCandidate  = candidate;
+                }
+                candidates++;
+            }
+            if (candidates < 0) {
+                // This so we check them all for matches
+                return;
+            }
+            if (candidates == 0) {
+                logActivityIndented("No books found to combine.");
+                return;
+            }
+            if (errorIfAnyRemaining(operands)) {
+                return;
+            }
+            if (target.indexOf('/') >= 0) {
+                logActivityIndented("New book name must be a name, not a path");
+                return;
+            }
+            assert(firstCandidate != null);
+
+            // The parent plus the new name -> targetFile
+            File targetFile = new File(firstCandidate.oldDirPath).getParentFile();
+            targetFile = new File(targetFile, target);
+            if (targetFile.exists()) {
+                logActivityIndented("Book already exists.");
+                return;
+            } else if (!targetFile.mkdirs()) {
+                logActivityIndented("Could not make book directory.");
+                return;
+            }
+
+            logActivityIndented("Grouping " + candidates + " books into " + target);
+            provisioning.groupAllSelected_execute(targetFile);
+            postResults(null);
+
+            // Update the candidate list since we know it changed.
+            // And just in case we were in AudioBooks, the bookList too.
+            buildCandidateList();
+            bookListChanged();
+
+            break;
+        }
+        case "downloads:ungroup": {
+            String partialTitle = findOperandString(operands);
+            if (partialTitle == null) {
+                logActivityIndented("An existing book name is required");
+                return;
+            }
+
+            if (errorIfAnyRemaining(operands)) {
+                return;
+            }
+
+            buildCandidateList();
+            Provisioning.Candidate groupDir = findInCandidatesList(partialTitle);
+            logActivityIndented("Ungrouping " + groupDir.newDirName);
+            provisioning.unGroupSelected_execute();
+            postResults(null);
+
+            // Update the candidate list since we know it changed.
+            // And just in case we were in AudioBooks, the bookList too.
+            buildCandidateList();
+            bookListChanged();
+
+            break;
+        }
         default: {
             logActivityIndented("Unrecognized request ");
             break;
@@ -899,12 +1068,20 @@ public class RemoteAuto {
     private void settingsCommands(@NonNull List<String> operands) {
         String key = operands.get(0).toLowerCase();
         switch (key) {
+            case "settings:archive": {
+                String r = booleanOperand(operands);
+                if (!r.equals("error")) {
+                    archiveBooks = r.equals("true");
+                }
+                logActivityIndented("Deleted Books will " + (archiveBooks?"":"not ") + "be archived.");
+                break;
+            }
             case "settings:retain": {
                 String r = booleanOperand(operands);
                 if (!r.equals("error")) {
                     retainBooks = r.equals("true");
                 }
-                logActivityIndented("Books will " + (retainBooks?"":"not ") + "be retained.");
+                logActivityIndented("Installed books will " + (retainBooks?"":"not ") + "be retained.");
                 break;
             }
             case "settings:rename": {
@@ -920,6 +1097,204 @@ public class RemoteAuto {
                 break;
             }
         }
+    }
+
+    @WorkerThread
+    private void runCommands(@NonNull List<String> operands) {
+        // returns true when the script should be run
+        // All times in device local time
+        String key = operands.get(0).toLowerCase();
+        switch (key) {
+            case "run:at": {
+                if (lineCounter != 1) {
+                    logActivityIndented("run:at must be the first command");
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
+                String timeString = findOperandText(operands);
+                if (timeString == null) {
+                    logActivityIndented("run:at requires time-of-day operand(s)");
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
+                String more = findOperandText(operands);
+                if (more != null) {
+                    timeString += more;
+                }
+
+                if (errorIfAnyRemaining(operands)) {
+                    logActivityIndented("Too many operands for run:at");
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
+
+                Calendar scheduledStartTime = Calendar.getInstance();
+
+                Calendar requestedHHMM = parseTimeOfDay(timeString);
+                if (requestedHHMM == null) {
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
+
+                int hour = requestedHHMM.get(Calendar.HOUR_OF_DAY);
+                int minute = requestedHHMM.get(Calendar.MINUTE);
+                scheduledStartTime.set(Calendar.HOUR_OF_DAY, hour);
+                scheduledStartTime.set(Calendar.MINUTE, minute);
+                scheduledStartTime.set(Calendar.SECOND, 0);
+                if (scheduledStartTime.before(messageSentTime)) {
+                    scheduledStartTime.add(Calendar.DAY_OF_YEAR, 1);
+                }
+
+                if (processingStartTime.before(scheduledStartTime)) {
+                    logActivityIndented("Skipping run until scheduled time of " + scheduledStartTime.getTime());
+                    nextAtTime = scheduledStartTime;
+                    globalSettings.setSavedControlFileTimestamp(scheduledStartTime.getTimeInMillis()-1);
+                    continueProcessing = false;
+                    generateReport = false;
+                    deleteMessage = false;
+                    return;
+                }
+
+                logActivityIndented("Delayed Request starts at " + scheduledStartTime.getTime());
+                return;
+            }
+            case "run:every": {
+                if (lineCounter != 1) {
+                    logActivityIndented("run:every must be the first command");
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
+                int todayDayName = processingStartTime.get(Calendar.DAY_OF_WEEK);
+                DateFormatSymbols dfs = new DateFormatSymbols(Locale.US);
+                String[] weekdays = dfs.getWeekdays();
+
+                boolean matchedToday = false;
+                for (int d = Calendar.SUNDAY; d <= Calendar.SATURDAY; d++) {
+                    if (checkOperandsFor(operands, weekdays[d])) {
+                        matchedToday |= d == todayDayName;
+                    }
+                    if (checkOperandsFor(operands, weekdays[d].substring(0,3))) {
+                        matchedToday |= d == todayDayName;
+                    }
+                }
+
+                matchedToday |= checkOperandsFor(operands, "everyday");
+                matchedToday |= checkOperandsFor(operands, "every");
+
+                if (checkOperandsFor(operands, "weekday")
+                    || checkOperandsFor(operands, "week")) {
+                    matchedToday |= (todayDayName >= Calendar.MONDAY && todayDayName <= Calendar.FRIDAY);
+                }
+
+                String timeString = findOperandText(operands);
+
+                if (errorIfAnyRemaining(operands)) {
+                    logActivityIndented("Unrecognized operands for run:every");
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
+
+                Calendar scheduledStartTime = Calendar.getInstance();
+                //noinspection IfStatementWithIdenticalBranches
+                if (timeString != null) {
+
+                    Calendar requestedHHMM = parseTimeOfDay(timeString);
+                    if (requestedHHMM == null) {
+                        continueProcessing = false;
+                        deleteMessage = true;
+                        return;
+                    }
+
+                    int hour = requestedHHMM.get(Calendar.HOUR_OF_DAY);
+                    int minute = requestedHHMM.get(Calendar.MINUTE);
+                    scheduledStartTime.set(Calendar.HOUR_OF_DAY, hour);
+                    scheduledStartTime.set(Calendar.MINUTE, minute);
+                    scheduledStartTime.set(Calendar.SECOND, 0);
+                }
+                else {
+                    // No time parameter, default to 0300
+                    scheduledStartTime.set(Calendar.HOUR_OF_DAY, 3);
+                    scheduledStartTime.set(Calendar.MINUTE, 0);
+                    scheduledStartTime.set(Calendar.SECOND, 0);
+                }
+
+                // It's valid, but actually runnable. Don't delete.
+                deleteMessage = false;
+
+                if (!matchedToday) {
+                    // Not today
+                    continueProcessing = false;
+                    generateReport = false;
+                    logActivityIndented("Run at:every -- skip today");
+
+                    // Set it to 00:01 tomorrow.
+                    nextAtTime = scheduledStartTime;
+                    nextAtTime.set(Calendar.MINUTE, 1);
+                    nextAtTime.set(Calendar.HOUR_OF_DAY, 24);
+                    return;
+                }
+
+                if (processingStartTime.before(scheduledStartTime)) {
+                    // Later today
+                    continueProcessing = false;
+                    generateReport = false;
+                    nextAtTime = scheduledStartTime;
+                    logActivityIndented("Run at:every -- run later today");
+                    return;
+                }
+
+                logActivityIndented("Run at:every -- Starts at " + scheduledStartTime.getTime() + ".");
+
+                // Set it to 00:01 tomorrow.
+                nextAtTime = scheduledStartTime;
+                nextAtTime.set(Calendar.MINUTE, 1);
+                nextAtTime.set(Calendar.HOUR_OF_DAY, 24);
+
+                return;
+            }
+            default: {
+                logActivityIndented("Unrecognized request ");
+                break;
+            }
+        }
+    }
+
+    Calendar parseTimeOfDay (String timeString) {
+        Date result = null;
+
+        DateFormat formatter = new SimpleDateFormat("hh:mma", Locale.US);
+        try {
+            result = formatter.parse(timeString);
+        } catch (ParseException e) {
+            // ignore
+        }
+
+        if (result == null) {
+            if (timeString.matches("\\d\\d\\d\\d")) {
+                formatter = new SimpleDateFormat("HHmm", Locale.US);
+                try {
+                    result = formatter.parse(timeString);
+                } catch (ParseException e) {
+                    // ignore
+                }
+            }
+        }
+
+        if (result == null) {
+            logActivityIndented("Time not parsed: must be either HH:mm [AM|PM] (12 hour time) or HHMM (24 hour time)");
+            return null;
+        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(result);
+
+        return cal;
     }
 
     @WorkerThread
@@ -952,13 +1327,10 @@ public class RemoteAuto {
         for (Provisioning.ErrorInfo e : provisioning.errorLogs) {
             switch (e.severity) {
             case INFO:
-                Log.w("AESOP " + getClass().getSimpleName(), ">>>>log     " + e.text);
                 logActivityIndented(e.text);
                 break;
             case MILD:
             case SEVERE:
-                Log.w("AESOP " + getClass().getSimpleName(), ">>>>log     " + e.severity + " " + e.text);
-                Log.w("AESOP " + getClass().getSimpleName(), ">>>>log        ... for file" + currentInstallFile.getAbsolutePath());
                 logActivityIndented(e.severity + " " + e.text);
                 if (targetFile != null) {
                     logActivityIndented("  ... for file " + targetFile);
@@ -1010,6 +1382,7 @@ public class RemoteAuto {
     @SuppressLint("UsableSpace")
     @WorkerThread
     private void sendReport() {
+        Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
         // Send the report of what happened. Write it locally to a file (next to the control file)
         // and mail it (if authorized). Always do both just in case the mail fails.
 
@@ -1023,9 +1396,14 @@ public class RemoteAuto {
                             (float)activeStorage.getTotalSpace())*100) + "%)");
         }
 
-        @SuppressLint("SimpleDateFormat")
-        String currentDateAndTime = new SimpleDateFormat(DateTimeFormat).format(new Date());
-        logActivity("End: " + currentDateAndTime);
+        String name = globalSettings.getMailDeviceName();
+        if (name == null) {
+            name = "";
+        }
+        if (!name.isEmpty()) {
+            name = "on " + name;
+        }
+        logActivity("End of request " + name + " at " + Calendar.getInstance().getTime());
 
         // ????????????? Remove when convenient
         for (String s:resultLog) {
@@ -1045,23 +1423,24 @@ public class RemoteAuto {
             // Add a trailing empty line so the join below ends with a newline
             resultLog.add("");
 
-            Mail message = new Mail(activity)
-                    .setSubject("Aesop results from request")
+            Mail message = new Mail()
+                    .setSubject("Aesop results from request " + name)
                     .setMessageBody(TextUtils.join("\n",resultLog));
             for (String r:sendResultTo) {
                     message.setRecipient(r);
             }
             message.sendEmail();
         }
+        Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
     }
 
     @WorkerThread
     Provisioning.BookInfo findInBookList(String str) {
         // Find if there's exactly one entry that matches the string.
         // >1 match means it's ambiguous, so we say no matches
+        // Can accumulate multiple selected lines if repeatedly called.
         Provisioning.BookInfo match = null;
         for (Provisioning.BookInfo b : provisioning.bookList) {
-            b.selected = false;
             if (StringUtils.containsIgnoreCase(b.book.getDisplayTitle(), str)) {
                 if (match != null) {
                     return null;
@@ -1086,9 +1465,9 @@ public class RemoteAuto {
     Provisioning.Candidate findInCandidatesList(String str) {
         // Find if there's exactly one entry that matches the string.
         // >1 match means it's ambiguous, so we say no matches
+        // Can accumulate multiple selected lines if repeatedly called.
         Provisioning.Candidate match = null;
         for (Provisioning.Candidate c : provisioning.candidates) {
-            c.isSelected = false;
             if (StringUtils.containsIgnoreCase(c.bookTitle, str)) {
                 if (match != null) {
                     return null;

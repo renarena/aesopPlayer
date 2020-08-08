@@ -253,7 +253,8 @@
     <string name="status_name_check">Badanie:</string>
     <string name="status_name_error">Błąd:</string>
     <string name="dialog_cannot_make_group">Nie można utworzyć katalogu grupy.</string>
-    <string name="dialog_cannot_rename_group">Zmiana nazwy %s na %s nie powiodła się.</string>
+    <string name="cannot_rename_group">Zmiana nazwy %s na %s nie powiodła się.</string>
+    <string name="grouping_error">Błędy podczas grupowania plików.</string>
     <string name="dialog_colliding_group">Grupa już istnieje; bez akcji</string>
     <string name="dialog_illegal_group">Musi grupować co najmniej dwie książki</string>
     <string name="dialog_illegal_ungroup">Można rozgrupować tylko jedną książkę na raz</string>

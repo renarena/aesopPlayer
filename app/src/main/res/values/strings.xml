@@ -283,7 +283,8 @@
     <string name="dialog_illegal_group">Must group at least two books</string>
     <string name="dialog_colliding_group">Group already exists; no action</string>
     <string name="dialog_cannot_make_group">Unable to create group directory.</string>
-    <string name="dialog_cannot_rename_group">Renaming %s to %s failed.</string>
+    <string name="cannot_rename_group">Renaming %s to %s failed.</string>
+    <string name="grouping_error">Errors while grouping files.</string>
     <string name="download_dir_set_source">Set Source Directory</string>
     <string name="download_dir_new">Select New</string>
     <string name="deletePath">Delete entry</string>
