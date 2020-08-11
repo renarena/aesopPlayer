@@ -276,17 +276,7 @@ public class Provisioning extends ViewModel {
         List<String> files = Arrays.asList(dirList);
         Collections.sort(files, String::compareToIgnoreCase);
 
-        Candidate candidate = null;
         for (String fileName : files) {
-            if (candidate == null) {
-                candidate = new Candidate();
-                synchronized (candidates) {
-                    candidates.add(candidate);
-                }
-            }
-            candidate.newDirName = AudioBook.filenameCleanup(fileName);
-            progress.progress(ProgressKind.SEND_TOAST, candidate.newDirName);
-
             File pathToTarget = new File(candidateDirectory, fileName);
 
             // This might return a file in the cache dir, which should later be deleted.
@@ -294,10 +284,17 @@ public class Provisioning extends ViewModel {
             File audioPath = FileUtilities.findFileMatching(pathToTarget, FilesystemUtil::isAudioPath);
 
             if (audioPath != null) {
+                Candidate candidate = new Candidate();
+                candidate.newDirName = AudioBook.filenameCleanup(fileName);
+                progress.progress(ProgressKind.SEND_TOAST, candidate.newDirName);
                 candidate.fill(
                         AudioBook.filenameCleanup(fileName),
                         pathToTarget.getPath(),
                         audioPath);
+
+                synchronized (candidates) {
+                    candidates.add(candidate);
+                }
 
                 if (scanForDuplicateAudioBook(candidate.newDirName) != null) {
                     candidate.collides = true;
@@ -315,17 +312,6 @@ public class Provisioning extends ViewModel {
                 t.setPriority(Thread.MIN_PRIORITY);
                 t.start();
                 candidatesSubTasks.add(t);
-                candidate = null;
-            }
-        }
-
-        if (candidates.size() > 0) {
-            candidate = candidates.get(candidates.size() - 1);
-            if (candidate.audioPath == null) {
-                // If the last file was a non-book
-                synchronized (candidates) {
-                    candidates.remove(candidates.size() - 1);
-                }
             }
         }
 
@@ -755,27 +741,38 @@ public class Provisioning extends ViewModel {
             if (c.isSelected) {
                 File ungroupDir = new File(c.oldDirPath);
                 File parent = ungroupDir.getParentFile();
+                assert parent != null;
                 if (ungroupDir.list() != null) {
                     for (String fn : Objects.requireNonNull(ungroupDir.list())) {
-                        File newLoc = new File(parent, fn);
                         File oldLoc = new File(ungroupDir, fn);
-                        int n = 0;
-                        while (!oldLoc.renameTo(newLoc)) {
-                            if (n++ > 3) {
-                                logResult(Severity.SEVERE, String.format(getAppContext().getString(
-                                        R.string.cannot_rename_group),
-                                        oldLoc.getPath(), newLoc.getPath()));
-                                break;
-                            }
-                            fn += ".collision";
-                            newLoc = new File(parent, fn);
+                        if (oldLoc.isDirectory()) {
+                            logResult(Severity.MILD,
+                                String.format(getAppContext().getString(R.string.group_file_not_directory),
+                                    parent.getPath()));
+                        }
+
+                        File newLoc = FilesystemUtil.createUniqueFilename(parent, fn);
+                        if (newLoc == null) {
+                            logResult(Severity.SEVERE, String.format(getAppContext().getString(
+                                    R.string.group_could_not_name_new),
+                                    oldLoc.getPath()));
+                        }
+                        else if (!oldLoc.renameTo(newLoc)) {
+                            logResult(Severity.SEVERE, String.format(getAppContext().getString(
+                                R.string.cannot_rename_group),
+                                oldLoc.getPath(), newLoc.getPath()));
                         }
                     }
+                    // Unless we couldn't empty the directory, this wouldn't fail. If we couldn't
+                    // empty it, we know that from failures above. Nothing useful to do here.
+                    //noinspection ResultOfMethodCallIgnored
+                    ungroupDir.delete();
                 }
-                // Unless we couldn't empty the directory, this wouldn't fail. If we couldn't empty
-                // it, we know that from failures above. Nothing useful to do here.
-                //noinspection ResultOfMethodCallIgnored
-                ungroupDir.delete();
+                else {
+                    logResult(Severity.SEVERE,
+                            String.format(getAppContext().getString(R.string.could_not_ungroup_file),
+                                c.newDirName));
+                }
                 break;
             }
         }

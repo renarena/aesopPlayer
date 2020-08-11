@@ -178,8 +178,9 @@ public class FilesystemUtil {
     public static boolean isAudioPath(@NonNull String filename) {
         String lowerCaseFileName = filename.toLowerCase();
         for (String suffix : SUPPORTED_SUFFIXES)
-            if (lowerCaseFileName.endsWith(suffix))
+            if (lowerCaseFileName.endsWith(suffix)) {
                 return true;
+            }
 
         return false;
     }
@@ -205,5 +206,30 @@ public class FilesystemUtil {
                 return -1;
             }
         }
+    }
+
+     public static File createUniqueFilename(File parent, @NonNull String basename) {
+         int pos = basename.lastIndexOf('.');
+         String base;
+         String ext;
+         if (pos > 0) {
+             // if pos == 0, it's a dot file, and we want the number at the end of the basename
+             base = basename.substring(0, pos);
+             ext = basename.substring(pos);
+         }
+         else {
+             base = basename;
+             ext = "";
+         }
+
+         File newFile = new File(parent, basename);
+         int n = 0;
+         while (newFile.exists()) {
+             if (++n >= 100) {
+                 return null;
+             }
+             newFile = new File(parent, base + "-" + n + ext);
+         }
+         return newFile;
     }
 }

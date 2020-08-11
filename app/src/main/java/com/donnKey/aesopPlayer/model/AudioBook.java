@@ -84,6 +84,7 @@ public class AudioBook {
     private TitleAndAuthor titleInfo;
     private String displayTitle;
     private PlaybackService.DurationQuery bookDurationQuery;
+    public int duplicateIdCounter;  // In case of duplicate books, so they're a little visible.
 
     private UpdateObserver updateObserver;
 

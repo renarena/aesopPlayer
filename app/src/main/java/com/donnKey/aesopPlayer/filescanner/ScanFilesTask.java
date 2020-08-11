@@ -69,13 +69,15 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
     }
 
 
-    private void scanAndAppendBooks(File audioBooksDir, List<FileSet> fileSets) {
+    private void scanAndAppendBooks(@NonNull File audioBooksDir, List<FileSet> fileSets) {
         File[] audioBookDirs = audioBooksDir.listFiles(new DirectoryFilter());
         if (audioBookDirs != null) {
             for (File directory : audioBookDirs) {
                 FileSet fileSet = createFileSet(directory);
-                if (fileSet != null && !fileSets.contains(fileSet))
+                // Duplicates are possible. That gets dealt with in AudioBookManager#processScanResult
+                if (fileSet != null) {
                     fileSets.add(fileSet);
+                }
             }
         }
     }
@@ -92,7 +94,6 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
                 String path = file.getAbsolutePath();
                 String relativePath = path.substring(bookDirectoryPathLength);
 
-                // TODO: what if the same book is in two directories?
                 bufferLong.putLong(0, file.length());
                 digest.update(relativePath.getBytes());
                 digest.update(bufferLong);

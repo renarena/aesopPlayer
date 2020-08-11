@@ -40,6 +40,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.donnKey.aesopPlayer.R;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
 
 import org.apache.commons.compress.utils.IOUtils;
@@ -126,6 +127,11 @@ public class FileUtilities {
         }
         return true;
     }
+
+    // NOTE     NOTE     NOTE    NOTE     NOTE     NOTE    NOTE     NOTE     NOTE
+    // The emulator is known to have problems with the Download Manager, causing
+    // corrupted zip files that fail to unzip.
+    // NOTE     NOTE     NOTE    NOTE     NOTE     NOTE    NOTE     NOTE     NOTE
 
     // Recursively unzip a whole file to a directory; return true on success
     // Can log errors.
@@ -224,6 +230,7 @@ public class FileUtilities {
         }
         catch (IOException e) {
             // ignore
+            CrashWrapper.recordException(e);
         }
         return null;
     }
@@ -472,7 +479,7 @@ public class FileUtilities {
             try {
                 String[] commands = new String[3];
                 commands[0] = "rm";
-                commands[1] = "-r";
+                commands[1] = "-rf";
                 commands[2] = dir.getCanonicalPath();
                 Runtime runtime = Runtime.getRuntime();
                 Process p = runtime.exec(commands);

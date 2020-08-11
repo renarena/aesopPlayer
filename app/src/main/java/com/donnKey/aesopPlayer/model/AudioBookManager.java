@@ -148,6 +148,12 @@ public class AudioBookManager {
     private void processScanResult(@NonNull List<FileSet> fileSets) {
         // Posts an event when it completes. The event parameter is a LibraryContentType
         // if anything changed, or null if nothing changed.
+        //
+        // This is as good a place as any to note that changes made to the
+        // filesystem via Android Studio (terminal or Device File Explorer)
+        // don't cause a "directory updated" notification. The Windows
+        // File Explorer does do that.
+
         if (isFirstScan > 1 && fileSets.isEmpty()) {
             // The first scan may fail if it is just after booting and the SD card is not yet
             // mounted. Retry in a while. If it's still empty, then it really is empty and
@@ -166,6 +172,7 @@ public class AudioBookManager {
             // device.
             List<AudioBook> booksToRemove = new ArrayList<>();
             for (AudioBook audioBook : audioBooks) {
+                audioBook.duplicateIdCounter = 1;
                 String id = audioBook.getId();
                 boolean isInFileSet = false;
                 for (FileSet fileSet : fileSets) {
@@ -187,6 +194,7 @@ public class AudioBookManager {
                 AudioBook book = getById(fileSet.id);
                 if (book == null) {
                     AudioBook audioBook = new AudioBook(fileSet);
+                    audioBook.duplicateIdCounter = 1;
                     storage.readAudioBookState(audioBook);
                     audioBook.setUpdateObserver(storage);
                     audioBooks.add(audioBook);
@@ -198,10 +206,28 @@ public class AudioBookManager {
                     }
                 }
                 else {
+                    // We've seen this id before. Three possibilities here:
+                    // (1) It's duplicate content (under a different name)
+                    // (2) It's one we've seen before... nothing changed.
+                    // (3) It's a rename done outside of Aesop.
+
                     if (!book.getDirectoryName().equals(fileSet.directoryName)) {
-                        // A rename outside of Aesop
-                        book.replaceFileSet(fileSet);
-                        audioBooksChanged = true;
+                        // If it's the same name, nothing to do
+                        // Since it's not...
+                        if (book.getPath().exists()) {
+                            // both names exist with the same Id... it's a duplicate
+                            if (book.getDirectoryName().indexOf(' ') < 0) {
+                                // book doesn't have a space in the name; prefer
+                                // the new fileset in the hope of a better name.
+                                book.replaceFileSet(fileSet);
+                                audioBooksChanged = true;
+                            }
+                            book.duplicateIdCounter++;
+                        } else {
+                            // A rename outside of Aesop
+                            book.replaceFileSet(fileSet);
+                            audioBooksChanged = true;
+                        }
                     }
                 }
                 LibraryContentType newContentType = fileSet.isDemoSample

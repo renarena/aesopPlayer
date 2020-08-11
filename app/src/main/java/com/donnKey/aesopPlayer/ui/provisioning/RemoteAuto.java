@@ -151,7 +151,6 @@ public class RemoteAuto {
 
     // State needed for async downloads
     private long lastDownload = -1;
-    private File currentInstallFile;
 
     // so some inherently async operations look synchronous
     private final AwaitResume downloadCompletes = new AwaitResume();
@@ -165,12 +164,18 @@ public class RemoteAuto {
         appContext = activity.getApplicationContext();
         AesopPlayerApplication.getComponent(appContext).inject(this);
 
+        enabled = false;
         this.provisioning = new ViewModelProvider(activity).get(Provisioning.class);
         eventBus.register(this);
     }
 
     @UiThread
     public void start() {
+        if (enabled) {
+            // Avoid duplicates
+            // ????????????? fix with singleton service?
+            return;
+        }
         enabled = true;
         // Do the work on a thread so we can directly call "long" operations,
         // since this is all logically synchronous.
@@ -179,8 +184,9 @@ public class RemoteAuto {
         Handler handler = new Handler();
         handler.postDelayed( () -> {
                 Thread t = new Thread(this::pollLoop);
-                t.start(); },
-                startUpDelay);
+                t.start();
+            },
+            startUpDelay);
     }
 
     @UiThread
@@ -201,10 +207,9 @@ public class RemoteAuto {
             }
 
             if (!RemoteSettingsFragment.getInRemoteSettings()) {
-
                 controlDir = new File(globalSettings.getRemoteControlDir());
 
-                Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle");
+                Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle========================================================");
                 // ????? how expensive is this?
                 downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
 
@@ -284,7 +289,6 @@ public class RemoteAuto {
     static Calendar lastRun = null;
     @WorkerThread
     private void pollMail() {
-        Log.w("AESOP " + getClass().getSimpleName(), "poll mail");
         Mail mail = new Mail();
 
         if (mail.open() != Mail.SUCCESS) {
@@ -396,7 +400,9 @@ public class RemoteAuto {
                 continue;
             }
 
-            // Split on spaces, honoring quoted strings correctly
+            // Split on spaces, honoring quoted strings correctly, including handling
+            // of escaped quotes. Since NUL is illegal in a filename...
+            line = line.replace("\\\"", "\000");
             ArrayList<String> operands = new ArrayList<>(Arrays.asList(
                     line.split(" +(?=([^\"]*\"[^\"]*\")*[^\"]*$)")));
             int count;
@@ -405,6 +411,7 @@ public class RemoteAuto {
                     // a comment
                     break;
                 }
+                operands.set(count, operands.get(count).replace("\000", "\""));
             }
 
             // Trim the comment words
@@ -547,6 +554,8 @@ public class RemoteAuto {
         String downloadFile = uri.getLastPathSegment();
 
         DownloadManager.Request downloadRequest = new DownloadManager.Request(uri);
+        //?????????????????????????? MOBILE>>> not
+        //????????????????? look at request visibility options
         downloadRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
                 | DownloadManager.Request.NETWORK_MOBILE)
                 .setAllowedOverRoaming(false)
@@ -604,6 +613,7 @@ public class RemoteAuto {
 
     @WorkerThread
     private boolean install(@NonNull String fileUrl, String title, boolean priorDownload) {
+        File fileToInstall;
         // Install the book named by the "file:" fileUrl
         // We allow the otherwise illegal file:<relative pathname> (no slash after :) to mean
         // an Android sdcard-local filename.
@@ -611,54 +621,55 @@ public class RemoteAuto {
         if (fileUrl.charAt(5) != '/') {
             String pathName = fileUrl.substring(5);
             // a relative path - find relative to downloadDir's parent
-            currentInstallFile = new File(downloadDir.getParent(), pathName);
+            fileToInstall = new File(downloadDir.getParent(), pathName);
         }
         else {
             // Use more "official" conversion ?????????????????????????????????
-            currentInstallFile = new File(fileUrl.substring(7));
+            fileToInstall = new File(fileUrl.substring(7));
         }
 
-        if (!currentInstallFile.exists()) {
-            logActivityIndented( "File not found: " + currentInstallFile.getPath());
+        if (!fileToInstall.exists()) {
+            logActivityIndented( "File not found: " + fileToInstall.getPath());
             return false;
         }
 
         if (title == null) {
-           title = currentInstallFile.getName();
+           title = fileToInstall.getName();
         }
 
         File audioFile;
-        if (isAudioPath(currentInstallFile.getName())) {
-            audioFile = currentInstallFile;
+        if (isAudioPath(fileToInstall.getName())) {
+            audioFile = fileToInstall;
         }
         else {
-            audioFile = FileUtilities.findFileMatching(currentInstallFile, FilesystemUtil::isAudioPath);
+            audioFile = FileUtilities.findFileMatching(fileToInstall, FilesystemUtil::isAudioPath);
             if (audioFile == null) {
-                logActivityIndented( "Not an audiobook: no audio files found: " + currentInstallFile.getPath());
-                if (FileUtilities.deleteTree(currentInstallFile, this::logResult)) {
-                    logActivityIndented("Deleted " + currentInstallFile.getPath());
+                logActivityIndented( "Not an audiobook: no audio files found: " + fileToInstall.getPath());
+                if (FileUtilities.deleteTree(fileToInstall, this::logResult)) {
+                    logActivityIndented("Deleted " + fileToInstall.getPath());
                 }
-                postResults(currentInstallFile.getPath());
+                postResults(fileToInstall.getPath());
                 return false;
             }
         }
 
         Provisioning.Candidate candidate = new Provisioning.Candidate();
-        candidate.fill(title, currentInstallFile.getPath(), audioFile);
+        candidate.fill(title, fileToInstall.getPath(), audioFile);
         candidate.isSelected = true;
         candidate.computeDisplayTitle();
 
-        boolean r = retainBooks || !Objects.requireNonNull(currentInstallFile.getParentFile()).canWrite();
+        boolean r = retainBooks || !Objects.requireNonNull(fileToInstall.getParentFile()).canWrite();
         provisioning.moveOneFile_Task(candidate, this::installProgress, r, renameFiles);
 
-        if (!postResults(currentInstallFile.getPath()) && priorDownload) {
-            logActivityIndented("BE SURE to delete or finish installing this failed install" );
+        if (postResults(fileToInstall.getPath()) && priorDownload) {
+            logActivityIndented("BE SURE to delete or finish installing this failed install." );
         }
         bookListChanged();
 
         return true;
     }
 
+    @SuppressLint("DefaultLocale")
     @WorkerThread
     private void booksCommands(List<String> operands) {
         String key = operands.get(0).toLowerCase();
@@ -685,7 +696,13 @@ public class RemoteAuto {
                if (!book.getDirectoryName().equals(book.getDisplayTitle())) {
                    line += " -> " + book.getDirectoryName();
                }
-               logActivityIndented(line);
+               if (book.duplicateIdCounter == 1) {
+                   line = "     " + line;
+               }
+               else {
+                   line = String.format("  %2d ",book.duplicateIdCounter) + line;
+               }
+               logActivity(line); // not indented... we did that
             }
             logActivityIndented("");
             break;
@@ -718,19 +735,30 @@ public class RemoteAuto {
             break;
         }
         case "books:delete": {
-            String partialTitle = findOperandString(operands);
-            if (partialTitle == null || partialTitle.isEmpty()) {
-                logActivityIndented("Requires exactly one (non-null) operand");
+            ArrayList<String> partialTitles = new ArrayList<>();
+            String current;
+            while ((current = findOperandString(operands)) != null) {
+                partialTitles.add(current);
+            }
+            if (errorIfAnyRemaining(operands)) {
                 return;
             }
-
-            if (errorIfAnyRemaining(operands)) {
+            if (partialTitles.isEmpty()) {
+                logActivityIndented("No partial titles found to delete");
                 return;
             }
 
             provisioning.buildBookList();
-            if (findInBookList(partialTitle) == null) {
-                logActivityIndented("No unique match found for "+ partialTitle);
+            boolean OK = true;
+            for (String partialTitle: partialTitles) {
+                if (findInBookList(partialTitle) == null) {
+                    logActivityIndented("No unique match found for "+ partialTitle);
+                    OK = false;
+                    // Policy: either they all match partial titles, or do nothing.
+                }
+            }
+            if (!OK) {
+                // Policy: either they all match partial titles, or do nothing.
                 return;
             }
 
@@ -771,12 +799,19 @@ public class RemoteAuto {
         }
         case "books:reset": {
             boolean all = checkOperandsFor(operands, "all");
-            String partialTitle = findOperandString(operands);
             String newTimeString = findOperandText(operands);
+            ArrayList<String> partialTitles = new ArrayList<>();
+            String current;
+            while ((current = findOperandString(operands)) != null) {
+                partialTitles.add(current);
+            }
 
-            //noinspection SimplifiableBooleanExpression
-            if (!(all ^ partialTitle != null)) {
-                logActivityIndented("Requires exactly one of 'all' or a partial title");
+            if (all != partialTitles.isEmpty()) {
+                logActivityIndented("Requires either 'all' or a list of partial titles.");
+                return;
+            }
+
+            if (errorIfAnyRemaining(operands)) {
                 return;
             }
 
@@ -789,28 +824,42 @@ public class RemoteAuto {
                 return;
             }
 
-            if (errorIfAnyRemaining(operands)) {
-                return;
-            }
-
             provisioning.buildBookList();
-            if (partialTitle != null) {
-                Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
-                if (bookInfo == null) {
-                    logActivityIndented("No unique match found for " + partialTitle);
-                    return;
-                }
-                bookInfo.book.setNewTime(newTime);
-                postResults(bookInfo.book.getPath().getPath());
-            }
-            else {
-                // must be "all"
+
+            if (all) {
                 for (Provisioning.BookInfo bookInfo : provisioning.bookList) {
                     bookInfo.book.setNewTime(newTime);
+                    logActivityIndented("Position in "+ bookInfo.book.getDisplayTitle() +
+                            " changed to " + UiUtil.formatDurationShort(newTime));
                 }
             }
+            else {
+                // one or more partial titles
+                boolean OK = true;
+                for (String partialTitle: partialTitles) {
+                    Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
+                    if (bookInfo == null) {
+                        logActivityIndented("No unique match found for " + partialTitle);
+                        OK = false;
+                    }
+                }
+                if (!OK) {
+                    // Policy: all recognized or nothing
+                    return;
+                }
+                for (String partialTitle: partialTitles) {
+                    Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
+                    if (bookInfo != null) {
+                        bookInfo.book.setNewTime(newTime);
+                        logActivityIndented("Position in "+ bookInfo.book.getDisplayTitle() +
+                                " changed to " + UiUtil.formatDurationShort(newTime));
+                    }
+                }
+            }
+            postResults(null);
 
             bookListChanged();
+
             break;
         }
         default:
@@ -919,28 +968,30 @@ public class RemoteAuto {
                     candidate.newDirName = newTitle;
                 }
                 candidate.collides = false;
-                postResults(candidate.oldDirPath);
             } else {
                 // must be 'all'
                 for (Provisioning.Candidate candidate : provisioning.candidates) {
                     candidate.isSelected = true;
                 }
-                postResults(null);
             }
 
-            boolean r = retainBooks || !Objects.requireNonNull(currentInstallFile.getParentFile()).canWrite();
+            boolean r = retainBooks || !currentCandidateDir.canWrite();
             provisioning.moveAllSelected_Task(this::installProgress, r, renameFiles);
+            postResults(null);
 
             bookListChanged();
             break;
         }
         case "downloads:delete": {
             boolean all = checkOperandsFor(operands, "all");
-            String partialTitle = findOperandString(operands);
+            ArrayList<String> partialTitles = new ArrayList<>();
+            String current;
+            while ((current = findOperandString(operands)) != null) {
+                partialTitles.add(current);
+            }
 
-            //noinspection SimplifiableBooleanExpression
-            if (!(all ^ (partialTitle != null))) {
-                logActivityIndented("Requires exactly one of 'all' or a partial title");
+            if (all != partialTitles.isEmpty()) {
+                logActivityIndented("Requires either 'all' or a list of partial titles.");
                 return;
             }
 
@@ -949,25 +1000,37 @@ public class RemoteAuto {
             }
 
             buildCandidateList();
-            if (partialTitle != null) {
-                Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
-                if (candidate == null) {
-                    logActivityIndented("No unique match found for " + partialTitle);
-                    return;
-                }
-                if (FileUtilities.deleteTree(new File(candidate.oldDirPath), this::logResult)) {
-                    logActivityIndented("Deleted " + candidate.oldDirPath);
-                }
-                postResults(candidate.oldDirPath);
-            } else {
-                // must be 'all'
+
+            if (all) {
                 for (Provisioning.Candidate candidate : provisioning.candidates) {
                     if (FileUtilities.deleteTree(new File(candidate.oldDirPath), this::logResult)) {
                         logActivityIndented("Deleted " + candidate.oldDirPath);
                     }
                 }
-                postResults(null);
+            } else {
+                // one or more partial titles
+                boolean OK = true;
+                for (String partialTitle: partialTitles) {
+                    Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
+                    if (candidate == null) {
+                        logActivityIndented("No unique match found for " + partialTitle);
+                        OK = false;
+                    }
+                }
+                if (!OK) {
+                    // Policy: all recognized or nothing
+                    return;
+                }
+                for (String partialTitle: partialTitles) {
+                    Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
+                    if (candidate != null) {
+                        if (FileUtilities.deleteTree(new File(candidate.oldDirPath), this::logResult)) {
+                            logActivityIndented("Deleted " + candidate.oldDirPath);
+                        }
+                    }
+                }
             }
+            postResults(null);
 
             break;
         }
@@ -1046,6 +1109,10 @@ public class RemoteAuto {
 
             buildCandidateList();
             Provisioning.Candidate groupDir = findInCandidatesList(partialTitle);
+            if (groupDir == null) {
+                logActivityIndented("Book to ungroup not uniquely matched.");
+                return;
+            }
             logActivityIndented("Ungrouping " + groupDir.newDirName);
             provisioning.unGroupSelected_execute();
             postResults(null);
@@ -1054,6 +1121,113 @@ public class RemoteAuto {
             // And just in case we were in AudioBooks, the bookList too.
             buildCandidateList();
             bookListChanged();
+
+            break;
+        }
+        case "downloads:rawfiles": {
+            final String[] files = currentCandidateDir.list();
+            if (files == null) {
+                logActivityIndented("Directory is empty");
+                return;
+            }
+
+            Arrays.sort(files, String::compareTo);
+            final int[] lengths = new int[(files.length)];
+
+            int max = 0;
+            for (int i=0; i<files.length; i++) {
+               int len = files[i].length() + StringUtils.countMatches(files[i], '"');
+               max = Math.max(len,max);
+               lengths[i] = len;
+            }
+
+            final int columnWidth = 80;
+            final int gutterWidth = 1;
+            final int remaining = columnWidth - max;
+
+            // A preliminary number of columns
+            int nColumns = (remaining/(gutterWidth + 2)) + 1;  // assume a gutter width, and 2 character filenames.
+            int nRows = files.length;
+            int[] widthList = new int[nColumns];
+            while (nColumns > 1) {
+                nRows = (files.length+nColumns)/nColumns;
+
+                for (int col = 0; col < nColumns; col++) {
+                    int maxLen = 0; // the longest item in the current column
+                    for (int row = 0; row < nRows; row++) {
+                        int item = col * nRows + row;
+                        if (item >= lengths.length) {
+                            break;
+                        }
+                        maxLen = Math.max(maxLen, lengths[item]);
+                    }
+                    widthList[col] = maxLen;
+                }
+
+                int lengthSum = 0;
+                for (int i=0; i<nColumns; i++) {
+                    lengthSum += widthList[i];
+                }
+
+                if (lengthSum + (nColumns-1)*gutterWidth <= columnWidth) {
+                    // It fits, we have the layout
+                    break;
+                }
+                // it won't fit
+                nColumns--;
+            }
+
+            final StringBuilder text = new StringBuilder(columnWidth+1);
+            final String emptySpace = StringUtils.repeat(' ', columnWidth/2);
+            for (int row = 0; row < nRows; row++) {
+                for (int col = 0; col < nColumns; col++) {
+                    int item = col * nRows + row;
+                    if (item >= lengths.length) {
+                        break;
+                    }
+                    String fileName = files[item];
+                    if (fileName.indexOf('"') >= 0) {
+                        // it contains the quotes we allowed for above
+                        fileName = fileName.replaceAll("\"", "\\\\\"");
+                    }
+                    text.append('"');
+                    text.append(fileName);
+                    text.append('"');
+                    int spaces = widthList[col] - lengths[item] + gutterWidth;
+                    text.append(emptySpace, 0, spaces);
+                }
+                logActivityIndented(text.toString());
+                text.setLength(0);
+            }
+
+            break;
+        }
+        case "downloads:rawdelete": {
+            ArrayList<String> files = new ArrayList<>();
+            String current;
+            while ((current = findOperandString(operands)) != null) {
+                files.add(current);
+            }
+            if (errorIfAnyRemaining(operands)) {
+                return;
+            }
+            if (files.isEmpty()) {
+                logActivityIndented("No file names provided to delete");
+                return;
+            }
+            for (String fileName: files) {
+                File toDelete = new File(currentCandidateDir, fileName);
+                Log.w("AESOP " + getClass().getSimpleName(), "To delete " + toDelete.getPath());
+                if (!toDelete.exists()) {
+                    logActivityIndented("File " + toDelete.getPath() + " already deleted.");
+                }
+                else {
+                    logActivityIndented("Deleting File " + toDelete.getPath());
+                    if (!FileUtilities.deleteTree(toDelete, this::logResult)) {
+                        postResults(fileName);
+                    }
+                }
+            }
 
             break;
         }
@@ -1339,6 +1513,8 @@ public class RemoteAuto {
                 break;
             }
         }
+
+        provisioning.clearErrors();
         return errorsFound;
     }
 
@@ -1588,14 +1764,17 @@ public class RemoteAuto {
             if (i.getAction() == null) {
                 return;
             }
-            switch(i.getAction()) {
-                case DownloadManager.ACTION_NOTIFICATION_CLICKED:
-                    Log.w("AESOP" + getClass().getSimpleName(), "notification clicked");
-                    break;
-                case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
-                    Log.w("AESOP" + getClass().getSimpleName(), "Intent download complete");
-                    downloadHttp_end();
-                    break;
+            long id = i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            //Checking if the received broadcast is for our enqueued download by matching download id
+            if (lastDownload == id) {
+                //Toast.makeText(MainActivity.this, "Download Completed", Toast.LENGTH_SHORT).show();
+                switch(i.getAction()) {
+                    case DownloadManager.ACTION_NOTIFICATION_CLICKED:
+                        break;
+                    case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
+                        downloadHttp_end();
+                        break;
+                }
             }
         }
     };

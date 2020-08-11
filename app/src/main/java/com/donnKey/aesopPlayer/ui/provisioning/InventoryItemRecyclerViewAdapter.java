@@ -23,6 +23,7 @@
  */
 package com.donnKey.aesopPlayer.ui.provisioning;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -63,6 +64,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
 
     // Particularly in debug mode, a LOT of stuff happens in the background here that we
     // don't control, so it's slow.
+    @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         // This can fire for rebuilt offscreen entries, and it sees "unchecked"
@@ -78,6 +80,11 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
         holder.totalLength.setText(UiUtil.formatDuration(holder.book.getTotalDurationMs()));
         holder.selected.setChecked(provisioning.bookList[position].selected);
         holder.unWritable.setVisibility(provisioning.bookList[position].unWritable ? View.VISIBLE : View.GONE);
+        int count = provisioning.bookList[position].book.duplicateIdCounter;
+        if (count != 1) {
+            holder.dupIdCounter.setText(String.format("%2d", count));
+        }
+        holder.dupIdCounter.setVisibility(count != 1? View.VISIBLE : View.GONE);
 
         holder.selected.setOnCheckedChangeListener((v,b) -> {
                 provisioning.bookList[position].selected = b;
@@ -117,6 +124,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
         final TextView currentPosition;
         final TextView totalLength;
         final TextView bookCompleted;
+        final TextView dupIdCounter;
         final Button titleButton;
         final Button positionButton;
         final CheckBox selected;
@@ -135,6 +143,7 @@ public class InventoryItemRecyclerViewAdapter extends RecyclerView.Adapter<Inven
             this.bookCompleted = view.findViewById(R.id.book_completed);
             this.titleButton = view.findViewById(R.id.title_button);
             this.positionButton = view.findViewById(R.id.position_button);
+            this.dupIdCounter = view.findViewById(R.id.book_count_overlay);
         }
 
         @NonNull
