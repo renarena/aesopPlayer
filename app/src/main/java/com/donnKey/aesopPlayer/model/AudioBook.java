@@ -333,11 +333,7 @@ public class AudioBook {
 
     public void offerFileDuration(File file, long durationMs) {
         int index = Arrays.asList(fileSet.files).indexOf(file);
-        if (index < 0) {
-            Log.w("AESOP " + getClass().getSimpleName(), "!!!!!!!!!!!!!!!!!!!!!!!! neg index " + file.getPath());
-            return;
-        }
-        //Preconditions.checkState(index >= 0, "Attempt to size file failed: " + file.getName());
+        Preconditions.checkState(index >= 0, "Attempt to size file failed: " + file.getName());
         Preconditions.checkState(index <= fileDurations.size(), "Duration set out of order: " + file.getPath());
 
         // Only set the duration if unknown.

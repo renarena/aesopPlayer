@@ -290,7 +290,6 @@ public class Player {
         @Override
         public void start(Observer observer) {
             this.observer = observer;
-            //????????????????????????? huh??? why
             exoPlayer.setPlayWhenReady(false);  // Call before setting the listener.
             exoPlayer.addListener(this);
             processNextFile();

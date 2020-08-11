@@ -210,14 +210,12 @@ public class RemoteAuto {
                 controlDir = new File(globalSettings.getRemoteControlDir());
 
                 Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle========================================================");
-                // ????? how expensive is this?
                 downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
 
                 if (globalSettings.getFilePollEnabled()) {
                     pollControlFile();
                 }
                 if (globalSettings.getMailPollEnabled()) {
-                    // ?????????????????????? timeout???
                     pollMail();
                 }
 
@@ -289,16 +287,19 @@ public class RemoteAuto {
     static Calendar lastRun = null;
     @WorkerThread
     private void pollMail() {
+        // AFAICT everything done here, and the installs, will time out with an error
+        // if something goes wrong, so we don't need to worry about timeouts here.
         Mail mail = new Mail();
 
         if (mail.open() != Mail.SUCCESS) {
+            // The interval between polls is long enough that a back-off is pointless.
+            // (Note: We can't get here unless it worked once, so this is probably
+            // either an external login change or some external connection problem.)
             return;
         }
 
         // Search is for a pattern, case insensitive
         if (mail.readMail() != Mail.SUCCESS) {
-            //????????????????????????????? how to back off if/as necessary on conn error.
-            // (We can't get here unless it worked once!)
             return;
         }
 
@@ -339,7 +340,7 @@ public class RemoteAuto {
             if (commands != null) {
                 processCommands(commands);
                 if (deleteMessage) {
-                    // ??????????????? Fix below or remove this comment
+                    // ??????????????? Fix below or remove this comment (mail deletion)
                     request.delete();
                 }
                 if (generateReport) {
@@ -684,8 +685,22 @@ public class RemoteAuto {
 
             logActivityIndented("Current Books  " + provisioning.getTotalTimeSubtitle());
             logActivityIndented(" Length   Current        C W Title");
-            for (Provisioning.BookInfo bookInfo : provisioning.bookList) {
+            Provisioning.BookInfo[] sortedList = provisioning.bookList.clone();
+            Arrays.sort(sortedList, (l,r)->{
+                // Sort on path names (not display titles)
+                String lName = l.book.getPath().getPath();
+                String rName = r.book.getPath().getPath();
+                return lName.compareTo(rName);
+            });
+            String dirPath = "";
+            for (Provisioning.BookInfo bookInfo : sortedList) {
                AudioBook book = bookInfo.book;
+               String dir = book.getPath().getParent();
+                assert dir != null;
+                if (!dir.equals(dirPath)) {
+                   dirPath = dir;
+                   logActivityIndented("In " + dir);
+               }
                String line = String.format("%1s%-8s %-14s %1s %1s %s",
                    bookInfo.current ? ">" : " ",
                    UiUtil.formatDuration(book.getTotalDurationMs()),

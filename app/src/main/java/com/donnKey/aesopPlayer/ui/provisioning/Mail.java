@@ -24,8 +24,6 @@
 
 package com.donnKey.aesopPlayer.ui.provisioning;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -170,7 +168,6 @@ public class Mail implements Iterable<Mail.Request>{
         } catch (Exception e) {
             result = OTHER_ERROR;
             CrashWrapper.recordException(e);
-            e.printStackTrace();
         }
 
         return result;
@@ -187,7 +184,7 @@ public class Mail implements Iterable<Mail.Request>{
             try {
                 timestamp = message.getReceivedDate();
             } catch (MessagingException e) {
-                e.printStackTrace();
+                CrashWrapper.recordException(e);
             }
             return timestamp;
         }
@@ -211,9 +208,9 @@ public class Mail implements Iterable<Mail.Request>{
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                CrashWrapper.recordException(e);
             } catch (MessagingException e) {
-                e.printStackTrace();
+                CrashWrapper.recordException(e);
             }
             return null;
         }
@@ -223,7 +220,7 @@ public class Mail implements Iterable<Mail.Request>{
             try {
                 messageFromNames = message.getFrom();
             } catch (MessagingException e) {
-                e.printStackTrace();
+                CrashWrapper.recordException(e);
             }
             if (messageFromNames != null && messageFromNames.length > 0) {
                 inboundFrom = messageFromNames[0].toString();
@@ -237,7 +234,7 @@ public class Mail implements Iterable<Mail.Request>{
             try {
                 message.setFlag(Flags.Flag.DELETED, true);
             } catch (MessagingException e) {
-                e.printStackTrace();
+                CrashWrapper.recordException(e);
             }
         }
     }
@@ -273,9 +270,7 @@ public class Mail implements Iterable<Mail.Request>{
                 imapStore.close();
             }
         } catch (Exception e) {
-            Log.w("AESOP " + getClass().getSimpleName(), "CLOSE CRASHED 2 " + e);
             CrashWrapper.recordException(e);
-            e.printStackTrace();
         }
     }
 
@@ -312,20 +307,12 @@ public class Mail implements Iterable<Mail.Request>{
 
         } catch (Exception e) {
             CrashWrapper.recordException(e);
-            e.printStackTrace();
         }
     }
 
     public int testConnection() {
         int result = open();
         close();
-        try {
-            if (imapStore != null) {
-                imapStore.close();
-            }
-        } catch (Exception e) {
-            // ignore
-        }
         return result;
     }
 

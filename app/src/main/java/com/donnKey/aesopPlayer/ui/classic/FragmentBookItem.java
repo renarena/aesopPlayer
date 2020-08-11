@@ -85,8 +85,6 @@ public class FragmentBookItem extends BookListChildFragment {
         if (bookId != null) {
             AudioBook book = audioBookManager.getById(bookId);
             if (book == null) {
-                // shouldn't it be doing just the below, rather than as a parameter???????????
-                Log.w("AESOP " + getClass().getSimpleName(), "!!!!!!!!!!!!!! FragmentBookItem bad parameter" );
                 book = audioBookManager.getCurrentBook();
             }
             TextView textView = view.findViewById(R.id.title);

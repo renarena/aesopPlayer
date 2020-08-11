@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config xmlns:tools="http://schemas.android.com/tools">
-    <!-- Librivox (at least) is insecure/http:
-   ???????????????? can it be specific to the download?
-   -->
-        <base-config cleartextTrafficPermitted="true"
-            tools:ignore="InsecureBaseConfiguration" />
-    <!-- For debug-overrides to actually work, add android:debuggable="true" to the Manifest,
-         or just temporarily move the lines around here -->
+    <!-- Librivox (at least) is insecure (not https:) (or rather www.archive.org is - that's
+         where the real files reside). Thus we simply allow cleartext since the only things
+         we download are books (including the samples) -->
+    <base-config cleartextTrafficPermitted="true" tools:ignore="InsecureBaseConfiguration" />
     <debug-overrides>
+        <!-- For debug-overrides to actually work, add android:debuggable="true" to the Manifest -->
     </debug-overrides>
 </network-security-config>
