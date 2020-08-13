@@ -44,12 +44,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
+import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
+import com.donnKey.aesopPlayer.ui.UiControllerBookList;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment;
 import com.donnKey.aesopPlayer.util.AwaitResume;
@@ -116,7 +118,6 @@ public class RemoteAuto {
 
     private final Context appContext;
     private final AppCompatActivity activity;
-    //private final String DateTimeFormat = "yyyy-MM-dd HH:mm:ss zzz";
 
     private boolean continueProcessing = true;
     private boolean deleteMessage = true;
@@ -132,9 +133,16 @@ public class RemoteAuto {
     File controlDir;
     final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     File currentCandidateDir;
+    boolean candidatesIsAudioBooks; // above currently is (an) AudioBooks dir.
+    boolean audioBooksBeingChanged; // we're making changes to an audioBooks dir right now.
 
     // Global state
     private boolean enabled;
+    // For debugging
+    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
+    private boolean consoleLogReport = false;
+    @SuppressWarnings("CanBeFinal")
+    private boolean consoleLog = false;
 
     // Per request state
     private final List<String> resultLog = new ArrayList<>();
@@ -145,9 +153,6 @@ public class RemoteAuto {
     private boolean renameFiles;
     private Calendar messageSentTime;
     private int lineCounter; // counts non-comment lines
-
-    // Used to cause a rescan of the control file when the next at:run or at:every needs it.
-    private Calendar nextAtTime = Calendar.getInstance();
 
     // State needed for async downloads
     private long lastDownload = -1;
@@ -167,6 +172,12 @@ public class RemoteAuto {
         enabled = false;
         this.provisioning = new ViewModelProvider(activity).get(Provisioning.class);
         eventBus.register(this);
+        if (BuildConfig.DEBUG) {
+            // If debugging, this will always read the file at startup (once), for testing.
+            globalSettings.setSavedControlFileTimestamp(0);
+            //consoleLog = true;
+            //consoleLogReport = true;
+        }
     }
 
     @UiThread
@@ -209,7 +220,9 @@ public class RemoteAuto {
             if (!RemoteSettingsFragment.getInRemoteSettings()) {
                 controlDir = new File(globalSettings.getRemoteControlDir());
 
-                Log.w("AESOP " + getClass().getSimpleName(), "Poll cycle========================================================");
+                if (consoleLog) {
+                    Log.v("AESOP " + getClass().getSimpleName(), "Poll cycle ========================================================");
+                }
                 downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
 
                 if (globalSettings.getFilePollEnabled()) {
@@ -231,7 +244,6 @@ public class RemoteAuto {
         }
     }
 
-    // ??????????????????????? All actions here need to turn off the speaker (search for speak); see UiControllerBookList  108
     @WorkerThread
     private void pollControlFile() {
         continueProcessing = true;
@@ -246,6 +258,7 @@ public class RemoteAuto {
 
         long timestamp = controlFile.lastModified();
         if (timestamp <= globalSettings.getSavedControlFileTimestamp()) {
+            Calendar nextAtTime = globalSettings.getSavedAtTime();
             if (nextAtTime.after(processingStartTime)) {
                 return;
             }
@@ -275,9 +288,9 @@ public class RemoteAuto {
         if (deleteMessage) {
             // We can't actually delete it, but we can ignore it until the file
             // is changed
-            //????????????????? this is per-run right now!!!!!!!!!!!!!
-            nextAtTime = Calendar.getInstance();
-            nextAtTime.add(Calendar.YEAR, 100);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.YEAR, 100);
+            setEarliestSavedAtTime(cal);
         }
 
         globalSettings.setSavedControlFileTimestamp(timestamp);
@@ -309,12 +322,14 @@ public class RemoteAuto {
             generateReport = true;
             processingStartTime = Calendar.getInstance();
 
-            Log.w("AESOP " + getClass().getSimpleName(), "NOW is " + processingStartTime.getTime());
-
             messageSentTime = Calendar.getInstance();
             messageSentTime.setTime(request.sentTime());
 
+            // Can't ignore old mail because it might be an "every"... those
+            // could hang around for years. We rely on deletion of ephemeral mail
+
             // ??????????? DON'T DO THIS WHEN IN PRODUCTION
+            // ??????? Thus delete lastRun
             Calendar yesterday = (Calendar) processingStartTime.clone();
             yesterday.add(Calendar.DAY_OF_YEAR, -1);
 
@@ -334,13 +349,11 @@ public class RemoteAuto {
             }
              */
 
-            Log.w("AESOP " + getClass().getSimpleName(), "Processing");
             BufferedReader commands = request.getInboundBodyStream();
             // If there's no plain-text MIME body section, we'll get null here.
             if (commands != null) {
                 processCommands(commands);
                 if (deleteMessage) {
-                    // ??????????????? Fix below or remove this comment (mail deletion)
                     request.delete();
                 }
                 if (generateReport) {
@@ -350,7 +363,6 @@ public class RemoteAuto {
             }
 
             lastRun = processingStartTime;
-            //globalSettings.setSavedMailTimestamp(sentTime.getTimeInMillis()/1000);
         }
         mail.close();
     }
@@ -358,9 +370,11 @@ public class RemoteAuto {
     @WorkerThread
     void processCommands(BufferedReader commands) {
 
+        Log.w("AESOP " + getClass().getSimpleName(), "Processing script");
         // Reset to the same initial state each cycle
         // Start downloads in the same place each run
         currentCandidateDir = downloadDir;
+        candidatesIsAudioBooks = false;
         sendResultTo.clear();
         resultLog.clear();
         lineCounter = 0;
@@ -389,9 +403,8 @@ public class RemoteAuto {
                 return;
             }
 
-            Log.w("AESOP " + getClass().getSimpleName(), "-----------------------------------------------------");
-            Log.w("AESOP" + getClass().getSimpleName(), "got line '" + line + "'");
             if (line == null) {
+                Log.w("AESOP " + getClass().getSimpleName(), "script ended");
                 return;
             }
             logActivity(line);
@@ -524,6 +537,7 @@ public class RemoteAuto {
                     break;
                 }
                 case "exit:": {
+                    Log.w("AESOP " + getClass().getSimpleName(), "script ended");
                     return;
                 }
                 default: {
@@ -532,6 +546,7 @@ public class RemoteAuto {
                 }
             }
         }
+        Log.w("AESOP " + getClass().getSimpleName(), "script ended");
     }
 
     // Downloading stuff
@@ -549,17 +564,17 @@ public class RemoteAuto {
 
     @WorkerThread
     private void downloadHttp_start(String requested, String newTitle) {
-        // Deal with full filesystem ????????????????????????????????????????????????????????
-
+        Log.w("AESOP " + getClass().getSimpleName(), "download start " + requested);
         Uri uri = Uri.parse(requested);
         String downloadFile = uri.getLastPathSegment();
 
         DownloadManager.Request downloadRequest = new DownloadManager.Request(uri);
-        //?????????????????????????? MOBILE>>> not
-        //????????????????? look at request visibility options
-        downloadRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
-                | DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false)
+        downloadRequest
+                //??????????????????? consider if this is really right...
+                // Take the default on this - presumably the user's config will take care of it
+                //.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
+                //.setAllowedOverRoaming(false)
+                // The default visibility seems right as well
                 .setDescription("Aesop Player Download")
                 .setTitle(newTitle != null ? newTitle : downloadFile)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
@@ -625,7 +640,6 @@ public class RemoteAuto {
             fileToInstall = new File(downloadDir.getParent(), pathName);
         }
         else {
-            // Use more "official" conversion ?????????????????????????????????
             fileToInstall = new File(fileUrl.substring(7));
         }
 
@@ -659,6 +673,7 @@ public class RemoteAuto {
         candidate.isSelected = true;
         candidate.computeDisplayTitle();
 
+        bookListChanging(true);
         boolean r = retainBooks || !Objects.requireNonNull(fileToInstall.getParentFile()).canWrite();
         provisioning.moveOneFile_Task(candidate, this::installProgress, r, renameFiles);
 
@@ -807,6 +822,7 @@ public class RemoteAuto {
 
             logActivityIndented("Rename " + bookInfo.book.getPath().getPath() + " to '" + newTitle + "'");
 
+            bookListChanging(true);
             bookInfo.book.renameTo(newTitle, this::logResult);
             postResults(bookInfo.book.getPath().getPath());
             bookListChanged();
@@ -842,6 +858,7 @@ public class RemoteAuto {
             provisioning.buildBookList();
 
             if (all) {
+                bookListChanging(true);
                 for (Provisioning.BookInfo bookInfo : provisioning.bookList) {
                     bookInfo.book.setNewTime(newTime);
                     logActivityIndented("Position in "+ bookInfo.book.getDisplayTitle() +
@@ -862,6 +879,7 @@ public class RemoteAuto {
                     // Policy: all recognized or nothing
                     return;
                 }
+                bookListChanging(true);
                 for (String partialTitle: partialTitles) {
                     Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
                     if (bookInfo != null) {
@@ -871,9 +889,8 @@ public class RemoteAuto {
                     }
                 }
             }
-            postResults(null);
-
             bookListChanged();
+            postResults(null);
 
             break;
         }
@@ -885,6 +902,7 @@ public class RemoteAuto {
 
     @WorkerThread
     private void runDelete() {
+        bookListChanging(true);
         provisioning.deleteAllSelected_Task(this::installProgress, archiveBooks);
         postResults(null);
         bookListChanged();
@@ -939,6 +957,15 @@ public class RemoteAuto {
             }
             logActivityIndented("Download directory set to " + newDir.getPath());
             currentCandidateDir = newDir;
+
+            candidatesIsAudioBooks = false;
+            final List<File> audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
+            for (File activeStorage : audioBooksDirs) {
+                if (currentCandidateDir.equals(activeStorage)) {
+                    candidatesIsAudioBooks = true;
+                    break;
+                }
+            }
             break;
         }
         case "downloads:install": {
@@ -990,11 +1017,12 @@ public class RemoteAuto {
                 }
             }
 
+            bookListChanging(true); // this op's effects are to the book list!
             boolean r = retainBooks || !currentCandidateDir.canWrite();
             provisioning.moveAllSelected_Task(this::installProgress, r, renameFiles);
             postResults(null);
-
             bookListChanged();
+
             break;
         }
         case "downloads:delete": {
@@ -1017,6 +1045,7 @@ public class RemoteAuto {
             buildCandidateList();
 
             if (all) {
+                bookListChanging(false);
                 for (Provisioning.Candidate candidate : provisioning.candidates) {
                     if (FileUtilities.deleteTree(new File(candidate.oldDirPath), this::logResult)) {
                         logActivityIndented("Deleted " + candidate.oldDirPath);
@@ -1036,6 +1065,7 @@ public class RemoteAuto {
                     // Policy: all recognized or nothing
                     return;
                 }
+                bookListChanging(false);
                 for (String partialTitle: partialTitles) {
                     Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
                     if (candidate != null) {
@@ -1045,6 +1075,7 @@ public class RemoteAuto {
                     }
                 }
             }
+            bookListChanged();
             postResults(null);
 
             break;
@@ -1100,14 +1131,15 @@ public class RemoteAuto {
                 return;
             }
 
+            bookListChanging(false);
             logActivityIndented("Grouping " + candidates + " books into " + target);
             provisioning.groupAllSelected_execute(targetFile);
             postResults(null);
 
             // Update the candidate list since we know it changed.
             // And just in case we were in AudioBooks, the bookList too.
-            buildCandidateList();
             bookListChanged();
+            buildCandidateList();
 
             break;
         }
@@ -1123,6 +1155,7 @@ public class RemoteAuto {
             }
 
             buildCandidateList();
+            bookListChanging(false);
             Provisioning.Candidate groupDir = findInCandidatesList(partialTitle);
             if (groupDir == null) {
                 logActivityIndented("Book to ungroup not uniquely matched.");
@@ -1131,11 +1164,11 @@ public class RemoteAuto {
             logActivityIndented("Ungrouping " + groupDir.newDirName);
             provisioning.unGroupSelected_execute();
             postResults(null);
+            bookListChanged();
 
             // Update the candidate list since we know it changed.
             // And just in case we were in AudioBooks, the bookList too.
             buildCandidateList();
-            bookListChanged();
 
             break;
         }
@@ -1230,9 +1263,10 @@ public class RemoteAuto {
                 logActivityIndented("No file names provided to delete");
                 return;
             }
+
+            bookListChanging(false);
             for (String fileName: files) {
                 File toDelete = new File(currentCandidateDir, fileName);
-                Log.w("AESOP " + getClass().getSimpleName(), "To delete " + toDelete.getPath());
                 if (!toDelete.exists()) {
                     logActivityIndented("File " + toDelete.getPath() + " already deleted.");
                 }
@@ -1243,6 +1277,7 @@ public class RemoteAuto {
                     }
                 }
             }
+            bookListChanged();
 
             break;
         }
@@ -1340,7 +1375,7 @@ public class RemoteAuto {
 
                 if (processingStartTime.before(scheduledStartTime)) {
                     logActivityIndented("Skipping run until scheduled time of " + scheduledStartTime.getTime());
-                    nextAtTime = scheduledStartTime;
+                    setEarliestSavedAtTime(scheduledStartTime);
                     globalSettings.setSavedControlFileTimestamp(scheduledStartTime.getTimeInMillis()-1);
                     continueProcessing = false;
                     generateReport = false;
@@ -1348,7 +1383,7 @@ public class RemoteAuto {
                     return;
                 }
 
-                logActivityIndented("Delayed Request starts at " + scheduledStartTime.getTime());
+                logActivityIndented("Delayed Request scheduled for " + scheduledStartTime.getTime() + " runs.");
                 return;
             }
             case "run:every": {
@@ -1413,19 +1448,19 @@ public class RemoteAuto {
                     scheduledStartTime.set(Calendar.SECOND, 0);
                 }
 
-                // It's valid, but actually runnable. Don't delete.
+                // It's valid, and thus actually runnable. Don't delete.
                 deleteMessage = false;
 
                 if (!matchedToday) {
                     // Not today
                     continueProcessing = false;
                     generateReport = false;
-                    logActivityIndented("Run at:every -- skip today");
 
-                    // Set it to 00:01 tomorrow.
-                    nextAtTime = scheduledStartTime;
-                    nextAtTime.set(Calendar.MINUTE, 1);
-                    nextAtTime.set(Calendar.HOUR_OF_DAY, 24);
+                    // Set it to 00:01 tomorrow, and see when/if it should actually run then.
+                    scheduledStartTime.set(Calendar.MINUTE, 1);
+                    scheduledStartTime.set(Calendar.HOUR_OF_DAY, 24);
+                    setEarliestSavedAtTime(scheduledStartTime);
+                    // (No log here! -- one isn't even generated)
                     return;
                 }
 
@@ -1433,18 +1468,17 @@ public class RemoteAuto {
                     // Later today
                     continueProcessing = false;
                     generateReport = false;
-                    nextAtTime = scheduledStartTime;
-                    logActivityIndented("Run at:every -- run later today");
+                    setEarliestSavedAtTime(scheduledStartTime);
+                    logActivityIndented("Run at:every -- run later today at " + scheduledStartTime.getTime() + ".");
                     return;
                 }
 
+                // Earlier today (now!)
                 logActivityIndented("Run at:every -- Starts at " + scheduledStartTime.getTime() + ".");
 
-                // Set it to 00:01 tomorrow.
-                nextAtTime = scheduledStartTime;
-                nextAtTime.set(Calendar.MINUTE, 1);
-                nextAtTime.set(Calendar.HOUR_OF_DAY, 24);
-
+                scheduledStartTime.set(Calendar.MINUTE, 1);
+                scheduledStartTime.set(Calendar.HOUR_OF_DAY, 24);
+                setEarliestSavedAtTime(scheduledStartTime);
                 return;
             }
             default: {
@@ -1501,8 +1535,11 @@ public class RemoteAuto {
                 // Ignore
                 break;
             case FILESYSTEMS_FULL:
-                Log.w("AESOP " + getClass().getSimpleName(), "PROGRESS " + kind + " " + string);
-                //?????????????????????? Deal with this???????????????????????
+                // Occurs only on book install.
+                // An error was posted just before this error is reported.
+                // That error will show up in postResults, where the user will see it,
+                // along with a further warning to clean up.
+                // Nothing to do here.
                 break;
             case BOOK_DONE:
             case ALL_DONE:
@@ -1535,26 +1572,48 @@ public class RemoteAuto {
 
     @WorkerThread
     void logResult(Provisioning.Severity severity, String text) {
-        Log.w("AESOP " + getClass().getSimpleName(), ">>>>log " + severity + " " + text);
+        if (consoleLog) {
+            Log.v("AESOP " + getClass().getSimpleName(), ">>>>log " + severity + " " + text);
+        }
         logActivityIndented(severity + " " + text);
     }
 
     @WorkerThread
     private void logActivity(String s) {
-        Log.w("AESOP " + getClass().getSimpleName(), ">>>>log " +s);
+        if (consoleLog) {
+            Log.v("AESOP " + getClass().getSimpleName(), ">>>>log " + s);
+        }
         resultLog.add(s);
     }
 
     @WorkerThread
     private void logActivityIndented(String s) {
-        Log.w("AESOP " + getClass().getSimpleName(), ">>>>log " +s);
+        if (consoleLog) {
+            Log.v("AESOP " + getClass().getSimpleName(), ">>>>log " + s);
+        }
         resultLog.add("     " + s);
+    }
+
+    @WorkerThread
+    private void bookListChanging (boolean alwaysAudioBooks) {
+        audioBooksBeingChanged = alwaysAudioBooks;
+        if (alwaysAudioBooks || candidatesIsAudioBooks) {
+            // The candidates directory is the AudioBooks directory,
+            // and this operation changes the candidates directory.
+            // Thus it changes the audioBooks directory, and we must deal with that.
+            UiControllerBookList.suppressAnnounce();
+            audioBooksBeingChanged = true;
+        }
     }
 
     @WorkerThread
     private void bookListChanged () {
         // Synchronously update the book list, so it's never out of date with
         // respect to what we're doing here.
+        // ??????????????? is there a cleaner design than the quasi-global?
+        if (!audioBooksBeingChanged) {
+            return;
+        }
 
         booksChangedEvent.prepare(); // Await completion event for Books Changed
         EventBus.getDefault().post(new MediaStoreUpdateEvent());
@@ -1562,6 +1621,8 @@ public class RemoteAuto {
 
         // Wait until any pending duration queries complete
         audioBookManager.awaitDurationQueries();
+        UiControllerBookList.resumeAnnounce();
+        audioBooksBeingChanged = false;
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
@@ -1573,17 +1634,17 @@ public class RemoteAuto {
     @SuppressLint("UsableSpace")
     @WorkerThread
     private void sendReport() {
-        Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
         // Send the report of what happened. Write it locally to a file (next to the control file)
         // and mail it (if authorized). Always do both just in case the mail fails.
 
         // Tell the user about space remaining
         final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
         for (File activeStorage : audioBooksDirs) {
+            long remainingSpace = activeStorage.getTotalSpace() - activeStorage.getUsableSpace();
             logActivity("Space on " + activeStorage.getParent() + ": Using " +
-                    activeStorage.getUsableSpace()/1000000 + "Mb of " +
+                    remainingSpace/1000000 + "Mb of " +
                     activeStorage.getTotalSpace()/1000000 + "Mb (" +
-                    (int)(((float)activeStorage.getUsableSpace()/
+                    (int)(((float)remainingSpace/
                             (float)activeStorage.getTotalSpace())*100) + "%)");
         }
 
@@ -1596,9 +1657,12 @@ public class RemoteAuto {
         }
         logActivity("End of request " + name + " at " + Calendar.getInstance().getTime());
 
-        // ????????????? Remove when convenient
-        for (String s:resultLog) {
-            Log.w("AESOP " + getClass().getSimpleName(), "Log: " + s);
+        if (consoleLogReport) {
+            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
+            for (String s : resultLog) {
+                Log.v("AESOP " + getClass().getSimpleName(), "Log: " + s);
+            }
+            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
         }
 
 
@@ -1622,7 +1686,6 @@ public class RemoteAuto {
             }
             message.sendEmail();
         }
-        Log.w("AESOP " + getClass().getSimpleName(), "**********************************");
     }
 
     @WorkerThread
@@ -1774,6 +1837,19 @@ public class RemoteAuto {
         return newName;
     }
 
+    private void setEarliestSavedAtTime(@NonNull Calendar nextStart) {
+        if (!globalSettings.getSavedAtTime().after(processingStartTime)) {
+            //If the saved time is before "now" (we just ran), just take the new time
+            // (!after is <=)
+            globalSettings.setSavedAtTime(nextStart);
+        }
+        else if (nextStart.before(globalSettings.getSavedAtTime())) {
+            // The saved time is in the future; if this is sooner, use it instead.
+            // (This can happen if there are several at or every commands queued in the mailbox.)
+            globalSettings.setSavedAtTime(nextStart);
+        }
+    }
+
     private final BroadcastReceiver onBroadcastEvent = new BroadcastReceiver() {
         public void onReceive(Context context, @NonNull Intent i) {
             if (i.getAction() == null) {
@@ -1781,8 +1857,8 @@ public class RemoteAuto {
             }
             long id = i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             //Checking if the received broadcast is for our enqueued download by matching download id
+            // ??????????? invert order of id check?
             if (lastDownload == id) {
-                //Toast.makeText(MainActivity.this, "Download Completed", Toast.LENGTH_SHORT).show();
                 switch(i.getAction()) {
                     case DownloadManager.ACTION_NOTIFICATION_CLICKED:
                         break;
@@ -1794,3 +1870,4 @@ public class RemoteAuto {
         }
     };
 }
+//??????????????????????? clean up per-app storage on emulator

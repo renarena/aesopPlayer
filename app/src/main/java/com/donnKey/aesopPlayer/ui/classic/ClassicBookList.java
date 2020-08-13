@@ -131,12 +131,6 @@ public class ClassicBookList extends Fragment implements BookListUi {
     }
 
     @Override
-    public void updateCurrentBook(int currentBookId) {
-        // Simply calls updateBookList (above) with appropriate params.
-        uiControllerBookList.updateAudioBooks();
-    }
-
-    @Override
     public void initWithController(UiControllerBookList uiControllerBookList) {
         this.uiControllerBookList = uiControllerBookList;
     }

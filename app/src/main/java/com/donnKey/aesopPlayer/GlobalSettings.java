@@ -42,6 +42,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -145,6 +146,8 @@ public class GlobalSettings {
     public static final String KEY_REMOTE_MAIL_POLL = "remote_mail_poll";
     public static final String KEY_REMOTE_FILE_POLL = "remote_file_poll";
     public static final String KEY_REMOTE_OPTIONS_SCREEN = "remote_options_screen";
+    public static final String KEY_REMOTE_FILE_TIMESTAMP = "remote_file_timestamp";
+    public static final String KEY_REMOTE_AT_TIME = "remote_at_time";
 
     public static final String TAG_KIOSK_DIALOG = "tag_kiosk_dialog";
 
@@ -259,7 +262,7 @@ public class GlobalSettings {
         }
     }
 
-    public void setBooksEverInstalled(LibraryContentType contentType) {
+    public void setBooksEverInstalled(@NonNull LibraryContentType contentType) {
         LibraryContentType oldContentType = booksEverInstalled();
         if (contentType.supersedes(oldContentType))
             sharedPreferences.edit().putString(KEY_BOOKS_EVER_INSTALLED, contentType.name()).apply();
@@ -355,7 +358,7 @@ public class GlobalSettings {
     }
 
     @SuppressLint("ApplySharedPref")
-    public void setKioskModeNow(SettingsKioskMode kioskMode) {
+    public void setKioskModeNow(@NonNull SettingsKioskMode kioskMode) {
         sharedPreferences.edit().putString(KEY_KIOSK_MODE_SELECTION, kioskMode.toString()).commit();
     }
 
@@ -495,21 +498,30 @@ public class GlobalSettings {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
     }
 
-    long controlFileTimestamp=0;
-    //???????????????? Fix me
     public long getSavedControlFileTimestamp() {
-        return controlFileTimestamp;
-    }
-    public void setSavedControlFileTimestamp(long timestamp) {
-        controlFileTimestamp = timestamp;
+        // File timestamp (in millis)
+        return sharedPreferences.getLong(GlobalSettings.KEY_REMOTE_FILE_TIMESTAMP, 0L);
     }
 
-    long mailTimestamp=0;
-    public long getSavedMailTimestamp() {
-        return mailTimestamp;
+    public void setSavedControlFileTimestamp(long timestamp) {
+        sharedPreferences.edit().putLong(KEY_REMOTE_FILE_TIMESTAMP, timestamp).apply();
     }
-    public void setSavedMailTimestamp(long timestamp) {
-        mailTimestamp = timestamp;
+
+    public Calendar getSavedAtTime() {
+        long millis =  sharedPreferences.getLong(GlobalSettings.KEY_REMOTE_AT_TIME, 0L);
+        Calendar result = Calendar.getInstance();
+        if (millis == 0) {
+            // Default to 100 years from now (==never)
+            result.add(Calendar.YEAR, 100);
+        }
+        else {
+            result.setTimeInMillis(millis);
+        }
+        return result;
+    }
+
+    public void setSavedAtTime(@NonNull Calendar cal) {
+        sharedPreferences.edit().putLong(KEY_REMOTE_AT_TIME, cal.getTimeInMillis()).apply();
     }
 
     public SharedPreferences appSharedPreferences() {

@@ -91,6 +91,7 @@ public class UiControllerBookList {
     }
 
     private static long lastTitleAnnouncedAt = 0;
+    private static long previousLastTitleAnnouncedAt = 0;
     private static String previousBook = "";
     private final static long MINIMUM_INTERVAL_BETWEEN_TITLES = TimeUnit.SECONDS.toMillis(30);
 
@@ -125,7 +126,14 @@ public class UiControllerBookList {
     }
 
     static public void suppressAnnounce() {
+        // suppress announcement "for a while"
+        previousLastTitleAnnouncedAt = lastTitleAnnouncedAt;
         lastTitleAnnouncedAt = System.currentTimeMillis();
+    }
+
+    static public void resumeAnnounce() {
+        // revert above suppression for quick operations
+        lastTitleAnnouncedAt = previousLastTitleAnnouncedAt;
     }
 
     private void speak(@NonNull String text) {
