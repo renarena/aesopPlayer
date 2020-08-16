@@ -343,18 +343,18 @@ public class DemoSamplesInstallerService extends Service {
 
             return tmpFile;
         }
+    }
 
-        private static void enableTlsOnAndroid4(HttpURLConnection connection) {
-            // The internets say that this may be also needed on some API 21 phones...
-            if (Build.VERSION.SDK_INT <= 21) {
-                if (connection instanceof HttpsURLConnection) {
-                    try {
-                        ((HttpsURLConnection)connection).setSSLSocketFactory(new TlsSSLSocketFactory());
-                    } catch (KeyManagementException | NoSuchAlgorithmException e) {
-                        CrashWrapper.recordException(e);
-                        // Nothing much to do here, the app will attempt the download and most likely
-                        // fail.
-                    }
+    public static void enableTlsOnAndroid4(HttpURLConnection connection) {
+        // The internets say that this may be also needed on some API 21 phones...
+        if (Build.VERSION.SDK_INT <= 21) {
+            if (connection instanceof HttpsURLConnection) {
+                try {
+                    ((HttpsURLConnection)connection).setSSLSocketFactory(new TlsSSLSocketFactory());
+                } catch (KeyManagementException | NoSuchAlgorithmException e) {
+                    CrashWrapper.recordException(e);
+                    // Nothing much to do here, the app will attempt the download and most likely
+                    // fail.
                 }
             }
         }

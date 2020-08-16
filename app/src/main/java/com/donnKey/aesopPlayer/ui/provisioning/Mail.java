@@ -189,7 +189,7 @@ public class Mail implements Iterable<Mail.Request>{
             return timestamp;
         }
 
-        public BufferedReader getInboundBodyStream() {
+        public BufferedReader getMessageBodyStream() {
             try {
                 Object content = message.getContent();
                 if (content instanceof MimeMultipart) {
@@ -215,7 +215,7 @@ public class Mail implements Iterable<Mail.Request>{
             return null;
         }
 
-        public String getInboundSender() {
+        public String getMessageSender() {
             Address[] messageFromNames = new Address[0];
             try {
                 messageFromNames = message.getFrom();
