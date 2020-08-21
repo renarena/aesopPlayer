@@ -43,7 +43,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -91,7 +90,7 @@ public class InventoryItemFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_inventory_item_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
 
-        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
+        this.provisioning = Provisioning.getInstance();
         actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar).setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));
 

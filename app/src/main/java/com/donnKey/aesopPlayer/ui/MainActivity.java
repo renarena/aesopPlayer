@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @Inject
     public KioskModeSwitcher kioskModeSwitcher;
 
-    private RemoteAuto remoteAuto;
     private PowerManager powerManager;
     private ActivityManager activityManager;
     private StatusBarCollapser statusBarCollapser;
@@ -186,7 +185,9 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         });
 
         justCreated.start();
-        remoteAuto = new RemoteAuto(this);
+
+        RemoteAuto.activate(globalSettings.getMailPollEnabled() || globalSettings.getFilePollEnabled());
+
     }
 
     @Override
@@ -214,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         controller.onActivityStart();
         orientationDelegate.onStart();
         batteryStatusProvider.start();
-        remoteAuto.start();
         handleIntent(getIntent());
     }
 

@@ -25,7 +25,6 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -51,7 +50,7 @@ public class ErrorTextFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Provisioning provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
+        Provisioning provisioning = Provisioning.getInstance();
         View view = inflater.inflate(R.layout.error_text_fragment, container, false);
 
         ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();

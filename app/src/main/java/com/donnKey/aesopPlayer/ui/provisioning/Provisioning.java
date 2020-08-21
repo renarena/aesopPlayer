@@ -25,9 +25,12 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
+import android.os.Handler;
+import android.provider.MediaStore;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
+import com.donnKey.aesopPlayer.MediaStoreUpdateObserver;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
@@ -55,17 +58,20 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.lifecycle.ViewModel;
 import de.greenrobot.event.EventBus;
 
+import static android.os.Looper.getMainLooper;
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 
 // Serves as a cache for inter-fragment communication
-public class Provisioning extends ViewModel {
+// Since it's also needed for RemoteAuto, a ViewModel doesn't work, but a singleton is fine.
+@Singleton
+public class Provisioning {
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
     @Inject public AudioBookManager audioBookManager;
     @Inject public GlobalSettings globalSettings;
@@ -78,6 +84,28 @@ public class Provisioning extends ViewModel {
     public final File defaultCandidateDirectory =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
+
+    private static Provisioning provisioning = null;
+    final MediaStoreUpdateObserver mediaStoreUpdateObserver;
+
+    private Provisioning() {
+        AesopPlayerApplication.getComponent(getAppContext()).inject(this);
+        EventBus.getDefault().register(this);
+
+        mediaStoreUpdateObserver
+                = new MediaStoreUpdateObserver(new Handler(getMainLooper()));
+        getAppContext().getContentResolver().registerContentObserver(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, true, mediaStoreUpdateObserver);
+    }
+
+    public static Provisioning getInstance() {
+        if (provisioning == null) {
+            synchronized (Provisioning.class) {
+                if (provisioning == null) provisioning = new Provisioning();
+            }
+        }
+        return provisioning;
+    }
 
     static class Candidate {
         String newDirName = null;
@@ -205,20 +233,7 @@ public class Provisioning extends ViewModel {
         errorLogs.add(new Provisioning.ErrorInfo(severity, text));
     }
 
-    // Class machinery
-    public Provisioning() {
-        AesopPlayerApplication.getComponent(getAppContext()).inject(this);
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        EventBus.getDefault().unregister(this);
-    }
-
     // Data functions
-
     void buildBookList() {
         List<AudioBook> audioBooks = audioBookManager.getAudioBooks();
 

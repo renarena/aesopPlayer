@@ -107,6 +107,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta7'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    implementation "androidx.work:work-runtime:2.4.0"
 
     // implementation 'com.flurry.android:analytics:6.9.2' Disabled: see analytics/StatsLogger.java
 

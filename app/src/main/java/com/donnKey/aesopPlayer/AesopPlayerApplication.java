@@ -27,8 +27,6 @@ package com.donnKey.aesopPlayer;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.provider.MediaStore;
 
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
@@ -73,10 +71,6 @@ public class AesopPlayerApplication extends androidx.multidex.MultiDexApplicatio
 
         // Caution here: sets an apparently a device-global, persistent setting.
         CrashWrapper.start(applicationContext, globalSettings.getAnalytics());
-
-        mediaStoreUpdateObserver = new MediaStoreUpdateObserver(new Handler(getMainLooper()));
-        getContentResolver().registerContentObserver(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, true, mediaStoreUpdateObserver);
 
         HomeActivity.setEnabled(this, globalSettings.isAnyKioskModeEnabled());
 

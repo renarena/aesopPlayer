@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -39,13 +39,13 @@ import de.greenrobot.event.EventBus;
  * device. To avoid rescanning often, a rescan is triggered only after RESCAN_DELAY_MS milliseconds
  * have passed since the last onChange call.
  */
-class MediaStoreUpdateObserver extends ContentObserver {
+public class MediaStoreUpdateObserver extends ContentObserver {
 
     private static final int RESCAN_DELAY_MS = 5000;
 
     private final Handler mainThreadHandler;
 
-    MediaStoreUpdateObserver(Handler mainThreadHandler) {
+    public MediaStoreUpdateObserver(Handler mainThreadHandler) {
         super(mainThreadHandler);
         this.mainThreadHandler = mainThreadHandler;
     }

@@ -56,7 +56,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -113,7 +112,7 @@ public class CandidateFragment extends Fragment {
         view = (RecyclerView)inflater.inflate(R.layout.fragment_candidate_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
         SharedPreferences preferences = globalSettings.appSharedPreferences();
-        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
+        this.provisioning = Provisioning.getInstance();
 
         provisioning.downloadDirs = globalSettings.getDownloadDirectories();
         boolean doUpdateDirs = false;

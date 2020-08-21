@@ -45,6 +45,7 @@ import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.ui.provisioning.Mail;
+import com.donnKey.aesopPlayer.ui.provisioning.RemoteAuto;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -132,6 +133,7 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
             }
             else {
                 // Do the back operation
+                RemoteAuto.activate(globalSettings.getMailPollEnabled() || globalSettings.getFilePollEnabled());
                 this.setEnabled(false);
                 requireActivity().onBackPressed();
             }

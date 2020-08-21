@@ -51,7 +51,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
 
 import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 import static com.donnKey.aesopPlayer.ui.UiUtil.formatDurationShort;
@@ -68,7 +67,7 @@ public class PositionEditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.provisioning = new ViewModelProvider(this.requireActivity()).get(Provisioning.class);
+        this.provisioning = Provisioning.getInstance();
     }
 
     @Override

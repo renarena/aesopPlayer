@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2020 Donn S. Terry
+ * Copyright (c) 2020 Donn S. Terry
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,14 +37,16 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.BuildConfig;
@@ -101,6 +103,7 @@ import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 import static com.donnKey.aesopPlayer.service.DemoSamplesInstallerService.enableTlsOnAndroid4;
 import static com.donnKey.aesopPlayer.util.FilesystemUtil.isAudioPath;
 
+//???????? A singleton?
 public class RemoteAuto {
     // Every *interval* check if there's a new instance of the control file or new mail, and if so
     // perform the actions directed by that file.  The parser in process() defines what
@@ -130,28 +133,20 @@ public class RemoteAuto {
     private final String resultFileName = "AesopResult.txt";
 
     private final Context appContext;
-    private final AppCompatActivity activity;
 
     private boolean continueProcessing = true;
     private boolean deleteMessage = true;
     private boolean generateReport = true;
     private Calendar processingStartTime = null;
 
-    // ?????????????? Make these times sensible for real life, not testing
-    // Conditional on DEBUG?
-    //private final long interval = TimeUnit.MINUTES.toMillis(10);
-    private final long interval = TimeUnit.SECONDS.toMillis(10);
-    private final long startUpDelay = TimeUnit.SECONDS.toMillis(3);
-
     File controlDir;
     final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     File currentCandidateDir;
     boolean candidatesIsAudioBooks; // above File is currently (an) AudioBooks dir.
     boolean audioBooksBeingChanged; // we're making changes to an audioBooks dir right now.
+    final Handler handler;
+    private final String TAG="RemoteAuto";
 
-    final Handler handler = new Handler();
-    // Global state
-    private boolean enabled;
     // For debugging
     @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
     private boolean consoleLogReport = false;
@@ -173,97 +168,65 @@ public class RemoteAuto {
 
     // so some inherently async operations look synchronous
     private final AwaitResume downloadCompletes = new AwaitResume();
-    private final AwaitResume booksChangedEvent = new AwaitResume();
+    private final AwaitResume booksModifiedUpdateComplete = new AwaitResume();
+    private final AwaitResume booksPreUseUpdateComplete = new AwaitResume();
+    private final static String TAG_WORK = "Remote Auto";
 
     @Singleton
     @UiThread
-    public RemoteAuto(@NonNull AppCompatActivity activity) {
-        //????  Is this leak-safe?
-        this.activity = activity;
-        appContext = activity.getApplicationContext();
+    public RemoteAuto() {
+        appContext = getAppContext();
         AesopPlayerApplication.getComponent(appContext).inject(this);
 
-        enabled = false;
-        this.provisioning = new ViewModelProvider(activity).get(Provisioning.class);
+        try {
+            // This is required but one-time only, but we might be running on the same thread
+            // a previous incarnation had used, so just ignore it.
+            Looper.prepare();
+        } catch (RuntimeException e) {
+            // ignore
+        }
+        handler = new Handler();
+
+        this.provisioning = Provisioning.getInstance();
         eventBus.register(this);
         if (BuildConfig.DEBUG) {
             // If debugging, this will always process the shared file at startup (once), for testing.
             //?????????????????????????????
             globalSettings.setSavedControlFileTimestamp(0);
-            //consoleLog = true;
+            consoleLog = true;
             consoleLogReport = true;
         }
     }
-
-    @UiThread
-    public void start() {
-        if (enabled) {
-            // Avoid duplicates
-            // ????????????? fix with singleton service?
-            return;
+    public void pollSources() {
+        if (RemoteSettingsFragment.getInRemoteSettings()) {
+            return; // we'll try again wen it's not busy
         }
-        //???????????????????? If we're not using the manager????
-        downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
-        enabled = true;
-        // Do the work on a thread so we can directly call "long" operations,
-        // since this is all logically synchronous.
-        // Delay starting until everything else settles
-        //???????????? Should be longer in real life
-        Handler handler = new Handler();
-        handler.postDelayed( () -> {
-                Thread t = new Thread(this::pollLoop);
-                t.start();
-            },
-            startUpDelay);
-    }
 
-    @UiThread
-    public void stop() {
-        Log.w("AESOP", "Remote stop");
-        enabled = false;
+        if (globalSettings.getFilePollEnabled()) {
+            pollControlFile();
+        }
+
+        if (globalSettings.getMailPollEnabled()) {
+            pollMail();
+        }
+        if (generateReport) {
+            sendReport();
+        }
+
         downloadManager = null;
     }
 
-
-    @SuppressLint("UsableSpace")
     @WorkerThread
-    public void pollLoop() {
-        while (true) {
-            if (!enabled) {
-                // Give up until we get another start
-                Log.w("AESOP" + getClass().getSimpleName(), "not enabled");
-                return;
-            }
-
-            if (!RemoteSettingsFragment.getInRemoteSettings()) {
-                controlDir = new File(globalSettings.getRemoteControlDir());
-
-                if (consoleLog) {
-                    Log.v("AESOP " + getClass().getSimpleName(), "Poll cycle ========================================================");
-                }
-
-                if (globalSettings.getFilePollEnabled()) {
-                    pollControlFile();
-                }
-                if (globalSettings.getMailPollEnabled()) {
-                    pollMail();
-                }
-            }
-
-            try {
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
-                // ignored
-            }
-        }
-    }
-
-    @WorkerThread
-    private void pollControlFile() {
+    void pollControlFile() {
         continueProcessing = true;
         deleteMessage = true;
         generateReport = true;
         processingStartTime = Calendar.getInstance();
+        controlDir = new File(globalSettings.getRemoteControlDir());
+
+        if (consoleLog) {
+            Log.v("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " " + Thread.currentThread().getId(), "Poll cycle ========================================================");
+        }
 
         File controlFile = new File(controlDir, controlFileName);
         if (!controlFile.exists()) {
@@ -291,9 +254,6 @@ public class RemoteAuto {
         messageSentTime.setTimeInMillis(timestamp);
 
         processCommands(commands);
-        if (generateReport) {
-            sendReport();
-        }
 
         try {
             commands.close();
@@ -312,10 +272,15 @@ public class RemoteAuto {
     //?????? revisit
     static Calendar lastRun = null;
     @WorkerThread
-    private void pollMail() {
+    void pollMail() {
         // AFAICT everything done here, and the installs, will time out with an error
         // if something goes wrong, so we don't need to worry about timeouts here.
+        controlDir = new File(globalSettings.getRemoteControlDir());
         Mail mail = new Mail();
+
+        if (consoleLog) {
+            Log.v("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " " + Thread.currentThread().getId(), "Poll cycle ========================================================");
+        }
 
         if (mail.open() != Mail.SUCCESS) {
             // The interval between polls is long enough that a back-off is pointless.
@@ -366,18 +331,16 @@ public class RemoteAuto {
             // If there's no plain-text MIME body section, we'll get null here.
             if (commands != null) {
                 processCommands(commands);
+                sendResultTo.add(request.getMessageSender());
                 if (deleteMessage) {
                     request.delete();
-                }
-                if (generateReport) {
-                    sendResultTo.add(request.getMessageSender());
-                    sendReport();
                 }
             }
             lastRun = processingStartTime;
         }
         mail.close();
     }
+
 
     @SuppressLint("DefaultLocale")
     @WorkerThread
@@ -397,7 +360,6 @@ public class RemoteAuto {
         allowMobileData = false;
         useDownloadManager = false;
         forceDownloadManager = false;
-
 
         String name = globalSettings.getMailDeviceName();
         if (name == null) {
@@ -718,7 +680,7 @@ public class RemoteAuto {
             connection.disconnect();
         } catch (IOException e) {
             Log.w("AESOP " + getClass().getSimpleName(), "download crash");
-            CrashWrapper.recordException(e);
+            CrashWrapper.recordException(e);  /// All such should use TAG ???????????????
             return null;
         }
 
@@ -746,7 +708,7 @@ public class RemoteAuto {
         //????????????
         intentFilter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
 
-        activity.registerReceiver(
+        appContext.registerReceiver(
             // No lambda possible here.
             new BroadcastReceiver() {
                 @Override
@@ -769,7 +731,7 @@ public class RemoteAuto {
                             case DownloadManager.ACTION_NOTIFICATION_CLICKED:
                                 break;
                             case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
-                                activity.unregisterReceiver(this);
+                                appContext.unregisterReceiver(this);
                                 downloadUsingManager_end(lastDownload);
                                 break;
                         }
@@ -1029,7 +991,7 @@ public class RemoteAuto {
         }
 
         if (title == null) {
-           title = fileToInstall.getName();
+           title = AudioBook.filenameCleanup(fileToInstall.getName());
         }
 
         File audioFile;
@@ -1075,7 +1037,7 @@ public class RemoteAuto {
                 return;
             }
 
-            provisioning.buildBookList();
+            buildBookList();
             provisioning.selectCompletedBooks();
 
             logActivityIndented("Current Books  " + provisioning.getTotalTimeSubtitle());
@@ -1118,7 +1080,7 @@ public class RemoteAuto {
             break;
         }
         case "books:clean": {
-            provisioning.buildBookList();
+            buildBookList();
             provisioning.selectCompletedBooks();
             if (checkOperandsFor(operands, "all")) {
                 for (Provisioning.BookInfo b : provisioning.bookList) {
@@ -1158,7 +1120,7 @@ public class RemoteAuto {
                 return;
             }
 
-            provisioning.buildBookList();
+            buildBookList();
             boolean OK = true;
             for (String partialTitle: partialTitles) {
                 if (findInBookList(partialTitle) == null) {
@@ -1193,7 +1155,7 @@ public class RemoteAuto {
                 return;
             }
 
-            provisioning.buildBookList();
+            buildBookList();
             Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
             if (bookInfo == null) {
                 logActivityIndented("No unique match found for '"+ partialTitle + "'");
@@ -1235,7 +1197,7 @@ public class RemoteAuto {
                 return;
             }
 
-            provisioning.buildBookList();
+            buildBookList();
 
             if (all) {
                 bookListChanging(true);
@@ -1716,6 +1678,7 @@ public class RemoteAuto {
                 }
                 if (useDownloadManager) {
                     logActivityIndented("Downloads will be performed using the Download Manager");
+                    downloadManager = (DownloadManager) appContext.getSystemService(Context.DOWNLOAD_SERVICE);
                 }
                 else {
                     logActivityIndented("Downloads will be performed using sockets");
@@ -1933,7 +1896,20 @@ public class RemoteAuto {
         provisioning.candidates.clear();
         provisioning.buildCandidateList_Task(currentCandidateDir,this::installProgress);
         postResults(null);
+        // The below makes it synchronous
         provisioning.joinCandidatesSubTasks();
+    }
+
+    @WorkerThread
+    void buildBookList() {
+        booksPreUseUpdateComplete.prepare(); // Use completion event to know it's finished updating
+                                     // This is vital on first use.
+        EventBus.getDefault().post(new MediaStoreUpdateEvent());
+        booksPreUseUpdateComplete.await();
+
+        // Wait until any pending duration queries complete
+        audioBookManager.awaitDurationQueries();
+        provisioning.buildBookList();
     }
 
     @WorkerThread
@@ -1986,7 +1962,7 @@ public class RemoteAuto {
     @WorkerThread
     private void logActivity(String s) {
         if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName(), ">>>>log " + s);
+            Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log " + s);
         }
         synchronized (resultLog) {
             resultLog.add(s);
@@ -1996,7 +1972,7 @@ public class RemoteAuto {
     @WorkerThread
     private void logActivityIndented(String s) {
         if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName(), ">>>>log " + s);
+            Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log " + s);
         }
         synchronized (resultLog) {
             resultLog.add("     " + s);
@@ -2010,6 +1986,8 @@ public class RemoteAuto {
             // The candidates directory is an AudioBooks directory,
             // and this operation changes the candidates directory.
             // Thus it changes the audioBooks directory, and we must deal with that.
+            //???????????????????? Still too talky!
+            Log.w("AESOP " + getClass().getSimpleName(), "silencing ----------");
             UiControllerBookList.suppressAnnounce();
             audioBooksBeingChanged = true;
         }
@@ -2024,12 +2002,14 @@ public class RemoteAuto {
             return;
         }
 
-        booksChangedEvent.prepare(); // Await completion event for Books Changed
+        booksModifiedUpdateComplete.prepare(); // Await completion event for Books Changed
         EventBus.getDefault().post(new MediaStoreUpdateEvent());
-        booksChangedEvent.await();
+        booksModifiedUpdateComplete.await();
 
         // Wait until any pending duration queries complete
         audioBookManager.awaitDurationQueries();
+        // ??????????????? If we find a better way to suppress the chatter, we don't need the synchronization because buildBookList does it too.
+        Log.w("AESOP " + getClass().getSimpleName(), "talking ++++++++++++");
         UiControllerBookList.resumeAnnounce();
         audioBooksBeingChanged = false;
     }
@@ -2037,7 +2017,8 @@ public class RemoteAuto {
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void onEvent(AudioBooksChangedEvent event) {
         // We just want to know it completed to move on
-        booksChangedEvent.resume();
+        booksModifiedUpdateComplete.resume();
+        booksPreUseUpdateComplete.resume();
     }
 
     @SuppressLint("UsableSpace")
@@ -2240,7 +2221,7 @@ public class RemoteAuto {
             newName += " ";
         }
 
-        provisioning.buildBookList();
+        buildBookList();
         String otherBook = provisioning.scanForDuplicateAudioBook(newName);
         if (otherBook != null) {
             logActivityIndented("New name '" + newName + "' collides with existing book '"
@@ -2260,6 +2241,20 @@ public class RemoteAuto {
             // The saved time is in the future; if this is sooner, use it instead.
             // (This can happen if there are several at or every commands queued in the mailbox.)
             globalSettings.setSavedAtTime(nextStart);
+        }
+    }
+
+    public static void activate(boolean activate) {
+        Log.w("AESOP " + new Object(){}.getClass().getEnclosingClass().getSimpleName(), "activate " + activate);
+        // Always deactivate it, just so we know things are clean
+        WorkManager workManager = WorkManager.getInstance(getAppContext());
+        workManager.cancelUniqueWork(TAG_WORK);
+
+        if (activate) {
+            PeriodicWorkRequest.Builder remoteAutoBuilder = new PeriodicWorkRequest
+                    .Builder(RemoteAutoWorker.class, 15, TimeUnit.MINUTES);
+            PeriodicWorkRequest request = remoteAutoBuilder.build();
+            workManager.enqueueUniquePeriodicWork(TAG_WORK, ExistingPeriodicWorkPolicy.KEEP, request);
         }
     }
 }
