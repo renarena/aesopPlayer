@@ -24,9 +24,15 @@
 package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -37,9 +43,10 @@ import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 import com.donnKey.aesopPlayer.service.PlaybackService;
-import com.donnKey.aesopPlayer.ui.UiControllerMain;
 import com.donnKey.aesopPlayer.ui.UiUtil;
+import com.donnKey.aesopPlayer.util.AwaitResume;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
+import com.google.common.base.Preconditions;
 
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -71,7 +78,7 @@ import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 // Serves as a cache for inter-fragment communication
 // Since it's also needed for RemoteAuto, a ViewModel doesn't work, but a singleton is fine.
 @Singleton
-public class Provisioning {
+public class Provisioning implements ServiceConnection {
     @Inject @Named("AUDIOBOOKS_DIRECTORY") public String audioBooksDirectoryName;
     @Inject public AudioBookManager audioBookManager;
     @Inject public GlobalSettings globalSettings;
@@ -85,8 +92,11 @@ public class Provisioning {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
 
+    private static final String TAG="Provisioning";
     private static Provisioning provisioning = null;
     final MediaStoreUpdateObserver mediaStoreUpdateObserver;
+    PlaybackService playbackService;
+    AwaitResume pendingPlayback = new AwaitResume();
 
     private Provisioning() {
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
@@ -237,26 +247,24 @@ public class Provisioning {
     void buildBookList() {
         List<AudioBook> audioBooks = audioBookManager.getAudioBooks();
 
-        bookList = new BookInfo[audioBooks.size()];
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (audioBooks) {
+            bookList = new BookInfo[audioBooks.size()];
 
-        totalTime = 0;
-        partiallyUnknown = false;
-        for (int i = 0; i < audioBooks.size(); i++) {
-            AudioBook book = audioBooks.get(i);
+            totalTime = 0;
+            partiallyUnknown = false;
+            for (int i = 0; i < audioBooks.size(); i++) {
+                AudioBook book = audioBooks.get(i);
 
-            bookList[i] = new BookInfo(book, !book.getPath().canWrite(),
-                    book == audioBookManager.getCurrentBook());
-            long t = book.getTotalDurationMs();
-            if (t != AudioBook.UNKNOWN_POSITION) {
-                totalTime += book.getTotalDurationMs();
-            }
-            else {
-                PlaybackService playbackService = UiControllerMain.getPlaybackService();
-                if (playbackService != null) {
-                    // Sooner or later this will happen, but now is really nice
-                    playbackService.computeDuration(book);
+                bookList[i] = new BookInfo(book, !book.getPath().canWrite(),
+                        book == audioBookManager.getCurrentBook());
+                long t = book.getTotalDurationMs();
+                if (t != AudioBook.UNKNOWN_POSITION) {
+                    totalTime += book.getTotalDurationMs();
+                } else {
+                    computeBookDuration(book);
+                    partiallyUnknown = true;
                 }
-                partiallyUnknown = true;
             }
         }
 
@@ -791,6 +799,40 @@ public class Provisioning {
                 break;
             }
         }
+    }
+
+    public void computeBookDuration(AudioBook book) {
+        // Do it if we can, but there will be other calls if it isn't ready
+        if (playbackService == null) {
+            return;
+        }
+        playbackService.computeDuration(book);
+    }
+
+    public void assurePlaybackService() {
+        if (playbackService != null) {
+            return;
+        }
+        pendingPlayback.prepare();
+        Intent serviceIntent = new Intent(getAppContext(), PlaybackService.class);
+        getAppContext().bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
+        pendingPlayback.await();
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName componentName, IBinder service) {
+        CrashWrapper.log(TAG, "onServiceConnected");
+        Log.w("AESOP " + getClass().getSimpleName(), "CBD Service connected");
+        Preconditions.checkState(playbackService == null);
+        playbackService = ((PlaybackService.ServiceBinder) service).getService();
+        pendingPlayback.resume();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName) {
+        Log.w("AESOP " + getClass().getSimpleName(), "CBD disconnect");
+        CrashWrapper.log(TAG, "onServiceDisconnected");
+        playbackService = null;
     }
 
     // Listen for external changes...

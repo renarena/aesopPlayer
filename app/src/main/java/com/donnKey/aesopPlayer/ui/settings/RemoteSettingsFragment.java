@@ -61,7 +61,6 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
     @Inject public GlobalSettings globalSettings;
     @Inject public AudioBookManager audioBookManager;
     @Inject public EventBus eventBus;
-    //?????????????? make RemoteAuto (as a service?) injectable? Use start/stop instead of inRemoteSettings?
 
     int mailValidated = Mail.UNRESOLVED;
     boolean remoteMailValidated = false;

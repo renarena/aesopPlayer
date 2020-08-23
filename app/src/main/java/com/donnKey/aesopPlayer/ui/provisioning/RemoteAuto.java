@@ -52,6 +52,7 @@ import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+import com.donnKey.aesopPlayer.events.AnAudioBookChangedEvent;
 import com.donnKey.aesopPlayer.events.AudioBooksChangedEvent;
 import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 import com.donnKey.aesopPlayer.model.AudioBook;
@@ -125,38 +126,41 @@ public class RemoteAuto {
     @Inject
     public EventBus eventBus;
 
-    private final Provisioning provisioning;
-
     @SuppressWarnings("FieldCanBeLocal")
     private final String controlFileName = "AesopScript.txt";
     @SuppressWarnings("FieldCanBeLocal")
     private final String resultFileName = "AesopResult.txt";
 
     private final Context appContext;
+    private final Provisioning provisioning;
+    private final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    private final Handler handler;
+    private final String TAG="RemoteAuto";
+    private final AwaitResume booksChanged = new AwaitResume();
+    private final AwaitResume downloadCompletes = new AwaitResume();
+    private final AwaitResume booksModifiedUpdateComplete = new AwaitResume();
+    private final AwaitResume booksPreUseUpdateComplete = new AwaitResume();
+    private final static String TAG_WORK = "Remote Auto";
+    private final List<String> singleRequestResultLog = new ArrayList<>();
+    private final List<String> compositeResultLog = new ArrayList<>();
+    private final ArrayList<String> sendResultTo = new ArrayList<>();
+    private final static int DOWNLOAD_BUFFER_SIZE = 32768;
+    private DownloadManager downloadManager;
 
-    private boolean continueProcessing = true;
-    private boolean deleteMessage = true;
-    private boolean generateReport = true;
-    private Calendar processingStartTime = null;
+    private boolean continueProcessing;
+    private boolean deleteMessage;
+    private boolean generateReport;
+    private Calendar processingStartTime;
+    private boolean firstTime = true;
 
     File controlDir;
-    final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     File currentCandidateDir;
     boolean candidatesIsAudioBooks; // above File is currently (an) AudioBooks dir.
     boolean audioBooksBeingChanged; // we're making changes to an audioBooks dir right now.
-    final Handler handler;
-    private final String TAG="RemoteAuto";
-
-    // For debugging
-    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
-    private boolean consoleLogReport = false;
-    @SuppressWarnings("CanBeFinal")
-    private boolean consoleLog = false;
+    int unSizedBooksRemaining;
+    String downloadedString; // The file that got the download: null if download isn't complete or unsuccessful
 
     // Per request state
-    private final List<String> resultLog = new ArrayList<>();
-    private final ArrayList<String> sendResultTo = new ArrayList<>();
-    private DownloadManager downloadManager;
     private boolean retainBooks;
     private boolean archiveBooks;
     private boolean renameFiles;
@@ -166,12 +170,13 @@ public class RemoteAuto {
     private Calendar messageSentTime;
     private int lineCounter; // counts non-comment lines
 
-    // so some inherently async operations look synchronous
-    private final AwaitResume downloadCompletes = new AwaitResume();
-    private final AwaitResume booksModifiedUpdateComplete = new AwaitResume();
-    private final AwaitResume booksPreUseUpdateComplete = new AwaitResume();
-    private final static String TAG_WORK = "Remote Auto";
+    // For debugging
+    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
+    private boolean consoleLogReport = false;
+    @SuppressWarnings("CanBeFinal")
+    private boolean consoleLog = false;
 
+    //?????????????? Really a singleton?
     @Singleton
     @UiThread
     public RemoteAuto() {
@@ -194,13 +199,29 @@ public class RemoteAuto {
             //?????????????????????????????
             globalSettings.setSavedControlFileTimestamp(0);
             consoleLog = true;
-            consoleLogReport = true;
+            //consoleLogReport = true;
         }
     }
+
     public void pollSources() {
+        if (consoleLog) {
+            Log.v("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " "
+                    + Thread.currentThread().getId(),
+                    "Poll cycle ========================================================");
+        }
+
+        if (firstTime) {
+            // This often occurs very early in startup because of the way periodic work is scheduled.
+            // Skip the first time.
+            firstTime = false;
+            return;
+        }
+
         if (RemoteSettingsFragment.getInRemoteSettings()) {
             return; // we'll try again wen it's not busy
         }
+        compositeResultLog.clear();
+        sendResultTo.clear();
 
         if (globalSettings.getFilePollEnabled()) {
             pollControlFile();
@@ -209,24 +230,20 @@ public class RemoteAuto {
         if (globalSettings.getMailPollEnabled()) {
             pollMail();
         }
-        if (generateReport) {
-            sendReport();
-        }
 
+        sendFinalReport();
+
+        //???????????? should I: activity.unbindService(this); (in provisioning, for playback)?
+        //????????? part of search for unclosed resource?
         downloadManager = null;
     }
 
     @WorkerThread
-    void pollControlFile() {
+    private void pollControlFile() {
         continueProcessing = true;
         deleteMessage = true;
-        generateReport = true;
         processingStartTime = Calendar.getInstance();
         controlDir = new File(globalSettings.getRemoteControlDir());
-
-        if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " " + Thread.currentThread().getId(), "Poll cycle ========================================================");
-        }
 
         File controlFile = new File(controlDir, controlFileName);
         if (!controlFile.exists()) {
@@ -246,18 +263,22 @@ public class RemoteAuto {
         try {
             commands = new BufferedReader(new FileReader(controlFile));
         } catch (FileNotFoundException e) {
-            logActivity("Control File failed open " + e);
+            CrashWrapper.recordException(TAG, e);
             return;
         }
 
         messageSentTime = Calendar.getInstance();
         messageSentTime.setTimeInMillis(timestamp);
 
+        startReport();
         processCommands(commands);
+        endReport();
 
         try {
             commands.close();
-        } catch (IOException e) { /* ignored */ }
+        } catch (IOException e) {
+            CrashWrapper.recordException(TAG, e);
+        }
 
         if (deleteMessage) {
             // We can't actually delete it, but we can ignore it until the file is changed
@@ -272,15 +293,11 @@ public class RemoteAuto {
     //?????? revisit
     static Calendar lastRun = null;
     @WorkerThread
-    void pollMail() {
+    private void pollMail() {
         // AFAICT everything done here, and the installs, will time out with an error
         // if something goes wrong, so we don't need to worry about timeouts here.
         controlDir = new File(globalSettings.getRemoteControlDir());
         Mail mail = new Mail();
-
-        if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " " + Thread.currentThread().getId(), "Poll cycle ========================================================");
-        }
 
         if (mail.open() != Mail.SUCCESS) {
             // The interval between polls is long enough that a back-off is pointless.
@@ -297,7 +314,6 @@ public class RemoteAuto {
         for(Mail.Request request:mail) {
             continueProcessing = true;
             deleteMessage = true;
-            generateReport = true;
             processingStartTime = Calendar.getInstance();
 
             messageSentTime = Calendar.getInstance();
@@ -328,29 +344,38 @@ public class RemoteAuto {
              */
 
             BufferedReader commands = request.getMessageBodyStream();
+            lastRun = processingStartTime;
             // If there's no plain-text MIME body section, we'll get null here.
-            if (commands != null) {
-                processCommands(commands);
-                sendResultTo.add(request.getMessageSender());
-                if (deleteMessage) {
-                    request.delete();
+            if (commands == null) {
+                continue;
+            }
+
+            startReport();
+            processCommands(commands);
+            if (endReport()) {
+                // send results to senders only for requests we actually processed
+                if (!sendResultTo.contains(request.getMessageSender())) {
+                    sendResultTo.add(request.getMessageSender());
                 }
             }
-            lastRun = processingStartTime;
+
+            if (deleteMessage) {
+                request.delete();
+            }
         }
+
         mail.close();
     }
 
 
     @SuppressLint("DefaultLocale")
     @WorkerThread
-    void processCommands(BufferedReader commands) {
+    private void processCommands(BufferedReader commands) {
         // Reset to the same initial state each cycle
         // Start downloads in the same place each run
         currentCandidateDir = downloadDir;
         candidatesIsAudioBooks = false;
-        sendResultTo.clear();
-        resultLog.clear();
+        singleRequestResultLog.clear();
         lineCounter = 0;
 
         // "Almost always" defaults for installing
@@ -361,14 +386,7 @@ public class RemoteAuto {
         useDownloadManager = false;
         forceDownloadManager = false;
 
-        String name = globalSettings.getMailDeviceName();
-        if (name == null) {
-            name = "";
-        }
-        if (!name.isEmpty()) {
-            name = "on: " + name;
-        }
-        logActivity("Start of request " + name + " at " + processingStartTime.getTime());
+        logActivity("Start of request " + getDeviceTag() + " at " + processingStartTime.getTime());
 
         // Read and process each line of the input stream.
         while (continueProcessing) {
@@ -539,7 +557,9 @@ public class RemoteAuto {
                         break;
                     }
                     String to = op0.substring("mailto:".length());
-                    sendResultTo.add(to);
+                    if (!sendResultTo.contains(to)) {
+                        sendResultTo.add(to);
+                    }
                     logActivityIndented("Results will be mailed to " + to);
                     break;
                 }
@@ -555,8 +575,6 @@ public class RemoteAuto {
     }
 
     // Downloading stuff
-    // The file that got the download: null if download isn't complete or unsuccessful
-    String downloadedString;
 
     @WorkerThread
     private String downloadUsingManager(String requested, String newTitle) {
@@ -588,7 +606,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    boolean checkURLValidity(String requested) {
+    private boolean checkURLValidity(String requested) {
         Uri uri = Uri.parse(requested);
         String downloadFile = uri.getLastPathSegment();
         if (downloadFile == null) {
@@ -639,7 +657,6 @@ public class RemoteAuto {
         return false;
     }
 
-    static final int DOWNLOAD_BUFFER_SIZE = 32768;
     @WorkerThread
     private String downloadUsingSockets(String requested, String newTitle) {
         Uri uri = Uri.parse(requested);
@@ -680,7 +697,7 @@ public class RemoteAuto {
             connection.disconnect();
         } catch (IOException e) {
             Log.w("AESOP " + getClass().getSimpleName(), "download crash");
-            CrashWrapper.recordException(e);  /// All such should use TAG ???????????????
+            CrashWrapper.recordException(TAG, e);
             return null;
         }
 
@@ -763,85 +780,76 @@ public class RemoteAuto {
         if (cursor == null) {
             logActivityIndented("Error: download: no cursor (internal error)");
         }
-        else if (!cursor.moveToFirst()) {
-            // Note side-effect here.
-            /*
-            //??? does another message cover this
-            logActivityIndented("Error: download: empty cursor (internal error) - treat as fail");
-            downloadedString = null;
-            downloadCompletes.resume();
-             */
-            cursor.close();
-        }
         else {
-            int internalId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
-            if (internalId == lastDownload) {
-                int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                String fileLocalUriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                String fileUriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
+            if (cursor.moveToFirst()) {
+                int internalId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
+                if (internalId == lastDownload) {
+                    int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    String fileLocalUriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                    String fileUriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
 
-                switch(status) {
-                case DownloadManager.STATUS_SUCCESSFUL: {
-                    downloadedString = fileLocalUriString;
-                    downloadCompletes.resume();
-                    break;
-                }
+                    switch (status) {
+                        case DownloadManager.STATUS_SUCCESSFUL: {
+                            downloadedString = fileLocalUriString;
+                            downloadCompletes.resume();
+                            break;
+                        }
 
-                case DownloadManager.STATUS_PAUSED:
-                case DownloadManager.STATUS_FAILED: {
-                    int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                    String reasonText;
-                    switch(reason){
-                    case DownloadManager.ERROR_CANNOT_RESUME:
-                        reasonText = "ERROR_CANNOT_RESUME";
-                        break;
-                    case DownloadManager.ERROR_DEVICE_NOT_FOUND:
-                        reasonText = "ERROR_DEVICE_NOT_FOUND";
-                        break;
-                    case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
-                        reasonText = "ERROR_FILE_ALREADY_EXISTS";
-                        break;
-                    case DownloadManager.ERROR_FILE_ERROR:
-                        reasonText = "ERROR_FILE_ERROR";
-                        break;
-                    case DownloadManager.ERROR_HTTP_DATA_ERROR:
-                        reasonText = "ERROR_HTTP_DATA_ERROR";
-                        break;
-                    case DownloadManager.ERROR_INSUFFICIENT_SPACE:
-                        reasonText = "ERROR_INSUFFICIENT_SPACE";
-                        break;
-                    case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
-                        reasonText = "ERROR_TOO_MANY_REDIRECTS";
-                        break;
-                    case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
-                        reasonText = "ERROR_UNHANDLED_HTTP_CODE";
-                        break;
-                    case DownloadManager.ERROR_UNKNOWN:
-                        reasonText = "ERROR_UNKNOWN";
-                        break;
-                    case DownloadManager.PAUSED_WAITING_TO_RETRY:
-                        reasonText = "Too long without progress . Bad host id?";
-                        break;
-                    case 404:
-                        reasonText = "File not found on host";
-                        break;
-                    default:
-                        reasonText = "Failure Code: " + reason;
-                        break;
+                        case DownloadManager.STATUS_PAUSED:
+                        case DownloadManager.STATUS_FAILED: {
+                            int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
+                            String reasonText;
+                            switch (reason) {
+                                case DownloadManager.ERROR_CANNOT_RESUME:
+                                    reasonText = "ERROR_CANNOT_RESUME";
+                                    break;
+                                case DownloadManager.ERROR_DEVICE_NOT_FOUND:
+                                    reasonText = "ERROR_DEVICE_NOT_FOUND";
+                                    break;
+                                case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
+                                    reasonText = "ERROR_FILE_ALREADY_EXISTS";
+                                    break;
+                                case DownloadManager.ERROR_FILE_ERROR:
+                                    reasonText = "ERROR_FILE_ERROR";
+                                    break;
+                                case DownloadManager.ERROR_HTTP_DATA_ERROR:
+                                    reasonText = "ERROR_HTTP_DATA_ERROR";
+                                    break;
+                                case DownloadManager.ERROR_INSUFFICIENT_SPACE:
+                                    reasonText = "ERROR_INSUFFICIENT_SPACE";
+                                    break;
+                                case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
+                                    reasonText = "ERROR_TOO_MANY_REDIRECTS";
+                                    break;
+                                case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
+                                    reasonText = "ERROR_UNHANDLED_HTTP_CODE";
+                                    break;
+                                case DownloadManager.ERROR_UNKNOWN:
+                                    reasonText = "ERROR_UNKNOWN";
+                                    break;
+                                case DownloadManager.PAUSED_WAITING_TO_RETRY:
+                                    reasonText = "Too long without progress . Bad host id?";
+                                    break;
+                                case 404:
+                                    reasonText = "File not found on host";
+                                    break;
+                                default:
+                                    reasonText = "Failure Code: " + reason;
+                                    break;
+                            }
+
+                            logActivityIndented("Error: download of " + fileUriString + " failed with download error: " + reasonText);
+                            downloadedString = null;
+                            downloadCompletes.resume();
+
+                            // Remove failures.  (This removes files, so not for successes.)
+                            downloadManager.remove(lastDownload);
+                            break;
+                        }
+                        default:
+                            // nothing: ignore (not for us)
+                            break;
                     }
-
-                    //??????????????? Log.w("AESOP " + getClass().getSimpleName(), "Error: download of " + fileUriString + " failed with http error " + reason + " " + reasonText);
-                    logActivityIndented("Error: download of " + fileUriString + " failed with download error: " + reasonText);
-                    downloadedString = null;
-                    downloadCompletes.resume();
-
-                    // Remove failures.  (This removes files, so not for successes.)
-                    downloadManager.remove(lastDownload);
-                    break;
-                }
-                default:
-                    // nothing: ignore (not for us)
-                    break;
                 }
             }
             cursor.close();
@@ -860,7 +868,8 @@ public class RemoteAuto {
             @SuppressWarnings("unused") final String requested,
             @SuppressWarnings("unused") final String newTitle,
             final long downloadId) {
-        // Note captured downloadId. As above it's necessary to avoid working in the wrong things
+
+        // Note captured downloadId below. As above it's necessary to avoid working in the wrong things
         handler.postDelayed(() -> {
             //????????????????????? Log.w("AESOP " + getClass().getSimpleName(), "Got post for " + downloadId);
             final DownloadManager.Query query = new DownloadManager.Query();
@@ -1074,7 +1083,7 @@ public class RemoteAuto {
                else {
                    line = String.format("  %2d ",book.duplicateIdCounter) + line;
                }
-               logActivity(line); // not indented... we did that
+               logActivity(line); // not indented... we already did that
             }
             logActivityIndented("");
             break;
@@ -1840,7 +1849,10 @@ public class RemoteAuto {
                     continueProcessing = false;
                     generateReport = false;
                     setEarliestSavedAtTime(scheduledStartTime);
-                    logActivityIndented("Run at:every -- run later today at " + scheduledStartTime.getTime() + ".");
+                    if (consoleLog) {
+                        Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(),
+                                "Run at:every -- run later today at " + scheduledStartTime.getTime() + ".");
+                    }
                     return;
                 }
 
@@ -1902,14 +1914,16 @@ public class RemoteAuto {
 
     @WorkerThread
     void buildBookList() {
+        UiControllerBookList.suppressAnnounce();
         booksPreUseUpdateComplete.prepare(); // Use completion event to know it's finished updating
                                      // This is vital on first use.
         EventBus.getDefault().post(new MediaStoreUpdateEvent());
         booksPreUseUpdateComplete.await();
 
         // Wait until any pending duration queries complete
-        audioBookManager.awaitDurationQueries();
+        awaitDurationQueries();
         provisioning.buildBookList();
+        UiControllerBookList.resumeAnnounce();
     }
 
     @WorkerThread
@@ -1955,7 +1969,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    void logResult(Provisioning.Severity severity, String text) {
+    private void logResult(Provisioning.Severity severity, String text) {
         logActivityIndented(severity + " " + text);
     }
 
@@ -1964,19 +1978,108 @@ public class RemoteAuto {
         if (consoleLog) {
             Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log " + s);
         }
-        synchronized (resultLog) {
-            resultLog.add(s);
-        }
+        singleRequestResultLog.add(s);
     }
 
     @WorkerThread
     private void logActivityIndented(String s) {
         if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log " + s);
+            Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log      " + s);
         }
-        synchronized (resultLog) {
-            resultLog.add("     " + s);
+        singleRequestResultLog.add("     " + s);
+    }
+
+    @WorkerThread
+    private void startReport() {
+        // Certain things (like run:at and run:every) can set generateReport false;
+        generateReport = true;
+        singleRequestResultLog.clear();
+    }
+
+    @WorkerThread
+    private boolean endReport() {
+        if (generateReport) {
+            logActivity("End of request " + getDeviceTag() + " at " + Calendar.getInstance().getTime());
+            perRequestReport();
+            return true;
         }
+        return false;
+    }
+
+    @WorkerThread
+    private void perRequestReport() {
+        // Emit the results from this request into the final report.
+        // Requests which do nothing due to a run:at or run:every don't
+        // actually get emitted (this function isn't called).
+
+        if (consoleLogReport) {
+            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
+            for (String s : singleRequestResultLog) {
+                Log.v("AESOP " + getClass().getSimpleName(), "Log: " + s);
+            }
+            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
+        }
+
+        compositeResultLog.addAll(singleRequestResultLog);
+    }
+
+    @SuppressLint("UsableSpace")
+    @WorkerThread
+    private void sendFinalReport() {
+        // Send the report of what happened. Write it locally to a file (next to the control file)
+        // and mail it (if authorized). Always do both just in case the mail fails.
+        // If several requests are processed in the same cycle, this handles the group.
+
+        // see if perRequestReport() was called at least once
+        if (compositeResultLog.isEmpty()) {
+            return;
+        }
+
+        // Tell the user about space remaining
+        final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
+        for (File activeStorage : audioBooksDirs) {
+            long remainingSpace = activeStorage.getTotalSpace() - activeStorage.getUsableSpace();
+            logActivity("Space on " + activeStorage.getParent() + ": Using " +
+                    remainingSpace/1000000 + "Mb of " +
+                    activeStorage.getTotalSpace()/1000000 + "Mb (" +
+                    (int)(((float)remainingSpace/
+                            (float)activeStorage.getTotalSpace())*100) + "%)");
+        }
+
+        compositeResultLog.addAll(singleRequestResultLog);
+
+        File resultFile = new File(controlDir, resultFileName);
+        try {
+            FileUtils.writeLines(resultFile, compositeResultLog);
+        } catch (Exception e) {
+            CrashWrapper.recordException(TAG, e);
+        }
+
+        if (sendResultTo.size() > 0) {
+            Mail message = new Mail()
+                    .setSubject("Aesop results from request " + getDeviceTag());
+            // Add a trailing empty line so the join below ends with a newline
+            compositeResultLog.add("");
+            message.setMessageBody(TextUtils.join("\n", compositeResultLog));
+            for (String r:sendResultTo) {
+                message.setRecipient(r);
+            }
+            message.sendEmail();
+        }
+
+        compositeResultLog.clear();
+    }
+
+    @NonNull
+    private String getDeviceTag() {
+        String name = globalSettings.getMailDeviceName();
+        if (name == null) {
+            name = "";
+        }
+        if (!name.isEmpty()) {
+            name = "on: " + name;
+        }
+        return name;
     }
 
     @WorkerThread
@@ -1986,8 +2089,6 @@ public class RemoteAuto {
             // The candidates directory is an AudioBooks directory,
             // and this operation changes the candidates directory.
             // Thus it changes the audioBooks directory, and we must deal with that.
-            //???????????????????? Still too talky!
-            Log.w("AESOP " + getClass().getSimpleName(), "silencing ----------");
             UiControllerBookList.suppressAnnounce();
             audioBooksBeingChanged = true;
         }
@@ -2007,79 +2108,9 @@ public class RemoteAuto {
         booksModifiedUpdateComplete.await();
 
         // Wait until any pending duration queries complete
-        audioBookManager.awaitDurationQueries();
-        // ??????????????? If we find a better way to suppress the chatter, we don't need the synchronization because buildBookList does it too.
-        Log.w("AESOP " + getClass().getSimpleName(), "talking ++++++++++++");
+        awaitDurationQueries();
         UiControllerBookList.resumeAnnounce();
         audioBooksBeingChanged = false;
-    }
-
-    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-    public void onEvent(AudioBooksChangedEvent event) {
-        // We just want to know it completed to move on
-        booksModifiedUpdateComplete.resume();
-        booksPreUseUpdateComplete.resume();
-    }
-
-    @SuppressLint("UsableSpace")
-    @WorkerThread
-    private void sendReport() {
-        // Send the report of what happened. Write it locally to a file (next to the control file)
-        // and mail it (if authorized). Always do both just in case the mail fails.
-
-        // Tell the user about space remaining
-        final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
-        for (File activeStorage : audioBooksDirs) {
-            long remainingSpace = activeStorage.getTotalSpace() - activeStorage.getUsableSpace();
-            logActivity("Space on " + activeStorage.getParent() + ": Using " +
-                    remainingSpace/1000000 + "Mb of " +
-                    activeStorage.getTotalSpace()/1000000 + "Mb (" +
-                    (int)(((float)remainingSpace/
-                            (float)activeStorage.getTotalSpace())*100) + "%)");
-        }
-
-        String name = globalSettings.getMailDeviceName();
-        if (name == null) {
-            name = "";
-        }
-        if (!name.isEmpty()) {
-            name = "on " + name;
-        }
-        logActivity("End of request " + name + " at " + Calendar.getInstance().getTime());
-
-        if (consoleLogReport) {
-            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
-            synchronized (resultLog) {
-                for (String s : resultLog) {
-                    Log.v("AESOP " + getClass().getSimpleName(), "Log: " + s);
-                }
-            }
-            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
-        }
-
-
-        synchronized (resultLog) {
-            File resultFile = new File(controlDir, resultFileName);
-            try {
-                FileUtils.writeLines(resultFile, resultLog);
-            } catch (Exception e) {
-                CrashWrapper.recordException(e);
-            }
-        }
-
-        if (sendResultTo.size() > 0) {
-            // Add a trailing empty line so the join below ends with a newline
-            Mail message = new Mail()
-                    .setSubject("Aesop results from request " + name);
-            synchronized (resultLog) {
-                resultLog.add("");
-                message.setMessageBody(TextUtils.join("\n", resultLog));
-            }
-            for (String r:sendResultTo) {
-                    message.setRecipient(r);
-            }
-            message.sendEmail();
-        }
     }
 
     @WorkerThread
@@ -2137,7 +2168,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    boolean checkOperandsFor(List<String> operands, String keyword) {
+    boolean checkOperandsFor(@NonNull List<String> operands, String keyword) {
         for (int i=1; i<operands.size(); i++) {
             if (operands.get(i).equalsIgnoreCase(keyword)) {
                 operands.remove(i);
@@ -2148,7 +2179,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    private String findOperandString(List<String> operands) {
+    private String findOperandString(@NonNull List<String> operands) {
         // returns (de-quoted) string (and removes it)
         for (int i=1; i<operands.size(); i++) {
             String str = operands.get(i);
@@ -2161,7 +2192,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    private String findOperandText(List<String> operands) {
+    private String findOperandText(@NonNull List<String> operands) {
         // returns the next non-string word
         for (int i=1; i<operands.size(); i++) {
             String str = operands.get(i);
@@ -2206,7 +2237,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    String checkName(String newName) {
+    String checkName(@NonNull String newName) {
         // Sanity checks possible new names
         if (newName.isEmpty()
                 || !newName.matches("^\\p{Print}*$")
@@ -2245,7 +2276,6 @@ public class RemoteAuto {
     }
 
     public static void activate(boolean activate) {
-        Log.w("AESOP " + new Object(){}.getClass().getEnclosingClass().getSimpleName(), "activate " + activate);
         // Always deactivate it, just so we know things are clean
         WorkManager workManager = WorkManager.getInstance(getAppContext());
         workManager.cancelUniqueWork(TAG_WORK);
@@ -2256,6 +2286,74 @@ public class RemoteAuto {
             PeriodicWorkRequest request = remoteAutoBuilder.build();
             workManager.enqueueUniquePeriodicWork(TAG_WORK, ExistingPeriodicWorkPolicy.KEEP, request);
         }
+    }
+
+    @WorkerThread
+    public void awaitDurationQueries() {
+        provisioning.assurePlaybackService();
+        // Wait for the duration queries.
+        List<AudioBook> audioBooks = audioBookManager.getAudioBooks();
+        // Note: this can get reset if an update to the book list should occur asynchronously.
+        // (Highly unlikely, but possible if the UI or a PC connection is used at the same
+        // time as a remote update.)
+        unSizedBooksRemaining = Integer.MAX_VALUE;
+
+        booksChanged.prepare();
+        while (true) {
+            int howManyLeft = 0;
+            // Keep trying until all the books have durations.
+            boolean busy = false;
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
+            synchronized (audioBooks) {
+                for (AudioBook b : audioBooks) {
+                    if (b.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
+                        // below is no-op if it's already happening
+                        // (N.B. we should never get to this point if there haven't
+                        // already been duration queries made in other places... this is
+                        // just to be sure.)
+
+                        howManyLeft++;
+                        if (howManyLeft <= 2) {
+                            // Throttle so a big batch doesn't choke the device.
+                            // The outer while guarantees we'll get back here.
+                            provisioning.computeBookDuration(b);
+                        }
+                        busy = true;
+                    }
+                }
+                if (howManyLeft < unSizedBooksRemaining) {
+                    // We're making progress.
+                    // Note: unSizedBooksRemaining can be reset if new books installed
+                    unSizedBooksRemaining = howManyLeft;
+                }
+                else {
+                    // No progress this time, but we got a done notification!
+                    // Shouldn't happen, but just bail out. We'll see the problem elsewhere.
+                    return;
+                }
+            }
+            if (!busy) {
+                return;
+            }
+
+            booksChanged.await();
+        }
+    }
+
+    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    public void onEvent(AudioBooksChangedEvent event) {
+        // We just want to know it completed to move on
+        booksModifiedUpdateComplete.resume();
+        booksPreUseUpdateComplete.resume();
+
+        // If this event occurs while waiting for duration calculation to finish,
+        // reset the count because there might be new books.
+        unSizedBooksRemaining = Integer.MAX_VALUE;
+    }
+
+    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    public void onEvent(AnAudioBookChangedEvent event) {
+        booksChanged.resume();
     }
 }
 //??????????????????????? clean up per-app storage on emulator
