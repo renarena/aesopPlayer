@@ -209,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // occur if the screen is on.
         restorer.cancelRestore();
 
-        // ???????????????? Called twice at startup
         super.onStart();
         // onStart must be called before the UI controller can manipulate fragments.
         controller.onActivityStart();

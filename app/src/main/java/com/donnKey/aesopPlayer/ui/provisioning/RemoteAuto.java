@@ -104,7 +104,6 @@ import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 import static com.donnKey.aesopPlayer.service.DemoSamplesInstallerService.enableTlsOnAndroid4;
 import static com.donnKey.aesopPlayer.util.FilesystemUtil.isAudioPath;
 
-//???????? A singleton?
 public class RemoteAuto {
     // Every *interval* check if there's a new instance of the control file or new mail, and if so
     // perform the actions directed by that file.  The parser in process() defines what
@@ -171,12 +170,11 @@ public class RemoteAuto {
     private int lineCounter; // counts non-comment lines
 
     // For debugging
-    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
+    @SuppressWarnings({"CanBeFinal"})
     private boolean consoleLogReport = false;
     @SuppressWarnings("CanBeFinal")
     private boolean consoleLog = false;
 
-    //?????????????? Really a singleton?
     @Singleton
     @UiThread
     public RemoteAuto() {
@@ -195,11 +193,11 @@ public class RemoteAuto {
         this.provisioning = Provisioning.getInstance();
         eventBus.register(this);
         if (BuildConfig.DEBUG) {
-            // If debugging, this will always process the shared file at startup (once), for testing.
-            //?????????????????????????????
-            globalSettings.setSavedControlFileTimestamp(0);
-            consoleLog = true;
-            //consoleLogReport = true;
+            // If debugging, the next line will always process the shared file at startup (once),
+            // if shared files are enabled, for testing.
+            //globalSettings.setSavedControlFileTimestamp(0);
+            consoleLog = false;
+            consoleLogReport = false;
         }
     }
 
@@ -233,9 +231,8 @@ public class RemoteAuto {
 
         sendFinalReport();
 
-        //???????????? should I: activity.unbindService(this); (in provisioning, for playback)?
-        //????????? part of search for unclosed resource?
         downloadManager = null;
+        provisioning.releasePlaybackService();
     }
 
     @WorkerThread
@@ -258,6 +255,7 @@ public class RemoteAuto {
             }
         }
 
+        CrashWrapper.log(TAG, "Remote file processing");
         // The file has been changed since last we looked.
         BufferedReader commands;
         try {
@@ -288,10 +286,9 @@ public class RemoteAuto {
         }
 
         globalSettings.setSavedControlFileTimestamp(timestamp);
+        CrashWrapper.log(TAG, "Remote file processing done");
     }
 
-    //?????? revisit
-    static Calendar lastRun = null;
     @WorkerThread
     private void pollMail() {
         // AFAICT everything done here, and the installs, will time out with an error
@@ -319,36 +316,15 @@ public class RemoteAuto {
             messageSentTime = Calendar.getInstance();
             messageSentTime.setTime(request.sentTime());
 
-            // Can't ignore old mail because it might be an "every"... those
+            // We can't ignore old mail because it might be an "every"... those
             // could hang around for years. We rely on deletion of ephemeral mail
 
-            // ??????????? DON'T DO THIS WHEN IN PRODUCTION
-            // ??????? Thus delete lastRun
-            Calendar yesterday = (Calendar) processingStartTime.clone();
-            yesterday.add(Calendar.DAY_OF_YEAR, -1);
-
-            if (messageSentTime.before(yesterday)) {
-                // more than a day old... ignore
-                Log.w("AESOP " + getClass().getSimpleName(), "Ignoring old really old");
-                continue;
-            }
-            if (lastRun != null && lastRun.after(messageSentTime))  {
-                Log.w("AESOP " + getClass().getSimpleName(), "SKIP OLD MAIL");
-                continue;
-            }
-            /*
-            if (sentTime <= globalSettings.getSavedMailTimestamp()) {
-                Log.w("AESOP " + getClass().getSimpleName(), "SKIP OLD MAIL");
-                continue;
-            }
-             */
-
             BufferedReader commands = request.getMessageBodyStream();
-            lastRun = processingStartTime;
             // If there's no plain-text MIME body section, we'll get null here.
             if (commands == null) {
                 continue;
             }
+            CrashWrapper.log(TAG, "Remote mail processing");
 
             startReport();
             processCommands(commands);
@@ -362,6 +338,7 @@ public class RemoteAuto {
             if (deleteMessage) {
                 request.delete();
             }
+            CrashWrapper.log(TAG, "Remote mail processing done");
         }
 
         mail.close();
@@ -394,7 +371,6 @@ public class RemoteAuto {
             try {
                 line = commands.readLine();
             } catch (IOException e) {
-                Log.w("AESOP " + getClass().getSimpleName(), "EOF catch");
                 return;
             }
 
@@ -515,7 +491,6 @@ public class RemoteAuto {
                             break;
                         }
                         case "ftp:": {
-                            //??????????? ignoring ftp for now
                             logActivityIndented("Error: ftp:// not supported");
                             break;
                         }
@@ -696,7 +671,6 @@ public class RemoteAuto {
             output.close();
             connection.disconnect();
         } catch (IOException e) {
-            Log.w("AESOP " + getClass().getSimpleName(), "download crash");
             CrashWrapper.recordException(TAG, e);
             return null;
         }
@@ -722,15 +696,15 @@ public class RemoteAuto {
         // Now we wait for the download to complete.
         IntentFilter intentFilter =
                 new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        //????????????
-        intentFilter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
+        // We don't do anything with download notifications, so we won't bother
+        // actually doing it, but here's the code.
+        //intentFilter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
 
         appContext.registerReceiver(
             // No lambda possible here.
             new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, @NonNull Intent i) {
-                    //??????????????????Log.w("AESOP " + getClass().getSimpleName(), "BCR for " + lastDownload);
                     // Note the capture of lastDownload here. That's critical to the
                     // design to keep it from being confused by "old" downloads queued
                     // up by the download manager.
@@ -744,9 +718,11 @@ public class RemoteAuto {
 
                     //Checking if the received broadcast is for our enqueued download
                     if (lastDownload == id) {
+                        //noinspection SwitchStatementWithTooFewBranches
                         switch (i.getAction()) {
-                            case DownloadManager.ACTION_NOTIFICATION_CLICKED:
-                                break;
+                            //case DownloadManager.ACTION_NOTIFICATION_CLICKED:
+                            //   See above for more
+                            //   break;
                             case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
                                 appContext.unregisterReceiver(this);
                                 downloadUsingManager_end(lastDownload);
@@ -756,12 +732,12 @@ public class RemoteAuto {
                     else {
                         Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
                         cursor.moveToFirst();
-                        /* ?????????????????
+                        /* In case they're needed for debugging someday
                         int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
                         int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
                         int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
                         int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        Log.w("AESOP " + getClass().getSimpleName(), "Alternate BCR " + status + " " + reason + " " + bytes + " " + soFar);
+                        Log.x("AESOP " + getClass().getSimpleName(), "Alternate BCR " + status + " " + reason + " " + bytes + " " + soFar);
                          */
                     }
                     // otherwise, just ignore it -- it's a leftover the manager is finally
@@ -871,7 +847,6 @@ public class RemoteAuto {
 
         // Note captured downloadId below. As above it's necessary to avoid working in the wrong things
         handler.postDelayed(() -> {
-            //????????????????????? Log.w("AESOP " + getClass().getSimpleName(), "Got post for " + downloadId);
             final DownloadManager.Query query = new DownloadManager.Query();
             // Filter only by ID: adding other filters can (does?) yield an "or" query, and
             // the moveToFirst() won't get our ID.
@@ -886,23 +861,22 @@ public class RemoteAuto {
                 int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
                 Actions action = Actions.ACTION_DONE;
 
-                int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
+                //int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
                 switch (status) {
                     case DownloadManager.STATUS_PAUSED: {
-                        int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                        //int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
                         int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        //???? Log.w("AESOP " + getClass().getSimpleName(), "Paused P/P " + status + " " + reason + " " + bytes + " " + soFar);
                         if (soFar > 0) {
-                            //???? Log.w("AESOP " + getClass().getSimpleName(), "Retry on bad pause");
                             action = Actions.ACTION_RETRY;
                             break;
                         }
                         // drop thru
                     }
                     case DownloadManager.STATUS_PENDING: {
-                        int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                        int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        //?????????? Log.w("AESOP " + getClass().getSimpleName(), "P/P " + status + " " + reason + " " + bytes + " " + soFar);
+                        //int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                        //int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                        //Log.z("AESOP " + getClass().getSimpleName(), "P/P " + status + " " + reason + " " + bytes + " " + soFar);
+
                         // For STATUS_PENDING:
                         // This is "startup". It's possible that the start is very slow
                         // setting up the connection, so we give it an extra chance.
@@ -915,16 +889,15 @@ public class RemoteAuto {
                     }
 
                     case DownloadManager.STATUS_RUNNING: {
-                        //?????????? Log.w("AESOP " + getClass().getSimpleName(), "R " + status);
                         action = Actions.ACTION_CONTINUE;
                         break;
                     }
 
                     case DownloadManager.STATUS_FAILED:
                     case DownloadManager.STATUS_SUCCESSFUL: {
-                        //?????????? Log.w("AESOP " + getClass().getSimpleName(), "F/S " + status + " " + reason);
                         // For STATUS_SUCCESSFUL:
                         // nothing more to do here.
+
                         // For STATUS_FAILED
                         // If the download manager thinks it's hopeless, we can only agree.
                         action = Actions.ACTION_DONE;
@@ -941,14 +914,12 @@ public class RemoteAuto {
                 case ACTION_RETRY: {
                     if (retriesDone >= RETRIES_MAX) {
                         // Failure... give up
-                        //?????????? Log.w("AESOP " + getClass().getSimpleName(), "declare timeout, removing ");
                         downloadUsingManager_end(downloadId);
                     }
                     else {
                         retriesDone++;
                         downloadManager.remove(downloadId);
                         // Restart the request (cancel the prior one)
-                        //?????????? Log.w("AESOP " + getClass().getSimpleName(), "do retry ");
                         downloadUsingManager_start(requested, newTitle);
                     }
                     break;
@@ -1537,9 +1508,10 @@ public class RemoteAuto {
 
             int max = 0;
             for (int i=0; i<files.length; i++) {
-               int len = files[i].length() + StringUtils.countMatches(files[i], '"');
-               max = Math.max(len,max);
-               lengths[i] = len;
+                // name + extra quotes + 2 quotes
+                int len = files[i].length() + StringUtils.countMatches(files[i], '"') + 2;
+                max = Math.max(len,max);
+                lengths[i] = len;
             }
 
             final int columnWidth = 80;
@@ -1547,16 +1519,17 @@ public class RemoteAuto {
             final int remaining = columnWidth - max;
 
             // A preliminary number of columns
-            int nColumns = (remaining/(gutterWidth + 2)) + 1;  // assume a gutter width, and 2 character filenames.
+            // assume a gutter width, and 2 character filenames (quotes already counted)
+            int nColumns = (remaining/(gutterWidth + 2)) + 1;
             int nRows = files.length;
             int[] widthList = new int[nColumns];
             while (nColumns > 1) {
-                nRows = (files.length+nColumns)/nColumns;
+                nRows = (files.length+nColumns-1)/nColumns;
 
                 for (int col = 0; col < nColumns; col++) {
                     int maxLen = 0; // the longest item in the current column
                     for (int row = 0; row < nRows; row++) {
-                        int item = col * nRows + row;
+                        int item = row * nColumns + col;
                         if (item >= lengths.length) {
                             break;
                         }
@@ -1578,11 +1551,16 @@ public class RemoteAuto {
                 nColumns--;
             }
 
-            final StringBuilder text = new StringBuilder(columnWidth+1);
-            final String emptySpace = StringUtils.repeat(' ', columnWidth/2);
+            if (nColumns == 1) {
+                nRows = files.length;
+                widthList[0] = max;
+            }
+
+            final StringBuilder text = new StringBuilder(Math.max(columnWidth, max)+1);
+            final String emptySpace = StringUtils.repeat(' ', Math.max(columnWidth, max));
             for (int row = 0; row < nRows; row++) {
                 for (int col = 0; col < nColumns; col++) {
-                    int item = col * nRows + row;
+                    int item = row * nColumns + col;
                     if (item >= lengths.length) {
                         break;
                     }
@@ -2021,6 +1999,7 @@ public class RemoteAuto {
         }
 
         compositeResultLog.addAll(singleRequestResultLog);
+        singleRequestResultLog.clear();
     }
 
     @SuppressLint("UsableSpace")
@@ -2057,7 +2036,7 @@ public class RemoteAuto {
 
         if (sendResultTo.size() > 0) {
             Mail message = new Mail()
-                    .setSubject("Aesop results from request " + getDeviceTag());
+                    .setSubject("Aesop request results " + getDeviceTag());
             // Add a trailing empty line so the join below ends with a newline
             compositeResultLog.add("");
             message.setMessageBody(TextUtils.join("\n", compositeResultLog));
@@ -2084,7 +2063,6 @@ public class RemoteAuto {
 
     @WorkerThread
     private void bookListChanging (boolean alwaysAudioBooks) {
-        audioBooksBeingChanged = alwaysAudioBooks;
         if (alwaysAudioBooks || candidatesIsAudioBooks) {
             // The candidates directory is an AudioBooks directory,
             // and this operation changes the candidates directory.
@@ -2098,7 +2076,6 @@ public class RemoteAuto {
     private void bookListChanged () {
         // Synchronously update the book list, so it's never out of date with
         // respect to what we're doing here.
-        // ??????????????? is there a cleaner design than the quasi-global?
         if (!audioBooksBeingChanged) {
             return;
         }
@@ -2356,4 +2333,3 @@ public class RemoteAuto {
         booksChanged.resume();
     }
 }
-//??????????????????????? clean up per-app storage on emulator

@@ -67,7 +67,6 @@ public class CrashWrapper
         FirebaseAnalytics.getInstance(applicationContext).setAnalyticsCollectionEnabled(enabled);
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(enabled);
         if (BuildConfig.DEBUG) {
-            Log.w("AESOP " + new Object(){}.getClass().getEnclosingClass().getSimpleName(), "Constructing CrashWrapper");
             writeLogs = true;
             writeHistory = true;
         }

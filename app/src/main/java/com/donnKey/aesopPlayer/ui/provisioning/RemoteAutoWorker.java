@@ -26,7 +26,6 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
@@ -34,6 +33,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
+import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
 
 import java.util.concurrent.TimeUnit;
@@ -46,43 +46,32 @@ public class RemoteAutoWorker extends Worker {
     @Inject
     public GlobalSettings globalSettings;
 
-    // ?????????????? Make these times sensible for real life, not testing
-    // Conditional on DEBUG?
-    //private final long interval = TimeUnit.MINUTES.toMillis(10);
-    private final long interval = TimeUnit.SECONDS.toMillis(10);
+    private long interval = TimeUnit.MINUTES.toMillis(5);
     final RemoteAuto remoteAuto;
 
     public RemoteAutoWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
-        Log.w("AESOP " + getClass().getSimpleName() + " " + android.os.Process.myPid() + " " + Thread.currentThread().getId(), "RA Worker constructor ");
-        remoteAuto = new RemoteAuto();  //????????????????? singleton?
+        remoteAuto = new RemoteAuto();
+        if (BuildConfig.DEBUG) {
+            interval = TimeUnit.SECONDS.toMillis(10);
+        }
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        Log.w("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " " + Thread.currentThread().getId(), "Do Work!!!!!!!!!!");
         pollLoop();
         return Result.success();
-    }
-
-    @Override
-    public void onStopped() {
-        super.onStopped();
-        Log.w("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " " + Thread.currentThread().getId(), "Got Stop");
-        // ??? delete this function?
     }
 
     @SuppressLint("UsableSpace")
     @WorkerThread
     public void pollLoop() {
-        Log.w("AESOP " + getClass().getSimpleName(), "loop starts");
         while (true)
         {
             if (isStopped()) {
                 // Give up until we get another start
-                Log.w("AESOP" + getClass().getSimpleName(), "Got isStopped ");
                 return;
             }
 

@@ -32,7 +32,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -96,7 +95,7 @@ public class Provisioning implements ServiceConnection {
     private static Provisioning provisioning = null;
     final MediaStoreUpdateObserver mediaStoreUpdateObserver;
     PlaybackService playbackService;
-    AwaitResume pendingPlayback = new AwaitResume();
+    final AwaitResume pendingPlayback = new AwaitResume();
 
     private Provisioning() {
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
@@ -272,7 +271,6 @@ public class Provisioning implements ServiceConnection {
     }
 
     void selectCompletedBooks() {
-        //?????????????? How many seconds....
         // A completed book that isn't in its first 10 seconds is likely being reread.
         // Don't suggest deletion.
         for (Provisioning.BookInfo book : bookList) {
@@ -819,10 +817,17 @@ public class Provisioning implements ServiceConnection {
         pendingPlayback.await();
     }
 
+    public void releasePlaybackService() {
+        if (playbackService == null) {
+            return;
+        }
+        getAppContext().unbindService(this);
+        playbackService = null;
+    }
+
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder service) {
         CrashWrapper.log(TAG, "onServiceConnected");
-        Log.w("AESOP " + getClass().getSimpleName(), "CBD Service connected");
         Preconditions.checkState(playbackService == null);
         playbackService = ((PlaybackService.ServiceBinder) service).getService();
         pendingPlayback.resume();
@@ -830,7 +835,6 @@ public class Provisioning implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
-        Log.w("AESOP " + getClass().getSimpleName(), "CBD disconnect");
         CrashWrapper.log(TAG, "onServiceDisconnected");
         playbackService = null;
     }

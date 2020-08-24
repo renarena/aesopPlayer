@@ -111,8 +111,7 @@ public class Mail implements Iterable<Mail.Request>{
         try {
             Properties props = new Properties();
             props.put("mail.imaps.host", IMAPHostname);
-            //????????????????? Adjust timeout?
-            props.put("mail.imaps.connectiontimeout", "2000");
+            props.put("mail.imaps.connectiontimeout", "5000");
             Session receiverSession = Session.getInstance(props,
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
@@ -158,7 +157,9 @@ public class Mail implements Iterable<Mail.Request>{
                 subjectTerm = new SubjectTerm(deviceName);
                 andTerm = new AndTerm(andTerm, subjectTerm);
             }
-            /*?????????????? // filter on "self"?
+            /*
+            If a problem develops with junk mail being interpreted, it would be possible
+            to require that the sender be the registered mail user, per the below.
             if (!fromName.isEmpty()) {
                 FromTerm fromTerm = new FromTerm(new InternetAddress(inboundFrom));
                 andTerm = new AndTerm(andTerm, fromTerm);
@@ -327,6 +328,7 @@ public class Mail implements Iterable<Mail.Request>{
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Mail setMessageBody(String messageBody) {
         this.messageBody = messageBody;
         return this;
