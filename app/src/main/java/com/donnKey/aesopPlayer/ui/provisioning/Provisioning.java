@@ -59,7 +59,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.ViewModel;
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 
@@ -689,6 +690,7 @@ public class Provisioning extends ViewModel {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(@NonNull AudioBooksChangedEvent event) {
         if (event.contentType == null) {
             // nothing interesting happened

@@ -27,7 +27,12 @@ package com.donnKey.aesopPlayer.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.events.CurrentBookChangedEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,8 +42,6 @@ import org.json.JSONTokener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import de.greenrobot.event.EventBus;
 
 public class Storage implements AudioBook.UpdateObserver {
 
@@ -59,12 +62,12 @@ public class Storage implements AudioBook.UpdateObserver {
 
     private final SharedPreferences preferences;
 
-    public Storage(Context context) {
+    public Storage(@NonNull Context context) {
         this.preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
         EventBus.getDefault().register(this);
     }
 
-    void readAudioBookState(AudioBook audioBook) {
+    void readAudioBookState(@NonNull AudioBook audioBook) {
         String bookData = preferences.getString(getAudioBookPreferenceKey(audioBook.getId()), null);
         if (bookData != null) {
             try {
@@ -74,12 +77,12 @@ public class Storage implements AudioBook.UpdateObserver {
 
                 JSONObject jsonObject = (JSONObject) new JSONTokener(bookData).nextValue();
                 JSONObject jsonPosition = jsonObject.getJSONObject(FIELD_POSITION);
-                String fileName = jsonPosition.optString(FIELD_POSITION_FILEPATH_DEPRECATED, null);
+                String fileName = jsonPosition.optString(FIELD_POSITION_FILEPATH_DEPRECATED, "/");
                 int fileIndex = jsonPosition.optInt(FIELD_POSITION_FILE_INDEX, -1);
                 long seek = jsonPosition.getLong(FIELD_POSITION_SEEK);
 
-                String colourSchemeName = jsonObject.optString(FIELD_COLOUR_SCHEME, null);
-                if (colourSchemeName != null) {
+                String colourSchemeName = jsonObject.optString(FIELD_COLOUR_SCHEME, "");
+                if (!colourSchemeName.isEmpty()) {
                     colourScheme = ColourScheme.valueOf(colourSchemeName);
                 }
 
@@ -113,7 +116,7 @@ public class Storage implements AudioBook.UpdateObserver {
         }
     }
 
-    void writeAudioBookState(AudioBook audioBook) {
+    void writeAudioBookState(@NonNull AudioBook audioBook) {
         JSONObject jsonAudioBook = new JSONObject();
         JSONObject jsonPosition = new JSONObject();
         BookPosition position = audioBook.getLastPosition();
@@ -165,7 +168,8 @@ public class Storage implements AudioBook.UpdateObserver {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public void onEvent(CurrentBookChangedEvent event) {
+    @Subscribe
+    public void onEvent(@NonNull CurrentBookChangedEvent event) {
         writeCurrentAudioBook(event.audioBook.getId());
     }
 

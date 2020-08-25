@@ -54,7 +54,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class Player {
 

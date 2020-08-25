@@ -26,6 +26,8 @@ package com.donnKey.aesopPlayer.ui;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.BookPosition;
@@ -34,7 +36,7 @@ import com.donnKey.aesopPlayer.player.Player;
 
 import java.io.File;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Plays the current audiobook for a short amount of time. Just to demonstrate.
@@ -55,7 +57,7 @@ public class SnippetPlayer implements PlaybackController.Observer {
         playbackController.setObserver(this);
     }
 
-    public void play(AudioBook audioBook) {
+    public void play(@NonNull AudioBook audioBook) {
         BookPosition position = audioBook.getLastPosition();
 
         isPlaying = true;
@@ -91,7 +93,7 @@ public class SnippetPlayer implements PlaybackController.Observer {
     public void onPlaybackStopped(long currentPositionMs) {}
 
     @Override
-    public void onPlaybackError(File path) {
+    public void onPlaybackError(@NonNull File path) {
         CrashWrapper.log(TAG,"Unable to play snippet: " + path.toString());
     }
 

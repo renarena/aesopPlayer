@@ -29,7 +29,7 @@ import android.os.Handler;
 
 import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Observe for changes to media files and post a MediaStoreUpdateEvent to the event bus to trigger

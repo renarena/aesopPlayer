@@ -51,7 +51,8 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.donnKey.aesopPlayer.GlobalSettings.TAG_KIOSK_DIALOG;
 
@@ -348,6 +349,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
     }
 
     // Event is from AesopPlayerDeviceAdmin to let us know adb changed something.
+    @Subscribe
     public void onEvent(@SuppressWarnings("unused") DeviceAdminChangeEvent deviceAdminChangeEvent) {
         // Kiosk mode just got forced to NONE if it was FULL or PINNING
         updateKioskModeSummary();

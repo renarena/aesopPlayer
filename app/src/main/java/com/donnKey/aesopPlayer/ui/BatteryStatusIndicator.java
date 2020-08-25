@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -29,6 +29,8 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.battery.BatteryStatus;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.battery.ChargeLevel;
@@ -36,7 +38,8 @@ import com.donnKey.aesopPlayer.events.BatteryStatusChangeEvent;
 
 import java.util.EnumMap;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class BatteryStatusIndicator {
 
@@ -63,7 +66,7 @@ public class BatteryStatusIndicator {
     public BatteryStatusIndicator(ImageView indicatorView, EventBus eventBus) {
         this.indicatorView = indicatorView;
         this.eventBus = eventBus;
-        this.eventBus.registerSticky(this);
+        this.eventBus.register(this);
     }
 
     public void startAnimations() {
@@ -77,7 +80,7 @@ public class BatteryStatusIndicator {
         eventBus.unregister(this);
     }
 
-    private void updateBatteryStatus(BatteryStatus batteryStatus) {
+    private void updateBatteryStatus(@NonNull BatteryStatus batteryStatus) {
         Integer statusDrawable = batteryStatus.isCharging
                 ? CHARGING_DRAWABLE.get(batteryStatus.chargeLevel)
                 : BATTERY_DRAWABLE.get(batteryStatus.chargeLevel);
@@ -93,6 +96,7 @@ public class BatteryStatusIndicator {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(BatteryStatusChangeEvent batteryEvent) {
         updateBatteryStatus(batteryEvent.batteryStatus);
     }

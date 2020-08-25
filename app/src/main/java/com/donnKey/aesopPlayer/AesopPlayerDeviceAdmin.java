@@ -32,11 +32,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.events.DeviceAdminChangeEvent;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
     @Inject
@@ -52,7 +54,7 @@ public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
     // knows what to expect from locking. The app is sufficiently started that
     // we can get globalSettings.
     @Override
-    public void onEnabled(Context context, Intent intent) {
+    public void onEnabled(@NonNull Context context, @NonNull Intent intent) {
         if (globalSettings != null) {
             if (globalSettings.getKioskMode() != GlobalSettings.SettingsKioskMode.SIMPLE) {
                 globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.NONE);
@@ -64,7 +66,7 @@ public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
     }
 
     @Override
-    public void onDisabled(Context context, Intent intent) {
+    public void onDisabled(@NonNull Context context, @NonNull Intent intent) {
         if (globalSettings != null) {
             if (globalSettings.getKioskMode() != GlobalSettings.SettingsKioskMode.SIMPLE) {
                 globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.NONE);
@@ -85,24 +87,27 @@ public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
     @TargetApi(21)
     private static class API21 {
 
-        static boolean isDeviceOwner(Context context) {
+        static boolean isDeviceOwner(@NonNull Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            assert dpm != null;
             return dpm.isDeviceOwnerApp(context.getPackageName());
         }
 
-        static void clearDeviceOwnerAndAdmin(Context context) {
+        static void clearDeviceOwnerAndAdmin(@NonNull Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            assert dpm != null;
             dpm.clearDeviceOwnerApp(context.getPackageName());
             ComponentName adminComponentName = new ComponentName(context, AesopPlayerDeviceAdmin.class);
             dpm.removeActiveAdmin(adminComponentName);
         }
 
-        static void enableLockTask(Context context) {
+        static void enableLockTask(@NonNull Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             ComponentName adminComponentName = new ComponentName(context, AesopPlayerDeviceAdmin.class);
+            assert dpm != null;
             if (dpm.isAdminActive(adminComponentName) &&
                    dpm.isDeviceOwnerApp(context.getPackageName()))
                 dpm.setLockTaskPackages(adminComponentName, new String[]{context.getPackageName()});

@@ -101,7 +101,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.4.3'
     implementation 'com.google.firebase:firebase-crashlytics:17.1.0'
 
-    implementation 'de.greenrobot:eventbus:2.4.1'
+    implementation 'org.greenrobot:eventbus:3.2.0'
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.preference:preference:1.1.1'
@@ -109,6 +109,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
 
     // implementation 'com.flurry.android:analytics:6.9.2' Disabled: see analytics/StatsLogger.java
+    // If restored, proguard-rules.pro will need to be updated.
 
     // guava-jre does not work - must use -android
     implementation 'com.google.guava:guava:28.2-android'

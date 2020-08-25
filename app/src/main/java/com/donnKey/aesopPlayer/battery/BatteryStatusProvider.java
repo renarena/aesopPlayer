@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -36,7 +36,7 @@ import com.donnKey.aesopPlayer.events.BatteryStatusChangeEvent;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class BatteryStatusProvider extends BroadcastReceiver {
 
@@ -63,7 +63,7 @@ public class BatteryStatusProvider extends BroadcastReceiver {
 
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, @NonNull Intent intent) {
         if (batteryStatusIntentFilter.matchAction(intent.getAction())) {
             notifyBatteryStatus(getBatteryStatus(intent));
         }

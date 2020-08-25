@@ -66,7 +66,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
