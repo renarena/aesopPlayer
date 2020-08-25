@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -39,11 +39,9 @@ import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 import com.donnKey.aesopPlayer.ui.SnippetPlayer;
 
-import java.util.Objects;
-
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class PlaybackSettingsFragment extends BaseSettingsFragment {
 
@@ -56,7 +54,7 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(Objects.requireNonNull(getActivity())).inject(this);
+        AesopPlayerApplication.getComponent(requireActivity()).inject(this);
         super.onCreate(savedInstanceState);
     }
 
@@ -65,8 +63,10 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
         setPreferencesFromResource(R.xml.preferences_playback, rootKey);
         SharedPreferences sharedPreferences = getSharedPreferences();
 
-        findPreference(GlobalSettings.KEY_PLAYBACK_SPEED).setOnPreferenceClickListener(
-                preference -> {
+        Preference preference = findPreference(GlobalSettings.KEY_PLAYBACK_SPEED);
+        assert preference != null;
+        preference.setOnPreferenceClickListener(
+                pref -> {
                     if (snippetPlayer != null && !snippetPlayer.isPlaying())
                         playSnippet();
                     return false;
@@ -88,7 +88,7 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @NonNull String key) {
         // TODO: use summary updaters when updating to androidx.
         switch(key) {
             case GlobalSettings.KEY_JUMP_BACK:
@@ -112,9 +112,10 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
                 getString(R.string.pref_playback_speed_default_value));
         Preconditions.checkNotNull(stringValue);
         ListPreference preference =
-                (ListPreference) findPreference(GlobalSettings.KEY_PLAYBACK_SPEED);
+                findPreference(GlobalSettings.KEY_PLAYBACK_SPEED);
 
         // We're assuming that the string form of the speeds is always %1.1f
+        assert preference != null;
         CharSequence[] standardValues = preference.getEntryValues();
         int index;
         for (index = 0; index<standardValues.length; index++) {
@@ -135,6 +136,7 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
         Preconditions.checkNotNull(stringValue);
         int value = Integer.parseInt(stringValue);
         Preference preference = findPreference(GlobalSettings.KEY_JUMP_BACK);
+        assert preference != null;
         if (value == 0) {
             preference.setSummary(R.string.pref_jump_back_entry_disabled);
         } else {
@@ -144,7 +146,8 @@ public class PlaybackSettingsFragment extends BaseSettingsFragment {
     }
 
     private void updateSleepTimerSummary() {
-        ListPreference preference = (ListPreference) findPreference(GlobalSettings.KEY_SLEEP_TIMER);
+        ListPreference preference = findPreference(GlobalSettings.KEY_SLEEP_TIMER);
+        assert preference != null;
         int index = preference.findIndexOfValue(preference.getValue());
         if (index == 0) {
             preference.setSummary(getString(R.string.pref_sleep_timer_summary_disabled));

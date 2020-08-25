@@ -54,7 +54,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class RemoteSettingsFragment extends BaseSettingsFragment {
 

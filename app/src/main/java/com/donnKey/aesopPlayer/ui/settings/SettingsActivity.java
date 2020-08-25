@@ -63,7 +63,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.donnKey.aesopPlayer.GlobalSettings.TAG_KIOSK_DIALOG;
 

@@ -39,7 +39,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class NewVersionSettingsFragment extends BaseSettingsFragment {
 
@@ -91,7 +91,7 @@ public class NewVersionSettingsFragment extends BaseSettingsFragment {
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @NonNull String key) {
         //noinspection SwitchStatementWithTooFewBranches
         switch (key) {
             case GlobalSettings.KEY_NEW_VERSION_ACTION:

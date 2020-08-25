@@ -97,7 +97,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.WEBSITE_URL;
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
@@ -2318,6 +2319,7 @@ public class RemoteAuto {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(AudioBooksChangedEvent event) {
         // We just want to know it completed to move on
         booksModifiedUpdateComplete.resume();
@@ -2329,6 +2331,7 @@ public class RemoteAuto {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(AnAudioBookChangedEvent event) {
         booksChanged.resume();
     }

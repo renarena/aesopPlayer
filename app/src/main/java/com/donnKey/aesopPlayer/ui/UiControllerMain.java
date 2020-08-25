@@ -55,7 +55,9 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class UiControllerMain implements ServiceConnection {
 
@@ -144,6 +146,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(@NonNull AudioBooksChangedEvent event) {
         if (event.contentType == null) {
            // nothing interesting happened
@@ -154,17 +157,20 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-    public void onEvent(AnAudioBookChangedEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(@NonNull AnAudioBookChangedEvent event) {
         CrashWrapper.log(TAG, "UI: Event: AnAudioBookChangedEvent, state: " + currentState.stateId());
         currentState.onAnAudioBookChanged(event.book);
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(PlaybackStoppedEvent event) {
         currentState.onPlaybackStop(this);
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
+    @Subscribe
     public void onEvent(@NonNull PlaybackFatalErrorEvent event) {
         mainUi.onPlaybackError(event.path);
     }

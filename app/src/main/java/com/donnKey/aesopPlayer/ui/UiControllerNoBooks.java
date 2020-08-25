@@ -50,7 +50,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class UiControllerNoBooks {
 
@@ -200,7 +200,7 @@ public class UiControllerNoBooks {
         }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context context, @NonNull Intent intent) {
             Preconditions.checkNotNull(Objects.requireNonNull(intent.getAction()));
             // Workaround for intents being sent after the receiver is unregistered:
             // https://code.google.com/p/android/issues/detail?id=191546

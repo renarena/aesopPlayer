@@ -48,7 +48,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.donnKey.aesopPlayer.ui.UiControllerMain.getPlaybackService;
 
@@ -72,6 +73,7 @@ public class AudioBookManager {
 
     @SuppressWarnings("UnusedDeclaration")
     @MainThread
+    @Subscribe
     public void onEvent(MediaStoreUpdateEvent ignored) {
         scanFiles();
     }

@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -33,6 +33,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
+
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
 import com.donnKey.aesopPlayer.concurrency.BackgroundExecutor;
 import com.donnKey.aesopPlayer.ui.SoundBank;
@@ -44,7 +46,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 @Module
 class ApplicationModule {
@@ -63,12 +65,12 @@ class ApplicationModule {
     }
 
     @Provides
-    Resources provideResources(Context context) {
+    Resources provideResources(@NonNull Context context) {
         return context.getResources();
     }
 
     @Provides
-    Locale provideCurrentLocale(Resources resources) {
+    Locale provideCurrentLocale(@NonNull Resources resources) {
         return resources.getConfiguration().locale;
     }
 
@@ -100,7 +102,7 @@ class ApplicationModule {
     }
 
     @Provides @Singleton @Named("IO_EXECUTOR")
-    BackgroundExecutor provideIoExecutor(Context applicationContext) {
+    BackgroundExecutor provideIoExecutor(@NonNull Context applicationContext) {
         HandlerThread ioThread = new HandlerThread("IO");
         ioThread.start();
         Handler ioHandler = new Handler(ioThread.getLooper());

@@ -47,7 +47,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class AnalyticsTracker {
     private static final String BOOKS_INSTALLED = "booksInstalled";
@@ -92,6 +93,7 @@ public class AnalyticsTracker {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(@NonNull AudioBooksChangedEvent event) {
         if (event.contentType == null) {
             // nothing interesting happened
@@ -106,16 +108,19 @@ public class AnalyticsTracker {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(SettingsEnteredEvent event) {
         globalSettings.setSettingsEverEntered();
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(DemoSamplesInstallationStartedEvent event) {
         stats.logEvent(SAMPLES_DOWNLOAD_STARTED);
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(@NonNull DemoSamplesInstallationFinishedEvent event) {
         if (event.success) {
             stats.logEvent(SAMPLES_DOWNLOAD_SUCCESS);
@@ -126,12 +131,14 @@ public class AnalyticsTracker {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(PlaybackProgressedEvent event) {
         if (currentlyPlayed == null)
             currentlyPlayed = new CurrentlyPlayed(event.audioBook, System.nanoTime());
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(PlaybackStoppingEvent event) {
         if (currentlyPlayed != null) {
             Map<String, String> data = new TreeMap<>();
@@ -149,6 +156,7 @@ public class AnalyticsTracker {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(@NonNull PlaybackErrorEvent event) {
         Map<String, String> data = new TreeMap<>();
         data.put(PLAYBACK_ERROR_MESSAGE_KEY, event.errorMessage);

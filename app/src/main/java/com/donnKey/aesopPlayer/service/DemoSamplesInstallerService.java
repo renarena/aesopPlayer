@@ -69,7 +69,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 @MainThread
 public class DemoSamplesInstallerService extends Service {

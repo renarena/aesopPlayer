@@ -69,7 +69,8 @@ import javax.inject.Singleton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static android.os.Looper.getMainLooper;
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
@@ -854,6 +855,7 @@ public class Provisioning implements ServiceConnection {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(@NonNull AudioBooksChangedEvent event) {
         if (event.contentType == null) {
             // nothing interesting happened

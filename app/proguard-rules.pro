@@ -18,14 +18,16 @@
 # Just to remember the spelling if needed
 #-dontobfuscate
 
-# EventBus
--keepclassmembers class ** {
-    public void onEvent*(**);
+# EventBus (3.x.x)
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @org.greenrobot.eventbus.Subscribe <methods>;
 }
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
 
 # Settings fragments that are referenced with the app:fragment property on preferences
 # are not recognized by ProGuard as being used and are removed. Keep them.
--keep class com.donnKey.aesopPlayer.ui.settings.**
+-keep class com.donnKey.aesopPlayer.ui.settings**
 
 # Guava
 -dontwarn sun.misc.Unsafe
@@ -40,26 +42,25 @@
 -dontwarn afu.org.checkerframework.**
 -dontwarn org.checkerframework.**
 
-# Required to preserve the Flurry SDK
--keep class com.flurry.** { *; }
--dontwarn com.flurry.**
--keepattributes *Annotation*,EnclosingMethod,Signature
--keepclasseswithmembers class * {
-  public <init>(android.content.Context, android.util.AttributeSet, int);
-}
+# Required to preserve the Flurry SDK - currently disabled in build.gradle
+#-keep class com.flurry.** { *; }
+#-dontwarn com.flurry.**
+#-keepattributes *Annotation*,EnclosingMethod,Signature
+#-keepclasseswithmembers class * {
+#  public <init>(android.content.Context, android.util.AttributeSet, int);
+#}
 
 # Jaudiotagger (Shows up as ugly chapter titles if it fails.)
 #-keep class org.jaudiotagger.audio.Audio** {
 #  *;
 #}
--keep class org.jaudiotagger.tag.** {
+#-keep class org.jaudiotagger.tag.** {
+-keep class com.github.AdrienPoupa.jaudiotagger.tag** {
   *;
 }
 
 # Google Play Services library
--keep class * extends java.util.ListResourceBundle {
-  protected Object[][] getContents();
-}
+# The docs say this is done automatically
 
 -keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
   public static final *** NULL;

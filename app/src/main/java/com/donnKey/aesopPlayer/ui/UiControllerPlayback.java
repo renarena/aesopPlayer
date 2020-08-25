@@ -42,7 +42,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class UiControllerPlayback {
 
@@ -117,11 +118,13 @@ public class UiControllerPlayback {
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(PlaybackStoppingEvent event) {
         ui.onPlaybackStopping();
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    @Subscribe
     public void onEvent(@NonNull PlaybackProgressedEvent event) {
         ui.onPlaybackProgressed(event.playbackTotalPositionMs);
     }
