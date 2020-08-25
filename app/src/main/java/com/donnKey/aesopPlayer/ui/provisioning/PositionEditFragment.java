@@ -36,6 +36,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBook;
 import com.donnKey.aesopPlayer.model.BookPosition;
@@ -52,12 +53,16 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import javax.inject.Inject;
+
 import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 import static com.donnKey.aesopPlayer.ui.UiUtil.formatDurationShort;
 
 public class PositionEditFragment extends Fragment {
+    @Inject
+    public Provisioning provisioning;
+
     private AppCompatEditText editor;
-    private Provisioning provisioning;
     private AudioBook book;
 
     public PositionEditFragment() {
@@ -65,15 +70,10 @@ public class PositionEditFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.provisioning = Provisioning.getInstance();
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        AesopPlayerApplication.getComponent(requireContext()).inject(this);
         book = (AudioBook)provisioning.fragmentParameter;
         View view = inflater.inflate(R.layout.fragment_position_edit, container, false);
 

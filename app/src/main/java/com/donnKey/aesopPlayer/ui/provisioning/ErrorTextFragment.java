@@ -39,18 +39,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.R;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 
 public class ErrorTextFragment extends Fragment {
+    @Inject
+    public Provisioning provisioning;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Provisioning provisioning = Provisioning.getInstance();
+        AesopPlayerApplication.getComponent(requireContext()).inject(this);
         View view = inflater.inflate(R.layout.error_text_fragment, container, false);
 
         ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();

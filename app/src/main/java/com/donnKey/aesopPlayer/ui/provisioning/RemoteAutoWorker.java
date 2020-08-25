@@ -45,14 +45,14 @@ import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
 public class RemoteAutoWorker extends Worker {
     @Inject
     public GlobalSettings globalSettings;
+    @Inject
+    public RemoteAuto remoteAuto;
 
     private long interval = TimeUnit.MINUTES.toMillis(5);
-    final RemoteAuto remoteAuto;
 
     public RemoteAutoWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
-        remoteAuto = new RemoteAuto();
         if (BuildConfig.DEBUG) {
             interval = TimeUnit.SECONDS.toMillis(10);
         }

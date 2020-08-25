@@ -77,13 +77,14 @@ public class ProvisioningActivity extends AppCompatActivity
     public GlobalSettings globalSettings;
     @Inject
     public KioskModeSwitcher kioskModeSwitcher;
+    @Inject
+    public Provisioning provisioning;
 
     public final static String EXTRA_TARGET_FRAGMENT = "com.donnKey.aesopPlayer.RETURN_MESSAGE";
     private final static int ACTIVITY_REQUEST_PROVISIONING = 1235;
 
     private OrientationActivityDelegate orientationDelegate;
 
-    private Provisioning provisioning;
     BottomNavigationView navigation;
 
     @Nullable
@@ -101,8 +102,6 @@ public class ProvisioningActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
         super.onCreate(savedInstanceState);
-
-        provisioning = Provisioning.getInstance();
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 

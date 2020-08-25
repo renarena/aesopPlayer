@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -24,6 +24,8 @@
  */
 package com.donnKey.aesopPlayer.filescanner;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Preconditions;
 
 import java.io.File;
@@ -35,9 +37,9 @@ public class FileSet {
     public final File path;
     public final File[] files;
     public final boolean isDemoSample;
-    public final boolean isReference; // Never "Completed", thus never default delete in Provisioning
+    public final boolean isReference; // Never mark this "Completed", thus never default delete in Provisioning
 
-    public FileSet(String id, File absolutePath, File[] files, boolean isDemoSample, boolean isReference) {
+    public FileSet(String id, @NonNull File absolutePath, File[] files, boolean isDemoSample, boolean isReference) {
         Preconditions.checkArgument(absolutePath.isDirectory());
         this.id = id;
         this.path = absolutePath;

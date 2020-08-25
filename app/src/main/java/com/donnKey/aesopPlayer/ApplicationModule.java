@@ -38,6 +38,8 @@ import androidx.annotation.NonNull;
 import com.donnKey.aesopPlayer.analytics.AnalyticsTracker;
 import com.donnKey.aesopPlayer.concurrency.BackgroundExecutor;
 import com.donnKey.aesopPlayer.ui.SoundBank;
+import com.donnKey.aesopPlayer.ui.provisioning.Provisioning;
+import com.donnKey.aesopPlayer.ui.provisioning.RemoteAuto;
 
 import java.util.Locale;
 
@@ -99,6 +101,16 @@ class ApplicationModule {
     @Provides @Singleton
     SoundBank provideSoundBank(Resources resources) {
         return new SoundBank(resources);
+    }
+
+    @Provides @Singleton
+    RemoteAuto provideRemoteAuto() {
+        return new RemoteAuto();
+    }
+
+    @Provides @Singleton
+    Provisioning provideProvisioning() {
+        return new Provisioning();
     }
 
     @Provides @Singleton @Named("IO_EXECUTOR")

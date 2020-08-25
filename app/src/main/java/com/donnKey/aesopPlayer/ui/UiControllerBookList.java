@@ -98,40 +98,49 @@ public class UiControllerBookList {
     @Inject
     public GlobalSettings globalSettings;
 
+    static boolean suppressOne = false;
     public void changeBook(@NonNull String bookId) {
         audioBookManager.setCurrentBook(bookId);
         AudioBook book = audioBookManager.getById(bookId);
         Preconditions.checkNotNull(book);
         Preconditions.checkNotNull(uiControllerMain);
+        boolean speak = false;
 
         long now = System.currentTimeMillis();
 
         // If the book actually changed, always say it.
         // Except in maintenance mode, so it doesn't chatter when being remotely maintained.
         if (!previousBook.equals(bookId)) {
-            if (!globalSettings.isMaintenanceMode()) {
-                speak(book.getDisplayTitle());
-            }
+            speak = true;
             previousBook = bookId;
         }
         // Otherwise, don't do it very often (This is policy that might change)
         else if (now - lastTitleAnnouncedAt > MINIMUM_INTERVAL_BETWEEN_TITLES) {
-            if (!globalSettings.isMaintenanceMode()) {
+            speak = true;
+        }
+
+        if (speak) {
+            if (suppressOne) {
+                suppressOne = false;
+            } else if (!globalSettings.isMaintenanceMode()) {
                 speak(book.getDisplayTitle());
             }
+            lastTitleAnnouncedAt = now;
         }
-        lastTitleAnnouncedAt = now;
 
         uiControllerMain.computeDuration(book);
     }
 
     static public void suppressAnnounce() {
-        // suppress announcement "for a while"
+        // suppress announcement "for a while", and for one instance
+        // even on title change.
+        suppressOne = true;
         previousLastTitleAnnouncedAt = lastTitleAnnouncedAt;
         lastTitleAnnouncedAt = System.currentTimeMillis();
     }
 
     static public void resumeAnnounce() {
+        suppressOne = false;
         // revert above suppression for quick operations
         lastTitleAnnouncedAt = previousLastTitleAnnouncedAt;
     }

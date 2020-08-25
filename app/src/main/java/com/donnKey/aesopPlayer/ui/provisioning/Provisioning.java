@@ -93,12 +93,11 @@ public class Provisioning implements ServiceConnection {
     final List<File>audioBooksDirs = FilesystemUtil.audioBooksDirs(getAppContext());
 
     private static final String TAG="Provisioning";
-    private static Provisioning provisioning = null;
     final MediaStoreUpdateObserver mediaStoreUpdateObserver;
     PlaybackService playbackService;
     final AwaitResume pendingPlayback = new AwaitResume();
 
-    private Provisioning() {
+    public Provisioning() {
         AesopPlayerApplication.getComponent(getAppContext()).inject(this);
         EventBus.getDefault().register(this);
 
@@ -106,15 +105,6 @@ public class Provisioning implements ServiceConnection {
                 = new MediaStoreUpdateObserver(new Handler(getMainLooper()));
         getAppContext().getContentResolver().registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, true, mediaStoreUpdateObserver);
-    }
-
-    public static Provisioning getInstance() {
-        if (provisioning == null) {
-            synchronized (Provisioning.class) {
-                if (provisioning == null) provisioning = new Provisioning();
-            }
-        }
-        return provisioning;
     }
 
     static class Candidate {

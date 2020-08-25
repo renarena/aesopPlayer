@@ -43,15 +43,19 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.model.AudioBook;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
 
 public class TitleEditFragment extends Fragment {
-    private Provisioning provisioning;
+    @Inject
+    public Provisioning provisioning;
     private Button doneButton;
     private String originalTitle;
 
@@ -62,14 +66,9 @@ public class TitleEditFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.provisioning = Provisioning.getInstance();
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        AesopPlayerApplication.getComponent(requireContext()).inject(this);
 
         View view = inflater.inflate(R.layout.fragment_title_edit, container, false);
 

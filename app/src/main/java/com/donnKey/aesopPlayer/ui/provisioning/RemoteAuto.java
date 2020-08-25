@@ -125,6 +125,8 @@ public class RemoteAuto {
     public String audioBooksDirectoryName;
     @Inject
     public EventBus eventBus;
+    @Inject
+    public Provisioning provisioning;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final String controlFileName = "AesopScript.txt";
@@ -132,7 +134,6 @@ public class RemoteAuto {
     private final String resultFileName = "AesopResult.txt";
 
     private final Context appContext;
-    private final Provisioning provisioning;
     private final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     private final Handler handler;
     private final String TAG="RemoteAuto";
@@ -191,7 +192,6 @@ public class RemoteAuto {
         }
         handler = new Handler();
 
-        this.provisioning = Provisioning.getInstance();
         eventBus.register(this);
         if (BuildConfig.DEBUG) {
             // If debugging, the next line will always process the shared file at startup (once),
@@ -471,11 +471,11 @@ public class RemoteAuto {
                             long ticks = System.nanoTime();
                             if (useDownloadManager) {
                                 // Use the download manager in the hope that it's smarter and faster.
-                                uri = downloadUsingManager(op0, newTitle);
+                                uri = downloadUsingManager(op0);
                             }
                             else {
                                 // Use simple sockets. See above about https: on early devices.
-                                uri = downloadUsingSockets(op0, newTitle);
+                                uri = downloadUsingSockets(op0);
                             }
                             ticks = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - ticks);
                             if (uri == null) {
@@ -553,10 +553,10 @@ public class RemoteAuto {
     // Downloading stuff
 
     @WorkerThread
-    private String downloadUsingManager(String requested, String newTitle) {
+    private String downloadUsingManager(String requested) {
         downloadCompletes.prepare();
         downloadedString = null;
-        downloadUsingManager_start(requested, newTitle);
+        downloadUsingManager_start(requested);
         downloadCompletes.await();
         return downloadedString;
     }
@@ -634,11 +634,11 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    private String downloadUsingSockets(String requested, String newTitle) {
+    private String downloadUsingSockets(String requested) {
         Uri uri = Uri.parse(requested);
 
         byte[] inputBuffer = new byte[DOWNLOAD_BUFFER_SIZE];
-        String downloadFile = (newTitle != null ? newTitle : uri.getLastPathSegment());
+        String downloadFile = uri.getLastPathSegment();
         assert(downloadFile != null);
         File tmpFile = FilesystemUtil.createUniqueFilename(currentCandidateDir,downloadFile);
         if (tmpFile == null) {
@@ -680,7 +680,7 @@ public class RemoteAuto {
     }
 
     @WorkerThread
-    private void downloadUsingManager_start(String requested, String newTitle) {
+    private void downloadUsingManager_start(String requested) {
         Uri uri = Uri.parse(requested);
         String downloadFile = uri.getLastPathSegment();
         assert(downloadFile != null);
@@ -690,7 +690,7 @@ public class RemoteAuto {
                 .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | (allowMobileData ? DownloadManager.Request.NETWORK_MOBILE : 0))
                 .setAllowedOverRoaming(allowMobileData)
                 .setDescription("Aesop Player Download")
-                .setTitle(newTitle != null ? newTitle : downloadFile)
+                .setTitle(downloadFile)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFile);
 
         final long lastDownload = downloadManager.enqueue(downloadRequest);
@@ -748,7 +748,7 @@ public class RemoteAuto {
 
         retriesDone = 0;
         cancelsDone = 0;
-        checkDownloadProgress(requested, newTitle, lastDownload);
+        checkDownloadProgress(requested, lastDownload);
     }
 
     @WorkerThread
@@ -841,9 +841,7 @@ public class RemoteAuto {
     final long POLL_INTERVAL = 5000; // Millis
 
     private void checkDownloadProgress(
-            // The "unused" below are false positives from the editor (the analyzer is happy).
-            @SuppressWarnings("unused") final String requested,
-            @SuppressWarnings("unused") final String newTitle,
+            final String requested,
             final long downloadId) {
 
         // Note captured downloadId below. As above it's necessary to avoid working in the wrong things
@@ -921,7 +919,7 @@ public class RemoteAuto {
                         retriesDone++;
                         downloadManager.remove(downloadId);
                         // Restart the request (cancel the prior one)
-                        downloadUsingManager_start(requested, newTitle);
+                        downloadUsingManager_start(requested);
                     }
                     break;
                 }
@@ -929,7 +927,7 @@ public class RemoteAuto {
                 case ACTION_CONTINUE: {
                     retriesDone = 0; // Some progress has been made... make full retries available
                     cancelsDone = 0;
-                    checkDownloadProgress(requested, newTitle, downloadId);
+                    checkDownloadProgress(requested, downloadId);
                     break;
                 }
 
@@ -939,7 +937,7 @@ public class RemoteAuto {
                     }
                     else {
                         cancelsDone++;
-                        checkDownloadProgress(requested, newTitle, downloadId);
+                        checkDownloadProgress(requested, downloadId);
                     }
                     break;
                 }
@@ -1139,11 +1137,11 @@ public class RemoteAuto {
             buildBookList();
             Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
             if (bookInfo == null) {
-                logActivityIndented("No unique match found for '"+ partialTitle + "'");
+                logActivityIndented("No unique match found for \""+ partialTitle + "\"");
                 return;
             }
 
-            logActivityIndented("Rename " + bookInfo.book.getPath().getPath() + " to '" + newTitle + "'");
+            logActivityIndented("Rename " + bookInfo.book.getPath().getPath() + " to \"" + newTitle + "\"");
 
             bookListChanging(true);
             bookInfo.book.renameTo(newTitle, this::logResult);
@@ -2233,8 +2231,8 @@ public class RemoteAuto {
         buildBookList();
         String otherBook = provisioning.scanForDuplicateAudioBook(newName);
         if (otherBook != null) {
-            logActivityIndented("New name '" + newName + "' collides with existing book '"
-                + otherBook + "'");
+            logActivityIndented("New name \"" + newName + "\" collides with existing book \""
+               + otherBook + "\"");
             return null;
         }
         return newName;

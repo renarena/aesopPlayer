@@ -294,7 +294,7 @@
 
     <string name="remote_maintenance_screen">Control Remote Book Maintenance…</string>
     <string name="remote_via_mail">Via eMail</string>
-    <string name="remote_via_and_word"> and </string> <!-- note the spaces! -->
+    <string name="remote_via_and_word">" and "</string> <!-- note the spaces and quotes! -->
     <string name="remote_via_file">Via Shared File</string>
     <string name="remote_via_disabled">Disabled</string>
     <string name="remote_must_have_credentials">No mail can be received until a correct hostname, login and password are provided.</string>

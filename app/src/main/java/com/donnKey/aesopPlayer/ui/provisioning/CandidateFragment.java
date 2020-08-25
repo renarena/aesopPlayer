@@ -84,8 +84,8 @@ import static com.donnKey.aesopPlayer.ui.UiUtil.colorFromAttribute;
  */
 public class CandidateFragment extends Fragment {
     @Inject public GlobalSettings globalSettings;
+    @Inject public Provisioning provisioning;
 
-    private Provisioning provisioning;
     private CandidateRecyclerViewAdapter recycler;
     static private boolean dirLookupPending = false;
 
@@ -112,7 +112,6 @@ public class CandidateFragment extends Fragment {
         view = (RecyclerView)inflater.inflate(R.layout.fragment_candidate_list, container, false);
         AesopPlayerApplication.getComponent(view.getContext()).inject(this);
         SharedPreferences preferences = globalSettings.appSharedPreferences();
-        this.provisioning = Provisioning.getInstance();
 
         provisioning.downloadDirs = globalSettings.getDownloadDirectories();
         boolean doUpdateDirs = false;
