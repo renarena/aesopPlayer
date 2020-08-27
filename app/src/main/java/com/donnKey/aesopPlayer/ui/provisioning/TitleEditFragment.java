@@ -68,7 +68,7 @@ public class TitleEditFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(requireContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         View view = inflater.inflate(R.layout.fragment_title_edit, container, false);
 

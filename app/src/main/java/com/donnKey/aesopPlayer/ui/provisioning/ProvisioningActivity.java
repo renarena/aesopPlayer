@@ -100,7 +100,7 @@ public class ProvisioningActivity extends AppCompatActivity
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         super.onCreate(savedInstanceState);
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);

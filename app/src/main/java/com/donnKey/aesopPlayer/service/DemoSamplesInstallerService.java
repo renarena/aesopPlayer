@@ -167,7 +167,7 @@ public class DemoSamplesInstallerService extends Service {
     public void onCreate() {
         super.onCreate();
         CrashWrapper.log(TAG + ": created");
-        AesopPlayerApplication.getComponent(getApplicationContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         instance = this;
     }
 
@@ -292,7 +292,7 @@ public class DemoSamplesInstallerService extends Service {
 
                 resultHandler.onInstallStarted();
                 DemoSamplesInstaller installer =
-                        AesopPlayerApplication.getComponent(context).createDemoSamplesInstaller();
+                        AesopPlayerApplication.getComponent().createDemoSamplesInstaller();
                 installer.installBooksFromZip(tmpFile);
 
                 resultHandler.onInstallFinished();

@@ -101,7 +101,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_playback, container, false);
-        AesopPlayerApplication.getComponent(view.getContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);

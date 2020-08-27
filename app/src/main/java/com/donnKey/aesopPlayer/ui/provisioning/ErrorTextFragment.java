@@ -55,7 +55,7 @@ public class ErrorTextFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(requireContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         View view = inflater.inflate(R.layout.error_text_fragment, container, false);
 
         ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();

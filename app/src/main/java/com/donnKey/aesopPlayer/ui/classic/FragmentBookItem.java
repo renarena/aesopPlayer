@@ -76,7 +76,7 @@ public class FragmentBookItem extends BookListChildFragment {
             @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_book_item, container, false);
-        AesopPlayerApplication.getComponent(view.getContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         Bundle args = getArguments();
         Objects.requireNonNull(args);

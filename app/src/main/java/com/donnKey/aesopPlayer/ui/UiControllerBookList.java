@@ -76,7 +76,7 @@ public class UiControllerBookList {
         this.uiControllerMain = uiControllerMain;
         this.ui = ui;
 
-        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         speaker = Speaker.get(context, speakerProvider);
 
         ui.initWithController(this);

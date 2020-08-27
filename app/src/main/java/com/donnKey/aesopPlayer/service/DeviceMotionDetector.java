@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -131,7 +131,7 @@ public class DeviceMotionDetector implements SensorEventListener {
 
     // Singleton private constructor
     private DeviceMotionDetector(Context context) {
-        AesopPlayerApplication.getComponent(context).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         // Get the sensor. If it isn't there null things so that callers can simply
         // make the call and not have to think about whether it's there or not.
@@ -539,6 +539,7 @@ public class DeviceMotionDetector implements SensorEventListener {
     private enum TiltState {UNESTABLISHED, ESTABLISHING, ESTABLISHED, CLEARING}
     private TiltState tiltState = TiltState.UNESTABLISHED;
 
+    @SuppressWarnings({"DuplicateExpressions", "RedundantSuppression"})
     private void checkTiltAngle(float x, float y, float z) {
         // We rely on the fact that it's not physically possible to change directions
         // without going through the UNESTABLISHED state.
@@ -554,7 +555,7 @@ public class DeviceMotionDetector implements SensorEventListener {
         switch (tiltState) {
         case UNESTABLISHED: {
             // Is there enough difference in the angles to say which angle it is?
-            if (Math.abs(Math.abs(p) - Math.abs(q)) > DEFAULT_ANGLE / 2) {
+            if (Math.abs(Math.abs(p) - Math.abs(q)) > DEFAULT_ANGLE / 2.0) {
                 if (p >= 0 && Math.abs(p - DEFAULT_ANGLE) < TOLERANCE) {
                     direction = TouchRateJoystick.Direction.UP;
                     tiltState = TiltState.ESTABLISHING;
@@ -586,7 +587,7 @@ public class DeviceMotionDetector implements SensorEventListener {
         case ESTABLISHED:
         case ESTABLISHING: {
             TiltState newTiltState = TiltState.UNESTABLISHED;
-            if (Math.abs(Math.abs(p) - Math.abs(q)) <= DEFAULT_ANGLE / 2) {
+            if (Math.abs(Math.abs(p) - Math.abs(q)) <= DEFAULT_ANGLE / 2.0) {
                 // Too close to call, release
                 newTiltState = TiltState.CLEARING;
             }

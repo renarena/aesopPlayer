@@ -76,7 +76,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_book_list, container, false);
-        AesopPlayerApplication.getComponent(view.getContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         // This should be early so no buttons go live before this
         snooze = new UiUtil.SnoozeDisplay(this, view, globalSettings);

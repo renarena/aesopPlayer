@@ -75,7 +75,7 @@ class ClassicMainUi implements MainUi {
 
     @NonNull @Override
     public ClassicPlaybackUi switchToPlayback(boolean animate, boolean snooze) {
-        return new ClassicPlaybackUi(activity, this, animate, snooze );
+        return new ClassicPlaybackUi(this, animate, snooze );
     }
 
     @Override

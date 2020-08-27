@@ -57,7 +57,7 @@ public class RewindSound {
     private @Nullable SoundBank.Sound ffRewindSound;
 
     public RewindSound() {
-        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         if (globalSettings.isFFRewindSoundEnabled())
             ffRewindSound = soundBank.getSound(SoundBank.SoundId.FF_REWIND);
     }

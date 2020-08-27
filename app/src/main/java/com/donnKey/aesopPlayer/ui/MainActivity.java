@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
 
         mainUiComponent = DaggerClassicMainUiComponent.builder()
-                .applicationComponent(AesopPlayerApplication.getComponent(this))
+                .applicationComponent(AesopPlayerApplication.getComponent())
                 .activityModule(new ActivityModule(this))
                 .classicMainUiModule(new ClassicMainUiModule(this))
                 .build();

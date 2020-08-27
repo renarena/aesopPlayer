@@ -40,8 +40,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
-
 public class RemoteAutoWorker extends Worker {
     @Inject
     public GlobalSettings globalSettings;
@@ -52,7 +50,7 @@ public class RemoteAutoWorker extends Worker {
 
     public RemoteAutoWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        AesopPlayerApplication.getComponent(getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         if (BuildConfig.DEBUG) {
             interval = TimeUnit.SECONDS.toMillis(10);
         }

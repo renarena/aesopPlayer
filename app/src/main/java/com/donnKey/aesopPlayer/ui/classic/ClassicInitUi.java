@@ -62,7 +62,7 @@ public class ClassicInitUi extends Fragment implements InitUi {
         // Trivial screen with our logo just to avoid a long black screen if there are
         // a lot of books.
         view = inflater.inflate(R.layout.fragment_init, container, false);
-        ApplicationComponent component = AesopPlayerApplication.getComponent(view.getContext());
+        ApplicationComponent component = AesopPlayerApplication.getComponent();
         component.inject(this);
 
         return view;

@@ -73,7 +73,7 @@ public class PositionEditFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        AesopPlayerApplication.getComponent(requireContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         book = (AudioBook)provisioning.fragmentParameter;
         View view = inflater.inflate(R.layout.fragment_position_edit, container, false);
 

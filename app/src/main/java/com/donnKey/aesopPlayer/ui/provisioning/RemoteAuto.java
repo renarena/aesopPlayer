@@ -80,6 +80,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -181,7 +182,7 @@ public class RemoteAuto {
     @UiThread
     public RemoteAuto() {
         appContext = getAppContext();
-        AesopPlayerApplication.getComponent(appContext).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         try {
             // This is required but one-time only, but we might be running on the same thread
@@ -451,6 +452,7 @@ public class RemoteAuto {
                                 }
                             }
                             // drop-thru
+                        case "ftp:":
                         case "http:": {
                             if (!isWiFiEnabled() && !allowMobileData) {
                                 logActivityIndented("Not connected to WiFi and Mobile Data not allowed.");
@@ -469,7 +471,10 @@ public class RemoteAuto {
 
                             String uri;
                             long ticks = System.nanoTime();
-                            if (useDownloadManager) {
+                            if (key.equals("ftp:")) {
+                                uri = downloadFtp(op0);
+                            }
+                            else if (useDownloadManager) {
                                 // Use the download manager in the hope that it's smarter and faster.
                                 uri = downloadUsingManager(op0);
                             }
@@ -489,10 +494,6 @@ public class RemoteAuto {
                             }
 
                             install(uri, newTitle, true);
-                            break;
-                        }
-                        case "ftp:": {
-                            logActivityIndented("Error: ftp:// not supported");
                             break;
                         }
                         case "file:": {
@@ -551,16 +552,6 @@ public class RemoteAuto {
     }
 
     // Downloading stuff
-
-    @WorkerThread
-    private String downloadUsingManager(String requested) {
-        downloadCompletes.prepare();
-        downloadedString = null;
-        downloadUsingManager_start(requested);
-        downloadCompletes.await();
-        return downloadedString;
-    }
-
     @WorkerThread
     private boolean isWiFiEnabled()
     {
@@ -598,38 +589,45 @@ public class RemoteAuto {
             return false;
         }
 
-        HttpURLConnection connection;
+        URLConnection URLconn;
         int code;
         try {
-            connection = (HttpURLConnection)url.openConnection();
+            URLconn = url.openConnection();
         } catch (IOException e) {
             logActivityIndented("Cannot connect to host.");
             return false;
         }
 
-        try {
+        if (URLconn instanceof HttpURLConnection) {
+            HttpURLConnection connection = (HttpURLConnection)URLconn;
             connection.setConnectTimeout(1000);
-            // So it opens (and closes!) quickly
-            connection.setRequestMethod("HEAD");
-            enableTlsOnAndroid4(connection);
-            code = connection.getResponseCode();
-            connection.disconnect();
-        } catch (IOException e) {
-            connection.disconnect();
-            logActivityIndented("Cannot connect to host.");
-            return false;
-        }
+            try {
+                // So it opens (and closes!) quickly
+                connection.setRequestMethod("HEAD");
+                enableTlsOnAndroid4(connection);
+                code = connection.getResponseCode();
+                connection.disconnect();
+            } catch (IOException e) {
+                connection.disconnect();
+                logActivityIndented("Cannot connect to host.");
+                return false;
+            }
 
-        if (code == 200) {
+            if (code == 200) {
+                return true;
+            }
+
+            if (code == 404) {
+                logActivityIndented("Target file not found.");
+                return false;
+            }
+            logActivityIndented("Networking error " + code);
+        }
+        else {
+            // Otherwise, it's an FtpURLConnection (by default), and we can't do much more.
             return true;
         }
 
-        if (code == 404) {
-            logActivityIndented("Target file not found.");
-            return false;
-        }
-
-        logActivityIndented("Networking error " + code);
         return false;
     }
 
@@ -676,7 +674,16 @@ public class RemoteAuto {
             return null;
         }
 
-        return "file://" + tmpFile.getPath();
+        return Uri.fromFile(tmpFile).toString();
+    }
+
+    @WorkerThread
+    private String downloadUsingManager(String requested) {
+        downloadCompletes.prepare();
+        downloadedString = null;
+        downloadUsingManager_start(requested);
+        downloadCompletes.await();
+        return downloadedString;
     }
 
     @WorkerThread
@@ -946,6 +953,42 @@ public class RemoteAuto {
             // Ignore a call that doesn't match what we're expecting
             cursor.close();
         }, POLL_INTERVAL);
+    }
+
+    private String downloadFtp(String requested) {
+        Uri uri = Uri.parse(requested);
+
+        String host = uri.getHost();
+        final int port = uri.getPort();
+        String username = uri.getUserInfo();
+        String downloadFile = uri.getPath();
+        String downloadName = uri.getLastPathSegment();
+
+        if (downloadFile == null || downloadName == null) {
+            logActivityIndented("Filename part could not be parsed.");
+            return null;
+        }
+
+        String password = null;
+        if ((username != null) && username.contains(":")) {
+            String[] subFields = username.split(":", 2);
+            username = subFields[0];
+            password = subFields[1];
+        }
+
+        File tmpFile = FilesystemUtil.createUniqueFilename(currentCandidateDir,downloadName);
+        if (tmpFile == null) {
+            logActivityIndented("Too many identical download files: delete them");
+            return null;
+        }
+
+        String result = Ftp.getFile(host, port, username, password, downloadFile, tmpFile);
+        if (!result.isEmpty()) {
+            logActivityIndented("Ftp download failed: " + result);
+            return null;
+        }
+
+        return Uri.fromFile(tmpFile).toString();
     }
 
     @WorkerThread

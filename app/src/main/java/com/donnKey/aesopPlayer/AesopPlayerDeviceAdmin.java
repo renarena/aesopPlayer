@@ -45,7 +45,7 @@ public class AesopPlayerDeviceAdmin extends DeviceAdminReceiver {
     public GlobalSettings globalSettings;
 
     public AesopPlayerDeviceAdmin () {
-        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
     }
 
     // onEnabled and onDisabled are called when the privilege changes, even when

@@ -25,7 +25,6 @@
 package com.donnKey.aesopPlayer.ui.classic;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.ui.PlaybackUi;
@@ -41,12 +40,12 @@ public class ClassicPlaybackUi implements PlaybackUi {
     private final boolean snooze;
 
     ClassicPlaybackUi(
-            @NonNull AppCompatActivity activity, @NonNull ClassicMainUi mainUi, boolean animateOnInit, boolean snooze) {
+            @NonNull ClassicMainUi mainUi, boolean animateOnInit, boolean snooze) {
         this.fragment = new FragmentPlayback();
         this.mainUi = mainUi;
         this.animateOnInit = animateOnInit;
         this.snooze = snooze;
-        AesopPlayerApplication.getComponent(activity).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         rewindSound = new RewindSound();
     }

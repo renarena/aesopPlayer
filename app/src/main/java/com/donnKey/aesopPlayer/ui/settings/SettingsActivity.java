@@ -89,7 +89,7 @@ public class SettingsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityComponent activityComponent = DaggerActivityComponent.builder()
-                .applicationComponent(AesopPlayerApplication.getComponent(this))
+                .applicationComponent(AesopPlayerApplication.getComponent())
                 .activityModule(new ActivityModule(this))
                 .build();
         activityComponent.inject(this);

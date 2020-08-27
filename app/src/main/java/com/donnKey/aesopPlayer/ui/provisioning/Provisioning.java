@@ -98,7 +98,7 @@ public class Provisioning implements ServiceConnection {
     final AwaitResume pendingPlayback = new AwaitResume();
 
     public Provisioning() {
-        AesopPlayerApplication.getComponent(getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         EventBus.getDefault().register(this);
 
         mediaStoreUpdateObserver

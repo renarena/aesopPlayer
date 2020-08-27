@@ -73,7 +73,7 @@ public class ClassicNoBooksUi extends Fragment implements NoBooksUi {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_no_books, container, false);
-        ApplicationComponent component = AesopPlayerApplication.getComponent(view.getContext());
+        ApplicationComponent component = AesopPlayerApplication.getComponent();
         component.inject(this);
 
         TextView noBooksPath = view.findViewById(R.id.noBooksPath);

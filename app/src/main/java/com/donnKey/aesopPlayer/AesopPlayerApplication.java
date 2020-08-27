@@ -84,8 +84,8 @@ public class AesopPlayerApplication extends androidx.multidex.MultiDexApplicatio
         Speaker.shutdown();
     }
 
-    public static ApplicationComponent getComponent(Context context) {
-        return ((AesopPlayerApplication) context.getApplicationContext()).component;
+    public static ApplicationComponent getComponent() {
+        return ((AesopPlayerApplication) applicationContext).component;
     }
 
     public static Context getAppContext() {

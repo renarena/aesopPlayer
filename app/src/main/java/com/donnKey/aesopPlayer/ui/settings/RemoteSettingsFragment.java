@@ -71,7 +71,7 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(requireActivity()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         inRemoteSettings = true;
         super.onCreate(savedInstanceState);
 

@@ -110,7 +110,7 @@ public class CandidateFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = (RecyclerView)inflater.inflate(R.layout.fragment_candidate_list, container, false);
-        AesopPlayerApplication.getComponent(view.getContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         SharedPreferences preferences = globalSettings.appSharedPreferences();
 
         provisioning.downloadDirs = globalSettings.getDownloadDirectories();

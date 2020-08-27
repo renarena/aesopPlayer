@@ -96,7 +96,7 @@ public class PlaybackService
     @Override
     public void onCreate() {
         super.onCreate();
-        AesopPlayerApplication.getComponent(getApplicationContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         handler = new Handler(getMainLooper());
     }
@@ -116,7 +116,7 @@ public class PlaybackService
         else {
             Preconditions.checkState(player == null);
             requestAudioFocus();
-            player = AesopPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
+            player = AesopPlayerApplication.getComponent().createAudioBookPlayer();
             player.setPlaybackSpeed(globalSettings.getPlaybackSpeed());
             restoreSoundInfo();
 
@@ -147,7 +147,7 @@ public class PlaybackService
         if (book.getTotalDurationMs() == AudioBook.UNKNOWN_POSITION) {
             if (book.getBookDurationQuery() == null) {
                 CrashWrapper.log(TAG, "PlaybackService.computeDuration: create DurationQuery");
-                Player queryPlayer = AesopPlayerApplication.getComponent(getApplicationContext()).createAudioBookPlayer();
+                Player queryPlayer = AesopPlayerApplication.getComponent().createAudioBookPlayer();
                 new DurationQuery(queryPlayer, book);
             }
         }

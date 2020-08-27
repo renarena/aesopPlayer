@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2018-2019 Donn S. Terry
@@ -26,7 +26,6 @@ package com.donnKey.aesopPlayer.content;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import androidx.annotation.NonNull;
@@ -58,9 +57,7 @@ public class ConfigurationContentProvider extends ContentProvider {
         // onCreate is called before the application object is initialized therefore
         // Dagger injection is run by the first operation on the content provider.
         if (globalSettings == null) {
-            Context c = getContext();
-            assert c != null;
-            AesopPlayerApplication.getComponent(c).inject(this);
+            AesopPlayerApplication.getComponent().inject(this);
         }
     }
 

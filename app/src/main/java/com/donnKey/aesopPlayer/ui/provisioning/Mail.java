@@ -94,7 +94,7 @@ public class Mail implements Iterable<Mail.Request>{
     Folder inbox;
 
     public Mail() {
-        AesopPlayerApplication.getComponent(AesopPlayerApplication.getAppContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         String baseHostname = globalSettings.getMailHostname();
         SMTPHostname = "smtp." + baseHostname;
         IMAPHostname = "imap." + baseHostname;

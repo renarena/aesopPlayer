@@ -89,7 +89,7 @@ public class InventoryItemFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inventory_item_list, container, false);
-        AesopPlayerApplication.getComponent(view.getContext()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
 
         actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
         Objects.requireNonNull(actionBar).setBackgroundDrawable(new ColorDrawable(colorFromAttribute(requireContext(),R.attr.actionBarBackground)));

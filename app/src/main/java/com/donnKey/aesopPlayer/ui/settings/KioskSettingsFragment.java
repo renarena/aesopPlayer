@@ -105,7 +105,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        AesopPlayerApplication.getComponent(requireActivity()).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
         super.onCreate(savedInstanceState);
     }
 

@@ -45,7 +45,7 @@ public class KioskSelectionPreference extends ListPreference
 
     public KioskSelectionPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        AesopPlayerApplication.getComponent(context).inject(this);
+        AesopPlayerApplication.getComponent().inject(this);
     }
 
     @Override
