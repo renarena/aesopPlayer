@@ -26,6 +26,8 @@ package com.donnKey.aesopPlayer.util;
 
 import androidx.annotation.WorkerThread;
 
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+
 // Call prepare() before starting an asynchronous task.
 // Call await() to wait for it to finish
 // Call trigger() when the task finishes (in an event, or whatever).
@@ -45,8 +47,9 @@ public class AwaitResume {
         }
         try {
             this.wait();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            CrashWrapper.recordException(e);
         }
     }
 

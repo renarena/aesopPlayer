@@ -78,7 +78,6 @@ public class AudioBookManager {
         scanFiles();
     }
 
-    @MainThread
     public List<AudioBook> getAudioBooks() {
         return audioBooks;
     }

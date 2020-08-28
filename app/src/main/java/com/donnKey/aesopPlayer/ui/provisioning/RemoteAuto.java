@@ -26,18 +26,12 @@ package com.donnKey.aesopPlayer.ui.provisioning;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -62,21 +56,15 @@ import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment;
 import com.donnKey.aesopPlayer.util.AwaitResume;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
-import com.google.android.gms.common.internal.Asserts;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -136,17 +124,14 @@ public class RemoteAuto {
 
     private final Context appContext;
     private final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    private final Handler handler;
     private final String TAG="RemoteAuto";
     private final AwaitResume booksChanged = new AwaitResume();
-    private final AwaitResume downloadCompletes = new AwaitResume();
     private final AwaitResume booksModifiedUpdateComplete = new AwaitResume();
     private final AwaitResume booksPreUseUpdateComplete = new AwaitResume();
     private final static String TAG_WORK = "Remote Auto";
     private final List<String> singleRequestResultLog = new ArrayList<>();
     private final List<String> compositeResultLog = new ArrayList<>();
     private final ArrayList<String> sendResultTo = new ArrayList<>();
-    private final static int DOWNLOAD_BUFFER_SIZE = 32768;
     private DownloadManager downloadManager;
 
     private boolean continueProcessing;
@@ -160,7 +145,6 @@ public class RemoteAuto {
     boolean candidatesIsAudioBooks; // above File is currently (an) AudioBooks dir.
     boolean audioBooksBeingChanged; // we're making changes to an audioBooks dir right now.
     int unSizedBooksRemaining;
-    String downloadedString; // The file that got the download: null if download isn't complete or unsuccessful
 
     // Per request state
     private boolean retainBooks;
@@ -183,15 +167,6 @@ public class RemoteAuto {
     public RemoteAuto() {
         appContext = getAppContext();
         AesopPlayerApplication.getComponent().inject(this);
-
-        try {
-            // This is required but one-time only, but we might be running on the same thread
-            // a previous incarnation had used, so just ignore it.
-            Looper.prepare();
-        } catch (RuntimeException e) {
-            // ignore
-        }
-        handler = new Handler();
 
         eventBus.register(this);
         if (BuildConfig.DEBUG) {
@@ -469,31 +444,31 @@ public class RemoteAuto {
                                 break;
                             }
 
-                            String uri;
+                            File resultFile;
                             long ticks = System.nanoTime();
                             if (key.equals("ftp:")) {
-                                uri = downloadFtp(op0);
+                                resultFile = downloadFtp(op0);
                             }
                             else if (useDownloadManager) {
                                 // Use the download manager in the hope that it's smarter and faster.
-                                uri = downloadUsingManager(op0);
+                                resultFile = downloadUsingManager(op0);
                             }
                             else {
                                 // Use simple sockets. See above about https: on early devices.
-                                uri = downloadUsingSockets(op0);
+                                resultFile = downloadUsingSockets(op0);
                             }
                             ticks = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - ticks);
-                            if (uri == null) {
+                            if (resultFile == null) {
                                 break;
                             }
                             logActivityIndented(String.format("Download time was: %dm%02ds", ticks/60, ticks%60));
 
                             if (downloadOnly) {
-                                logActivityIndented("Download only of " + op0 + " as " + uri + " successful.");
+                                logActivityIndented("Download only of " + op0 + " as " + resultFile + " successful.");
                                 break;
                             }
 
-                            install(uri, newTitle, true);
+                            install(resultFile, newTitle, true);
                             break;
                         }
                         case "file:": {
@@ -501,7 +476,33 @@ public class RemoteAuto {
                             if (downloadOnly) {
                                 logActivityIndented("Error: downloadOnly illegal on file://");
                             } else {
-                                install(op0, newTitle, false);
+                                File fileToInstall;
+                                // Install the book named by the "file:" fileUrl
+                                // We allow the otherwise illegal file:<relative pathname> (no slash after :) to mean
+                                // an Android sdcard-local filename.
+                                Uri uri = Uri.parse(op0);
+                                String path = uri.getPath();
+
+                                if (path == null) {
+                                    // We know it's not correctly formed. We allow file:<name>
+                                    // as a relative path - find relative to downloadDir's parent
+
+                                    // (op0.substring(0,5).equals("file:") is always true here
+                                    if (op0.charAt(5) != '/') {
+                                        path = op0.substring(5);
+                                        // a relative path - find relative to downloadDir's parent
+                                        fileToInstall = new File(downloadDir.getParent(), path);
+                                    }
+                                    else {
+                                        logActivityIndented("Could not parse file name");
+                                        break;
+                                    }
+                                }
+                                else {
+                                    fileToInstall = new File(path);
+                                }
+
+                                install(fileToInstall, newTitle, false);
                             }
                             break;
                         }
@@ -618,7 +619,7 @@ public class RemoteAuto {
             }
 
             if (code == 404) {
-                logActivityIndented("Target file not found.");
+                logActivityIndented( "File not found on host");
                 return false;
             }
             logActivityIndented("Networking error " + code);
@@ -631,331 +632,37 @@ public class RemoteAuto {
         return false;
     }
 
-    @WorkerThread
-    private String downloadUsingSockets(String requested) {
-        Uri uri = Uri.parse(requested);
-
-        byte[] inputBuffer = new byte[DOWNLOAD_BUFFER_SIZE];
-        String downloadFile = uri.getLastPathSegment();
-        assert(downloadFile != null);
-        File tmpFile = FilesystemUtil.createUniqueFilename(currentCandidateDir,downloadFile);
-        if (tmpFile == null) {
-            logActivityIndented("Too many identical download files: delete them");
-            return null;
-        }
-
-        final URL url;
+    private File downloadUsingSockets(String requested) {
         try {
-            url = new URL(requested);
-        } catch (MalformedURLException e) {
-            logActivityIndented("URL is incorrectly formed, could not parse.");
+            Uri uri = Uri.parse(requested);
+            String downloadFile = uri.getLastPathSegment();
+            assert(downloadFile != null);
+            File tmpFile = FilesystemUtil.createUniqueFilename(currentCandidateDir,downloadFile);
+            if (tmpFile == null) {
+                logActivityIndented("Too many identical download files: delete them");
+                return null;
+            }
+
+            Http http = new Http(null);
+            return http.getFile_socket(requested, tmpFile);
+        } catch (Exception e) {
+            logActivityIndented("Http download failed: " + e.getMessage());
             return null;
         }
+    }
 
+    private File downloadUsingManager(String requested) {
+        // The file manager computes it's own target filenames, so we don't provide one.
         try {
-            OutputStream output = new BufferedOutputStream(new FileOutputStream(tmpFile));
-            HttpURLConnection connection;
-            connection = (HttpURLConnection)url.openConnection();
-            enableTlsOnAndroid4(connection);
-
-            // Disable gzip, apparently Java and/or Android's okhttp has problems with it
-            // (possibly https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7003462).
-            connection.setRequestProperty("accept-encoding", "identity");
-
-            InputStream input = new BufferedInputStream(connection.getInputStream());
-            int bytesRead;
-            while((bytesRead = input.read(inputBuffer, 0, inputBuffer.length)) > 0) {
-                output.write(inputBuffer, 0, bytesRead);
-            }
-            output.close();
-            connection.disconnect();
-        } catch (IOException e) {
-            CrashWrapper.recordException(TAG, e);
+            Http http = new Http(downloadManager);
+            return http.getFile_manager(requested);
+        } catch (Exception e) {
+            logActivityIndented("Http download failed: " + e.getMessage());
             return null;
         }
-
-        return Uri.fromFile(tmpFile).toString();
     }
 
-    @WorkerThread
-    private String downloadUsingManager(String requested) {
-        downloadCompletes.prepare();
-        downloadedString = null;
-        downloadUsingManager_start(requested);
-        downloadCompletes.await();
-        return downloadedString;
-    }
-
-    @WorkerThread
-    private void downloadUsingManager_start(String requested) {
-        Uri uri = Uri.parse(requested);
-        String downloadFile = uri.getLastPathSegment();
-        assert(downloadFile != null);
-
-        DownloadManager.Request downloadRequest = new DownloadManager.Request(uri);
-        downloadRequest
-                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | (allowMobileData ? DownloadManager.Request.NETWORK_MOBILE : 0))
-                .setAllowedOverRoaming(allowMobileData)
-                .setDescription("Aesop Player Download")
-                .setTitle(downloadFile)
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, downloadFile);
-
-        final long lastDownload = downloadManager.enqueue(downloadRequest);
-        // Now we wait for the download to complete.
-        IntentFilter intentFilter =
-                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        // We don't do anything with download notifications, so we won't bother
-        // actually doing it, but here's the code.
-        //intentFilter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
-
-        appContext.registerReceiver(
-            // No lambda possible here.
-            new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, @NonNull Intent i) {
-                    // Note the capture of lastDownload here. That's critical to the
-                    // design to keep it from being confused by "old" downloads queued
-                    // up by the download manager.
-
-                    if (i.getAction() == null) {
-                        // This can get called for "ancient" (long since abandoned) requests
-                        return;
-                    }
-
-                    long id = i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-
-                    //Checking if the received broadcast is for our enqueued download
-                    if (lastDownload == id) {
-                        //noinspection SwitchStatementWithTooFewBranches
-                        switch (i.getAction()) {
-                            //case DownloadManager.ACTION_NOTIFICATION_CLICKED:
-                            //   See above for more
-                            //   break;
-                            case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
-                                appContext.unregisterReceiver(this);
-                                downloadUsingManager_end(lastDownload);
-                                break;
-                        }
-                    }
-                    else {
-                        Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
-                        cursor.moveToFirst();
-                        /* In case they're needed for debugging someday
-                        int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                        int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                        int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                        int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        Log.x("AESOP " + getClass().getSimpleName(), "Alternate BCR " + status + " " + reason + " " + bytes + " " + soFar);
-                         */
-                    }
-                    // otherwise, just ignore it -- it's a leftover the manager is finally
-                    // telling us about.
-                }
-            }, intentFilter);
-
-        retriesDone = 0;
-        cancelsDone = 0;
-        checkDownloadProgress(requested, lastDownload);
-    }
-
-    @WorkerThread
-    void downloadUsingManager_end(long lastDownload) {
-        Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(lastDownload));
-        if (cursor == null) {
-            logActivityIndented("Error: download: no cursor (internal error)");
-        }
-        else {
-            if (cursor.moveToFirst()) {
-                int internalId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
-                if (internalId == lastDownload) {
-                    int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                    String fileLocalUriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                    String fileUriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
-
-                    switch (status) {
-                        case DownloadManager.STATUS_SUCCESSFUL: {
-                            downloadedString = fileLocalUriString;
-                            downloadCompletes.resume();
-                            break;
-                        }
-
-                        case DownloadManager.STATUS_PAUSED:
-                        case DownloadManager.STATUS_FAILED: {
-                            int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                            String reasonText;
-                            switch (reason) {
-                                case DownloadManager.ERROR_CANNOT_RESUME:
-                                    reasonText = "ERROR_CANNOT_RESUME";
-                                    break;
-                                case DownloadManager.ERROR_DEVICE_NOT_FOUND:
-                                    reasonText = "ERROR_DEVICE_NOT_FOUND";
-                                    break;
-                                case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
-                                    reasonText = "ERROR_FILE_ALREADY_EXISTS";
-                                    break;
-                                case DownloadManager.ERROR_FILE_ERROR:
-                                    reasonText = "ERROR_FILE_ERROR";
-                                    break;
-                                case DownloadManager.ERROR_HTTP_DATA_ERROR:
-                                    reasonText = "ERROR_HTTP_DATA_ERROR";
-                                    break;
-                                case DownloadManager.ERROR_INSUFFICIENT_SPACE:
-                                    reasonText = "ERROR_INSUFFICIENT_SPACE";
-                                    break;
-                                case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
-                                    reasonText = "ERROR_TOO_MANY_REDIRECTS";
-                                    break;
-                                case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
-                                    reasonText = "ERROR_UNHANDLED_HTTP_CODE";
-                                    break;
-                                case DownloadManager.ERROR_UNKNOWN:
-                                    reasonText = "ERROR_UNKNOWN";
-                                    break;
-                                case DownloadManager.PAUSED_WAITING_TO_RETRY:
-                                    reasonText = "Too long without progress . Bad host id?";
-                                    break;
-                                case 404:
-                                    reasonText = "File not found on host";
-                                    break;
-                                default:
-                                    reasonText = "Failure Code: " + reason;
-                                    break;
-                            }
-
-                            logActivityIndented("Error: download of " + fileUriString + " failed with download error: " + reasonText);
-                            downloadedString = null;
-                            downloadCompletes.resume();
-
-                            // Remove failures.  (This removes files, so not for successes.)
-                            downloadManager.remove(lastDownload);
-                            break;
-                        }
-                        default:
-                            // nothing: ignore (not for us)
-                            break;
-                    }
-                }
-            }
-            cursor.close();
-        }
-    }
-
-    final int RETRIES_MAX = 5;
-    final int CANCELS_MAX = 5;
-    int retriesDone;
-    int cancelsDone;
-    enum Actions { ACTION_DONE, ACTION_CONTINUE, ACTION_RETRY, ACTION_CANCEL}
-    final long POLL_INTERVAL = 5000; // Millis
-
-    private void checkDownloadProgress(
-            final String requested,
-            final long downloadId) {
-
-        // Note captured downloadId below. As above it's necessary to avoid working in the wrong things
-        handler.postDelayed(() -> {
-            final DownloadManager.Query query = new DownloadManager.Query();
-            // Filter only by ID: adding other filters can (does?) yield an "or" query, and
-            // the moveToFirst() won't get our ID.
-            query.setFilterById(downloadId);
-            final Cursor cursor = downloadManager.query(query);
-            if (cursor.moveToFirst()) {
-                int internalId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
-                if (internalId != downloadId) {
-                    // In spite of the filter this can happen...
-                    return;
-                }
-                int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                Actions action = Actions.ACTION_DONE;
-
-                //int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                switch (status) {
-                    case DownloadManager.STATUS_PAUSED: {
-                        //int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                        int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        if (soFar > 0) {
-                            action = Actions.ACTION_RETRY;
-                            break;
-                        }
-                        // drop thru
-                    }
-                    case DownloadManager.STATUS_PENDING: {
-                        //int bytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                        //int soFar = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        //Log.z("AESOP " + getClass().getSimpleName(), "P/P " + status + " " + reason + " " + bytes + " " + soFar);
-
-                        // For STATUS_PENDING:
-                        // This is "startup". It's possible that the start is very slow
-                        // setting up the connection, so we give it an extra chance.
-
-                        // For STATUS_PAUSED:
-                        // None of the sub-codes seem to have any useful action but to ultimately
-                        // cancel if the download manager doesn't figure it out.
-                        action = Actions.ACTION_CANCEL;
-                        break;
-                    }
-
-                    case DownloadManager.STATUS_RUNNING: {
-                        action = Actions.ACTION_CONTINUE;
-                        break;
-                    }
-
-                    case DownloadManager.STATUS_FAILED:
-                    case DownloadManager.STATUS_SUCCESSFUL: {
-                        // For STATUS_SUCCESSFUL:
-                        // nothing more to do here.
-
-                        // For STATUS_FAILED
-                        // If the download manager thinks it's hopeless, we can only agree.
-                        action = Actions.ACTION_DONE;
-                        break;
-                    }
-                }
-
-                switch (action) {
-                case ACTION_DONE: {
-                    downloadUsingManager_end(downloadId);
-                    break;
-                }
-
-                case ACTION_RETRY: {
-                    if (retriesDone >= RETRIES_MAX) {
-                        // Failure... give up
-                        downloadUsingManager_end(downloadId);
-                    }
-                    else {
-                        retriesDone++;
-                        downloadManager.remove(downloadId);
-                        // Restart the request (cancel the prior one)
-                        downloadUsingManager_start(requested);
-                    }
-                    break;
-                }
-
-                case ACTION_CONTINUE: {
-                    retriesDone = 0; // Some progress has been made... make full retries available
-                    cancelsDone = 0;
-                    checkDownloadProgress(requested, downloadId);
-                    break;
-                }
-
-                case ACTION_CANCEL: {
-                    if (cancelsDone >= CANCELS_MAX) {
-                        downloadUsingManager_end(downloadId);
-                    }
-                    else {
-                        cancelsDone++;
-                        checkDownloadProgress(requested, downloadId);
-                    }
-                    break;
-                }
-                }
-            }
-            // Ignore a call that doesn't match what we're expecting
-            cursor.close();
-        }, POLL_INTERVAL);
-    }
-
-    private String downloadFtp(String requested) {
+    private File downloadFtp(String requested) {
         Uri uri = Uri.parse(requested);
 
         String host = uri.getHost();
@@ -982,31 +689,19 @@ public class RemoteAuto {
             return null;
         }
 
-        String result = Ftp.getFile(host, port, username, password, downloadFile, tmpFile);
-        if (!result.isEmpty()) {
-            logActivityIndented("Ftp download failed: " + result);
+        try {
+            Ftp ftp = new Ftp();
+            ftp.getFile(host, port, username, password, downloadFile, tmpFile);
+        } catch (Exception e) {
+            logActivityIndented("Ftp download failed: " + e.getMessage());
             return null;
         }
 
-        return Uri.fromFile(tmpFile).toString();
+        return tmpFile;
     }
 
     @WorkerThread
-    private boolean install(@NonNull String fileUrl, String title, boolean priorDownload) {
-        File fileToInstall;
-        // Install the book named by the "file:" fileUrl
-        // We allow the otherwise illegal file:<relative pathname> (no slash after :) to mean
-        // an Android sdcard-local filename.
-        Asserts.checkState(fileUrl.substring(0,5).equals("file:"));
-        if (fileUrl.charAt(5) != '/') {
-            String pathName = fileUrl.substring(5);
-            // a relative path - find relative to downloadDir's parent
-            fileToInstall = new File(downloadDir.getParent(), pathName);
-        }
-        else {
-            fileToInstall = new File(fileUrl.substring(7));
-        }
-
+    private boolean install(@NonNull File fileToInstall, String title, boolean priorDownload) {
         if (!fileToInstall.exists()) {
             logActivityIndented( "File not found: " + fileToInstall.getPath());
             return false;

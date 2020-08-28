@@ -38,10 +38,11 @@ import org.apache.commons.net.ftp.FTPClient;
 class Ftp {
     private static final String TAG = "Ftp";
 
-    public static String getFile(String server, int port, String user, String password,
-                        String fileToGet, File fileToPut) {
-        String result = ""; // "" is success, otherwise error text
+    Ftp() {
+    }
 
+    public void getFile(String server, int port, String user, String password,
+                        String fileToGet, File fileToPut) throws Exception {
         if (port == -1) {
             port = 21;
         }
@@ -64,23 +65,16 @@ class Ftp {
             boolean success = ftpClient.retrieveFile(fileToGet, outputStream1);
 
             if (!success) {
-                result = "Ftp download failed for unknown reason.";
+                throw new Exception("Ftp download failed for unknown reason.");
             }
         } catch (IOException e) {
             CrashWrapper.recordException(TAG, e);
-            result = e.getMessage();
+            throw e;
         } finally {
-            try {
-                if (ftpClient.isConnected()) {
-                    ftpClient.logout();
-                    ftpClient.disconnect();
-                }
-            } catch (IOException e) {
-                result = e.getMessage();
-                CrashWrapper.recordException(TAG, e);
+            if (ftpClient.isConnected()) {
+                ftpClient.logout();
+                ftpClient.disconnect();
             }
         }
-
-        return result;
     }
 }
