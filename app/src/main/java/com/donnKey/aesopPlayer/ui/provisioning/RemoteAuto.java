@@ -124,7 +124,7 @@ public class RemoteAuto {
 
     private final Context appContext;
     private final File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    private final String TAG="RemoteAuto";
+    private final static String TAG="RemoteAuto";
     private final AwaitResume booksChanged = new AwaitResume();
     private final AwaitResume booksModifiedUpdateComplete = new AwaitResume();
     private final AwaitResume booksPreUseUpdateComplete = new AwaitResume();
@@ -155,6 +155,7 @@ public class RemoteAuto {
     private boolean forceDownloadManager;
     private Calendar messageSentTime;
     private int lineCounter; // counts non-comment lines
+    private long interval;
 
     // For debugging
     @SuppressWarnings({"CanBeFinal"})
@@ -178,10 +179,11 @@ public class RemoteAuto {
         }
     }
 
-    public void pollSources() {
+    public void pollSources(long interval) {
+        this.interval  = interval;
         if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName() + " "+ android.os.Process.myPid() + " "
-                    + Thread.currentThread().getId(),
+            Log.v("AESOP " + TAG
+                    + " " + android.os.Process.myPid() + " " + Thread.currentThread().getId(),
                     "Poll cycle ========================================================");
         }
 
@@ -193,7 +195,7 @@ public class RemoteAuto {
         }
 
         if (RemoteSettingsFragment.getInRemoteSettings()) {
-            return; // we'll try again wen it's not busy
+            return; // we'll try again when it's not busy
         }
         compositeResultLog.clear();
         sendResultTo.clear();
@@ -232,7 +234,6 @@ public class RemoteAuto {
             }
         }
 
-        CrashWrapper.log(TAG, "Remote file processing");
         // The file has been changed since last we looked.
         BufferedReader commands;
         try {
@@ -263,7 +264,6 @@ public class RemoteAuto {
         }
 
         globalSettings.setSavedControlFileTimestamp(timestamp);
-        CrashWrapper.log(TAG, "Remote file processing done");
     }
 
     @WorkerThread
@@ -272,53 +272,95 @@ public class RemoteAuto {
         // if something goes wrong, so we don't need to worry about timeouts here.
         controlDir = new File(globalSettings.getRemoteControlDir());
         Mail mail = new Mail();
-
-        if (mail.open() != Mail.SUCCESS) {
-            // The interval between polls is long enough that a back-off is pointless.
-            // (Note: We can't get here unless it worked once, so this is probably
-            // either an external login change or some external connection problem.)
-            return;
-        }
-
-        // Search is for a pattern, case insensitive
-        if (mail.readMail() != Mail.SUCCESS) {
-            return;
-        }
-
-        for(Mail.Request request:mail) {
-            continueProcessing = true;
-            deleteMessage = true;
-            processingStartTime = Calendar.getInstance();
-
-            messageSentTime = Calendar.getInstance();
-            messageSentTime.setTime(request.sentTime());
-
-            // We can't ignore old mail because it might be an "every"... those
-            // could hang around for years. We rely on deletion of ephemeral mail
-
-            BufferedReader commands = request.getMessageBodyStream();
-            // If there's no plain-text MIME body section, we'll get null here.
-            if (commands == null) {
-                continue;
+        try {
+            if (mail.open() != Mail.SUCCESS) {
+                // The interval between polls is long enough that a back-off is pointless.
+                // (Note: We can't get here unless it worked once, so this is probably
+                // either an external login change or some external connection problem.)
+                return;
             }
-            CrashWrapper.log(TAG, "Remote mail processing");
 
-            startReport();
-            processCommands(commands);
-            if (endReport()) {
-                // send results to senders only for requests we actually processed
-                if (!sendResultTo.contains(request.getMessageSender())) {
-                    sendResultTo.add(request.getMessageSender());
+            if (!mail.userFlagsSupported()) {
+                logActivityIndented("This mailbox does not support using multiple device names. See https://donnKey.github.io/aesopPlayer/provisioning.html#device-name.");
+            }
+
+            // Search is for a pattern, case insensitive
+            if (mail.readMail() != Mail.SUCCESS) {
+                return;
+            }
+
+            for (Mail.Request request : mail) {
+                continueProcessing = true;
+                deleteMessage = true;
+                processingStartTime = Calendar.getInstance();
+
+                startReport();
+
+                boolean skipProcessing = false;
+                // We can't just ignore old mail because it might be an "run:every"... those
+                // could hang around for years. We rely on deletion of ephemeral mail
+
+                switch (request.checkSeen()) {
+                    case Mail.NOT_SEEN:
+                        // We've not seen this before: process normally
+                        break;
+                    case Mail.HAS_SEEN:
+                        // We've processed this message, but presumably other devices haven't,
+                        // so just ignore it. (When all process it, it'll be deleted.)
+                        // run:every won't "delete" the message so we'll continue to see those.
+                        continue;
+                    case Mail.MISSING_DEVICE_NAME:
+                        // A message with tags, and we don't have a device name: complain and skip
+                        logActivityIndented("A device name must be set to use names on the Subject: line.");
+                        skipProcessing = true;
+                        break;
+                    case Mail.MISSING_TAGS:
+                        // A message without tags, and we have a device name: complain and skip
+                        // (Shouldn't happen: mail filter should never allow one through.)
+                        logActivityIndented("A device name must on the Subject: line if the device has a name.");
+                        skipProcessing = true;
+                        break;
+
+                }
+
+                messageSentTime = Calendar.getInstance();
+                Date receivedAt = request.receivedTime();
+                if (receivedAt != null) {
+                    // if it's null, we'll approximate it with the Calendar default value of 'now'
+                    messageSentTime.setTime(receivedAt);
+                }
+
+
+                if (!skipProcessing) {
+                    // skipProcessing exists so we can report errors in mail/shared file
+                    BufferedReader commands = request.getMessageBodyStream();
+                    // If there's no plain-text MIME body section, we'll get null here.
+                    if (commands == null) {
+                        logActivityIndented("Mail message does not contain readable text, ignoring.");
+                    }
+                    else {
+                        processCommands(commands);
+                        try {
+                            commands.close();
+                        } catch (Exception e) {
+                            // ignore
+                        }
+                    }
+                }
+                if (endReport()) {
+                    // send results to senders only for requests we actually processed
+                    if (!sendResultTo.contains(request.getMessageSender())) {
+                        sendResultTo.add(request.getMessageSender());
+                    }
+                }
+
+                if (deleteMessage) {
+                    request.delete();
                 }
             }
-
-            if (deleteMessage) {
-                request.delete();
-            }
-            CrashWrapper.log(TAG, "Remote mail processing done");
+        } finally {
+            mail.close();
         }
-
-        mail.close();
     }
 
 
@@ -343,6 +385,7 @@ public class RemoteAuto {
         logActivity("Start of request " + getDeviceTag() + " at " + processingStartTime.getTime());
 
         // Read and process each line of the input stream.
+        readLoop:
         while (continueProcessing) {
             String line;
             try {
@@ -385,14 +428,37 @@ public class RemoteAuto {
             }
 
             String op0 = operands.get(0);
+            while (op0.equals(">")) {
+                // We remove "reply quotes" ('>') to make it easier to clone old messages
+                operands.remove(0);
+                if (operands.size() == 0) {
+                    continue readLoop;
+                }
+                op0 = operands.get(0);
+            }
+
             int pos = op0.indexOf(':');
             if (pos < 0) {
-                logActivityIndented("Command not recognized (missing ':')");
+                logActivityIndented("Command '" + op0 + "' not recognized (missing ':')");
                 continue;
             }
 
             provisioning.clearErrors();
             lineCounter++;
+
+            if (lineCounter == 1) {
+                if (op0.equals("run:every")) {
+                    // We don't want to log anything until we've decided to do some work,
+                    // but if this stuff crashes, it'd be nice to know it was due to this.
+                    runCommands(operands);
+                    if (!continueProcessing) {
+                        break;
+                    }
+                    CrashWrapper.log(TAG, "Remote processing started");
+                    continue;
+                }
+                CrashWrapper.log(TAG, "Remote processing started");
+            }
 
             String key = op0.substring(0, pos + 1).toLowerCase();
             switch (key) {
@@ -1555,6 +1621,10 @@ public class RemoteAuto {
                     scheduledStartTime.set(Calendar.MINUTE, 1);
                     scheduledStartTime.set(Calendar.HOUR_OF_DAY, 24);
                     setEarliestSavedAtTime(scheduledStartTime);
+                    if (consoleLog) {
+                        Log.v("AESOP " + TAG,
+                                "Run at:every -- do not run today; tomorrow at " + scheduledStartTime.getTime() + ".");
+                    }
                     // (No log here! -- one isn't even generated)
                     return;
                 }
@@ -1565,8 +1635,18 @@ public class RemoteAuto {
                     generateReport = false;
                     setEarliestSavedAtTime(scheduledStartTime);
                     if (consoleLog) {
-                        Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(),
-                                "Run at:every -- run later today at " + scheduledStartTime.getTime() + ".");
+                        Log.v("AESOP " + TAG,
+                            "Run at:every -- run later today at " + scheduledStartTime.getTime() + ".");
+                    }
+                    return;
+                }
+
+                if (processingStartTime.getTimeInMillis() >= scheduledStartTime.getTimeInMillis() + interval) {
+                    continueProcessing = false;
+                    generateReport = false;
+                    if (consoleLog) {
+                        Log.v("AESOP " + TAG,
+                                "Run at:every -- already run for today " + scheduledStartTime.getTime() + ".");
                     }
                     return;
                 }
@@ -1574,6 +1654,7 @@ public class RemoteAuto {
                 // Earlier today (now!)
                 logActivityIndented("Run at:every -- Starts at " + scheduledStartTime.getTime() + ".");
 
+                // Set next scheduled start time as first-thing tomorrow
                 scheduledStartTime.set(Calendar.MINUTE, 1);
                 scheduledStartTime.set(Calendar.HOUR_OF_DAY, 24);
                 setEarliestSavedAtTime(scheduledStartTime);
@@ -1691,7 +1772,7 @@ public class RemoteAuto {
     @WorkerThread
     private void logActivity(String s) {
         if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log " + s);
+            Log.v("AESOP " + TAG + " " + Thread.currentThread().getId(), ">>>>log " + s);
         }
         singleRequestResultLog.add(s);
     }
@@ -1699,7 +1780,7 @@ public class RemoteAuto {
     @WorkerThread
     private void logActivityIndented(String s) {
         if (consoleLog) {
-            Log.v("AESOP " + getClass().getSimpleName() + " " + Thread.currentThread().getId(), ">>>>log      " + s);
+            Log.v("AESOP " + TAG + " " + Thread.currentThread().getId(), ">>>>log      " + s);
         }
         singleRequestResultLog.add("     " + s);
     }
@@ -1728,11 +1809,11 @@ public class RemoteAuto {
         // actually get emitted (this function isn't called).
 
         if (consoleLogReport) {
-            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
+            Log.v("AESOP " + TAG, "**********************************");
             for (String s : singleRequestResultLog) {
-                Log.v("AESOP " + getClass().getSimpleName(), "Log: " + s);
+                Log.v("AESOP " + TAG, "Log: " + s);
             }
-            Log.v("AESOP " + getClass().getSimpleName(), "**********************************");
+            Log.v("AESOP " + TAG, "**********************************");
         }
 
         compositeResultLog.addAll(singleRequestResultLog);
@@ -1773,7 +1854,7 @@ public class RemoteAuto {
 
         if (sendResultTo.size() > 0) {
             Mail message = new Mail()
-                    .setSubject("Aesop request results " + getDeviceTag());
+                    .setSubject("Aesop results for request " + getDeviceTag());
             // Add a trailing empty line so the join below ends with a newline
             compositeResultLog.add("");
             message.setMessageBody(TextUtils.join("\n", compositeResultLog));
@@ -1977,6 +2058,7 @@ public class RemoteAuto {
     }
 
     private void setEarliestSavedAtTime(@NonNull Calendar nextStart) {
+        // This is for the control file... mail continues to be polled regularly
         if (!globalSettings.getSavedAtTime().after(processingStartTime)) {
             //If the saved time is before "now" (we just ran), just take the new time
             // (!after is <=)
@@ -1990,15 +2072,16 @@ public class RemoteAuto {
     }
 
     public static void activate(boolean activate) {
-        // Always deactivate it, just so we know things are clean
         WorkManager workManager = WorkManager.getInstance(getAppContext());
-        workManager.cancelUniqueWork(TAG_WORK);
 
         if (activate) {
             PeriodicWorkRequest.Builder remoteAutoBuilder = new PeriodicWorkRequest
                     .Builder(RemoteAutoWorker.class, 15, TimeUnit.MINUTES);
             PeriodicWorkRequest request = remoteAutoBuilder.build();
             workManager.enqueueUniquePeriodicWork(TAG_WORK, ExistingPeriodicWorkPolicy.KEEP, request);
+        }
+        else {
+            workManager.cancelUniqueWork(TAG_WORK);
         }
     }
 

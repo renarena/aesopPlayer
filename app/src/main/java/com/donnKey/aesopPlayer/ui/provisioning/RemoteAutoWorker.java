@@ -47,6 +47,8 @@ public class RemoteAutoWorker extends Worker {
     public RemoteAuto remoteAuto;
 
     private long interval = TimeUnit.MINUTES.toMillis(5);
+    @SuppressWarnings("unused")
+    private static String TAG="RemoteAutoWorker";
 
     public RemoteAutoWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -73,7 +75,7 @@ public class RemoteAutoWorker extends Worker {
                 return;
             }
 
-            remoteAuto.pollSources();
+            remoteAuto.pollSources(interval);
 
             try {
                 Thread.sleep(interval);

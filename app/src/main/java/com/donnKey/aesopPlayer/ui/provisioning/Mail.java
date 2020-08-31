@@ -64,7 +64,7 @@ import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SearchTerm;
 import javax.mail.search.SubjectTerm;
 
-public class Mail implements Iterable<Mail.Request>{
+public class Mail implements Iterable<Mail.Request> {
     @Inject
     public GlobalSettings globalSettings;
 
@@ -74,6 +74,12 @@ public class Mail implements Iterable<Mail.Request>{
     static public final int OTHER_ERROR = 3;
     static public final int PENDING = 4;
     static public final int UNRESOLVED = 5;
+    static public final int NOT_SEEN = 6;
+    static public final int HAS_SEEN = 7;
+    static public final int MISSING_DEVICE_NAME = 8;
+    static public final int MISSING_TAGS = 9;
+
+    static public final String TAG = "MAIL";
 
     private String login;
     private String password;
@@ -83,7 +89,6 @@ public class Mail implements Iterable<Mail.Request>{
     private String messageBody = null;
     private String inboundFrom = null;
 
-    @SuppressWarnings("FieldCanBeLocal")
     private final String mailSubject = "Aesop request";
 
     private final String SMTPHostname;
@@ -92,6 +97,8 @@ public class Mail implements Iterable<Mail.Request>{
     IMAPStore imapStore = null;
     Message[] messages;
     Folder inbox;
+    Flags inboxFlags;
+    boolean flagsSupported;
 
     public Mail() {
         AesopPlayerApplication.getComponent().inject(this);
@@ -101,7 +108,7 @@ public class Mail implements Iterable<Mail.Request>{
 
         login = globalSettings.getMailLogin();
         password = globalSettings.getMailPassword();
-        deviceName = globalSettings.getMailDeviceName();
+        deviceName = globalSettings.getMailDeviceName().toLowerCase();
     }
 
     public int open() {
@@ -122,19 +129,33 @@ public class Mail implements Iterable<Mail.Request>{
             // Get the store
             imapStore = (IMAPStore) receiverSession.getStore("imaps");
             imapStore.connect(login, password);
+            inbox = imapStore.getFolder("INBOX");
+
+            // Get the default folder
+            inbox.open(Folder.READ_WRITE);
+
+            inboxFlags = inbox.getPermanentFlags();
+            flagsSupported = false;
+            if (inboxFlags != null) {
+                flagsSupported = inboxFlags.contains(Flags.Flag.USER);
+            }
+
             result = SUCCESS;
-        }
-        catch (MailConnectException e) {
+        } catch (MailConnectException e) {
             // thrown for bad hostname by connect
             result = UNRECOGNIZED_HOST;
         } catch (MessagingException e) {
             // thrown for bad login/password by connect
             result = UNRECOGNIZED_USER_PASSWORD;
         } catch (Exception e) {
-            CrashWrapper.recordException(e);
+            CrashWrapper.recordException(TAG, e);
             result = OTHER_ERROR;
         }
         return result;
+    }
+
+    public boolean userFlagsSupported() {
+        return flagsSupported;
     }
 
     public int readMail() {
@@ -142,10 +163,6 @@ public class Mail implements Iterable<Mail.Request>{
         int result = SUCCESS;
 
         try {
-            // Get the default folder
-            inbox = imapStore.getFolder("INBOX");
-            inbox.open(Folder.READ_WRITE);
-
             // Get any candidate messages: the newest one with the appropriate subject line
             Calendar today = Calendar.getInstance();
             today.add(Calendar.MONTH, -1);
@@ -168,7 +185,7 @@ public class Mail implements Iterable<Mail.Request>{
             messages = inbox.search(andTerm);
         } catch (Exception e) {
             result = OTHER_ERROR;
-            CrashWrapper.recordException(e);
+            CrashWrapper.recordException(TAG, e);
         }
 
         return result;
@@ -176,16 +193,37 @@ public class Mail implements Iterable<Mail.Request>{
 
     public class Request {
         final Message message;
-        Request(Message message) {
+        String[] subjectTags;
+        Flags messageFlags;
+        Request(@NonNull Message message) {
             this.message = message;
+            try {
+                messageFlags = message.getFlags();
+            } catch (MessagingException e) {
+                messageFlags = new Flags();
+            }
+            try {
+                String subj = message.getSubject();
+                subj = subj.replaceFirst("(?i)" + mailSubject,"");
+                subj = subj.trim();
+                subj = subj.toLowerCase();
+                if (subj.isEmpty()) {
+                    subjectTags = new String[0];
+                }
+                else {
+                    subjectTags = subj.split("\\s+");
+                }
+            } catch (MessagingException e) {
+                subjectTags = new String[0];
+            }
         }
 
-        public Date sentTime() {
+        public Date receivedTime() {
             Date timestamp = null;
             try {
                 timestamp = message.getReceivedDate();
             } catch (MessagingException e) {
-                CrashWrapper.recordException(e);
+                CrashWrapper.recordException(TAG, e);
             }
             return timestamp;
         }
@@ -209,11 +247,45 @@ public class Mail implements Iterable<Mail.Request>{
                     }
                 }
             } catch (IOException e) {
-                CrashWrapper.recordException(e);
+                CrashWrapper.recordException(TAG, e);
             } catch (MessagingException e) {
-                CrashWrapper.recordException(e);
+                CrashWrapper.recordException(TAG, e);
             }
             return null;
+        }
+
+        public int checkSeen() {
+            if (deviceName.isEmpty()) {
+                if (subjectTags.length == 0) {
+                   return NOT_SEEN; // not previously seen
+                }
+                return MISSING_DEVICE_NAME;
+            }
+            else {
+                if (subjectTags.length == 0) {
+                    // This shouldn't ever happen because the mail filter would never pass
+                    // a message without a matching tag
+                    return MISSING_TAGS;
+                }
+            }
+            return messageFlags.contains(deviceName)?HAS_SEEN:NOT_SEEN;
+        }
+
+        private boolean checkAllSeen() {
+            // Have all other devices seen this (we have, but it will not yet be in tags[])
+            if (deviceName.isEmpty()) {
+                return true;
+            }
+
+            boolean allSeen = true;
+            for (String s: subjectTags) {
+                if (!s.equals(deviceName)) {
+                    if (!messageFlags.contains(s)) {
+                        allSeen = false;
+                    }
+                }
+            }
+            return allSeen;
         }
 
         public String getMessageSender() {
@@ -221,7 +293,7 @@ public class Mail implements Iterable<Mail.Request>{
             try {
                 messageFromNames = message.getFrom();
             } catch (MessagingException e) {
-                CrashWrapper.recordException(e);
+                CrashWrapper.recordException(TAG, e);
             }
             if (messageFromNames != null && messageFromNames.length > 0) {
                 inboundFrom = messageFromNames[0].toString();
@@ -232,10 +304,23 @@ public class Mail implements Iterable<Mail.Request>{
 
         public void delete()
         {
+            if (!checkAllSeen()) {
+                // Not all seen, add myself
+                Flags fl = new Flags();
+                fl.add(deviceName);
+                try {
+                    message.setFlags(fl, true);
+                } catch (MessagingException e) {
+                    CrashWrapper.recordException(TAG, e);
+                }
+                return;
+            }
+
+            // Everyone is done (we were the last), really delete it.
             try {
                 message.setFlag(Flags.Flag.DELETED, true);
             } catch (MessagingException e) {
-                CrashWrapper.recordException(e);
+                CrashWrapper.recordException(TAG, e);
             }
         }
     }
@@ -265,13 +350,14 @@ public class Mail implements Iterable<Mail.Request>{
     public void close() {
         try {
             if (inbox != null) {
+                // Close, expunging deleted messages
                 inbox.close(true);
             }
             if (imapStore != null) {
                 imapStore.close();
             }
         } catch (Exception e) {
-            CrashWrapper.recordException(e);
+            CrashWrapper.recordException(TAG, e);
         }
     }
 
@@ -307,7 +393,7 @@ public class Mail implements Iterable<Mail.Request>{
             Transport.send(message);
 
         } catch (Exception e) {
-            CrashWrapper.recordException(e);
+            CrashWrapper.recordException(TAG, e);
         }
     }
 

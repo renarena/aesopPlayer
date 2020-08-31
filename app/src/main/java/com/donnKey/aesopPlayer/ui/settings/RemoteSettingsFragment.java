@@ -87,6 +87,9 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        doRemoteFileValidation();
+
         boolean mailGroupVisible = globalSettings.getMailPollEnabled();
         boolean fileGroupVisible = globalSettings.getFilePollEnabled();
 
@@ -299,6 +302,31 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
         }
     }
 
+    private int doRemoteFileValidation()
+    {
+        // we need to compute remoteFileValidated before the preference is displayed;
+        // remoteFileSummaryProvider doesn't get run until it's on screen!
+        // (Theoretically that applies to remoteMailValidated too, but its
+        // preference always starts on screen.)
+        remoteFileValidated = false;
+        String rd = globalSettings.getRemoteControlDir();
+        if (!globalSettings.getFilePollEnabled()) {
+            return 0;
+        }
+        else if (rd.isEmpty()) {
+            // Pragmatically, this can't happen because an empty directory is forced to
+            // "Download", but just in case it somehow happens.
+            return 1;
+        }
+        else if (!new File(rd).canWrite()) {
+            return 2;
+        }
+        else {
+            remoteFileValidated = true;
+            return 3;
+        }
+    }
+
     String remoteFileSummaryProvider(Preference pref) {
         // Compute what (and what color) to show depending on the data that the user entered.
         // This for the log file directory
@@ -306,25 +334,20 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
         TextView summary = p.getItemView().findViewById(android.R.id.summary);
 
         remoteFileValidated = false;
-        String rd = globalSettings.getRemoteControlDir();
-        if (!globalSettings.getFilePollEnabled()) {
-            summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.provisioningTextColor3));
-            return getString(R.string.remote_disabled_word);
-        }
-        else if (rd.isEmpty()) {
-            // Pragmatically, this can't happen because an empty directory is forced to
-            // "Download", but just in case it somehow happens.
-            summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.settingsProblemColor));
-            return getString(R.string.remote_incomplete_state);
-        }
-        else if (!new File(rd).canWrite()) {
-            summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.settingsProblemColor));
-            return getString(R.string.remote_unwriteable_state);
-        }
-        else {
-            remoteFileValidated = true;
-            summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.provisioningTextColor3));
-            return getString(R.string.remote_validated_state);
+        switch (doRemoteFileValidation()) {
+            case 0:
+                summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.provisioningTextColor3));
+                return getString(R.string.remote_disabled_word);
+            case 1:
+                summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.settingsProblemColor));
+                return getString(R.string.remote_incomplete_state);
+            case 2:
+                summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.settingsProblemColor));
+                return getString(R.string.remote_unwriteable_state);
+            case 3:
+            default:
+                summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.provisioningTextColor3));
+                return getString(R.string.remote_validated_state);
         }
     }
 
