@@ -77,6 +77,23 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
 
         mailValidated = Mail.UNRESOLVED;
         requireActivity().getOnBackPressedDispatcher().addCallback(this, onBackPressed);
+
+        EditTextPreference deviceName = getPreferenceScreen().findPreference(GlobalSettings.KEY_REMOTE_DEVICE_NAME);
+        assert deviceName!=null;
+
+        deviceName.setOnPreferenceChangeListener((preference, n)-> {
+            String newValue = (String)n;
+            if (!newValue.matches("[\\p{Alnum}_-]*")) {
+                new AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.remote_device_name_title)
+                    .setIcon(R.drawable.ic_launcher)
+                    .setMessage(R.string.remote_device_name_illegal)
+                    .setPositiveButton(android.R.string.yes, null)
+                    .show();
+                return false;
+            }
+            return true;
+        });
     }
 
     @Override

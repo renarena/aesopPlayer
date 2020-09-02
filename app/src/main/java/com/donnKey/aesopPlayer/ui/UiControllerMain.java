@@ -111,7 +111,7 @@ public class UiControllerMain implements ServiceConnection {
     }
 
     void onActivityStart() {
-        CrashWrapper.log(TAG,"UI: onActivityStart");
+        CrashWrapper.log(TAG,"onActivityStart");
         if (!audioBookManager.isInitialized()) {
             scanAudioBookFiles();
         }
@@ -127,13 +127,13 @@ public class UiControllerMain implements ServiceConnection {
    }
 
     void onActivityPause() {
-        CrashWrapper.log(TAG, "UI: onActivityPause, state: " + currentState.stateId());
+        CrashWrapper.log(TAG, "onActivityPause, state: " + currentState.stateId());
         currentState.onActivityPause();
     }
 
     void onActivityStop() {
         CrashWrapper.log(TAG,
-                "UI: stopping in state " + currentState.stateId() + " (activity stop)");
+                "stopping in state " + currentState.stateId() + " (activity stop)");
 
         // Leave the FSM unchanged and let restart do everything
         DeviceMotionDetector.DetectUserInterest();
@@ -152,14 +152,14 @@ public class UiControllerMain implements ServiceConnection {
            // nothing interesting happened
            return;
         }
-        CrashWrapper.log(TAG, "UI: Event: AudioBooksChangedEvent, state: " + currentState.stateId());
+        CrashWrapper.log(TAG, "Event: AudioBooksChangedEvent, state: " + currentState.stateId());
         currentState.onBooksChanged(this);
     }
 
     @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(@NonNull AnAudioBookChangedEvent event) {
-        CrashWrapper.log(TAG, "UI: Event: AnAudioBookChangedEvent, state: " + currentState.stateId());
+        CrashWrapper.log(TAG, "Event: AnAudioBookChangedEvent, state: " + currentState.stateId());
         currentState.onAnAudioBookChanged(event.book);
     }
 
@@ -298,7 +298,7 @@ public class UiControllerMain implements ServiceConnection {
     private void changeState(@NonNull StateFactory newStateFactory) {
         // Since this might be a new instance of the class, we have to do a
         // state change even when it's the same state so listeners are right.
-        CrashWrapper.log(TAG, "UI: change state: " + currentState.stateId() + " to " + newStateFactory);
+        CrashWrapper.log(TAG, "change state: " + currentState.stateId() + " to " + newStateFactory);
         currentState.onLeaveState();
         currentState = newStateFactory.create(this, currentState);
 
@@ -351,7 +351,7 @@ public class UiControllerMain implements ServiceConnection {
                     return new BookListState(mainController, previousState);
                 }
                 else {
-                    CrashWrapper.log(TAG, "UI: ...BOOK_LIST forced to NO_BOOKS");
+                    CrashWrapper.log(TAG, "  ...BOOK_LIST forced to NO_BOOKS");
                     return new NoBooksState(mainController, previousState);
                 }
             }
@@ -419,7 +419,9 @@ public class UiControllerMain implements ServiceConnection {
         }
 
         @Override
-        void onLeaveState() { }
+        void onLeaveState() {
+            UiUtil.SnoozeDisplay.disableOneUse();
+        }
 
         @Override
         StateFactory stateId() { return StateFactory.INIT_STATE; }

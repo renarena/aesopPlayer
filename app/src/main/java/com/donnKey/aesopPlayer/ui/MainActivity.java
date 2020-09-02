@@ -186,6 +186,10 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         justCreated.start();
 
+        // Periodic tasks tend to survive some restarts in some sort of zombie state which explicitly
+        // deactivating and reactivating cures. Deactivate so the reactivate actually starts a worker.
+        // Sometimes the worker thread starts before we even get here!
+        RemoteAuto.activate(false);
         RemoteAuto.activate(globalSettings.getMailPollEnabled() || globalSettings.getFilePollEnabled());
 
     }

@@ -310,6 +310,8 @@
     <string name="remote_unrecognized_host_state">Host not found.</string>
     <string name="remote_unrecognized_user_password_state">Invalid user and password combination.</string>
     <string name="remote_unwriteable_state">Directory not writeable.</string>
+    <string name="remote_device_name_title">Device Name</string>
+    <string name="remote_device_name_illegal">Device name must be letters, digits, or _ and -.</string>
 
     <!-- For translations of strings in arrays.xml -->
     <string name="array_short">Short</string>

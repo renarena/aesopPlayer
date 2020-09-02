@@ -46,6 +46,8 @@ import javax.inject.Inject;
 class ClassicMainUi implements MainUi {
 
     private final @NonNull AppCompatActivity activity;
+    @SuppressWarnings("unused")
+    private final static String TAG = "ClassicMainUi";
 
     @Inject
     ClassicMainUi(@NonNull AppCompatActivity activity) {

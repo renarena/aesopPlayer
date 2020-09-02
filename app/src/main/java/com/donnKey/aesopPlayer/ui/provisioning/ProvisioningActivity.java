@@ -82,6 +82,7 @@ public class ProvisioningActivity extends AppCompatActivity
 
     public final static String EXTRA_TARGET_FRAGMENT = "com.donnKey.aesopPlayer.RETURN_MESSAGE";
     private final static int ACTIVITY_REQUEST_PROVISIONING = 1235;
+    private final static String TAG="Provisioning";
 
     private OrientationActivityDelegate orientationDelegate;
 
@@ -171,6 +172,7 @@ public class ProvisioningActivity extends AppCompatActivity
     private void startSettings() {
         Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
         startActivityForResult(intent, ACTIVITY_REQUEST_PROVISIONING);
+        provisioning.currentFragment = 0;
     }
 
     private boolean onNavigationItemSelectedListener (@NonNull MenuItem item) {
@@ -379,7 +381,7 @@ public class ProvisioningActivity extends AppCompatActivity
     void groupAllSelected() {
         File newDir = null;
 
-        CrashWrapper.log("PV: Group books selected");
+        CrashWrapper.log(TAG, "Group books selected");
         for (Provisioning.Candidate c: provisioning.candidates) {
             // Find the first one, and derive a name from that
             if (c.isSelected) {
@@ -420,7 +422,7 @@ public class ProvisioningActivity extends AppCompatActivity
 
     @UiThread
     void unGroupSelected() {
-        CrashWrapper.log("PV: Ungroup books selected");
+        CrashWrapper.log(TAG, "Ungroup books selected");
         provisioning.unGroupSelected_execute();
         postResults(getString(R.string.grouping_error));
     }

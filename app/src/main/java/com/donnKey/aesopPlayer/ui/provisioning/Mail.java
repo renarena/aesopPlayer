@@ -25,6 +25,7 @@
 package com.donnKey.aesopPlayer.ui.provisioning;
 
 import androidx.annotation.NonNull;
+import androidx.core.text.HtmlCompat;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.GlobalSettings;
@@ -231,9 +232,36 @@ public class Mail implements Iterable<Mail.Request> {
         public BufferedReader getMessageBodyStream() {
             try {
                 Object content = message.getContent();
+
+                // If it's old-style plain text, that's what the sender wanted... use that.
+                if (content instanceof String) {
+                    //noinspection CharsetObjectCanBeUsed
+                    InputStream cs = new ByteArrayInputStream(
+                            ((String) (content)).getBytes("UTF-8"));
+                    return new BufferedReader(new InputStreamReader(cs));
+                }
+
+                // If it's MIME, prefer html that we strip to plain text
+                // If there's a TEXT/PLAIN, it likely has line folding that breaks things
+                // because of the long URLs!
                 if (content instanceof MimeMultipart) {
                     MimeMultipart mmp = (MimeMultipart) content;
                     int count = mmp.getCount();
+                    // Look for HTML
+                    for (int j = 0; j < count; j++) {
+                        BodyPart mimePart = mmp.getBodyPart(j);
+                        if (mimePart instanceof IMAPBodyPart
+                                && mimePart.getContentType().contains("TEXT/HTML")) {
+                            IMAPBodyPart iMimePart = (IMAPBodyPart) mimePart;
+                            String flatText = HtmlCompat.fromHtml((String)iMimePart.getContent(),
+                                HtmlCompat.FROM_HTML_MODE_COMPACT).toString();
+                            @SuppressWarnings("CharsetObjectCanBeUsed")
+                            InputStream cs = new ByteArrayInputStream(
+                                flatText.getBytes("UTF-8"));
+                            return new BufferedReader(new InputStreamReader(cs));
+                        }
+                    }
+                    // Look for plain text
                     for (int j = 0; j < count; j++) {
                         BodyPart mimePart = mmp.getBodyPart(j);
                         if (mimePart instanceof IMAPBodyPart

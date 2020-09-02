@@ -73,6 +73,8 @@ public class SettingsActivity
         PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     private static final int BLOCK_TIME_MS = 500;
+    @SuppressWarnings("unused")
+    private static final String TAG = "SettingsActivity";
 
     private Handler mainThreadHandler;
     private Runnable unblockEventsTask;
@@ -84,6 +86,7 @@ public class SettingsActivity
     @Inject public KioskModeHandler kioskModeHandler;
     @Inject public KioskModeSwitcher kioskModeSwitcher;
     private static boolean enteringSettings;
+    private final Handler handler = new Handler();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -174,6 +177,21 @@ public class SettingsActivity
                 enabled ? android.R.color.white : R.color.medium_dark_grey);
 
         DeviceMotionDetector.suspend();
+    }
+
+    @Override
+    protected void onPause() {
+        // Sometimes onStop can be delayed by as much as 10 seconds (others have noted that;
+        // see StackOverflow). That makes it possible to hit the gear icon on BookList and
+        // restart settings while enteringSettings would be true if we also didn't also do this.
+        // If this isn't done, hitting the gear icon causes a blank settings screen!
+        // onPause alone occurs too soon and causes a new Settings Screen to be posted
+        // by ProvisioningActivity#onNavigationItemSelectedListener, requiring another Back
+        // to return to book list. (N.B. post() doesn't delay long enough.)
+        if (isFinishing()) {
+            handler.postDelayed(()->enteringSettings = false, 250);
+        }
+        super.onPause();
     }
 
     static public boolean getInSettings() {

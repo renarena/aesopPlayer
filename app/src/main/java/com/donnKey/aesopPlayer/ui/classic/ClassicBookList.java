@@ -59,6 +59,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     private ViewPager bookPager;
     private BookListPagerAdapter bookAdapter;
     private UiControllerBookList uiControllerBookList;
+    private static final String TAG = "ClassicBookList";
 
     @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private UiUtil.SnoozeDisplay snooze;
@@ -138,7 +139,7 @@ public class ClassicBookList extends Fragment implements BookListUi {
     @Override
     public void onResume() {
         super.onResume();
-        CrashWrapper.log("UI: ClassicBookList fragment resumed");
+        CrashWrapper.log(TAG, "ClassicBookList fragment resumed");
         showHintsIfNecessary();
     }
 

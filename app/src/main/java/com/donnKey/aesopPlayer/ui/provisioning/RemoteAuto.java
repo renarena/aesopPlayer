@@ -56,6 +56,9 @@ import com.donnKey.aesopPlayer.ui.UiUtil;
 import com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment;
 import com.donnKey.aesopPlayer.util.AwaitResume;
 import com.donnKey.aesopPlayer.util.FilesystemUtil;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +94,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.WEBSITE_URL;
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
-import static com.donnKey.aesopPlayer.service.DemoSamplesInstallerService.enableTlsOnAndroid4;
+//import static com.donnKey.aesopPlayer.service.DemoSamplesInstallerService.enableTlsOnAndroid4;
 import static com.donnKey.aesopPlayer.util.FilesystemUtil.isAudioPath;
 
 public class RemoteAuto {
@@ -177,6 +180,20 @@ public class RemoteAuto {
             consoleLog = false;
             consoleLogReport = false;
         }
+
+        // There are two ways to enable https on android 4. One uses Play Services, the
+        // other involves programmatically enabling TLS directly. It looks as if there's
+        // no way to get TLS 1.2 (or is that 1.3). Some websites work, some don't. This
+        // (Play) way gives an expired certificate error. The other way gives an protocol error.
+        // Unclear which is better. Leaving it at Play Services for now, but leaving dead code.
+        // (Look for "Tls" in comments.) See also DemoSamplesInstallerService.
+        try {
+            ProviderInstaller.installIfNeeded(appContext);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            CrashWrapper.recordException(TAG,e);
+            // Nothing much to do here, the app will attempt the download and most likely fail.
+        }
+
     }
 
     public void pollSources(long interval) {
@@ -248,6 +265,7 @@ public class RemoteAuto {
 
         startReport();
         processCommands(commands);
+        CrashWrapper.log(TAG, "Remote processing complete");
         endReport();
 
         try {
@@ -340,6 +358,7 @@ public class RemoteAuto {
                     }
                     else {
                         processCommands(commands);
+                        CrashWrapper.log(TAG, "Remote processing complete");
                         try {
                             commands.close();
                         } catch (Exception e) {
@@ -399,16 +418,22 @@ public class RemoteAuto {
             }
             logActivity(line);
 
-            line = line.trim();
             if (line.isEmpty()) {
                 continue;
             }
 
-            // Split on spaces, honoring quoted strings correctly, including handling
+            // Split on whitespace, honoring quoted strings correctly, including handling
             // of escaped quotes. Since NUL is illegal in a filename...
             line = line.replace("\\\"", "\000");
             ArrayList<String> operands = new ArrayList<>(Arrays.asList(
-                    line.split(" +(?=([^\"]*\"[^\"]*\")*[^\"]*$)")));
+                    line.split("\\p{javaSpaceChar}+(?=([^\"]*\"[^\"]*\")*[^\"]*$)")));
+            if (operands.size() == 0) {
+                continue;
+            }
+            if (operands.get(0).isEmpty()) {
+                operands.remove(0);
+            }
+
             int count;
             for (count = 0; count < operands.size(); count++) {
                 if (operands.get(count).indexOf("//") == 0) {
@@ -624,7 +649,7 @@ public class RemoteAuto {
     {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert(connectivityManager != null);
+        assert connectivityManager != null;
 
         boolean enabled = false;
 
@@ -638,6 +663,30 @@ public class RemoteAuto {
 
         return enabled;
     }
+
+    /*
+    // Mail can mangle strings, so this lets us see what we REALLY got.
+    private static String hexChars(String input) {
+        StringBuilder buf = new StringBuilder();
+        for(int i = 0; i<input.length(); i++) {
+            char c = input.charAt(i);
+            if (c > ' ' && c < '\u007f') {
+                buf.append(c);
+            }
+            else if (c < ' ') {
+                buf.append((char)(c + 0x2400));
+            }
+            else if (c == '\u007f') {
+                buf.append('\u2421');
+            }
+            else {
+                buf.append("\\u");
+                buf.append(String.format("%04x", (int)c));
+            }
+        }
+        return buf.toString();
+    }
+     */
 
     @WorkerThread
     private boolean checkURLValidity(String requested) {
@@ -661,7 +710,7 @@ public class RemoteAuto {
         try {
             URLconn = url.openConnection();
         } catch (IOException e) {
-            logActivityIndented("Cannot connect to host.");
+            logActivityIndented("Cannot connect to host. " + e);
             return false;
         }
 
@@ -671,12 +720,12 @@ public class RemoteAuto {
             try {
                 // So it opens (and closes!) quickly
                 connection.setRequestMethod("HEAD");
-                enableTlsOnAndroid4(connection);
+                //enableTlsOnAndroid4(connection);
                 code = connection.getResponseCode();
                 connection.disconnect();
             } catch (IOException e) {
                 connection.disconnect();
-                logActivityIndented("Cannot connect to host.");
+                logActivityIndented("Cannot connect to host. " + e);
                 return false;
             }
 
@@ -702,10 +751,13 @@ public class RemoteAuto {
         try {
             Uri uri = Uri.parse(requested);
             String downloadFile = uri.getLastPathSegment();
-            assert(downloadFile != null);
+            if (downloadFile == null) {
+                logActivityIndented("Could not extract file name from URL.");
+                return null;
+            }
             File tmpFile = FilesystemUtil.createUniqueFilename(currentCandidateDir,downloadFile);
             if (tmpFile == null) {
-                logActivityIndented("Too many identical download files: delete them");
+                logActivityIndented("Too many identical download files: delete them.");
                 return null;
             }
 
@@ -823,7 +875,7 @@ public class RemoteAuto {
             buildBookList();
             provisioning.selectCompletedBooks();
 
-            logActivityIndented("Current Books  " + provisioning.getTotalTimeSubtitle());
+            logActivityIndented("Books  " + provisioning.getTotalTimeSubtitle());
             logActivityIndented(" Length   Current        C W Title");
             Provisioning.BookInfo[] sortedList = provisioning.bookList.clone();
             Arrays.sort(sortedList, (l,r)->{
@@ -907,7 +959,6 @@ public class RemoteAuto {
             boolean OK = true;
             for (String partialTitle: partialTitles) {
                 if (findInBookList(partialTitle) == null) {
-                    logActivityIndented("No unique match found for "+ partialTitle);
                     OK = false;
                     // Policy: either they all match partial titles, or do nothing.
                 }
@@ -941,7 +992,6 @@ public class RemoteAuto {
             buildBookList();
             Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
             if (bookInfo == null) {
-                logActivityIndented("No unique match found for \""+ partialTitle + "\"");
                 return;
             }
 
@@ -996,7 +1046,6 @@ public class RemoteAuto {
                 for (String partialTitle: partialTitles) {
                     Provisioning.BookInfo bookInfo = findInBookList(partialTitle);
                     if (bookInfo == null) {
-                        logActivityIndented("No unique match found for " + partialTitle);
                         OK = false;
                     }
                 }
@@ -1043,7 +1092,7 @@ public class RemoteAuto {
                 return;
             }
 
-            logActivityIndented("Current Downloaded books in " + currentCandidateDir.getPath());
+            logActivityIndented("Downloaded books in " + currentCandidateDir.getPath());
             logActivityIndented("C Name [-> Title]");
             for (Provisioning.Candidate candidate : provisioning.candidates) {
                 String dirName = new File(candidate.oldDirPath).getName();
@@ -1126,7 +1175,6 @@ public class RemoteAuto {
             if (partialTitle != null) {
                 Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
                 if (candidate == null) {
-                    logActivityIndented("No unique match found for " + partialTitle);
                     return;
                 }
                 // check for collisions elsewhere
@@ -1182,7 +1230,6 @@ public class RemoteAuto {
                 for (String partialTitle: partialTitles) {
                     Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
                     if (candidate == null) {
-                        logActivityIndented("No unique match found for " + partialTitle);
                         OK = false;
                     }
                 }
@@ -1220,7 +1267,6 @@ public class RemoteAuto {
             while((partialTitle = findOperandString(operands)) != null) {
                 Provisioning.Candidate candidate = findInCandidatesList(partialTitle);
                 if (candidate == null) {
-                    logActivityIndented("No unique match found for " + partialTitle);
                     candidates = -10000;
                 }
                 if (firstCandidate == null) {
@@ -1248,7 +1294,7 @@ public class RemoteAuto {
             if (target == null) {
                 return;
             }
-            assert(firstCandidate != null);
+            assert firstCandidate != null;
 
             // The parent plus the new name -> targetFile
             File targetFile = new File(firstCandidate.oldDirPath).getParentFile();
@@ -1285,7 +1331,6 @@ public class RemoteAuto {
             bookListChanging(false);
             Provisioning.Candidate groupDir = findInCandidatesList(partialTitle);
             if (groupDir == null) {
-                logActivityIndented("Book to ungroup not uniquely matched.");
                 return;
             }
             logActivityIndented("Ungrouping " + groupDir.newDirName);
@@ -1402,7 +1447,7 @@ public class RemoteAuto {
             for (String fileName: files) {
                 File toDelete = new File(currentCandidateDir, fileName);
                 if (!toDelete.exists()) {
-                    logActivityIndented("File " + toDelete.getPath() + " already deleted.");
+                    logActivityIndented("File " + toDelete.getPath() + " not found.");
                 }
                 else {
                     logActivityIndented("Deleting File " + toDelete.getPath());
@@ -1558,25 +1603,39 @@ public class RemoteAuto {
                 DateFormatSymbols dfs = new DateFormatSymbols(Locale.US);
                 String[] weekdays = dfs.getWeekdays();
 
+                boolean gotDay = false;
                 boolean matchedToday = false;
                 for (int d = Calendar.SUNDAY; d <= Calendar.SATURDAY; d++) {
                     if (checkOperandsFor(operands, weekdays[d])) {
                         matchedToday |= d == todayDayName;
+                        gotDay = true;
                     }
                     if (checkOperandsFor(operands, weekdays[d].substring(0,3))) {
                         matchedToday |= d == todayDayName;
+                        gotDay = true;
                     }
                 }
 
-                matchedToday |= checkOperandsFor(operands, "everyday");
-                matchedToday |= checkOperandsFor(operands, "every");
+                if (checkOperandsFor(operands, "everyday")
+                        || checkOperandsFor(operands, "every")) {
+                    matchedToday = true;
+                    gotDay = true;
+                }
 
                 if (checkOperandsFor(operands, "weekday")
                     || checkOperandsFor(operands, "week")) {
                     matchedToday |= (todayDayName >= Calendar.MONDAY && todayDayName <= Calendar.FRIDAY);
+                    gotDay = true;
                 }
 
                 String timeString = findOperandText(operands);
+
+                if (!gotDay) {
+                    logActivityIndented("run:every No day names present");
+                    continueProcessing = false;
+                    deleteMessage = true;
+                    return;
+                }
 
                 if (errorIfAnyRemaining(operands)) {
                     logActivityIndented("Unrecognized operands for run:every");
@@ -1917,12 +1976,14 @@ public class RemoteAuto {
         for (Provisioning.BookInfo b : provisioning.bookList) {
             if (StringUtils.containsIgnoreCase(b.book.getDisplayTitle(), str)) {
                 if (match != null) {
+                    logActivityIndented("Multiple matches for " + str);
                     return null;
                 }
                 match = b;
             }
             else if (StringUtils.containsIgnoreCase(b.book.getDirectoryName(), str)) {
                 if (match != null) {
+                    logActivityIndented("Multiple matches for " + str);
                     return null;
                 }
                 match = b;
@@ -1932,6 +1993,7 @@ public class RemoteAuto {
             match.selected = true;
             return match;
         }
+        logActivityIndented("No matches found for " + str);
         return null;
     }
 
@@ -1944,12 +2006,14 @@ public class RemoteAuto {
         for (Provisioning.Candidate c : provisioning.candidates) {
             if (StringUtils.containsIgnoreCase(c.bookTitle, str)) {
                 if (match != null) {
+                    logActivityIndented("Multiple matches for " + str);
                     return null;
                 }
                 match = c;
             }
             else if (StringUtils.containsIgnoreCase(c.oldDirPath, str)) {
                 if (match != null) {
+                    logActivityIndented("Multiple matches for " + str);
                     return null;
                 }
                 match = c;
@@ -1959,6 +2023,7 @@ public class RemoteAuto {
             match.isSelected = true;
             return match;
         }
+        logActivityIndented("No matches found for " + str);
         return null;
     }
 
@@ -2075,12 +2140,14 @@ public class RemoteAuto {
         WorkManager workManager = WorkManager.getInstance(getAppContext());
 
         if (activate) {
+            CrashWrapper.log(TAG, "Worker activated");
             PeriodicWorkRequest.Builder remoteAutoBuilder = new PeriodicWorkRequest
                     .Builder(RemoteAutoWorker.class, 15, TimeUnit.MINUTES);
             PeriodicWorkRequest request = remoteAutoBuilder.build();
             workManager.enqueueUniquePeriodicWork(TAG_WORK, ExistingPeriodicWorkPolicy.KEEP, request);
         }
         else {
+            CrashWrapper.log(TAG, "Worker disabled");
             workManager.cancelUniqueWork(TAG_WORK);
         }
     }

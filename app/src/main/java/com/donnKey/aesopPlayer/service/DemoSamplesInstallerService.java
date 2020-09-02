@@ -30,7 +30,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -43,13 +42,15 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.common.base.Preconditions;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.events.DemoSamplesInstallationFinishedEvent;
 import com.donnKey.aesopPlayer.events.MediaStoreUpdateEvent;
 import com.donnKey.aesopPlayer.model.DemoSamplesInstaller;
-import com.donnKey.aesopPlayer.util.TlsSSLSocketFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -61,8 +62,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -75,6 +74,7 @@ import org.greenrobot.eventbus.EventBus;
 public class DemoSamplesInstallerService extends Service {
 
     private static final String CLASS_NAME = "DemoSamplesInstallerService";
+    private static final String TAG = "DemoSamplesInst";
     private static final String ACTION_EXTRA = "action";
     private static final int ACTION_START_DOWNLOAD = 0;
     private static final int ACTION_CANCEL_DOWNLOAD = 1;
@@ -116,7 +116,6 @@ public class DemoSamplesInstallerService extends Service {
     private boolean isDownloading = false;
     private long lastProgressUpdateNanos = 0;
     private static DemoSamplesInstallerService instance;
-    private static final String TAG = "DemoSamplesInstallerService";
 
     @Nullable
     @Override
@@ -308,6 +307,19 @@ public class DemoSamplesInstallerService extends Service {
             File tmpFile = File.createTempFile("download", null, context.getExternalCacheDir());
             tmpFile.deleteOnExit();
 
+            // There are two ways to enable https on android 4. One uses Play Services, the
+            // other involves programmatically enabling TLS directly. It looks as if there's
+            // no way to get TLS 1.2 (or is that 1.3). Some websites work, some don't. This
+            // (Play) way gives an expired certificate error. The other way gives an protocol error.
+            // Unclear which is better. Leaving it at Play Services for now, but leaving dead code.
+            // (Look for "Tls" in comments.) See also RemoteAuto.
+            try {
+                ProviderInstaller.installIfNeeded(context);
+            } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                CrashWrapper.recordException(TAG,e);
+                // Nothing much to do here, the app will attempt the download and most likely fail.
+            }
+
             OutputStream output = new BufferedOutputStream(new FileOutputStream(tmpFile));
             // The samples file is at AesopPlayerApplication#DEMO_SAMPLES_URL
             HttpURLConnection connection;
@@ -324,7 +336,7 @@ public class DemoSamplesInstallerService extends Service {
             // Disable gzip, apparently Java and/or Android's okhttp has problems with it
             // (possibly https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7003462).
             connection.setRequestProperty("accept-encoding", "identity");
-            enableTlsOnAndroid4(connection);
+            //enableTlsOnAndroid4(connection);
             InputStream input = new BufferedInputStream(connection.getInputStream());
 
             int totalBytesRead = 0;
@@ -345,6 +357,7 @@ public class DemoSamplesInstallerService extends Service {
         }
     }
 
+    /*
     public static void enableTlsOnAndroid4(HttpURLConnection connection) {
         // The internets say that this may be also needed on some API 21 phones...
         if (Build.VERSION.SDK_INT <= 21) {
@@ -359,4 +372,5 @@ public class DemoSamplesInstallerService extends Service {
             }
         }
     }
+     */
 }

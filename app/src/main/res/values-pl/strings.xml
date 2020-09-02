@@ -288,6 +288,8 @@
     <string name="remote_unrecognized_host_state">Host nieznaleziony.</string>
     <string name="remote_unrecognized_user_password_state">Nieprawidłowa kombinacja użytkownika i hasła.</string>
     <string name="remote_unwriteable_state">Katalog nie do zapisu.</string>
+    <string name="remote_device_name_title">Nazwa urządzenia</string>
+    <string name="remote_device_name_illegal">Nazwa urządzenia musi zawierać litery, cyfry lub _ i -.</string>
 
     <!-- for translations of arrays.xml -->
     <string name="array_short">Krótki</string>

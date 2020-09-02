@@ -89,6 +89,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private UiUtil.SnoozeDisplay snooze;
     private AdjustmentsListener adjustmentsListener = null;
+    private static final String TAG = "FragmentPlayback";
 
     private @Nullable UiControllerPlayback controller;
 
@@ -160,7 +161,7 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     @Override
     public void onResume() {
         super.onResume();
-        CrashWrapper.log("UI: FragmentPlayback resumed");
+        CrashWrapper.log(TAG, "pb resumed");
         rewindButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         ffButton.setOnTouchListener(new PressReleaseDetector(rewindFFHandler));
         if (globalSettings.isScreenVolumeSpeedEnabled()) {

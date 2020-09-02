@@ -53,11 +53,13 @@ import javax.inject.Singleton;
 
 @Singleton
 public class UiUtil {
+    @SuppressWarnings("unused")
+    private static final String TAG = "UiUtil";
 
     public static class SnoozeDisplay {
         private View snoozeOverlay;
         private TextView snoozeCounter;
-        static private boolean enabled;
+        static private int enabled = 0;
 
         @SuppressWarnings("SameReturnValue")
         @SuppressLint("ClickableViewAccessibility")
@@ -66,10 +68,10 @@ public class UiUtil {
                 final View view,
                 final int time) {
 
-            if (!enabled) {
+            if (enabled <= 0) {
                 return;
             }
-            enabled = false;
+            enabled--;
 
             if (time <= 0) {
                 return;
@@ -121,7 +123,10 @@ public class UiUtil {
         }
 
         public static void enableOneUse() {
-            enabled = true;
+            enabled++;
+        }
+        public static void disableOneUse() {
+            enabled--;
         }
     }
 

@@ -29,7 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static com.donnKey.aesopPlayer.AesopPlayerApplication.getAppContext;
-import static com.donnKey.aesopPlayer.service.DemoSamplesInstallerService.enableTlsOnAndroid4;
+//import static com.donnKey.aesopPlayer.service.DemoSamplesInstallerService.enableTlsOnAndroid4;
 
 class Http {
     private final AwaitResume downloadCompletes = new AwaitResume();
@@ -80,7 +80,8 @@ class Http {
             OutputStream output = new BufferedOutputStream(new FileOutputStream(tmpFile));
             HttpURLConnection connection;
             connection = (HttpURLConnection)url.openConnection();
-            enableTlsOnAndroid4(connection);
+            // See comment in RemoteAuto about TLS
+            //enableTlsOnAndroid4(connection);
 
             // Disable gzip, apparently Java and/or Android's okhttp has problems with it
             // (possibly https://bugs.java.com/bugdatabase/view_bug.do?bug_id=7003462).
@@ -95,7 +96,7 @@ class Http {
             connection.disconnect();
         } catch (IOException e) {
             CrashWrapper.recordException(TAG, e);
-            return null;
+            throw e;
         }
 
         return tmpFile;

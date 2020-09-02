@@ -35,6 +35,7 @@ import androidx.work.WorkerParameters;
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
 import com.donnKey.aesopPlayer.BuildConfig;
 import com.donnKey.aesopPlayer.GlobalSettings;
+import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 
 import java.util.concurrent.TimeUnit;
 
@@ -47,11 +48,12 @@ public class RemoteAutoWorker extends Worker {
     public RemoteAuto remoteAuto;
 
     private long interval = TimeUnit.MINUTES.toMillis(5);
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private static String TAG="RemoteAutoWorker";
 
     public RemoteAutoWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        CrashWrapper.log(TAG, "RemoteAuto: worker start");
         AesopPlayerApplication.getComponent().inject(this);
         if (BuildConfig.DEBUG) {
             interval = TimeUnit.SECONDS.toMillis(10);
