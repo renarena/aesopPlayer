@@ -150,3 +150,10 @@ is in progress - some books have many small files and duration queries can be ve
 Change housekeeping details on duration queries to be simpler.
 
 Minor bugfixes. Android Studio 4 gradle and lib updates.
+
+## Version 1.2.0
+Allow books to be added and deleted (and many other things) via either mail messages
+or a shared file. This makes it much easier to check on and update the books on a device
+you can't (easily) touch. Detailed documentation is available at 
+https://donnKey.github.io/aesopPlayer/provisioning.html#remote-downloads.
+

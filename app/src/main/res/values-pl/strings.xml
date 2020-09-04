@@ -329,12 +329,7 @@
 
     <!-- This must be a newline-separated list; be careful as the tools don't preserve newlines -->
     <string name="release_new_features">\n
-        Punkty zatrzymania\n
-        Opcja wysokiego kontrastu\n
-        Zaktualizuj powiadomienie\n
-        Obsługa prostego kiosku dla Androida Q\n
-        Pobierz historię katalogów, nowy interfejs użytkownika\n
-        Poprawki błędów
-    </string>
+        Zdalne sterowanie książkami przez e-mail/udostępniony plik.\n
+        Bugfixes"</string>
 
 </resources>

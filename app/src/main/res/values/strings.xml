@@ -350,10 +350,6 @@
 
     // Change this with each release as a newline-separated list
     <string name="release_new_features">\n
-        Stop Points\n
-        High Contrast Option\n
-        Update Notification\n
-        Android Q Simple Kiosk support\n
-        Download Directories history, new UI\n
+        Remote control of books via eMail/shared file.\n
         Bugfixes</string>
 </resources>
