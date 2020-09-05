@@ -65,6 +65,7 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
     int mailValidated = Mail.UNRESOLVED;
     boolean remoteMailValidated = false;
     boolean remoteFileValidated = false;
+    private static final String TAG="RemoteSetFrag";
 
     // A way RemoteAuto's loop to stop doing things while we're changing them.
     static public boolean inRemoteSettings;

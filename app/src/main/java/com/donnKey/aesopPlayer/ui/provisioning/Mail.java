@@ -118,6 +118,10 @@ public class Mail implements Iterable<Mail.Request> {
 
         try {
             Properties props = new Properties();
+            // The imap store is apparently dynamically loaded.
+            // Proguard/R8 gets that wrong, and the creation of receiverSession throws.
+            // That's fixed in proguard-rules.pro, but if this changes to use imap (not 's')
+            // proguard will need a fix as well.
             props.put("mail.imaps.host", IMAPHostname);
             props.put("mail.imaps.connectiontimeout", "5000");
             Session receiverSession = Session.getInstance(props,

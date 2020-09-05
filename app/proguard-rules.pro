@@ -16,7 +16,7 @@
 #}
 
 # Just to remember the spelling if needed
-#-dontobfuscate
+# -dontobfuscate # for when readable stack traces needed wuen minimizing
 
 # EventBus (3.x.x)
 -keepattributes *Annotation*
@@ -42,6 +42,10 @@
 -dontwarn afu.org.checkerframework.**
 -dontwarn org.checkerframework.**
 
+-dontwarn com.sun.mail.handlers.handler_base.getTransferDataFlavors # "does not type check and will be assumed to be unreachable."
+
+-keepattributes SourceFile, LineNumberTable
+
 # Required to preserve the Flurry SDK - currently disabled in build.gradle
 #-keep class com.flurry.** { *; }
 #-dontwarn com.flurry.**
@@ -49,19 +53,16 @@
 #-keepclasseswithmembers class * {
 #  public <init>(android.content.Context, android.util.AttributeSet, int);
 #}
+#  -- end Flurry config --
 
 # Jaudiotagger (Shows up as ugly chapter titles if it fails.)
-#-keep class org.jaudiotagger.audio.Audio** {
-#  *;
-#}
-#-keep class org.jaudiotagger.tag.** {
--keep class com.github.AdrienPoupa.jaudiotagger.tag** {
-  *;
-}
+#-keep class org.jaudiotagger.audio.Audio** {*;}
+#-keep class org.jaudiotagger.tag.** {*;}
+-keep class com.github.AdrienPoupa.jaudiotagger.tag** {*;}
+-keep class org.jaudiotagger.tag.id3** {*;}
 
 # Google Play Services library
 # The docs say this is done automatically
-
 -keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
   public static final *** NULL;
 }
@@ -74,6 +75,13 @@
 -keepnames class * implements android.os.Parcelable {
   public static final ** CREATOR;
 }
-#  -- end Flurry config --
 
--keepattributes SourceFile, LineNumberTable
+# Mail dynamically loads the resource/settings(?) store.
+# We only use imaps (SSL), but if that changes...
+#-keep class com.sun.mail.imap.IMAPStore {*;}
+-keep class com.sun.mail.imap.IMAPSSLStore {*;}
+-keep class com.sun.mail.smtp.SMTPSSLProvider {*;}
+-keep class com.sun.mail.smtp.SMTPSSLTransport {*;}
+
+# This is critical to actually read mail content.
+-keep class com.sun.mail.handlers** { *; }
