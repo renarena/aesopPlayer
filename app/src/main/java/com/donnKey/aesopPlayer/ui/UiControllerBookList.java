@@ -25,6 +25,8 @@
 package com.donnKey.aesopPlayer.ui;
 
 import android.content.Context;
+import android.os.Handler;
+
 import androidx.annotation.NonNull;
 
 import com.donnKey.aesopPlayer.AesopPlayerApplication;
@@ -66,6 +68,9 @@ public class UiControllerBookList {
     private final @NonNull BookListUi ui;
 
     private final @NonNull Speaker speaker;
+    @SuppressWarnings("unused")
+    private static final String TAG = "UiConBookList";
+    private static final Handler handler = new Handler();
 
     private UiControllerBookList(@NonNull Context context,
                                  @NonNull AudioBookManager audioBookManager,
@@ -139,8 +144,14 @@ public class UiControllerBookList {
         lastTitleAnnouncedAt = System.currentTimeMillis();
     }
 
+    private static final Runnable clearSuppressOne = ()-> suppressOne = false;
+
     static public void resumeAnnounce() {
-        suppressOne = false;
+        handler.removeCallbacks(clearSuppressOne);
+        // Depending on device model, this function may get called earlier than the
+        // events that get to changeBook get to it. Allow one second for that to happen
+        // before clearing suppression.
+        handler.postDelayed(clearSuppressOne, 1000);
         // revert above suppression for quick operations
         lastTitleAnnouncedAt = previousLastTitleAnnouncedAt;
     }
