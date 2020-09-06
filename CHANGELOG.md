@@ -156,4 +156,5 @@ Allow books to be added and deleted (and many other things) via either mail mess
 or a shared file. This makes it much easier to check on and update the books on a device
 you can't (easily) touch. Detailed documentation is available at 
 https://donnKey.github.io/aesopPlayer/provisioning.html#remote-downloads.
+(In beta at the moment.)
 
