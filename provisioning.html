@@ -54,6 +54,9 @@ We'll discuss the details in various places.
     Click to edit book position.
     <li>
     Maintenance Mode (click to change) - in off state.
+    <li>
+    Duplicate Book indicator. See
+    <a href="#duplicate-books">here</a>.
 </ol>
 <br>
 <h3 id="new-books" class="anchor-target">The New Books Screen</h3>
@@ -117,7 +120,7 @@ Sometimes the book is already that way.
 Aesop will automatically create it when it first runs, but if something goes wrong, you need to be sure it's there.
 </ol>
 </p>
-<h2>Cleaning up</h2>
+<h2 id="cleaning-up" class="anchor-target">Cleaning up</h2>
 <p>
 After you've read your books, and want some new ones, you may find either that having the old ones around makes it hard to find your new books,
 or that you've run out of space on the device.
@@ -141,7 +144,7 @@ because the books will be completely removed and you'll have to reload them from
 </p>
 <p>
 <small>
-    If you check closely, if a completed book has been replayed more than ten seconds, it's likely that
+    If you check closely, if a completed book has been replayed more than a minute, it's likely that
     it's being reread. Those aren't automatically suggested for deletion.
 </small>
 </p>
@@ -471,7 +474,7 @@ There are several to choose from in the store.
 </p>
 <p>
 Once the downloads are completed (which takes time depending on the book length and your Internet speed),
-you use Aesop's built in managining books tools to reformat (depending on the file type), Normalize Names, and install the books.
+you use Aesop's built in managing books tools to reformat (depending on the file type), Normalize Names, and install the books.
 It will automatically handle books already in the Aesop book format described above, <code>.zip</code> files 
 that yield the same format, and single audio files.
 From "New Books" click the check boxes for the books you want (scroll to see if there are more), 
@@ -497,17 +500,17 @@ To select a new place to load books from, simply click on the
 on the upper part of the Add Books screen.
 You will see a popup window titled "Set Source Directory"; click SELECT&nbsp;NEW and a new screen will be displayed.
 Use that to find the directory you want (the one containing the books, not a specific book), 
-select "Comfirm" or "Select" and it will return you to the Add Books screen, 
+select "Confirm" or "Select" and it will return you to the Add Books screen, 
 with the new list of books displayed.
 You can then proceed as you previously have.
 <p>
 Once you have selected a new source directory, the Aesop Player will remember the prior directories
 you have used to install books from.
-If you click on the name of the current download directory again, it will list the rememberd ones,
+If you click on the name of the current download directory again, it will list the remembered ones,
 and you can click on the saved name to go back to it. (Some names get quite long!)
 Clicking on the red "X" will delete the entry.
 </p>
-<p>
+<p id="retaining" class="anchor-target">
 Normally the player deletes the source book as it moves them to <code>AudioBooks</code> because they are so large.
 You can have it retain them instead by clicking on the 
 <a href="#new-books">three vertical dots (item 8)</a>
@@ -677,7 +680,7 @@ to convert short (without zeros) numbers it finds to longer ones (with zeros as 
 which fixes both the track number problem and any one-digit date or time information the ripping tool 
 <span class="more_info">
 <span class="popup">
-Most ripping tools do insert the track number as metadata in a way that can be sorted correctly (but Aesop uses filenames!)
+Most ripping tools do insert the track number as metadata in a way that can be sorted correctly (but Aesop uses file names!)
 Downloaded books rely on titles, not embedded track numbers for proper ordering, and may not even have the track number metadata filled in.
 </span>
 might have used.
@@ -703,7 +706,7 @@ and you can make sure that the order of the individual files matches the track n
     The <strong>fre:ac</strong> PC application available for download can be configured to use the 
     date and time you start the rip of the disk to create the file names.
     Unlike many other ripping tools, it will both auto-start and 
-    auto-eject the disk when there is no metadata when it is using date, time, and 2-digit track number for filenames.
+    auto-eject the disk when there is no metadata when it is using date, time, and 2-digit track number for file names.
     Using a CD drive with a tray that ejects the media (that is, typically not one in a laptop) it is possible
     to simply change the CDs (without any clicks on the PC) in order, and the result is a collection of
     directories that will work with Aesop without having to rename any files except the top level directory to
@@ -781,7 +784,7 @@ If you click the three vertical dots (&vellip;) ("More")
 and it will put any books you delete in the directory 
 <span class="more_info">
 <span class="popup">
-If you have more than one <code>AudioBooks</code> directory, it will create an <code>AudioBooks.old</code> for each writeable
+If you have more than one <code>AudioBooks</code> directory, it will create an <code>AudioBooks.old</code> for each writable
 one, as needed. See Alternate Directories above.
 </span>
 <code>AudioBooks.old</code> 
@@ -792,6 +795,14 @@ You can then copy or move them from there to meet your needs.
 Generally this is not recommended since you want the space they occupy for new books, but is available if needed.
 The delete icon changes from "Delete Permanently" (with an "X" over the trash can) to just "Delete" (no "X").
 </p>
+<h3 id="duplicate-books" class="anchor-target">Duplicate Books</h3>
+It is possible to accidentally install the same book under more than one directory name (with the same title).
+(Here we mean exactly the same reading of the book.) 
+Should that occur, the duplicate book indicator in the Inventory Screen will contain a number
+indicating the number of duplicates. 
+The duplicate serves no purpose (it simply takes up space).
+By repeatedly deleting the book by title, you can delete the duplicates.
+Field 11 on the Inventory Screen is normally empty, unless duplication should occur.
 <h2>More things you can do</h2>
 <p>
 The next several topics are a collection of things you can do if simply getting books from the Internet, reading, 
@@ -838,7 +849,7 @@ In most cases the defaults will be fine, but if they aren't, you can
 <a href="#fix-titles">change the titles</a>
 to fix that. Aesop Player will maintain any file extensions.
 </p>
-<h4>Ungrouping</h4>
+<h4 id="ungrouping" class="anchor-target">Ungrouping</h4>
 <p>
 Mistakes do happen, so it is possible to ungroup a grouped book back to the individual books
 by clicking <strong>Ungroup one book</strong> under "More".
@@ -851,7 +862,7 @@ a group later.
 </p>
 <p>
 <small>
-    Advanced: filenames for audio and zip files have any blanks in their names removed when they
+    Advanced: file names for audio and zip files have any blanks in their names removed when they
     are grouped.
 </small>
 </p>
@@ -882,8 +893,8 @@ to read your books is more important than using the built-in tools for managing 
 <ol>
 <li>
     If Aesop's built-in tools are more important, use your PC (or file manager application) to make the directory 
-    <code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>.
-    on the SD card, and proceed using the built-intools.
+    <code>Android/media/<wbr>github.io.donnKey.aesopPlayer/<wbr>AudioBooks</code>
+    on the SD card, and proceed using the built-in tools.
 </li>
 <li>
     If shared access is more important, make <code>AudioBooks</code> at the root of the SD card.
@@ -918,7 +929,7 @@ containing too-short numbers. The numbers are silently converted to multi-digit 
 Although we have not (yet) seen a book where doing this would cause a problem (and many instances where it helps)
 it is possible to disable this by unchecking <strong>Normalize Book Names</strong> using the "More" button (#8 on 
 <a href="#new-books">New Books</a>)). 
-<h3>Book Progress</h3>
+<h3 id="book-progress" class="anchor-target">Book Progress</h3>
 <p>
 The player keeps some information about progress reading a book: 
 the current position (which it needs for restarting after a pause), whether the book has been read to the end,
@@ -949,4 +960,921 @@ You can also reset any books to the beginning by checking them in the book inven
 This also resets the "Completed" flag.
 (This is particularly useful if you are using the player as a "library book" shared between users.)
 </p>
+
+<h2 id="remote-downloads" class="anchor-target">Remote Downloads</h2>
+<p style="font-size: 30px">
+<strong>
+    This feature is still in beta development, although it should be ready soon.
+    You can choose to enroll in the beta program in Google Play if you wish.
+</strong>
+</p>
 <p>
+The Aesop Player supports book installation by either email or a shared file (or both).
+This is a fairly advanced topic, and one you can completely ignore if you don't need it.
+The expected use is to simplify adding and removing books on a device you cannot
+<span class="more_info"> 
+easily touch
+<span class="popup">
+Or in these days of COVID-19, do not want to expose anyone.
+</span>
+</span>
+once you have done the initial setup.
+<p>
+The general idea is that you send the device a small file (a "request") describing the actions you want done.
+(Mostly adding and removing books.)
+After a while, Aesop replies with the results from that request.
+There's no server involved (beyond the mail or shared file server),
+and the information you use remains either on the device, or in the mail or shared file server, nowhere else.
+<p>
+This can usually be done while the user is listening to a book.
+On a very slow device it might make the audio glitch; you can experiment with that on your device.
+There are also facilities to run the requests at a convenient time if that works better.
+<p>
+Since the typical configuration for devices you cannot touch is a 
+<a href="install-dedicated.html">dedicated player</a> configuration,
+it's assumed to be insecure. 
+<a href="install-dedicated.html#dedicated-security">See here</a>.
+Thus you should not use your usual mail account (with all your private business) to update the device.
+<p>
+First, decide what sort of dedicated player configuration is appropriate, and set that up.
+It will need to be one with networking (probably WiFi) working to have remote access.
+<p>
+Although not strictly required, setting the device up to use one of the 
+<a href="install-dedicated.html#access-to-settings-2">Remote Control</a> 
+applications will let you adjust settings
+and fix any problems that might develop that this process cannot handle.
+(Any which work for you should be fine)
+(Yes, you can do everything this does via such an app, but that is often tedious to do,
+and with this you can do it without having to disturb the user.)
+<h3>Email</h3>
+<p>
+We'll first discuss using eMail.
+The shared file alternative is conceptually very similar, using shared files rather than
+mail as a transport.
+<p>
+For Mail, your next step is to create a 
+<span class="more_info"> 
+mail account 
+<span class="popup">
+The mail account can be used to maintain several Aesop devices if that's helpful to you.
+</span>
+</span>
+just for maintaining the device.
+We've tested this using GMail.
+You can try it on other mail servers, but since it's a completely new mail account, it doesn't really matter whether
+you are otherwise a GMail user.
+<p>
+First, create a new GMail account. (Just go to www.gmail.com.)
+Be sure to create it in a way that Google does not associate it with any existing mail accounts.
+This may require using incognito browsing or using a different browser, because Google's default is
+to recognize you're logged in to your browser and assume you want a new address associated with your
+current account.
+Once it's created this way, you can use it like any other mail account.
+<p>
+Next, you <em>must</em> mark the account as a
+<span class="more_info"> 
+less-secure
+<span class="popup">
+This is a technical requirement.
+For good reasons, Google wants you to use a high-security/high-privacy interface for
+all your personal information.
+Reading and writing mail without human approval each time is insecure, 
+but for Aesop to read and write mail without the <em>user</em> being involved to approve it, 
+the account must be marked "less-secure".
+That doesn't make it insecure by any means, but it isn't as secure as Google's own solution.
+Since this likely is a <em>dedicated player</em>, which must be insecure as described in the 
+<a href="install-dedicated.html#dedicated-security">Dedicated Player</a>
+section, a mail account dedicated to this purpose is sensible.
+</span>
+</span>
+account. <em>While logged in to the new mail account</em>, go to 
+<a href="https://myaccount.google.com/lesssecureapps">https://myaccount.google.com/lesssecureapps</a>
+and change that setting.
+Other mail services may have similar features and require similar configuration changes.
+It might be helpful to name the mail account with something that reminds you that it's less-secure. 
+Something like <code>MyName.ls</code>.
+There's no functional difference visible to you when you've done this, but Google will remind you in various
+ways that the account is less-secure... you'll have to ignore that.
+Google has been known to force password changes or reset the setting on such accounts.
+<p>
+The next step is on the device; you need to provide it with the information about the mail account, so it
+can both send and receive mail.
+Go to Settings-><strong>Remote Book Settings</strong> (it's near the bottom of the main settings screen).
+You'll see two switches, both off. 
+Turn on the <strong>Use Mail For Remote</strong> switch.
+Four new fields will appear.
+The first is the mail host. Fill that in with the mailer service, e.g. <code>gmail.com</code>.
+The second is the email address you just set up, like <code>MyName.ls@gmail.com</code>
+The third is the password you established while setting up the account.
+<p id="device-name" class="anchor-target">
+The fourth is optional: it's the <em>device name</em> that the mail reader will
+look for in the subject line of the mail. If you provide one, only mail with
+that <em>device name</em> in the subject line will be read.
+If you don't provide a <em>device name</em> it will simply not check for that.
+Something like <code>Granny_reader</code> would work.
+<span class="more_info"> 
+Technical details.
+<span class="popup">
+This is useful when you use a single mail account to maintain more than one device.
+You can put more than one device name on the subject line of the message; 
+only the devices with a matching name will act on the request.
+Devices with no device name will only act on requests with no device name in the subject.
+Some mail services do not support the features necessary for sending to multiple devices reliably.
+You will get a warning message if that is the case.
+You can either use another mail service or never send to multiple devices.
+</span>
+</span>
+<p>
+The settings screen will not allow you to leave the screen until you have entered a valid
+hostname, login, and password (or turn off the feature completely &mdash; it won't forget your 
+incomplete work).
+Once it has all three, it will check that they work and tell you
+<span class="more_info"> 
+what's wrong
+<span class="popup">
+The mail service doesn't distinguish between an invalid eMail address and a bad password,
+so we can't tell which of those is wrong if there's a problem.
+</span>
+</span>
+if it doesn't.
+The line under <strong>Use Mail For Remote</strong> will say "Validated" when everything is set
+up correctly. (The Validated message may take a little while to come up, depending on the speed
+of your network connection.)
+If you send a mail message like the below, you should get a reply within a few minutes.
+Note that the subject line <em>must</em> contain "Aesop request".
+You can send from the same account you've just set up.
+<pre>
+To: MyName.ls@gmail.com
+Subject: Aesop request Granny_reader 
+// Tell me about the currently installed books
+books:books
+exit: // optional, stops parsing
+</pre>
+<p>
+Some mailers append some "advertising" after your message.
+You can either delete it before you send, include an <code>exit:</code> to stop parsing,
+or simply ignore the errors about things it didn't understand.
+<p>
+A backup copy of the body of the reply is put in the same place that it's put in the shared file case below,
+whether or not shared files are enabled.
+<p>
+You can use your usual mail interface to remove mail (including the inevitable junk mail) at any time,
+and you can send (insecure) mail from it as well. Aesop will ignore all messages except those with "Aesop request"
+in the subject line, and will delete those requests it has completed.
+(It also doesn't see messages that have been read.)
+<p>
+<strong>Having a lot of clutter in the mailbox makes it inefficient: be sure to delete old requests and replies
+    when you are done with them.</strong>
+Look at Sent Mail as well.
+<h3>Shared File</h3>
+<p>
+The shared file option is conceptually similar, except that you send and receive the files
+as shared ("In the cloud") files.
+If you set up the file sharing as described section
+<a href="#cloud">...from the Cloud</a>
+section above (with two-way syncing), you can simply write the same text as for mail (just the mail body)
+into <code>AesopScript.txt</code>, and the results will be posted to <code>AesopResult.txt</code> after
+the Cloud delivers the files.
+Each time you change <code>AesopScript.txt</code>, it will be treated as a new request.
+</p>
+<p>
+Go to Settings-><strong>Remote Book Settings</strong> (it's near the bottom of the main settings screen),
+and this time turn on <strong>Use File for Remote</strong>.
+There's just one option, the directory to use.
+The path must be a valid, writable, directory, and should point to wherever your Cloud settings
+put the shared files.
+It defaults to <code>Download</code> (by it's full name).
+An attempt to set it to empty will cause the path to <code>Download</code> to be filled in.
+<p>
+You can use both eMail and shared files. They will be processed in the order Aesop sees them, which
+may vary depending on how the network is performing.
+<p>
+<h3>The Request</h3>
+<p>
+The request is simply a sequence of lines in the body of your mail message or in the shared file.
+Each command is exactly one line.
+Blank lines in the message are ignored.
+All characters after // are ignored (treated as 
+<span class="more_info"> 
+comments
+<span class="popup">
+Technically, comments are lines starting with //, or anything after &lt;space&gt;//; the "//" in "https://" doesn't begin
+a comment.
+</span>
+</span>
+.)
+The command syntax is chosen to be what you'd get using 
+<span class="more_info"> 
+copy/paste 
+<span class="popup">
+The <code>http:</code>, <code>https:</code>, <code>file:</code> and <code>ftp:</code> commands mostly
+follow the industry standard syntax for their respective type.
+Specifically, they have a place for a <em>username</em> and <em>password</em>, 
+which is generally not needed for our purposes.
+However, those fields will generally (but not always) be used if they're provided.
+Since including user names and passwords in mail messages is generally not good practice, you should
+be sure you understand the consequences of using them in a request.
+We won't discuss those fields further here.
+If your book source requires their use, they should provide example URLs that should work here.
+</span>
+</span>
+in many cases.
+<span class="more_info"> 
+Technical details.
+<span class="popup">
+&bull; To allow easier copy/paste (or using the reply function of a mailer), lines beginning with one or more
+sequences of "<code>&gt;&nbsp;</code>" have those characters removed, since many mailers insert those
+characters to indicate text quoted from prior messages.
+<br>
+&bull; Some mailers reformat text, potentially breaking the single line per command format here.
+The Aesop Player makes a reasonable effort to deal with that, but
+should that not work, you should be able to configure the mailer you are using to send "plain text".
+On GMail, it's found by clicking the vertical ellipsis at the lower right of the mail composition screen.
+GMail remembers this setting between messages, so you may need to set or reset it.
+<br>
+&bull; Replying to or forwarding an "Aesop Request" message that hasn't yet been deleted generally works, although
+you may get ignorable error messages.
+The <code>exit:</code> command can be used to ignore "leftovers" from prior mail.
+Using a target device name that doesn't exist (e.g. "sticky") will keep a message from being deleted.
+</span>
+</span>
+<p>
+For several commands, there's a need to refer to a specific book.
+That's done by using a <strong>partial title</strong>.
+<p>
+A partial title is a quoted string which can be any substring of the title or its directory name; 
+the comparison ignores case.
+If exactly one book matches that title, it is selected.
+If more than one book matches, no books are selected.
+For example if both "Alice in Wonderland" and "Alice Through the Looking Glass" are installed, 
+"wonderland" will select "Alice in Wonderland", 
+"glass" will select "Alice through the Looking Glass", 
+and "Alice" will select neither, 
+because it's not clear which book was 
+<span class="more_info"> 
+intended.
+<span class="popup">
+If it should happen that you have books where the title of the one you want to change is a substring of another title,
+remember that you can choose a string in the directory name (if that's different than the title).
+Worst case, you can rename the longer title (by using the part of the title that's unique) and then
+rename that book back to its prior value when done.
+</span>
+</span>
+<p>
+Some commands allow you to specify a new title for the book.
+If the new title isn't reasonable (for example is empty or consists of spaces), it will be rejected
+to prevent creating a book that cannot be found as a <em>partial title</em>.
+<p>
+<h3>Commands For Getting Books</h3>
+<p>
+<dl>
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> 
+    (
+    <code>http:</code><i>URL</i>
+    |
+    <code>https:</code><i>URL</i>
+    )
+    (
+    [
+    <code>"</code>title<code>"</code>
+    |
+    <code>downloadOnly</code>
+    ]
+    )
+    </dt>
+    <dd style="margin-left:0.75em">
+The most common command is the one to install a new book from a URL if you're downloading from the Web.
+To create such a command while browsing, rather than hitting the download button for the book you want, 
+right click it and select "Copy Link Address",
+and then paste it into the request (be sure each entry is on a separate line).
+If its a typical book, that's all you need since the install process will figure out the title.
+If you want to explicilty change the book title, put the title as a quoted string after the URL.
+If for some reason you want to download but not install the book, put "downloadOnly" after the URL.
+It will look like one of the below (here we've removed part of the LibriVox URL for readability).
+<small>
+<br>
+<code>http://www.archive.org/...kidnapped_0807_librivox_64kb_mp3.zip</code>
+<br>
+or
+<br>
+<code>http://www.archive.org/...kidnapped_0807_librivox_64kb_mp3.zip "Stevenson's Kidnapped"</code>
+<br>
+or
+<br>
+<code>http://www.archive.org/...kidnapped_0807_librivox_64kb_mp3.zip downloadOnly</code>
+</small>
+<p>
+<p>
+Whether you use "http" or "https" is determined by the web site you're using; 
+you must use whichever the website provides.
+See also the <a href="#settings-manager">download manager settings</a> if you are having problems downloading.
+
+Files will always be downloaded to the <code>Download</code> directory.
+See also <a href="#download-dir">here</a>.
+</p>
+<p>
+It is possible that a potential book could be downloaded and then the install fails.
+A likely reason for that is that the device is out of space.
+The Aesop player does NOT remove such downloaded files automatically, since it is
+likely you could fix the problem and then install it later.
+However, you should be sure that all failed downloads are removed, either by installing
+them, or explicitly deleting them.
+An exception to the rule of not deleting failed installs occurs when "Not an AudioBook" is reported.
+Since there will be no way to find it by name or partial title, it is immediately removed.
+<p>
+<span class="more_info"> 
+A note about older devices.
+<span class="popup">
+Due to some standards changes that were made after Android 4 devices were released,
+downloading on those devices doesn't always work for <code>https:</code> URLs.
+Many <code>https</code> connections will work on those devices, but some websites don't connect,
+and there are some indications that there isn't a solution available other than changing the
+website's configuration.
+We aren't aware of any audio book websites for which this is the case.
+(Solutions include downloading some other way, contacting the website owner, and getting a newer device.)
+</span>
+</span>
+
+</dd>
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> 
+    <code>ftp:</code><i>URL</i>
+    (
+    [
+    <code>"</code>title<code>"</code>
+    |
+    <code>downloadOnly</code>
+    ]
+    )
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+<!--
+FTP
+login          = [ user [ ":" password ] "@" ] hostport
+hostport       = host [ ":" port ]
+
+ftpurl         = "ftp://" login [ "/" fpath [ ";type=" ftptype ]]
+fpath          = fsegment *[ "/" fsegment ]
+fsegment       = *[ uchar | "?" | ":" | "@" | "&" | "=" ]
+ftptype        = "A" | "I" | "D" | "a" | "i" | "d"
+-->
+The <code>ftp:</code> command does an 
+<span class="more_info"> 
+"anonymous ftp"
+<span class="popup">
+    It will actually take a login name and password as allowed by the standard syntax, but it
+    defaults to "anonymous ftp". If you want to use a user name and password, whoever is providing
+    the service should be able to provide the required information. As we mentioned in a note above,
+    including this information in eMail is a questionable security practice.
+</span>
+</span>
+download of a file.
+This is useful for services that don't support http downloads, or for which this is more convenient.
+Like the URL for <code>http:</code> it includes a hostname and path.
+<p>
+Project Gutenberg allows downloading their books, including audio books, via FTP, as in the
+following example to download the first chapter of the book they catalog as
+<span class="more_info"> 
+22984.
+<span class="popup">
+This is actually a LibriVox recording.
+</span>
+</span>
+<code>
+ftp://aleph.gutenberg.org/2/2/9/8/22984/mp3/22984-01.mp3 "Peter Pan Chapter 1"
+</code>
+
+</dd>
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> 
+    <code>file:</code><i>filename</i>
+    [
+    <code>"</code>title<code>"</code>
+    ]
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+If you already have a book ready to install on your device, 
+you can do that with the <code>file:</code> command.
+It may be easier to use the <code>downloads:install</code> command in some cases.
+They do the same thing; use whichever is easier in the particular case.
+<p>
+If you have the full file URL somewhere you can use that directly just as you did with 
+<span class="more_info"> 
+<code>https:</code>.
+<span class="popup">
+    If you need to construct a file URL from a full path name, the first characters should be 
+    <code>file://</code>, followed by the full path name. Since the fill path name begins with
+    a slash character, there will be three slashes in a row.
+</span>
+</span>
+(Caution: full file URLs may not always be portable between devices.)
+If you know the file path as a relative path in "the usual places" ("internal storage" on Android),
+putting the relative path just after the "file:" (no "/") will 
+<span class="more_info"> 
+work.
+<span class="popup">
+    This is not a standard-conforming <code>file:</code> URL, but
+    Aesop interprets it as relative to the parent of the <code>Download</code> directory.
+</span>
+</span>
+<p>
+For example, if you downloaded but did not install the book in the <code>https:</code> example above,
+you could later install it with:
+<br>
+<code>file:Download/kidnapped_0807_librivox_64kb_mp3.zip "Stevenson's Kidnapped"</code>
+<br>
+The new title is optional.
+See also <a href="#download-dir">here</a>.
+<p>
+</dd>
+</dl>
+<h3>Commands For Installed Books</h3>
+<p>
+<dl>
+    <dt><b style="font-size:150%">&bull;</b> <code>books:books</code></dt>
+    <dd style="margin-left:0.75em">
+The <code>books:books</code> command lists the currently installed books.
+It's the same information as the "Current Books" screen: the total length of each book, the current position,
+whether it's completed or not (the "C" column) and whether it's writable or not 
+<span class="more_info"> 
+(the "W" column).
+<span class="popup">
+(The "W" column is unlikely to ever be on when using Aesop Player in this way.)
+</span>
+</span>
+The usual title is always given. 
+If the directory name differs from the title, <code>-&gt;</code> and the directory name follows.
+The current (playable) book is marked with a <code>&gt;</code> at the left margin.
+If a digit appears in the left margin, see 
+<a href="#duplicate-books">here</a>. You can use <code>downloads:rawdelete</code>, below, to remove the duplicates.
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>books:clean</code>
+    [<code>all</code>]
+    [<code>current</code>]
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>books:clean</code> command removes those books that are marked completed and which are in the first
+<span class="more_info"> 
+minute
+<span class="popup">
+The assumption is that the user might have restarted a previous book, but recognized the repetition and 
+changed books again.
+</span>
+</span>
+of the book, but excluding the current book.
+The operand "all" will unconditionally remove all books except the current book. 
+The operand "current" will unconditionally remove the current book. 
+The current book is treated specially so that the user is not surprised by an unexpected change.
+Thus <code>books:clean all current</code> removes all books.
+See also <a href="#cleaning-up">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>books:delete</code>
+    <code>"</code>partial title<code>"</code>
+    ...
+    </dt>
+<dd style="margin-left:0.75em">
+<p>
+The <code>books:delete</code> command removes the book specified by the first argument, 
+which is a <em>partial title</em> as described above.
+See also <a href="#cleaning-up">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>books:rename</code>
+    <code>"</code>partial title<code>"</code>
+    <code>"</code>title<code>"</code>
+    <dd style="margin-left:0.75em">
+The <code>books:rename</code> command changes the title of the book specified by the <em>partial title</em>
+to the new title which is the second argument.
+For example, <code>books:rename "alice" "Alice's Adventures in Wonderland"</code> provides the historical title.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>books:reset</code>
+    (
+    <code>"</code>partial title<code>"</code>
+    |
+    <code>all</code>
+    )
+    [
+    &lt;time&gt;
+    ]
+    </dt>
+    <dd style="margin-left:0.75em">
+The <code>books:reset</code> command changes the current position in the book, and clears the "completed" flag.
+The first argument, which can be either a <em>partial title</em> or <code>all</code> specifies the book(s)
+to change. An optional second argument specifies the time to set it to. If the second argument is omitted
+it is taken to be zero, which means "rewind to the beginning". For example
+<code>books:reset "alice" 0</code>
+rewinds <em>Alice In Wonderland</em> to the beginning.
+<code>books:reset all</code>
+rewinds every book to the beginning.
+Times may be specified as either hh:mm (hours and minutes) or mmm (just minutes).
+All of 
+<small>
+<code>1:01</code>
+</small>
+,
+<small>
+<code>1:1</code>
+</small>
+and
+<small>
+<code>61</code>
+</small>
+specify the 61st minute of the book.
+See also <a href="#book-progress">here</a>.
+    </dd>
+
+</dl>
+<h3>Commands For Pending Books</h3>
+<p>
+When dealing with uninstalled books, they can be found in any directory.
+Thus there is a "current download directory": the one being operated upon currently.
+This can be changed at any time.
+Except for the command to change it, all the "downloads" commands are performed relative to that directory.
+It initially defaults to the Android default <code>Download</code> directory during each request.
+<dl>
+
+    <dt><b style="font-size:150%">&bull;</b> <code>downloads:books</code></dt>
+    <dd style="margin-left:0.75em">
+The <code>download:books</code> command prints the list of potential books found in the current download
+directory. Potential books are audio files and directories containing audio files.
+It lists the file or directory name, the book title if it's different, and a flag indicating
+that the default title conflicts with an existing book and thus can't be installed unless
+a different name is provided when installing it.
+See also <a href="#new-books">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:directory</code>
+    <code>"</code>directory name<code>"</code>
+    </dt>
+    <dd style="margin-left:0.75em">
+The <code>download:directory</code> command changes the current download directory.
+The directory name can either be an absolute path (beginning with "/") or a path
+from the "usual place": relative to the parent of the <code>Download</code> directory.
+No change is made if the directory doesn't exist.
+It is permissible and sometimes useful to name <code>AudioBooks</code> as the current downloads
+directory.
+See also <a href="#download-dir">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:delete</code>
+    (
+    <code>"</code>partial title<code>"</code>
+    ...
+    |
+    <code>all</code>
+    )
+    </dt>
+    <dd style="margin-left:0.75em">
+The <code>download:delete</code> command deletes entries in the current download directory.
+It will delete either using a partial title, or all items identified as <em>potential</em>
+books in that directory. <strong>CAUTION:</strong> Not everything the Aesop Player identifies
+as audio books are actually audio books, and those may be used for other system purposes.
+Be absolutely sure that if you use the <code>all</code> operand that there are only books
+in the current download directory. Otherwise, delete by using partial titles.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:install</code>
+    (
+    (
+    <code>"</code>partial title<code>"</code>
+    [
+    <code>"</code>title<code>"</code>
+    ]
+    )
+    |
+    <code>all</code>
+    )
+    </dt>
+    <dd style="margin-left:0.75em">
+The <code>download:install</code> command installs entries from  the current download directory
+as new books. You can install either all the books in the directory (and Aesop will compute
+titles) or a single title, where you may provide a new title. Semantically this is
+identical to the <code>file:</code> when installing a single file, but with a
+frequently more convenient syntax.
+See also <a href="#download-dir">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:group</code>
+    <code>"</code>new title<code>"</code>
+    <code>"</code>partial title<code>"</code>...
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>download:group</code> command collects the list of <em>partial titles</em>
+into a single new book entry named by the new title.
+This is useful to collect a group of downloads that constitute a single logical book
+into a single entry that can be installed as a single book.
+See also <a href="#grouping">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:ungroup</code>
+    <code>"</code>partial title<code>"</code>
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>download:ungroup</code> undoes what the group command does.
+It primarily exists to correct errors, but is occasionally useful
+in making a bundled collection of books into separate books, if the
+structure allows that.
+Ungrouping a group that has ordinary files as well as directories
+will cause the ordinary files to appear at the top level, which may
+require cleanup.
+See also <a href="#ungrouping">here</a>.
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:rawfiles</code>
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>download:rawfiles</code> exists primarily to help clean up if
+things go wrong and unexpected files are left on the device.
+It lists the file names (not just books) in the current download directory.
+The current download directory could be <code>AudioBooks</code>.
+Normally the command is not needed, or you would use a file manager directly
+on the device to do cleanup, but this allows cleanup to be done remotely.
+The format of the list of files includes quotes so that names can easily
+be copied (using copy/paste) into the <code>download:rawdelete</code> command.
+<span class="more_info"> 
+Readability.
+<span class="popup">
+    This list can become hard to read in GMail because of the reformatting GMail does.
+    There are a few Chrome Plugins that will render the results in "computer" (monospace)
+    font. We've tried "Gmail Mono" successfully.
+</span>
+</span>
+
+</dd>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>downloads:rawdelete</code>
+    <code>"</code>filename<code>"</code>...
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>download:rawdelete</code> exists primarily to help clean up if
+things go wrong and unexpected files are left on the device.
+It deletes the named files in the current download directory.
+These are <em>not</em> partial names. 
+They must be the exact name of the file (or directory) to be deleted.
+The <code>download:rawfiles</code> command provides those names.
+Use this command with care.
+It can delete important system files, so make sure that you know that
+the files you are deleting are really unnecessary.
+</dd>
+
+</dl>
+
+<h3>Running and Scheduling Commands</h3>
+<p>
+These commands are intended to allow book maintenance to actually occur when
+the user is not using the device, and to avoid the caregiver having to maintain books
+at inconvenient times.
+As noted above, it's likely requests can be run while the user is playing a book.
+<dl>
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>run:at</code> <em>time-of-day</em>
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>run:at</code> command specifies a time of day that the rest of the request is run.
+If the time time is prior to the time the mail was sent or the shared file updated, 
+it will be run the next day at that time.
+For example, if you are mailing commands in the early evening, 
+<code>run:at 10:30PM</code> will cause the commands to be run later that evening, <code>run:at 0300</code>
+will cause the request to be delayed until 3 o'clock the next morning.
+All times are in the local time of the device.
+<p>
+The <code>run:at</code> must be the first non-comment line in the file.
+If there are any errors in the <code>run:at</code> an error will be sent when
+the Aesop Player first sees the request, and the message will be deleted like any
+other message.
+<p>
+A time-of-day can either be <code>hh:mm [ AM | PM ]</code> or <code>hhmm</code>.
+The first form is for 12 hour time (e.g. <code>5:30 PM</code> or <code>5:30PM</code>), the second for 24 hour
+time (e.g. <code>1730</code>).
+    </p>
+
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>run:every</code> [ <em>time-of-day</em> ] &lt;daynames&gt;
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>run:every</code> command specifies that the request should be run on the specified days.
+If the time is specified, the request is run at that hour. If no time is provided it is run at 03:00 AM.
+It is run on the specified days at the specified time until the request is deleted. 
+If a request message or file contains this command, it is not deleted (or ignored) after being run,
+but remains to be used again on the next day.
+This is intended to be used with the <code>books:books</code> command to be reminded of the status
+of the device.
+<p>
+The <code>run:every</code> must be the first non-comment line in the file.
+If there are any errors in the <code>run:every</code> command an error will be sent when
+the Aesop Player first sees the request, and the message will be deleted like any
+other message.
+<p>
+The possible values for &lt;daynames&gt; are 
+<code>Monday</code> or <code>Mon</code>,
+<code>Tuesday</code> or <code>Tue</code>,
+<code>Wednesday</code> or <code>Wed</code>,
+<code>Thursday</code> or <code>Thu</code>,
+<code>Friday</code> or <code>Fri</code>,
+<code>Saturday</code> or <code>Sat</code>,
+<code>Sunday</code> or <code>Sun</code>,
+<code>everyDay</code> or <code>every</code>, and
+<code>weekDay</code> or <code>week</code>.
+Any combination of these is supported.
+Note that "day" alone is not allowed.
+</p>
+<p>
+If you no longer need this request, you can simply remove it from the mailbox.
+</dl>
+<h3>Miscellaneous Commands</h3>
+<p>
+Several of the commands below change a setting. Each of those settings is restored
+to its default value for each complete request. If you use any of these it's best to collect
+them near the front of the request so it's easy to include them in each request.
+<dl>
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>exit:</code>
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>exit:</code> command terminates processing the request.
+Everything past the <code>exit:</code> command is ignored.
+It is useful to keep a collection of commands you aren't using
+where you can easily copy them, or to cause mailer-created irrelevant text to be ignored.
+</dd>
+    <dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>mailto:</code><em>address</em>
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>mailto:</code> command indicates an additional mail address to whom
+the processing status is sent. 
+(It is always sent to the sender of a mail request.)
+This is attempted even when using a shared file.
+If the mail connection could not be validated, the error is logged to the shared file,
+and the command is otherwise ignored.
+</dd>
+
+</dd>
+<dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>settings:archive</code> ( <code>true</code> | <code>false</code> | <code>yes</code> | <code>no</code> ) 
+</dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>settings:archive</code> command sets a switch indicating that when a book is deleted,
+it is moved to <code>Audiobooks.old</code> rather than actually being deleted. 
+It could be reinstalled later from <code>Audiobooks.old</code> in the usual ways.
+Using this option is not usually recommended because the space is not recovered,
+but it may be useful in temporarily making a book appear unavailable.
+This applies to all subsequent deletions for the current request.
+See also <a href="#more-delete-books">here</a>.
+</dd>
+
+<dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>settings:rename</code> ( <code>true</code> | <code>false</code> | <code>yes</code> | <code>no</code> ) 
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>settings:rename</code> command sets a switch indicating that while installing a book,
+audio files and directories which appear to be sequenced using decimal numbers are renamed so that all strings of digits
+are the same length. That is, <code>chapter1.mp3</code> might be renamed <code>chapter01.mp3</code>
+so that it plays in proper order with respect to <code>chapter10.mp3</code>. This is normally
+enabled, but can be used if for some reason the renaming 
+<span class="more_info"> 
+creates a problem. 
+<span class="popup">
+We've never actually seen a problem.
+</span>
+</span>
+This applies to all subsequent installs for the current request.
+See also <a href="#name-normalization">here</a>.
+</dd>
+
+<dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>settings:retain</code> ( <code>true</code> | <code>false</code> | <code>yes</code> | <code>no</code> ) 
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>settings:retain</code> command sets a switch indicating that when a book is installed,
+the original copy is not to be deleted.
+Using this option is not recommended because there will now be two copies of such books, taking up space on the device.
+This applies to all subsequent installs for the current request.
+See also <a href="#retaining">here</a>.
+</dd>
+
+<dt style="font-weight:normal"><b style="font-size:150%">&bull;</b> <code>settings:mobileData</code> ( <code>true</code> | <code>false</code> | <code>yes</code> | <code>no</code> ) 
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>settings:mobileData</code> command sets a switch indicating whether file downloads
+(the <code>http:</code>, <code>https:</code> and <code>ftp:</code> commands)
+are permitted when there is only a mobile data (no WiFi) connection. 
+Since it is possible to send and receive mail via mobile data, a request could be
+run while there isn't a WiFi connection.
+To avoid unintended charges,
+Aesop Player doesn't download files via mobile data unless this switch is set.
+An error will be reported if a download attempt is made over mobile data unless this switch
+is set.
+Other operations are permitted since they don't involve much data and it might prove useful.
+This applies to all subsequent downloads for the current request, and the command should
+normally be very near the beginning of the request.
+Note that the Android system has other settings for mobile versus WiFi data, and those all
+take precedence. This switch has no effect on those settings; it sets policy only for Aesop.
+</dd>
+
+<dt style="font-weight:normal" id="settings-manager" class="anchor-target">
+<b style="font-size:150%">&bull;</b> <code>settings:manager</code> ( <code>true</code> | <code>false</code> | <code>yes</code> | <code>no</code> ) 
+    </dt>
+    <dd style="margin-left:0.75em">
+<p>
+The <code>settings:manager</code> command sets a switch indicating whether http file downloads
+(the <code>http:</code> and <code>https:</code> commands)
+are done using the download manager rather than a simple socket connection.
+This is a potential performance versus reliability decision.
+Socket connections are slow but simple. Download managers offer the possibility of faster
+downloads, but they may have idiosyncrasies that keep them from working in all circumstances.
+<p>
+In particular, the default download manager for devices prior to Android 5 does not work
+for modern https connections due to some standards changes made after those devices were released.
+<p>
+<span class="more_info"> 
+The default is to use socket connections.
+<span class="popup">
+If you use this command to enable the download manager twice (without disabling it), it will allow attempts
+to use https on Android 4 devices; this might work with download managers from the play store. We haven't tried it.
+</span>
+</span>
+If download speeds are an issue, you can experiment with this option to see if it helps.
+(If you're updating a device overnight, it's unlikely that the speed difference matters.)
+We haven't tested this at all with other than the stock download manager.
+If you do try using it and learn anything, please do let us know.
+<p>
+This applies to all subsequent downloads for the current request, and the command should
+normally be very near the beginning of the request.
+</dd>
+
+</dl>
+
+<h3>Examples</h3>
+Here are a few examples (as mail messages; omit the To: and Subject: if you're using shared files).
+<p>
+Here's the simplest request, with the results following:
+<pre>
+To: MyName.ls@gmail.com
+Subject: Aesop request avant
+books:books
+exit:
+</pre>
+<p>
+Here's the result you'd get if just the sample books are installed.
+<pre>
+Start of request on: Avant at Fri Sep 04 12:53:14 PDT 2020
+books:books
+     Books  Total: 0:09:04
+      Length   Current        C W Title
+     In /storage/emulated/0/AudioBooks
+     >0:05:02  0:00:00 - 0%       Alice's Adventures in Wonderland
+      0:04:01  0:00:00 - 0%       Hamlet
+
+exit:
+End of request on: Avant at Fri Sep 04 12:53:14 PDT 2020
+Space on /storage/emulated/0: Using 5517Mb of 12597Mb (43%)
+</pre>
+<p>"Avant" is the device name. The current book is "Alice..."; neither book has been started.
+The line beginning in "In" is the location of the books that follow. There can be 
+<a href="#audiobooks-directories">more than one</a>
+<code>AudioBooks</code> directory, so each such directory gets a title like that.
+The total playing time appears to the right of "Books".
+The last line summarizes the available space, as a guide to knowing how many books might be added.
+There is one space line for each <code>AudioBooks</code> directory: if they're on the same storage they will
+have the same space information.
+<p>
+This next example loads a few new books.
+The "http" commands are from right-clicking the "Download" button on the Librivox website and selecting
+"Copy Link", which then can be pasted directly into the message.
+<p>
+<pre>
+To: MyName.ls@gmail.com
+Subject: Aesop request Avant 
+// Granny really liked the sample books; get full versions.
+
+books:delete "Hamlet"
+books:delete "alice"
+
+http://www.archive.org/download/alice_in_wonderland_librivox/alice_in_wonderland_librivox_64kb_mp3.zip
+http://www.archive.org/download/hamlet_1209_librivox/hamlet_1209_librivox_64kb_mp3.zip
+
+books:books // See what came (and how long)
+
+exit: // This looks interesting, maybe next time
+http://www.archive.org/download//aliceinwonderlandinwordsofonesyllable_1604_librivox/aliceinwonderlandinwordsofonesyllable_1604_librivox_64kb_mp3.zip
+</pre>
+<p>
+Here's a reminder to see if books need to be updated on two book readers.
+You'll get mail every Friday evening, one from each device.
+<p>
+<pre>
+To: MyName.ls@gmail.com
+Subject: Aesop request Avant Grampy_reader
+// Check to see if either Granny or Grampy need new books every Friday night
+run:every Friday 10:00PM
+books:clean // get rid of the finished books
+books:books // see what's left
+</pre>

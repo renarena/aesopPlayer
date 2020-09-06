@@ -136,7 +136,7 @@
           You will have to sign up for the library on its website, or possibly go to the physical library once.
           Most libraries are very welcoming, so they'll try to make it easy, but it will vary a lot.
           <br>
-          If there's any special signup you need for web access, do that at the same time.
+          If there's any special sign-up you need for web access, do that at the same time.
           <br>
           Once you are signed up with a library, you can create an OverDrive account if you wish and check out
           audiobooks there, or you can do it directly on the library's web page. The experience of searching
@@ -239,7 +239,7 @@
               Click on the current download directory (just under "Add Books").
               Then click on SELECT&nbsp;NEW.
               <li>
-              That will open a File Search tool. Go up in the storage heirarchy until you reach the top.
+              That will open a File Search tool. Go up in the storage hierarchy until you reach the top.
               (This varies with Android model and the prior history of book installation, so you may have
               to try a few things. In some cases it may present a choice called "Internal". If so, select that.)
               <li>
@@ -258,7 +258,7 @@
               book(s) by clicking "Install".
               <li> 
               <strong>Note:</strong>
-              Thats a lot of clicks to get to the directory containing the OverDrive books.
+              That's a lot of clicks to get to the directory containing the OverDrive books.
               The Aesop Player will remember a history of the various download directories you've used,
               and instead of clicking SELECT&nbsp;NEW above, you can click on the directory name it has remembered
               for you. 
@@ -336,7 +336,7 @@
           and you'll have to choose a different book.)
           It will ask if you want to download the book.  Do so.
           <em>This does not actually download the book.</em>
-          It downloads a small file with just the information to actualy get the book, and only takes a moment.
+          It downloads a small file with just the information to actually get the book, and only takes a moment.
           It will be something like "Book Name.odm". 
           <li>
           Switch to the OverDrive for Windows application. You can click on the .odm file that was downloaded,
@@ -424,7 +424,7 @@
               An account with a library that provides rbDigital. Contact your library as for OverDrive;
               you will have to ask or check your library's website to see if it supports rbDigital.
               <br>
-              Once you are signed up with a library, you will need to create an rbDigital signin from
+              Once you are signed up with a library, you will need to create an rbDigital sign-in from
               your library's website (using an email address and your choice of password).
               Your library's Website should provide more information.
               </li>
@@ -435,7 +435,7 @@
               then Settings.
               <li>
               Under AudioBooks, click the radio button for "Download Zip Files". 
-              Click Save (which may be offscreen depending on the device... scroll down.)
+              Click Save (which may be off screen depending on the device... scroll down.)
               <li>
               Logging in on your device:
               You can do everything through your library's website. 
@@ -593,7 +593,7 @@
 
     - question: I want to disable screen lock on my device but the "None" option is not available.
       answer: >
-        <p>There may be a numbr of reasons for the <strong>None</strong> option to not be
+        <p>There may be a number of reasons for the <strong>None</strong> option to not be
         available.</p>
         <p>
         The most common is that there is more than one account set up on the device, usually

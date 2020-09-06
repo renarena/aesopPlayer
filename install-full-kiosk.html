@@ -168,7 +168,7 @@ function CopyToClipboard() {
     var copyText = document.getElementById("TempSpace");
     copyText.value = origText.innerText;
     copyText.select();
-    // Copy only will work from an <input> object, thus the tapdance.
+    // Copy only will work from an <input> object, thus the tap-dance.
     document.execCommand("Copy");
     //alert("Copied the text: " + copyText.value);
 }
