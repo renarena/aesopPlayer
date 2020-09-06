@@ -42,6 +42,7 @@
 -dontwarn afu.org.checkerframework.**
 -dontwarn org.checkerframework.**
 
+# doesn't help
 -dontwarn com.sun.mail.handlers.handler_base.getTransferDataFlavors # "does not type check and will be assumed to be unreachable."
 
 -keepattributes SourceFile, LineNumberTable
@@ -83,5 +84,12 @@
 -keep class com.sun.mail.smtp.SMTPSSLProvider {*;}
 -keep class com.sun.mail.smtp.SMTPSSLTransport {*;}
 
+# This is critical for sending
+-keep class com.sun.mail.smtp.SMTPMessage {*;}
+-keep class com.sun.mail.smtp.SMTPTransport** {*;}
+
 # This is critical to actually read mail content.
 -keep class com.sun.mail.handlers** { *; }
+-keep class com.sun.mail.handlers.handler_base { #noinspection ShrinkerUnresolvedReference
+ java.awt.datatransfer.DataFlavor[] getTransferDataFlavors(); }
+
