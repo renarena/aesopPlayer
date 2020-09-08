@@ -51,6 +51,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public class GlobalSettings {
+    @SuppressWarnings("unused")
+    private static final String TAG="GlobalSettings";
 
     @SuppressWarnings("unused") // Used in xml, but use not detected by analyzer
     private enum Orientation {

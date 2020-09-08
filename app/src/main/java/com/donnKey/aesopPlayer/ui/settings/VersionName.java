@@ -23,11 +23,15 @@
  */
 package com.donnKey.aesopPlayer.ui.settings;
 
+import androidx.annotation.NonNull;
+
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public class VersionName implements Comparable<VersionName>{
+    private final static String TAG="VersionName";
     private int major = -1;
     private int minor = 0;
     private int revisions = 0;
@@ -35,20 +39,21 @@ public class VersionName implements Comparable<VersionName>{
 
     public VersionName(String s) {
         // That's what git describe yields (assuming the most recent annotated tag
-        // follows the vx.x.x pattern). The first character of what becomes tag is 'g' for GIT.
+        // follows the vx.x.x pattern). The first character of group(6) is 'g' for GIT if using GIT.
         try {
-            Pattern p = Pattern.compile("v(\\d+)\\.(\\d+)\\.(\\d+)(-(\\d+)-(.+))?$");
+            Pattern p = Pattern.compile("v(\\d+)\\.(\\d+)\\.(\\d+)(-beta\\d*)?(?:-(\\d+)-(.+))?$");
+            //                 Groups:      1         2        3       4             5     6
             Matcher m = p.matcher(s);
             if (!m.find()) {
                 return;
             }
-            major = Integer.parseInt(m.group(1));
-            minor = Integer.parseInt(m.group(2));
+            // We know they're not null or the RE wouldn't match, but the analyzer doesn't
+            major = Integer.parseInt(Objects.requireNonNull(m.group(1)));
+            minor = Integer.parseInt(Objects.requireNonNull(m.group(2)));
             @SuppressWarnings("unused")
-            int detail = Integer.parseInt(m.group(3));
+            int detail = Integer.parseInt(Objects.requireNonNull(m.group(3)));
             if (m.group(5) != null) {
-                revisions = Integer.parseInt(m.group(5));
-                String tag = m.group(6);
+                revisions = Integer.parseInt(Objects.requireNonNull(m.group(5)));
             }
         } catch (Exception e) {
             major = -1;
@@ -56,7 +61,7 @@ public class VersionName implements Comparable<VersionName>{
     }
 
     @Override
-    public int compareTo(VersionName o) {
+    public int compareTo(@NonNull VersionName o) {
         return innerCompare(o);
     }
     private int innerCompare(VersionName o) {
