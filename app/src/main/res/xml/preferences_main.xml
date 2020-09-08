@@ -29,75 +29,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainPreference">
     <com.donnKey.aesopPlayer.ui.settings.PreferenceColorTitle
+        app:layout="@layout/preference_compact"
         app:key="new_version_options_screen"
         app:fragment="com.donnKey.aesopPlayer.ui.settings.NewVersionSettingsFragment"
         app:summary="placeholder"
         app:title="@string/announce_new_features" />
     <Preference
+        app:layout="@layout/preference_compact"
         app:key="playback_options_screen"
         app:fragment="com.donnKey.aesopPlayer.ui.settings.PlaybackSettingsFragment"
         app:title="@string/pref_playback_options_screen_title" />
     <ListPreference
+        app:layout="@layout/preference_compact"
         app:key="snooze_delay_preference"
         app:defaultValue="@string/pref_snooze_time_default_value"
         app:entries="@array/snooze_time_entries"
         app:entryValues="@array/snooze_time_values"
         app:title="@string/pref_snooze_time_title" />
     <ListPreference
+        app:layout="@layout/preference_compact"
         app:key="blink_rate_preference"
         app:defaultValue="@string/pref_blink_rate_default_value"
         app:entries="@array/blink_rate_entries"
         app:entryValues="@array/blink_rate_values"
         app:title="@string/pref_blink_rate_title" />
     <ListPreference
+        app:layout="@layout/preference_compact"
         app:key="settings_interlock_preference"
         app:defaultValue="@string/pref_settings_interlock_default_value"
         app:entries="@array/settings_interlock_entries"
         app:entryValues="@array/settings_interlock_values"
         app:title="@string/pref_settings_interlock_title" />
     <PreferenceScreen
+        app:layout="@layout/preference_compact"
         app:key="kiosk_mode_screen"
         app:fragment="com.donnKey.aesopPlayer.ui.settings.KioskSettingsFragment"
         app:title="@string/pref_kiosk_mode_screen_title" />
     <ListPreference
+        app:layout="@layout/preference_compact"
         app:key="color_theme"
         app:title="@string/pref_color_theme_title"
         app:entries="@array/color_theme_entries"
         app:entryValues="@array/color_theme_values"
         app:defaultValue="@string/pref_color_theme_default_value"/>
     <SwitchPreference
+        app:layout="@layout/preference_compact"
         app:key="awaken_on_proximity_preference"
         app:defaultValue="true"
         app:summaryOff="@string/pref_proximity_awaken_summary_off"
         app:summaryOn="@string/pref_proximity_awaken_summary_on"
         app:title="@string/pref_proximity_awaken" />
     <ListPreference
+        app:layout="@layout/preference_compact"
         app:key="screen_orientation_preference"
         app:defaultValue="@string/pref_screen_orientation_default_value"
         app:entries="@array/screen_orientation_entries"
         app:entryValues="@array/screen_orientation_values"
         app:title="@string/pref_screen_orientation" />
     <Preference
+        app:layout="@layout/preference_compact"
         app:key="remote_options_screen"
         app:fragment="com.donnKey.aesopPlayer.ui.settings.RemoteSettingsFragment"
         app:title="@string/remote_maintenance_screen" />
     <Preference
+        app:layout="@layout/preference_compact"
         app:key="data_usage_preference"
         app:title="@string/pref_data_use" />
     <SwitchPreference
+        app:layout="@layout/preference_compact"
         app:key="settings_analytics_preference"
         app:defaultValue="false"
         app:summaryOff="@string/pref_analytics_summary_off"
         app:summaryOn="@string/pref_analytics_summary_on"
         app:title="@string/pref_analytics" />
     <Preference
+        app:layout="@layout/preference_compact"
         app:key="new_version_options_screen2"
         app:fragment="com.donnKey.aesopPlayer.ui.settings.NewVersionSettingsFragment"
         app:title="@string/pref_new_version_info" />
     <Preference
+        app:layout="@layout/preference_compact"
         app:key="faq_preference"
         app:title="@string/pref_help_faq_title" />
     <Preference
+        app:layout="@layout/preference_compact"
         app:key="version_preference"
         app:title="@string/pref_version_title" />
 </PreferenceScreen>

@@ -33,6 +33,8 @@ import androidx.preference.PreferenceViewHolder;
 
 public class HookEditTextPreference extends EditTextPreference {
     // Allows us to get the View of the preference item
+    @SuppressWarnings("unused")
+    private static final String TAG="HookTextPref";
 
     @SuppressWarnings("unused")
     public HookEditTextPreference(Context context, AttributeSet attrs) {

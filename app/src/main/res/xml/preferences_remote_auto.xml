@@ -26,20 +26,25 @@
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <com.donnKey.aesopPlayer.ui.settings.HookSwitchPreference
+        app:layout="@layout/preference_compact"
         app:iconSpaceReserved="false"
         android:defaultValue="false"
         android:key="remote_mail_poll"
-        android:title="Use Mail for Remote"/>
+        android:title="@string/remote_settings_mail_switch"/>
+
     <com.donnKey.aesopPlayer.ui.settings.HookEditTextPreference
+        app:layout="@layout/preference_close"
         android:defaultValue=""
         android:key="remote_hostname"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:maxLines="1"
         app:useSimpleSummaryProvider="true"
-        android:title="Remote Host Name" />
+        android:title="@string/remote_settings_host_name" />
     <com.donnKey.aesopPlayer.ui.settings.HookEditTextPreference
+        app:layout="@layout/preference_close"
         android:defaultValue=""
         android:inputType="text|textEmailAddress"
         android:key="remote_login"
@@ -47,16 +52,19 @@
         android:singleLine="true"
         android:maxLines="1"
         app:useSimpleSummaryProvider="true"
-        android:title="Remote Login" />
+        android:title="@string/remote_settings_login" />
     <com.donnKey.aesopPlayer.ui.settings.HookEditTextPreference
+        app:layout="@layout/preference_close"
         android:defaultValue=""
         android:key="remote_password"
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:title="Remote Password"
+        android:title="@string/remote_settings_password"
+        android:icon="@drawable/ic_visibility_24px"
         app:useSimpleSummaryProvider="true" />
     <com.donnKey.aesopPlayer.ui.settings.HookEditTextPreference
+        app:layout="@layout/preference_close"
         android:defaultValue=""
         android:inputType="text|textVisiblePassword"
         android:key="remote_device_name"
@@ -64,18 +72,21 @@
         android:singleLine="true"
         android:maxLines="1"
         app:useSimpleSummaryProvider="true"
-        android:title="Device Name" />
+        android:title="@string/remote_settings_device" />
+
     <com.donnKey.aesopPlayer.ui.settings.HookSwitchPreference
+        app:layout="@layout/preference_compact"
         app:iconSpaceReserved="false"
         android:defaultValue="false"
         android:key="remote_file_poll"
-        android:title="Use File For Remote" />
+        android:title="@string/remote_settings_file_switch" />
     <com.donnKey.aesopPlayer.ui.settings.HookEditTextPreference
+        app:layout="@layout/preference_close"
         android:defaultValue=""
         android:key="remote_control_dir"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:maxLines="1"
         app:useSimpleSummaryProvider="true"
-        android:title="Directory Name For Messages" />
+        android:title="@string/remote_settings_directory" />
 </PreferenceScreen>

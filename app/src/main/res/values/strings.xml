@@ -312,6 +312,13 @@
     <string name="remote_unwriteable_state">Directory not writeable.</string>
     <string name="remote_device_name_title">Device Name</string>
     <string name="remote_device_name_illegal">Device name must be letters, digits, or _ and -.</string>
+    <string name="remote_settings_host_name">Host Name</string>
+    <string name="remote_settings_login">Login</string>
+    <string name="remote_settings_password">Password</string>
+    <string name="remote_settings_device">Device Name</string>
+    <string name="remote_settings_file_switch">Use File For Request</string>
+    <string name="remote_settings_directory">Directory Name</string>
+    <string name="remote_settings_mail_switch">Use eMail for Request</string>
 
     <!-- For translations of strings in arrays.xml -->
     <string name="array_short">Short</string>

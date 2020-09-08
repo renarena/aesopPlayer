@@ -24,9 +24,11 @@
 package com.donnKey.aesopPlayer.ui.settings;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,6 +37,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreference;
@@ -65,6 +68,8 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
     int mailValidated = Mail.UNRESOLVED;
     boolean remoteMailValidated = false;
     boolean remoteFileValidated = false;
+    boolean pwVisible = false;
+    @SuppressWarnings("unused")
     private static final String TAG="RemoteSetFrag";
 
     // A way RemoteAuto's loop to stop doing things while we're changing them.
@@ -183,19 +188,37 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
                                EditTextPreference.OnBindEditTextListener listener) {
         final EditTextPreference preference = findPreference(key);
         assert(preference != null);
+        Drawable vis = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_visibility_24px);
+        Drawable off = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_visibility_off_24px);
+        if (secure) {
+            preference.setIcon(off);
+        }
 
         // Flag values as needing to be provided
         preference.setSummaryProvider((pref)-> {
             HookEditTextPreference p = (HookEditTextPreference) pref;
             String resValue = getResource.getter();
             TextView summary = p.getItemView().findViewById(android.R.id.summary);
+            if (secure) {
+                View icon = p.getItemView().findViewById(android.R.id.icon);
+                icon.setOnClickListener((v) ->
+                    {
+                        pwVisible = !pwVisible;
+                        if (pwVisible) {
+                            p.setIcon(vis);
+                        } else {
+                            p.setIcon(off);
+                        }
+                    }
+                );
+            }
 
             if (resValue.isEmpty()) {
                 summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.settingsProblemColor));
                 return getString(R.string.remote_required_word);
             } else {
                 summary.setTextColor(UiUtil.colorFromAttribute(requireContext(), R.attr.provisioningTextColor3));
-                if (secure) {
+                if (secure & !pwVisible) {
                     return (StringUtils.repeat('*', resValue.length()));
                 }
                 else {
@@ -262,7 +285,10 @@ public class RemoteSettingsFragment extends BaseSettingsFragment {
 
     void passwordBindListener (@NonNull EditText editText) {
         editText.setInputType(InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                (pwVisible
+                    ?InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    :InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
     }
 
     void otherBindListener (@NonNull EditText editText) {

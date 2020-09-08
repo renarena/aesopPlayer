@@ -32,10 +32,12 @@
         app:layout="@layout/preference_version_info"
         />
     <Preference
+        app:iconSpaceReserved="false"
         app:key="new_version_web_page"
         app:title="@string/new_version_web_page"
         />
     <ListPreference
+        app:iconSpaceReserved="false"
         app:key="new_version_action_preference"
         app:defaultValue="@string/pref_new_version_action_default_value"
         app:entries="@array/new_version_action_entries"
