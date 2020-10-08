@@ -36,8 +36,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
 
 import com.donnKey.aesopPlayer.BuildConfig;
 
-//import org.apache.commons.lang3.StringUtils; // for dumpTree below
-
+import org.apache.commons.lang3.StringUtils;
 import java.lang.ref.WeakReference;
 import java.util.List;
 public class AesopAccessibility extends AccessibilityService {
@@ -60,6 +59,7 @@ public class AesopAccessibility extends AccessibilityService {
                 | AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
                 | AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
     private static boolean lateActivate = false;
+    private static final String TAG = "Access";
 
     @Override
     protected void onServiceConnected() {
@@ -72,13 +72,8 @@ public class AesopAccessibility extends AccessibilityService {
         accessibilityServiceInfo.packageNames = new String[] {"com.android.systemui",BuildConfig.APPLICATION_ID};
         accessibilityServiceInfo.eventTypes = eventTypes;
 
-        // In general, 100 works on the emulator, but 10 doesn't.
-        // 100 doesn't work reliably on L.1 when starting a "killed" (removed from Overview) process.
-        // Allow for really slow machines.
-        // (The event likely happened BEFORE startLockTask, so we carefully preserve
-        // that leftover to make this work, since we can't force an event.)
-        accessibilityServiceInfo.notificationTimeout = 500;
-
+        // Be careful with timeout... too large a value causes it to miss the LG special case.
+        // Default appears fine.
         setServiceInfo(accessibilityServiceInfo);
 
         // Generally, start deactivated; we'll activate when needed.
@@ -114,126 +109,71 @@ public class AesopAccessibility extends AccessibilityService {
             return;
         }
 
-        if (Build.VERSION.SDK_INT > 21) {
-            // API 22 and up
-            switch (event.getEventType()) {
-                // We need CONTENT for redundancy, particularly on startup.
-                case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
-                {
-                    // Try to avoid any unnecessary tree walks.
+        String targetPackageName = "com.android.systemui";
 
-                    /* These filters sometimes cause us to miss something. Since as soon as
-                       an event (there could be several) that has what we need, we'll turn
-                       off sensitivity and not waste CPU. (A few events get queued up so the
-                       one that works may not be the last, but it's near the last.)
-                    if (!event.getPackageName().equals(BuildConfig.APPLICATION_ID)) {
-                        return;
-                    }
-                    if (event.getText().size() <= 0) {
-                        return;
-                    }
-                    if (!event.getText().get(0).equals("Aesop Player")
-                        && !event.getText().get(0).equals("Screen is pinned")) {
-                        return;
-                    }
-                     */
-                    List<AccessibilityWindowInfo> windows = getWindows();
-                    if (!windows.isEmpty()) {
-
-                        // Presumably (according to the docs) the top (0th) screen is the Got It overlay, but...
-                        scanWindows:
-                        for (AccessibilityWindowInfo window : windows) {
-                            AccessibilityNodeInfo root = window.getRoot();
-
-                            // We can't use findAccessibilityNodeInfosByViewId() here. It always returns
-                            // null when trying to get to the "Got it" overlay window.
-                            // The findAndTap() works just fine. I think (from code-reading)
-                            // that there's some sort of security check (that obviously isn't worth much)
-                            // causing the official implementation to fail.
-                            if (root == null) {
-                                continue scanWindows;
-                            }
-                            // Sometimes we get here after the Got It overlay is gone.
-                            if (!root.getPackageName().equals("com.android.systemui")) {
-                                continue scanWindows;
-                            }
-                            String rootName = root.getViewIdResourceName();
-                            if (rootName != null) {
-                                // We know the one we want has a null root id name, so we can ignore any others
-                                continue scanWindows;
-                            }
-                            //noinspection StatementWithEmptyBody
-                            if (!findAndTap(root, "com.android.systemui:id/screen_pinning_ok_button")) {
-                                /* Ignore the failure... it's benign as long as we finally do it.
-                                   Sometimes the event is redundant and it fails because the job is done
-
-                                CrashWrapper.log(TAG + ": Button press failed.");
-                                 */
-                            }
-                            return;
-                        }
-                    }
-                    break;
-                }
-
-                default:
-                    break;
-            }
+        // By targeting the right package name, we eliminate almost all "ordinary" apps,
+        // which means were much less likely to press an unintended button below.
+        if (Build.VERSION.SDK_INT <= 21) {
+            // API 21 was different.
+            targetPackageName = "android";
         }
-        else {
-            // API 21 does it differently: different details
-            switch (event.getEventType()) {
-                // Click needed for from settings, CONTENT for startup.
-                case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
-                {
-                    // Try to avoid any unnecessary tree walks.
 
-                    List<AccessibilityWindowInfo> windows = getWindows();
-                    if (!windows.isEmpty()) {
+        // See the comment about a Toast in KioskModeSwitcher#changeActiveKioskMode.
+        // It's required.
+        switch (event.getEventType()) {
+            // We need CONTENT for redundancy, particularly on startup.
+            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+            case AccessibilityEvent.TYPE_VIEW_CLICKED:
+            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+            case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
+            {
+                // The App pinning message doesn't come from Aesop, so there's no point
+                // in filtering from that. It's from the system.
+                // In API 21 we never see the event that puts up the screen, just the
+                // Toast we mentioned above.
+                // API22 and above MIGHT see the event.
+                List<AccessibilityWindowInfo> windows = getWindows();
+                if (!windows.isEmpty()) {
 
-                        // Presumably (according to the docs) the top (0th) screen is the Got It overlay, but...
-                        scanWindows:
-                        for (AccessibilityWindowInfo window : windows) {
-                            AccessibilityNodeInfo root = window.getRoot();
+                    // Presumably (according to the docs) the top (0th) screen is the Got It overlay, but...
+                    // The LG special case is definitely NOT the 0th entry.
+                    scanWindows:
+                    for (AccessibilityWindowInfo window : windows) {
+                        AccessibilityNodeInfo root = window.getRoot();
 
-                            // We can't use findAccessibilityNodeInfosByViewId() here. It always returns
-                            // null when trying to get to the "Got it" overlay window.
-                            // The findAndTap() works just fine. I think (from code-reading)
-                            // that there's some sort of security check (that obviously isn't worth much)
-                            // causing the official implementation to fail.
-                            if (root == null) {
-                                continue scanWindows;
-                            }
-                            // Sometimes we get here after the Got It overlay is gone.
-                            if (!root.getPackageName().equals("android")) {
-                                continue scanWindows;
-                            }
-                            String rootName = root.getViewIdResourceName();
-                            if (rootName != null) {
-                                // We know the one we want has a null root id name, so we can ignore any others
-                                continue scanWindows;
-                            }
-                            //noinspection StatementWithEmptyBody
-                            if (!findAndTap(root, "android:id/button1")) {
-                                /* Ignore the failure... it's benign as long as we finally do it.
-                                   Sometimes the event is redundant and it fails because the job is done
-
-                                CrashWrapper.log(TAG + ": Button press failed (API21).");
-                                 */
-                            }
+                        // We can't use findAccessibilityNodeInfosByViewId() here. It always returns
+                        // null when trying to get to the "Got it" overlay window.
+                        // Probably because the overlay window is from the system.
+                        if (root == null) {
+                            continue scanWindows;
+                        }
+                        // Sometimes we get here after the Got It overlay is gone.
+                        if (!root.getPackageName().equals(targetPackageName)) {
+                            continue scanWindows;
+                        }
+                        String rootName = root.getViewIdResourceName();
+                        if (rootName != null) {
+                            // We know the one we want has a null root id name, so we can ignore any others
+                            continue scanWindows;
+                        }
+                        //noinspection StatementWithEmptyBody
+                        if (findAndTap(root)) {
                             return;
                         }
-                    }
-                    break;
-                }
+                        else {
+                            /* Ignore the failure... it's benign as long as we finally do it.
+                               Sometimes the event is redundant and it fails because the job is done
 
-                default:
-                    break;
+                            CrashWrapper.log(TAG + ": Button press failed.");
+                             */
+                        }
+                    }
+                }
+                break;
             }
+
+            default:
+                break;
         }
     }
 
@@ -252,22 +192,78 @@ public class AesopAccessibility extends AccessibilityService {
         return accessibilityConnected;
     }
 
-    private boolean findAndTap(AccessibilityNodeInfo nodeInfo, String idName) {
-        if (nodeInfo == null) {
-            return false;
-        }
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            // This isn't used until API21 (when App Pinning is possible).
+    // This function and the next try to find the "OK"/"Got It"/<whatever> button
+    // that we don't definitely know either the node-name or text content. (Three
+    // variants known, and it seems likely there might be more "customization".)
+    // This should work unless things get really weird.
 
-            String resourceName = nodeInfo.getViewIdResourceName();
-            if (resourceName != null && resourceName.equals(idName)) {
+    // Historically it's been either "com.android.systemui:id/screen_pinning_ok_button"
+    // or "android:id/button1".  With content of "OK" or "Got It".
+    // We first find a text field that contains "pin" (we can't  rely on "pinning").
+    // Look for siblings or children (siblings in standard Android,
+    // children seen on LG G6) that are buttons, and pick the right-most and click it.
+
+    private boolean findAndTap(AccessibilityNodeInfo nodeInfo) {
+        // This isn't used until API21 (when App Pinning is possible).
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (nodeInfo == null) {
+                return false;
+            }
+
+            // If this node contains an entry with text containing "pin", try to find a
+            // button pair below it, and click the rightmost one.
+            for (int i = 0; i < nodeInfo.getChildCount(); ++i) {
+                CharSequence cs = nodeInfo.getChild(i).getText();
+                if (cs != null) {
+                    String t = cs.toString();
+                    if (StringUtils.startsWithIgnoreCase(t, "pin")
+                            || StringUtils.containsIgnoreCase(t, " pin")) {
+                        // Note, start with *this* node.
+                        return findButtonsAndTap(nodeInfo);
+                    }
+                }
+            }
+
+            // failing that, recursively check the children for the same
+            for (int i = 0; i < nodeInfo.getChildCount(); ++i) {
+                if (findAndTap(nodeInfo.getChild(i))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean findButtonsAndTap(AccessibilityNodeInfo nodeInfo) {
+        // Find a row with one or more buttons, and click the rightmost.
+        // This isn't used until API21 (when App Pinning is possible).
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (nodeInfo == null) {
+                return false;
+            }
+
+            AccessibilityNodeInfo button = null;
+            int button_x = -1;
+            for (int i = 0; i < nodeInfo.getChildCount(); ++i) {
+                AccessibilityNodeInfo child = nodeInfo.getChild(i);
+                android.graphics.Rect rect = new android.graphics.Rect();
+                child.getBoundsInScreen(rect);
+                if (StringUtils.containsIgnoreCase(child.getClassName().toString(), "button")) {
+                    if (button == null || rect.left > button_x) {
+                        button = child;
+                        button_x = rect.left;
+                    }
+                }
+            }
+
+            if (button != null) {
                 deActivateCheck();
-                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                button.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 return true;
             }
 
             for (int i = 0; i < nodeInfo.getChildCount(); ++i) {
-                if (findAndTap(nodeInfo.getChild(i), idName)) {
+                if (findButtonsAndTap(nodeInfo.getChild(i))) {
                     return true;
                 }
             }
@@ -327,17 +323,17 @@ public class AesopAccessibility extends AccessibilityService {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
 
             if (nodeInfo == null) {
-                Log.w("AESOP", "dumpTree gets NULL");
+                Log.w("AESOP " + TAG, StringUtils.repeat(' ', 2*depth) + "dumpTree gets NULL");
                 return;
             }
 
-            //Log.w("AESOP", StringUtils.repeat(' ', 2*depth) + nodeInfo.getViewIdResourceName());
-            Log.w("AESOP", StringUtils.repeat(' ', 2*depth) + nodeInfo);
+            //Log.w("AESOP " + TAG, StringUtils.repeat(' ', 2*depth) + nodeInfo.getViewIdResourceName());
+            Log.w("AESOP " + TAG, StringUtils.repeat(' ', 2*depth) + nodeInfo);
 
             String resourceName = nodeInfo.getViewIdResourceName();
             if (resourceName != null && resourceName.equals("com.android.systemui:id/screen_pinning_ok_button")) {
-                Log.w("AESOP", "******************** match");
-                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                Log.w("AESOP " + TAG, "******************** match");
+                //nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             }
 
             for (int i = 0; i < nodeInfo.getChildCount(); ++i) {
