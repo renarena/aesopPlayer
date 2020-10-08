@@ -24,11 +24,9 @@
  */
 package com.donnKey.aesopPlayer.ui.settings;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -129,6 +127,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             // any_permNeeded will be updated by the NewValueListener below.
         }
         else if (tentativeMode_isSet){
+            globalSettings.setAccessibilityNeeded(any_permNeeded);
             setNewKioskMode(tentativeMode);
             tentativeMode_isSet = false;
             any_permNeeded = false;
@@ -278,36 +277,13 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
 
             if (any_permNeeded & !AesopAccessibility.isAccessibilityConnected()) {
                 // Start enable Accessibility activity. The accessibility service notes when it's turned on or off.
-                // Can't get here on prior to Pie (28) because there's no "Got It" popup.
-                if (Build.VERSION.SDK_INT < 29) {
-                    // Ick.
-                    // On Pie, the Back button (bottom of screen) works as you'd expect.
-                    // However the back-arrow at the top moves out of accessibility settings
-                    // into more general settings, and you don't automatically return to the app.
-                    // On Q it works as you'd expect: both buttons do the same thing: return to the app.
-                    // I was unable to find a workaround.
-                    // Consequently, since it's a one-time thing, just warn the user.
-                    new AlertDialog.Builder(requireActivity())
-                            .setTitle(R.string.back_arrow_caution)
-                            .setMessage(R.string.back_arrow_text)
-                            .setPositiveButton(android.R.string.ok, (a, b)-> {
-                                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            } )
-                            .setIcon(R.drawable.ic_launcher)
-                            .show();
-                }
-                else {
-                    Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                }
+                KioskModeSwitcher.enableAccessibility((AppCompatActivity)requireActivity(), false);
                 tentativeMode = mode;
                 tentativeMode_isSet = true;
             } else {
                 // Below calls updateKioskModeSummary, but it's not recursion... we're in
                 // a lambda called from the dialog.
+                globalSettings.setAccessibilityNeeded(any_permNeeded);
                 setNewKioskMode(mode);
                 tentativeMode_isSet = false;
             }

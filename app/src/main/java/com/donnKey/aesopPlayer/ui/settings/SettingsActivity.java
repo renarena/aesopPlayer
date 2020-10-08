@@ -152,6 +152,9 @@ public class SettingsActivity
                     enabled ? R.drawable.ic_settings_red_24dp : R.drawable.ic_settings_redish_24dp,
                     enabled ? android.R.color.white : R.color.medium_dark_grey);
             globalSettings.setMaintenanceMode(enabled);
+            if (!enabled) {
+                KioskModeSwitcher.enableAccessibilityIfNeeded(this);
+            }
             return true;
         }
         return false;

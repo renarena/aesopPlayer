@@ -33,9 +33,11 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -51,12 +53,13 @@ import javax.inject.Inject;
 public class KioskModeSwitcher {
 
     private final Context context;
-    private final GlobalSettings globalSettings;
+    static private GlobalSettings globalSettings = null;
+    private static final String TAG="KioskModeSwitcher";
 
     @Inject
-    KioskModeSwitcher(Context applicationContext, GlobalSettings globalSettings) {
+    KioskModeSwitcher(Context applicationContext, GlobalSettings gS) {
         this.context = applicationContext;
-        this.globalSettings = globalSettings;
+        globalSettings = gS;
     }
 
     enum activityState {active, inactive}
@@ -97,16 +100,24 @@ public class KioskModeSwitcher {
 
         // Turn off the old mode.
         switch (oldMode) {
-            case NONE:
-            case PINNING: {
+            case NONE: {
                 break;
             }
             case SIMPLE: {
+                globalSettings.setAccessibilityNeeded(false);
+                // Unset the home activity -- deprecated at API29, but works prior
+                // If it doesn't work, turning off simple won't let you get back to root screen!
+                context.getPackageManager().clearPackagePreferredActivities(context.getPackageName());
+
                 try {
                     HomeActivity.setEnabled(context, false);
                 } catch (Exception e) {
                     // ignore (just in case)
                 }
+                break;
+            }
+            case PINNING: {
+                globalSettings.setAccessibilityNeeded(false);
                 break;
             }
             case FULL: {
@@ -115,6 +126,8 @@ public class KioskModeSwitcher {
                 } catch (Exception e) {
                     // ignore (just in case)
                 }
+                // Unset the home activity -- deprecated at API29, but works prior
+                context.getPackageManager().clearPackagePreferredActivities(context.getPackageName());
                 break;
             }
         }
@@ -173,6 +186,10 @@ public class KioskModeSwitcher {
                 break;
             }
             case PINNING: {
+                if (!AesopAccessibility.isAccessibilityConnected()) {
+                    state = activityState.inactive;
+                    break;
+                }
                 // See note just below for why this:
                 AesopAccessibility.activateCheck();
 
@@ -312,7 +329,7 @@ public class KioskModeSwitcher {
         PackageManager pm = context.getPackageManager();
         ResolveInfo resolveInfo = pm.resolveActivity(homeIntent, 0);
         assert resolveInfo != null;
-        if (resolveInfo.activityInfo.name.equals("com.android.internal.app.ResolverActivity")) {
+        if (!resolveInfo.activityInfo.name.equals("com.donnKey.aesopPlayer.ui.HomeActivity")) {
 
             // Tell the user what's going to happen and then do it (in lambda) after OK.
             // (The context we have doesn't work at runtime, thus the activity parameter.)
@@ -325,7 +342,7 @@ public class KioskModeSwitcher {
             }
             coachingMessage += activity.getString(R.string.permission_rationale_home_screen_more3);
             new AlertDialog.Builder(activity)
-                .setTitle(R.string.permission_rationale_simple_default_app)
+                .setTitle(R.string.permission_rationale_default_app)
                 .setMessage(coachingMessage)
                 .setPositiveButton(android.R.string.ok,
                     (a, b)-> {
@@ -338,9 +355,54 @@ public class KioskModeSwitcher {
         }
     }
 
+    public static void enableAccessibility(@NonNull AppCompatActivity activity, boolean fromStartup) {
+        // Ick.
+        // On Pie, the Back button (bottom of screen) works as you'd expect.
+        // However the back-arrow at the top moves out of accessibility settings
+        // into more general settings, and you don't automatically return to the app.
+        // On Q it works as you'd expect: both buttons do the same thing: return to the app.
+        // I was unable to find a workaround.
+        // Consequently, since it's a one-time thing, just warn the user.
+        String title = activity.getString(R.string.enable_accessibility);
+        String body = activity.getString(R.string.allow_aesop);
+        if (Build.VERSION.SDK_INT < 29) {
+            title += "\n" + activity.getString(R.string.back_arrow_caution);
+            body += "\n\n" + activity.getString(R.string.back_arrow_text);
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setMessage(body)
+                .setPositiveButton(android.R.string.ok, (a, b) -> {
+                    Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(intent);
+                })
+                .setIcon(R.drawable.ic_launcher);
+        if (fromStartup) {
+            builder.setNegativeButton("Start Maintenance Mode" + "    ", (a,b)->{
+                globalSettings.setMaintenanceMode(true);
+                activity.recreate();
+            });
+        }
+        builder.show();
+    }
+
+    public static void enableAccessibilityIfNeeded(AppCompatActivity activity) {
+        if (!globalSettings.isAccessibilityNeeded()) {
+            return;
+        }
+        if (AesopAccessibility.isAccessibilityConnected()) {
+            return;
+        }
+        if (globalSettings.isMaintenanceMode()) {
+            return;
+        }
+        enableAccessibility(activity, true);
+    }
+
     @TargetApi(21)
     private static class API21 {
-        static boolean isLockTaskPermitted(Context context) {
+        static boolean isLockTaskPermitted(@NonNull Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             return dpm != null && dpm.isLockTaskPermitted(context.getPackageName())
@@ -348,7 +410,7 @@ public class KioskModeSwitcher {
         }
 
         @SuppressWarnings("SameParameterValue") // For a future?
-        static void setPreferredHomeActivity(Context context, Class activityClass) {
+        static void setPreferredHomeActivity(@NonNull Context context, @SuppressWarnings("rawtypes") Class activityClass) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             assert dpm != null;
@@ -363,7 +425,7 @@ public class KioskModeSwitcher {
                     adminComponentName, intentFilter, activityComponentName);
         }
 
-        static void clearPreferredHomeActivity(Context context) {
+        static void clearPreferredHomeActivity(@NonNull Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
             assert dpm != null;

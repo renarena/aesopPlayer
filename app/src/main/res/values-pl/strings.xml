@@ -54,9 +54,9 @@
     <string name="pref_color_theme_title">Motyw kolorów</string>
     <string name="permission_rationale_simple_kiosk">Prosty tryb kiosku wymaga tych uprawnień.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Zgodę na powołanie uniknąć przypadkowego użycia paska stanu</string>
-    <string name="permission_rationale_simple_default_app">Prosty tryb kiosku, musi ustawić domyślną aplikację.</string>
-    <string name="permission_rationale_home_screen">Jednorazowa konfiguracja aplikacji domyślnie.\nWybierz "OK" poniżej, następnie na kolejnym ekranie…;\nWybierz "Aesop Player", a następnie "wszystkie"</string>
-    <string name="permission_rationale_home_screen_more1">…;\nNastępnie na ostatnim ekranie "OK".</string>
+    <string name="permission_rationale_default_app">Tryb kiosku, musi ustawić domyślną aplikację.</string>
+    <string name="permission_rationale_home_screen">Jednorazowa konfiguracja aplikacji domyślnie. Wybierz „OK\" poniżej, następnie na kolejnym ekranie…;\nWybierz „Aesop Player\", a następnie „Wszystkie\" lub „Użyj jako aplikacji domyślnej”</string>
+    <string name="permission_rationale_home_screen_more1">…;\nNastępnie na ostatnim ekranie „OK\".</string>
     <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
     <string name="permission_rationale_home_screen_more3">\nZostanie wyświetlony ekran lista książek.</string>
     <string name="pref_data_use">Zobacz Data Use Policy</string>
@@ -108,6 +108,8 @@
     <string name="accessibility_service_description">Używany tylko w trybie Kiosku. Po włączeniu trybu Kiosku, jeśli Twoje urządzenie wymaga Dostępnośc, poprosi o to.</string>
     <string name="pref_why_accessibility">Wybrany tryb Kiosku wymaga włączenia Dostępności, aby zapewnić akceptowalne wyniki.\n\nWybierz inny tryb lub włącz Dostępność.</string>
     <string name="pref_must_enable_accessibility">Dostępność musi być włączona</string>
+    <string name="enable_accessibility">Tryb kiosku wymaga Dostępności</string>
+    <string name="allow_aesop">Przewiń do następnego ekranu, aby znaleźć i kliknąć Aesop Player, aby włączyć dostępność.</string>
     <string name="back_arrow_caution">Uwaga - dziwne zachowanie przed nami</string>
     <string name="back_arrow_text">W tej wersji Androida należy opuścić ekrany, do których masz zamiar wejść, za pomocą przycisku Wstecz (u dołu ekranu), a nie lewej strzałki u góry. Jeśli coś pójdzie nie tak, uruchom ponownie odtwarzacz.</string>
     <string name="announce_new_features">Dostępne Nowe Funkcje</string>

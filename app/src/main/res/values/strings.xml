@@ -57,9 +57,9 @@
     <string name="pref_color_theme_default_value" translatable="false">CLASSIC_REGULAR</string>
     <string name="permission_rationale_simple_kiosk">Simple Kiosk mode requires these permissions.</string>
     <string name="permission_rationale_simple_kiosk_overlay">Overlay permissions avoid accidental use of the status bar.</string>
-    <string name="permission_rationale_simple_default_app">Simple Kiosk Mode Must Set the Default App.</string>
-    <string name="permission_rationale_home_screen">One-time setup for Default App.\nSelect "OK" below, then on next screen…;\nSelect "Aesop Player", then "Always"</string>
-    <string name="permission_rationale_home_screen_more1">…;\nThen on final screen "OK".</string>
+    <string name="permission_rationale_default_app">Kiosk Mode Must Set the Default App.</string>
+    <string name="permission_rationale_home_screen">One-time setup for Default App. Select OK below, then on next screen…; Select \"Aesop Player\", then \"Always\" or \"Use As Default App\"</string>
+    <string name="permission_rationale_home_screen_more1">…;\nThen on final screen \"OK\".</string>
     <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
     <string name="permission_rationale_home_screen_more3">\nThis will return to the Books List screen.</string>
     <string name="pref_data_use">View Data Use Policy</string>
@@ -96,6 +96,8 @@
     <string name="accessibility_service_label" translatable="false">Aesop Player</string>
     <string name="pref_why_accessibility">The Kiosk Mode you have selected requires that Accessibility be enabled to give acceptable results.\n\nChoose another mode or enable Accessibility.</string>
     <string name="pref_must_enable_accessibility">Accessibility must be enabled</string>
+    <string name="enable_accessibility">Kiosk Mode Needs Accessibility</string>
+    <string name="allow_aesop">Scroll the next screen to find and click Aesop Player to enable Accessibility.</string>
     <string name="back_arrow_caution">Caution - Odd behavior ahead</string>
     <string name="back_arrow_text">For this Android version, leave the screens you are about to enter using the Back button (at the bottom of the screen), not the left arrow at the top. If something goes wrong just restart the Player.</string>
     <string name="announce_new_features">New Features Available</string>

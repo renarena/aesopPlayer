@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         orientationDelegate.onStart();
         batteryStatusProvider.start();
         handleIntent(getIntent());
+        KioskModeSwitcher.enableAccessibilityIfNeeded(this);
     }
 
     @Override

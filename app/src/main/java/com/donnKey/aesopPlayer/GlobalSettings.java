@@ -121,6 +121,7 @@ public class GlobalSettings {
     private static final String KEY_PROXIMITY_AWAKEN = "awaken_on_proximity_preference";
     public static final String KEY_SETTINGS_INTERLOCK = "settings_interlock_preference";
     private static final String KEY_MAINTENANCE_MODE = "settings_maintenance_mode";
+    private static final String KEY_ACCESSIBILITY_NEEDED = "settings_accessibility_needed";
     public static final String KEY_ANALYTICS = "settings_analytics_preference";
     private static final String KEY_ANALYTICS_QUERIED = "analytics_queried_once";
     public static final String KEY_NEW_VERSION_ACTION = "new_version_action_preference";
@@ -325,6 +326,16 @@ public class GlobalSettings {
     // True->certain features temporarily disabled (actual settings NOT changed).
     public boolean isMaintenanceMode() {
         return sharedPreferences.getBoolean(KEY_MAINTENANCE_MODE, false);
+    }
+
+    @SuppressLint("ApplySharedPref")
+    public void setAccessibilityNeeded(boolean mode) {
+        sharedPreferences.edit().putBoolean(KEY_ACCESSIBILITY_NEEDED, mode).commit();
+        UiControllerBookList.suppressAnnounce();
+    }
+
+    public boolean isAccessibilityNeeded() {
+        return sharedPreferences.getBoolean(KEY_ACCESSIBILITY_NEEDED, false);
     }
 
     public NewVersionAction getNewVersionAction() {
