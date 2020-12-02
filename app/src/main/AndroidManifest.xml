@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
@@ -98,6 +99,7 @@
             android:name=".ui.HomeActivity"
             android:enabled="false"
             android:excludeFromRecents="true"
+            android:launchMode="singleTask"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -124,6 +126,16 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service" />
         </service>
+
+        <receiver
+            android:name=".ui.BootReceive"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".AesopPlayerDeviceAdmin"

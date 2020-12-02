@@ -140,6 +140,9 @@ public class GlobalSettings {
     private static final String KEY_BOOKS_EVER_INSTALLED = "action_history.books_ever_installed";
     private static final String KEY_SETTINGS_EVER_ENTERED = "action_history.settings_ever_entered";
     private static final String KEY_STORED_VERSION = "stored_version";
+    public static final String KEY_LAUNCHER_PACKAGE = "launcher_package";
+    public static final String KEY_LAUNCHER_ACTIVITY = "launcher_activity";
+
 
     public static final String KEY_REMOTE_PASSWORD = "remote_password";
     public static final String KEY_REMOTE_HOST = "remote_hostname";
@@ -550,5 +553,21 @@ public class GlobalSettings {
         } catch (IllegalArgumentException illegalArgument) {
             return ColorTheme.valueOf(resources.getString(R.string.pref_color_theme_default_value));
         }
+    }
+
+    public void setOriginalLauncherPackage(String launcherName) {
+        sharedPreferences.edit().putString(KEY_LAUNCHER_PACKAGE, launcherName).apply();
+    }
+
+    public String getOriginalLauncherPackage() {
+        return sharedPreferences.getString(GlobalSettings.KEY_LAUNCHER_PACKAGE, "");
+    }
+
+    public void setOriginalLauncherActivity(String launcherName) {
+        sharedPreferences.edit().putString(KEY_LAUNCHER_ACTIVITY, launcherName).apply();
+    }
+
+    public String getOriginalLauncherActivity() {
+        return sharedPreferences.getString(GlobalSettings.KEY_LAUNCHER_ACTIVITY, "");
     }
 }

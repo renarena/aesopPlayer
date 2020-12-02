@@ -158,3 +158,20 @@ you can't (easily) touch. Detailed documentation is available at
 https://donnKey.github.io/aesopPlayer/provisioning.html#remote-downloads.
 (In beta at the moment.)
 
+## Version 1.2.1
+Separate Device Owner permission and test for Lock Screen permission. This allows a separate
+installer with Device Owner to delegate Lock Screen to Aesop while the installer retains Device Owner
+permission.
+
+That in turn allows for a QR-code installer that installs from the Play Store and sets lock
+screen permission in Aesop.
+The installer is "kiosk-installer". Installation can also be done using NFC given
+an app that is the NFC provider. ("Nfc-provisioning" tentatively.)  (Both under DonnKey in GitHub.)
+
+Add a boot entry point in AndroidManifest (etc.) so that if the player is running (not in
+Maintenance Mode) it will start after a reboot. This applies to all three Kiosk Modes.
+
+Improvements in handling default application setting for Simple Kiosk, and improvements in
+restarting when pressing the Home Button. Return to a saved root screen (Home application)
+explicitly in some cases so that the system Home Screen can be Aesop. Simple Kiosk is allowed
+on Android Q, but it really doesn't work well with the changes on Q. Use Pinning or Full instead.

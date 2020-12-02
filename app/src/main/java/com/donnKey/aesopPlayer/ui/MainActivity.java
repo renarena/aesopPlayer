@@ -31,6 +31,8 @@ import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,6 +65,7 @@ import com.donnKey.aesopPlayer.ui.provisioning.RemoteAuto;
 import com.donnKey.aesopPlayer.ui.settings.SettingsActivity;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -153,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         super.onCreate(savedInstanceState);
 
         powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 
         mainUiComponent = DaggerClassicMainUiComponent.builder()
                 .applicationComponent(AesopPlayerApplication.getComponent())
@@ -191,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // Sometimes the worker thread starts before we even get here!
         RemoteAuto.activate(false);
         RemoteAuto.activate(globalSettings.getMailPollEnabled() || globalSettings.getFilePollEnabled());
+        captureLauncher();
 
     }
 
@@ -219,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         orientationDelegate.onStart();
         batteryStatusProvider.start();
         handleIntent(getIntent());
-        KioskModeSwitcher.enableAccessibilityIfNeeded(this);
+        KioskModeSwitcher.enableMaintenanceMode(this, globalSettings.isMaintenanceMode());
     }
 
     @Override
@@ -381,7 +385,22 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         if (globalSettings.isAnyKioskModeEnabled()) {
             toaster.doToast();
         } else {
+            // This allows us to keep the Home Activity as aesopPlayer, while when there's
+            // no active Kiosk, going to the launcher the user expects.  See captureLauncher.
+            if (globalSettings.getOriginalLauncherPackage().equals("android")) {
+                // That's the fallback default... fire off a chooser.
+                Intent i = new Intent(Intent.ACTION_MAIN)
+                        .addCategory(Intent.CATEGORY_HOME);
+                startActivity(i);
+            }
+            else {
+                Intent i = new Intent();
+                i.setClassName(globalSettings.getOriginalLauncherPackage(), globalSettings.getOriginalLauncherActivity());
+                startActivity(i);
+            }
+
             super.onBackPressed();
+            finish(); // gets us to the general launcher.
         }
     }
 
@@ -473,11 +492,56 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         return result;
     }
 
+    private void captureLauncher() {
+        PackageManager pm = getPackageManager();
+
+        Intent i = new Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_HOME);
+
+        // A possible value is android/com.android.internal.app.ResolverActivity, for when
+        // no default is set. That's intended to yield a chooser, and when we launch the
+        // intent, we honor that explicitly.
+        // Note: none of the entries in the IntentActivities list directly matches that!
+        ResolveInfo defaultResolution = getPackageManager().resolveActivity(i, PackageManager.MATCH_DEFAULT_ONLY);
+
+        String packageName = null;
+        String activityName = null;
+        if (globalSettings.getOriginalLauncherPackage().isEmpty()) {
+            // no launcher recorded... find one
+            if (defaultResolution == null || defaultResolution.activityInfo.packageName.contains("aesopPlayer")) {
+                // We don't have a default launcher to refer to... guess
+                List<ResolveInfo> resolveInfos = pm.queryIntentActivities(i, PackageManager.MATCH_DEFAULT_ONLY);
+                ResolveInfo selectedInfo = resolveInfos.get(0);
+                for (ResolveInfo resolveInfo : resolveInfos) {
+                    if (resolveInfo.activityInfo.packageName.contains("Resolver")) {
+                        selectedInfo = resolveInfo;
+                        break;
+                    }
+                }
+                packageName = selectedInfo.activityInfo.packageName;
+                activityName = selectedInfo.activityInfo.name;
+            } else {
+                packageName = defaultResolution.activityInfo.packageName;
+                activityName = defaultResolution.activityInfo.name;
+            }
+        } else {
+            // We have a launcher recorded... did the user change it?
+            if (defaultResolution != null && !defaultResolution.activityInfo.packageName.contains("aesopPlayer")) {
+                packageName = defaultResolution.activityInfo.packageName;
+                activityName = defaultResolution.activityInfo.name;
+            }
+        }
+        if (packageName != null) {
+            globalSettings.setOriginalLauncherPackage(packageName);
+            globalSettings.setOriginalLauncherActivity(activityName);
+        }
+    }
+
     // Triggered from an external (PC) app that's not finished yet. Not reachable from
     // within this app.
     private void handleIntent(Intent intent) {
         if (intent != null && KIOSK_MODE_ENABLE_ACTION.equals(intent.getAction())) {
-            if (kioskModeSwitcher.isLockTaskPermitted()) {
+            if (KioskModeSwitcher.isLockTaskPermitted(getApplicationContext())) {
                 boolean enable = intent.getBooleanExtra(ENABLE_EXTRA, false);
                 if (globalSettings.isFullKioskModeEnabled() != enable) {
                     globalSettings.setKioskModeNow(GlobalSettings.SettingsKioskMode.FULL);
@@ -535,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // after a longer delay. Note that the "counting" is done in the program state
         // so there's no issue of local variables being reset in the process.
 
-        private static final int restoreDelay = 1000;
+        private static final int restoreDelay = 100;
         private final Handler restoreHandler = new Handler();
 
         // If the app hasn't started after the delay, force the issue.
@@ -559,18 +623,29 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         // Restart this activity after stop shut it down.
         // (After Andreas Schrade's article on Kiosks)
         private void restoreAppWorker() {
+            // In case there are others pending, kill them
+            cancelRestore();
+
             if (SettingsActivity.getInSettings()
                 || ProvisioningActivity.getInProvisioning() ) {
                 // A switch to settings or provisioning mode looks like an unexpected pause, so
                 // don't actually do anything. (This would be very hard to get
                 // right in the main line, and is easy here.)
-                cancelRestore(); // The backup call is already posted.
                 return;
             }
             Context context = getApplicationContext();
             Intent i = new Intent(context, MainActivity.this.getClass());
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            // This "indirection" triggers the intent immediately rather than
+            // dealing with a 5 second delay. Works up through Pie.
+            // Q forces a switch to root screen regardless, which won't work, so
+            // we don't support Simple on Q (which is not much of a loss).
+            PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
+            try {
+                pi.send();
+            } catch (PendingIntent.CanceledException e) {
+                CrashWrapper.recordException(TAG, e);
+            }
         }
     }
 

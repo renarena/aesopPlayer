@@ -216,12 +216,11 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
             // The user must confirm that they want to un-register the device owner,
             // so set up the dialog.
             Objects.requireNonNull(preferenceUnregisterDeviceOwner).setOnConfirmListener(this::disableDeviceOwner);
-            boolean isDeviceOwner = AesopPlayerDeviceAdmin.isDeviceOwner(requireActivity());
-            updateUnregisterDeviceOwner(isDeviceOwner);
+            updateUnregisterDeviceOwner(AesopPlayerDeviceAdmin.isDeviceOwner(requireActivity()));
 
             kioskPolicies[PINNING_].possible = true;
 
-            if (isDeviceOwner) {
+            if (KioskModeSwitcher.isLockTaskPermitted(requireActivity())) {
                 kioskPolicies[PINNING_].available = false;
                 kioskPolicies[PINNING_].subTitle = getSpannableString(R.string.pref_kiosk_mode_screen_summary_3_pinning);
                 kioskPolicies[FULL_].possible = true;
@@ -241,7 +240,7 @@ public class KioskSettingsFragment extends BaseSettingsFragment {
                 }
                 kioskPolicies[FULL_].possible = true;
                 kioskPolicies[FULL_].available = false;
-                kioskPolicies[FULL_].subTitle = Html.fromHtml(getString(R.string.settings_device_owner_required_alert, DEVICE_OWNER_URL));
+                kioskPolicies[FULL_].subTitle = Html.fromHtml(getString(R.string.settings_lock_task_required_alert, DEVICE_OWNER_URL));
             }
         }
         // Make the lambda callback below happy

@@ -71,7 +71,7 @@ public class ConfigurationContentProvider extends ContentProvider {
             @Nullable String sortOrder) {
         injectDependenciesIfNecessary();
         return new ConfigurationCursor(
-                kioskModeSwitcher.isLockTaskPermitted(),
+                KioskModeSwitcher.isLockTaskPermitted(getContext()),
                 globalSettings.isFullKioskModeEnabled());
     }
 

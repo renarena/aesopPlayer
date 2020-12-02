@@ -143,11 +143,13 @@ public class KioskModeSwitcher {
                 break;
             }
             case FULL: {
-                Preconditions.checkState(isLockTaskPermitted());
-                try {
-                    API21.setPreferredHomeActivity(context, MainActivity.class);
-                } catch (Exception e) {
-                    // ignore (just in case)
+                Preconditions.checkState(isLockTaskPermitted(context));
+                if (AesopPlayerDeviceAdmin.isDeviceOwner(context)) {
+                    try {
+                        API21.setPreferredHomeActivity(context, MainActivity.class);
+                    } catch (Exception e) {
+                        // ignore (just in case)
+                    }
                 }
                 break;
             }
@@ -224,6 +226,15 @@ public class KioskModeSwitcher {
         }
     }
 
+    public static void enableMaintenanceMode(AppCompatActivity activity, boolean enabled) {
+        globalSettings.setMaintenanceMode(enabled);
+
+        if (enabled) {
+            // In case it got accidentally disabled
+            enableAccessibilityIfNeeded(activity);
+        }
+    }
+
     private void setNavigationVisibility(AppCompatActivity activity, boolean show) {
         // Causes tool and nav bars to display (in a dark grey), but with
         // nothing at all on them. Without this, it's black, but with a 'back' button
@@ -247,11 +258,11 @@ public class KioskModeSwitcher {
         decorView.setSystemUiVisibility(visibilitySetting);
     }
 
-    public boolean isLockTaskPermitted() {
+    public static boolean isLockTaskPermitted(Context context) {
         return Build.VERSION.SDK_INT >= 21 && API21.isLockTaskPermitted(context);
     }
 
-    private static void startAppPinning(AppCompatActivity activity) {
+    public static void startAppPinning(AppCompatActivity activity) {
         if(Build.VERSION.SDK_INT >= 21) { // L
             // The system provides a Toast when it does this.
             activity.startLockTask();
@@ -323,14 +334,11 @@ public class KioskModeSwitcher {
         homeIntent.addCategory(Intent.CATEGORY_HOME);
         homeIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        // Necessary because application context is used.
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PackageManager pm = context.getPackageManager();
-        ResolveInfo resolveInfo = pm.resolveActivity(homeIntent, 0);
+        PackageManager pm = activity.getPackageManager();
+        ResolveInfo resolveInfo = pm.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY);
         assert resolveInfo != null;
-        if (!resolveInfo.activityInfo.name.equals("com.donnKey.aesopPlayer.ui.HomeActivity")) {
 
+        if (!resolveInfo.activityInfo.name.equals("com.donnKey.aesopPlayer.ui.HomeActivity")) {
             // Tell the user what's going to happen and then do it (in lambda) after OK.
             // (The context we have doesn't work at runtime, thus the activity parameter.)
             String coachingMessage = activity.getString(R.string.permission_rationale_home_screen);
@@ -347,7 +355,8 @@ public class KioskModeSwitcher {
                 .setPositiveButton(android.R.string.ok,
                     (a, b)-> {
                         // The real work
-                        context.startActivity(homeIntent);
+                        // Very important to use activity on Pie
+                        activity.startActivity(homeIntent);
                     }
                 )
                 .setIcon(R.drawable.ic_launcher)
@@ -405,8 +414,7 @@ public class KioskModeSwitcher {
         static boolean isLockTaskPermitted(@NonNull Context context) {
             DevicePolicyManager dpm =
                     (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-            return dpm != null && dpm.isLockTaskPermitted(context.getPackageName())
-                    && dpm.isDeviceOwnerApp(context.getPackageName());
+            return dpm != null && dpm.isLockTaskPermitted(context.getPackageName());
         }
 
         @SuppressWarnings("SameParameterValue") // For a future?

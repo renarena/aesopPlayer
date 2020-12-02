@@ -28,6 +28,56 @@ The main functionality has been implemented and the app is available in the
 See the [website](http://donnKey.github.io/aesopPlayer/features.html) for details
 on the main features.
 
+Expert Installation (Particularly QR Mode)
+------------------------------------------
+The documentation on the website is intended non-expert users for whom
+the default installation procedures using Play Store are appropriate.
+Kiosk Mode installation is difficult enough to explain clearly because of the
+(justifiable, but nevertheless complicating) policies from Google.
+There are potential users who would prefer not to use Play Store.
+We'll presume that those users do not need detailed explanations,
+but provide a quick guide to what's going on and why.
+
+You can install Aesop Player directly from GitHub: we publish apk files
+(and tarballs)
+for each release. There's nothing special about those files, they
+can be installed directly.
+
+If you wish to use QR mode installation,
+you can to so by modifying the qr-provisioning.json file to point to the
+appropriate version here on GitHub and regenerating the QR image.
+(Change the `...DOWNLOAD_LOCATION` entry to point to an Aesop .apk file.
+The (multi-line) entry `...EXTRAS_BUNDLE` isn't needed (and *probably*
+ignored).)
+
+The web page [appspot.com](http://down-box.appsopt.com)
+is handy for creating the QR code,
+but any of several others on the Web will do.
+(Right click and download the image to save the .png.)
+(Downbox is simple, but not very secure, depending on your content.)
+(Recently I've noted something that appears to be phishing on the
+appspot website - there's a redirect that looks highly suspicious.)
+
+Aesop would then be installed as the device
+owner (exactly as occurs if you use adb to set it as device owner).
+Note that this will not allow automatic updates: you will be responsible
+for checking for and installing any new versions, should it matter to you.
+(Play store will not update an application it did not install itself,
+even if it's "the same" application.)
+
+The procedure for typical users on the website is technically somewhat different, because
+Google doesn't (yet?) allow QR mode installations from Play Store. Rather
+than directly installing Aesop Player, a small intermediate application is
+installed (from GitHub) as the device owner, and it starts the Play Store
+application to install Aesop. It also gives Aesop the "Lock Screen" permission,
+(which is what Aesop really is looking for when it is device owner),
+and retains device owner itself. That application will sit on the
+device, unused, after that.  (The application is DonnKey/KioskInstaller
+on GitHub, and you can see from the source what it does, and how it deals
+with attempts to run it.) This allows automatic updates of Aesop from Play
+Store.
+
+
 Contributions
 -------------
 The original Homer Player by Marcin Simonides is the basis for this application.
