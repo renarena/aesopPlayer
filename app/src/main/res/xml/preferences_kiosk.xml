@@ -39,5 +39,5 @@
     <com.donnKey.aesopPlayer.ui.settings.ConfirmDialogPreference
         app:key="unregister_device_owner_preference"
         app:title="@string/pref_kiosk_mode_unregister_device_owner"
-        android:dialogTitle="@string/pref_kiosk_mode_unregister_device_owner_dialog_message"/>
+        android:dialogMessage="@string/pref_kiosk_mode_unregister_device_owner_dialog_message"/>
 </PreferenceScreen>

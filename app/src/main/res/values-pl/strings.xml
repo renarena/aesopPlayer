@@ -39,7 +39,7 @@
     <string name="notificationChannelPlayback">Odtwarzanie dźwięku</string>
     <string name="settings_title">Ustawienia</string>
     <string name="settings_title_2">Ustawienia (z blokadą)</string>
-    <string name="settings_device_owner_required_alert">Aplikacja musi być ustawiona jako \"device owner\". Szczegóły:&lt;br>&lt;a href="%1$s">%1$s&lt;/a>.</string>
+    <string name="settings_lock_task_required_alert">Aplikacja musi mieć uprawnienie \"lock task\". Szczegóły:&lt;br>&lt;a href="%1$s">%1$s&lt;/a>.</string>
     <string name="permission_rationale_title">Potrzebne uprawnienia</string>
     <string name="permission_rationale_try_again">Spróbuj ponownie</string>
     <string name="permission_rationale_settings">Otwórz ustawienia</string>
@@ -97,8 +97,8 @@
     <string name="pref_kiosk_mode_any_summary_on">Włączone</string>
     <string name="pref_kiosk_mode_simple_summary_old_version">Wymagany Android 4.4 lub nowszy</string>
     <string name="pref_kiosk_mode_full_summary_old_version">Wymagany Android 5.0 lub nowszy</string>
-    <string name="pref_kiosk_mode_unregister_device_owner">Wyłącz uprawnienia wymagane przez pełny tryb kiosku</string>
-    <string name="pref_kiosk_mode_unregister_device_owner_dialog_message">Ta akcja wyłączy pelny tryb kiosku i nie może być łatwo cofnięta.\nWykonać?</string>
+    <string name="pref_kiosk_mode_unregister_device_owner">Wyłącz uprawnienia właściciela urządzenia (może być wymagane w trybie pełnego kiosku).</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_dialog_message">Ta czynność spowoduje wyłączenie uprawnień właściciela urządzenia, które mogą być wymagane w trybie pełnego kiosku, i nie można ich łatwo cofnąć.\nKontynuować?</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Przywilej nie jest obecnie posiadany</string>
     <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Przywilej obecnie przyznany</string>
     <string name="pref_kiosk_already_unlocked_toast">Już odblokowany</string>
