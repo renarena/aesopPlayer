@@ -40,6 +40,7 @@ import com.donnKey.aesopPlayer.R;
 import com.donnKey.aesopPlayer.analytics.CrashWrapper;
 import com.donnKey.aesopPlayer.model.AudioBookManager;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -181,7 +182,9 @@ public class MainSettingsFragment extends BaseSettingsFragment {
     @SuppressWarnings("SameReturnValue")
     private void setupVersionSummary() {
         Preference preference = findPreference(KEY_VERSION);
-        Objects.requireNonNull(preference).setSummary(BuildConfig.VERSION_NAME);
+        String versionString = String.format(
+                Locale.US, "%s  (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE);
+        Objects.requireNonNull(preference).setSummary(versionString);
         preference.setOnPreferenceClickListener(preference1 -> {
             if (BuildConfig.DEBUG) {
                 CrashWrapper.log(TAG, "Forced Crash");
