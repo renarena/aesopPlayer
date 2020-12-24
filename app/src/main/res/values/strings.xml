@@ -285,7 +285,7 @@
     <string name="dialog_illegal_group">Must group at least two books</string>
     <string name="dialog_colliding_group">Group already exists; no action</string>
     <string name="dialog_cannot_make_group">Unable to create group directory.</string>
-    <string name="cannot_rename_group">Renaming %s to %s failed.</string>
+    <string name="cannot_rename_group">Renaming %1$s to %2$s failed.</string>
     <string name="grouping_error">Errors while grouping files.</string>
     <string name="group_file_not_directory">A non-directory file was ungrouped - it should be removed from %1$s.</string>
     <string name="could_not_ungroup_file">Book %1$s could not be ungrouped. A zip file?</string>

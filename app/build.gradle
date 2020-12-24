@@ -70,7 +70,7 @@ android {
         multiDexEnabled true
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 11
+        versionCode 12
         versionName getVersionName()
     }
     buildTypes {
@@ -101,15 +101,15 @@ dependencies {
     // To successfully use Firebase you'll need to download google-services.json from
     // your Firebase account (it's custom for each Firebase project/app). It should not
     // be checked in publicly.
-    implementation 'com.google.firebase:firebase-core:17.5.0'
-    implementation 'com.google.firebase:firebase-analytics:17.5.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-analytics:18.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
 
     implementation 'org.greenrobot:eventbus:3.2.0'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.preference:preference:1.1.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation "androidx.work:work-runtime:2.4.0"
 
@@ -117,17 +117,17 @@ dependencies {
     // If restored, proguard-rules.pro will need to be updated.
 
     // guava-jre does not work - must use -android
-    implementation 'com.google.guava:guava:29.0-android'
+    implementation 'com.google.guava:guava:30.1-android'
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
-    implementation 'com.google.dagger:dagger:2.28.3'
+    implementation 'com.google.dagger:dagger:2.30.1'
 
-    implementation 'com.google.android.material:material:1.3.0-alpha02'
+    implementation 'com.google.android.material:material:1.3.0-beta01'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.28.3'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.30.1'
 
     implementation 'com.sun.mail:android-mail:1.6.5'
     implementation 'com.sun.mail:android-activation:1.6.5'
@@ -142,7 +142,7 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.9'
     implementation 'org.apache.commons:commons-compress:1.20'
     implementation 'org.apache.commons:commons-io:1.3.2'
-    implementation 'commons-net:commons-net:3.7'
+    implementation 'commons-net:commons-net:20030805.205232'
 
     // https://github.com/guardian/Option - needed by dirchooser (at runtime)
     // dirchooser only needed 4.4 and below

@@ -255,7 +255,7 @@
     <string name="status_name_check">Badanie:</string>
     <string name="status_name_error">Błąd:</string>
     <string name="dialog_cannot_make_group">Nie można utworzyć katalogu grupy.</string>
-    <string name="cannot_rename_group">Zmiana nazwy %s na %s nie powiodła się.</string>
+    <string name="cannot_rename_group">Zmiana nazwy %1$s na %2$s nie powiodła się.</string>
     <string name="grouping_error">Błędy podczas grupowania plików.</string>
     <string name="group_file_not_directory">Plik niekatalogowy rozgrupowany - powinien zostać usunięty z %1$s.</string>
     <string name="could_not_ungroup_file">Nie można rozgrupować książki %1$s. Plik zip?</string>
