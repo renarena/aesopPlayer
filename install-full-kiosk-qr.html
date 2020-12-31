@@ -1,0 +1,132 @@
+---
+layout: page
+meta_title: "Aesop Player: setting up full kiosk mode, QR"
+title: "Make a Dedicated Player - Full Kiosk Mode, QR Install"
+heading: "Making a Dedicated Player, QR Install"
+header-img: img/m-mode.jpg
+description: "Full kiosk mode setup for Android 7+, QR install"
+---
+This section is for installing Aesop Player using QR install.
+QR install requires much less setup than adb install, but only works on 
+Android versions 7 and up (and not all of those), and also requires
+a Factory Reset.
+</p>
+<p>
+If you haven't read thru the section on
+<a href="install-full-kiosk.html">full kiosk mode</a>,
+you should do so now.
+Below we'll assume you have done so.
+<h2>Preparation</h2>
+
+<p>
+You will need:
+
+<ol>
+<li>A device running Android 7+ equipped with a working camera.
+The device need not have Aesop Player (or any other software) installed since this process
+requires doing a 
+<a href="install-dedicated.html#factory-reset">Factory Reset</a>.
+<li>WiFi Internet connection (for the device).
+Be sure you have the login and password(s) to set up the connection on the device.
+<li>A Google Play Store account. See
+    <a href="install-dedicated.html#install-accounts">here</a>
+    for considerations on what account to use.
+</ol>
+
+<p>
+N.B. We have set up this installation procedure to use Play Store so that you continue to
+get automatic updates.
+There's a note to Experts in the Aesop README on GitHub on the details and how to 
+avoid using Play Store.
+</p>
+
+<h3>Important</h3>
+
+<p>
+The functionality needed for these installation steps, "QR provisioning", is
+part of Android 7, however not all vendors have implemented it on all devices.
+</p>
+<p>
+There is some limited information about availability of QR provisioning on
+specific devices:
+
+<ul>
+  <li><a
+  href="https://bayton.org/docs/enterprise-mobility/android/android-enterprise-device-support/">Jason
+  Bayton has tested a number of devices</a>, look for your model and
+  "<span style="color: #229922; font-weight: bold">✓</span> QR provisioning".
+  <li>You can try googling the phrase (with the quotes):<br><em>
+    &lt;your-tablet-model&gt; "QR provisioning"</em>
+</ul>
+</p>
+
+<h2>1. Factory reset</h2>
+
+<p>
+The device needs to be cleared to its factory state so that Aesop Player can
+be installed as a privileged app.
+This will allow it to activate the Full Kiosk mode.
+For more information on Factory Reset, see
+<a href="install-dedicated.html#factory-reset">here</a>.
+</p>
+
+<div class="boxed">
+    <strong>Caution:</strong>
+    Factory reset is permanent: there's no way to recover any data after the device is reset, so be sure you've saved
+    anything important first.
+</div>
+
+<p>
+<ol>
+  <li id="do-reset" class="anchor-target">Reset the device, as described
+    <a href="install-dedicated.html#factory-reset">here</a>.
+  <li>Reset will take a while. When it's finished <strong>do not start
+  configuring the device</strong>, see the next step.
+</ol>
+
+<h2>2. Device setup with Aesop Player</h2>
+
+<p>
+When the factory reset process finishes you are presented with the device
+"Welcome" screen.
+</p>
+
+<ol>
+  <li>Tap the "Welcome" screen 6 times (somewhere not on a button or text).
+  <li>Follow the on-screen instructions to connect to the Internet and install
+  additional components. You will need your WiFi login and password(s).
+  (After setting up WiFi, depending on the device, you may need to "back up" to the QR install
+  screens to tap "Next" and proceed.)
+  <li>A camera app for scanning QR codes will show up (this may take a little while to download).
+  <li>Point the camera at the QR code below to scan it. It works better to hold the device aligned with the image.
+      There's a button on the screen to switch to the selfie camera (if present), if the default camera is
+      not working.
+  <br>
+  The code instructs the device to install Aesop Player from the Play Store and make it a
+  privileged app so that it can activate the Full Kiosk mode.
+  <li>Various messages for initial device setup may appear, which vary by device.
+      Take the defaults or "no thanks" to minimize what you put on the device.
+  <li>It will (after a while) take you to the login for Play Store.
+    As discussed 
+    <a href="install-dedicated.html#install-accounts">here</a>
+    you should consider which account you use to log in to Play Store.
+  <li>Log in to Play Store with that account. Since Aesop is free, if it asks for a payment
+      method, tap "Skip for now". It will go directly to Aesop, and you can click "install" 
+      to start the installation.
+</ol>
+
+<img src="img/aesop-player-install-qrcode.png" class="img-responsive center-block" style="max-width: 70% height: auto">
+
+<p class="additional-info info">
+If tapping the "Welcome" screen doesn't have any effect it is likely your
+device doesn't support "QR provisioning".
+If that is the case, install Aesop from the Play Store in the usual (manual) way, and then 
+continue using the instructions for the 
+<a href="install-full-kiosk.html#initial-setup">adb method</a>
+to give it the required privileges.
+</p>
+
+<h2>3. Continue Setting Up</h2>
+Continue setting up the Aesop Player from the instructions found
+<a href="install-full-kiosk.html#enable-full-kiosk">here</a>
+

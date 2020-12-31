@@ -4,33 +4,253 @@ meta_title: "Aesop Player: setting up full kiosk mode"
 title: "Make a Dedicated Player - Full Kiosk Mode"
 heading: "Making a Dedicated Player"
 header-img: img/m-mode.jpg
-description: "Full kiosk mode"
+description: "Full Kiosk Mode; adb install"
 extra_css:
  - lightview.min.css
 extra_js:
  - lightview.js
  - video.js
 ---
-
-<h2>The Various Kiosk Modes</h2>
-
-The criteria for selecting a Kiosk Mode are discussed in depth
-<a href="install-dedicated.html#kiosk-mode">here</a>.
-If, after reviewing that, you determine you need Full Kiosk Mode, proceed as described below.
+(If you're looking for the "Full Kiosk Mode, QR Install" page, see <a href="install-full-kiosk-qr.html">here</a>.)
 </p>
 <p>
-To make this work, you must use the BIND_DEVICE_ADMIN privilege to enable the Aesop Player as the "Device Owner".
-The folks at Google want us to be sure you can't do that unknowingly, so we're telling
-you about it here, with a few more details where you do it. 
-The actual step that does it is the 'adb' command below.
-You can stop using the privilege either by choosing another Kiosk Mode or using
-Maintenance Mode. You can also completely drop it as described below.
+This section is first about making a fully-informed decision about which of the various Kiosk Modes you want to use,
+and then implementing that decision if you decide on "Full Kiosk" mode.
 </p>
 <p>
-Since at this point you've decided to use the device as a completely dedicated player,
-if you have correctly set up your device there should be no personally identifiable
-information on it.
+If you've tried the other Kiosk Modes (as described
+<a href="install-dedicated.html">here</a>) 
+and they don't work for you, then you can proceed as described in this section.
+If you haven't tried the other modes, they are worth considering because setting up Full Kiosk
+mode is considerably more work than the other modes.
+In theory Full Kiosk is more effective than the other modes, but as a practical matter you may never
+encounter the difference.
 </p>
+<p>
+If you expect to install the Aesop Player on multiple devices, much of the effort of setting up
+Full Kiosk is one-time setup or learning, so Full Kiosk may be more attractive.
+<h2 id="kiosk-mode" class="anchor-target">Kiosk Mode Selection</h2>
+<p>
+Below is a description of the various choices of Kiosk Mode, with trade-off information.
+You can use that to decide if Full Kiosk is worth the effort.
+If you choose not to use Full Kiosk, and change your mind later, 
+it may require starting over, but it's not an irrevocable decision.
+</p>
+<p>
+As noted in the main section on dedicated players, the goal of a dedicated player is
+to prevent accidentally pushing the system buttons.
+To prevent that, we provide three choices, 
+each with advantages and disadvantages that fit different circumstances.
+</p>
+All three Kiosk Modes protect against accidental button presses, work nicely with 
+<a href="install-dedicated.html#maintenance-mode">Maintenance Mode</a>, and if the
+device shuts down while displaying or playing a book (for example if the battery dies), it will return
+to Aesop when restarted.
+</p>
+<ol class="toc">
+    <li>
+	Simple Kiosk mode:
+	<dl>
+	Advantages:
+	<dd>
+	<ul>
+	    <li>Works on older Androids (4.4/Kit Kat/API-19 up), 
+		<span class="more_info"> 
+		<span class="popup">
+		We have not recently tested with the Kindle Fire. 
+		It has worked in the past, but be sure to test it thoroughly before committing to it.
+		</span>
+		including possibly the Kindle Fire.
+		</span>
+	    <li>Doesn't require any setup outside the app. 
+		(Does require granting permissions when selecting this mode for the first time. It will guide you.)
+	    <li>Doesn't interfere with the phone's normal use when Aesop is not running.
+	</ul>
+	</dd>
+	Disadvantages:
+	<dd>
+	<ul>
+	    <li>Can be ugly and slow at times.
+	    <li> 
+		<span class="more_info"> 
+		<span class="popup">
+		    The folks at Google <em>mostly</em> rightly see disabling the system buttons,
+		    as discussed above, as a potential system security problem.
+		    <br>
+		    On Android Q, further changes make Simple Kiosk barely possible, and even less attractive.
+		    You will need to restart Aesop Player at the point it asks to enable the Home Application,
+		    and it takes several seconds to return to Aesop's display after hitting the Home button (circle).
+		    (The audio will continue uninterrupted.)
+		</span>
+		Works poorly
+		</span>
+		on Android 10 (Q) or above. (Use Application Pinning (or Full Kiosk) instead.)
+	    <li>Not guaranteed to be always effective.  (99.9%, but there are probably ways around it.)
+	</ul>
+	</dd>
+	</dl>
+	<p>
+	    Simple mode is the only choice for 
+		<span class="more_info">
+		    <span class="popup">
+		    There isn't a kiosk-like solution for really early versions of Android, 
+		    although Aesop will run on API 17 and up.
+		    </span>
+		    older devices. 
+		</span>
+	    On newer devices where Full Kiosk mode or Application Pinning is available, that is strongly preferred.
+	    Simple Kiosk can be useful when the device cannot be dedicated to a single use full-time,
+	    and for some reason Application Pinning 
+		<span class="more_info">
+		    <span class="popup">
+		    We currently know of no reason that Application Pinning would not work well. Please contact us
+		    if you run into any problems.
+		    </span>
+		is a problem.
+		</span>
+	</p>
+    </li>
+    <li>
+	Application Pinning:
+	<br>
+	There are two ways of accessing Android's "Application Pinning" feature, externally to the Aesop Player,
+	and internally. 
+	This discusses the internal mode, since it is far simpler to use with Aesop than the external one.
+	(We don't even test the external mode with Aesop... it's not really that convenient.
+	Look it up on the Internet to see how it's used externally to an application.)
+	<dl>
+	Advantages:
+	<dd>
+	<ul>
+	    <li>Works well and smoothly.
+	    <li>Highly reliable.
+	    <li>Doesn't interfere with the phone's normal use when not running.
+	    <li>Doesn't require any setup outside the app. 
+		(Does require granting permissions when selecting this mode for the first time. It will guide you.)
+	</ul>
+	</dd>
+	Disadvantages:
+	<dd>
+	<ul>
+	    <li>Requires Android 5.0 or above.
+	    <li>Isn't designed to be as resistant to intentional misuse as Full Kiosk mode.
+	</ul>
+	</dd>
+	</dl>
+	<p>
+	    Application pinning is preferred if you have an appropriate device unless actual use shows 
+	    you need Full Kiosk mode for its stricter controls.
+	</p>
+    </li>
+    <li id="BDA" class="anchor-target">Full Kiosk mode:</li>
+	<dl>
+	Advantages:
+	<dd>
+	<ul>
+	    <li>Works well and smoothly.
+	    <li>Highly reliable once app and device is fully configured.
+	    <li>Requires very little care-giver expertise.
+	</ul>
+	</dd>
+	Disadvantages:
+	<dd>
+	<ul>
+	    <li>It requires Android 5.0 or later.
+	    <li>Leaves device in a state where it's not very usable for any other purpose.
+	    <li>Upgrading to a new version of the player should be done with great care (see box below).
+	    <li>Requires technical expertise on a one-time basis for setup.
+	</ul>
+	</p>
+	<p>
+	To make Full Kiosk work, you must use the BIND_DEVICE_ADMIN privilege to enable the Aesop Player 
+	as the "Device Owner".
+	This is a very strong privilege, and
+	the folks at Google want us to be sure you can't do that unknowingly, so we're telling
+	you about that here, with a some more details below.
+	The actual step that does it is either the 'adb' command below,
+	or in a slightly different way if you install using 'QR provisioning', also discussed below.
+	You can stop using the privilege either by choosing another Kiosk Mode or using Maintenance Mode. 
+	If you don't use Full Kiosk mode, the privilege will remain unused and you can safely ignore its existence.
+	<p>
+	    There is a Settings option on the Kiosk Mode selection screen 
+	    to "Drop the privilege required for the Full Kiosk mode", which is only available
+	    if Aesop Player is the device owner.
+	    This is for expert use, clicking it will require completely redoing the Full Kiosk process
+	    to restore the permission.
+	</p>
+	<p class=boxed>
+	    <small>
+	    Caution: Normal use and automatic app and system upgrades will be fine with Full Kiosk mode, 
+	    but if you will be doing anything unusual with the Aesop Player 
+	    (specifically, running any private versions of the player), 
+	    be sure to both disable Full Kiosk mode and also click on 
+	    "Drop the privilege required for the full kiosk mode" before changing the software. 
+	    And at that there is a slight risk that you will be stuck in a halfway state that 
+	    can only be fixed by a factory reset.
+	    </small>
+	</p>
+	    Full Kiosk Mode and Application Pinning are 
+	    <span class="more_info">
+	    <span class="popup">
+	    What's really going on here is that when the Lock Screen permission is held, Android treats
+	    the operations to lock the device as full kiosk mode requests.
+	    Without the permission, it's treated as an application pinning request.
+	    </span>
+	    closely related 
+	    </span>
+	    in Android.
+	    The consequence of that to Aesop is that only one of the two is possible at any given time.
+	    If you have the privilege for Full Kiosk Mode, you cannot use Application Pinning; if you don't,
+	    then of course you can't use Full mode.
+	    If you are using Full Kiosk Mode, Application Pinning offers no additional benefit.
+	</p>
+	</dd>
+	</dl>
+    </li>
+</ol>
+<p>
+If you have not chosen Full Kiosk mode (at this time), you need not read further here.
+Continue with <a href="install-dedicated.html#kiosk-mode">Kiosk Mode</a> to install without Full Kiosk.
+
+<h2 id="install-aesop" class="anchor-target">Initial Installation</h2>
+If you are here, you presumably have chosen to use Full Kiosk mode.
+There are two ways to set that up, depending on which you find more convenient, and whether
+your device is new enough.
+</p>
+<p>
+If your device is:
+	<ul>
+	    <li>Android 7.0 or later.
+	    <li>Supports QR Code provisioning. Not all 7.0 and later devices do, depending on the vendor.
+		(It won't hurt to try it if you decide you'd like to use it. 
+		You can use the 'adb' method if it fails, which it will do almost immediately.)
+	    <li>Has a functioning camera. (Apparently it can use either camera, but we've only tested
+		with the back ("scene") camera.)
+	</ul>
+If so, you can consider using 'QR Code Provisioning'.
+</p>
+<p>
+The 'adb' method requires that you remove all accounts from the device, and you have to use
+a PC and a cable (which you may already have).
+It does NOT require you to do a Factory Reset, but removing all accounts is similar in effect.
+<p>
+QR provisioning doesn't require any cables but cannot be done without doing a Factory Reset, per Google.
+<p>
+If you can't use QR code provisioning, or don't want to do the required Factory Reset, then
+proceed with the 'adb' method below.
+Otherwise follow the steps for QR code provisioning <a href="install-full-kiosk-qr.html">here</a>.
+</p>
+
+<h2 id="initial-setup" class="anchor-target">
+	    <span class="more_info">
+	    <span class="popup">
+	    <small>
+'adb' stands for "Android Debug Bridge", and is a software tool allowing you to do things that can't be done from an Android Screen.
+	    </small>
+	    </span>
+	    adb
+	    </span>
+    Install Initial Device Setup</h2>
 
 <h2>Preparation</h2>
 
@@ -38,8 +258,9 @@ information on it.
 You will need:
 
 <ol>
-<li>A tablet or smartphone with Aesop Player already installed and
-<a href="install-configure.html">configured</a>.
+<li>A tablet or smartphone with Aesop Player already
+<a href="install-dedicated.html">installed and configured</a>
+for use as a dedicated player, but you can skip the step of setting the Kiosk Mode if you wish.
 <li>A PC or Mac computer with Internet access.
 <li>A USB cable to connect the Aesop Player device to your computer.
     Your charging cable, if it unplugs from the transformer, is likely to suffice.
@@ -51,8 +272,9 @@ You will need:
 <p>
 In order for step 4 to succeed, you need to remove all the accounts registered
 in the system. 
+Google requires this.
 If you've recently done a 
-<a href="install-dedicated.html#initial-setup">factory reset</a>
+<a href="install-dedicated.html#factory-reset">factory reset</a>
 or are using a brand new device, 
 and have not created any accounts, that's already done and you can skip to step 2.
 </p>
@@ -65,6 +287,11 @@ the accounts.
 </p>
 
 <img src="img/remove-accounts.png" class="center-block img-responsive">
+<p>
+Since at this point you've decided to use the device as a completely dedicated player,
+if you have correctly set up your device there should be no personally identifiable
+information on it.
+</p>
 
 <h2>2. Enable USB debugging</h2>
 
@@ -133,6 +360,7 @@ step. The software installed here can be uninstalled later.
   </ol>
   </div>
 </div>
+</p>
 
 
 <h2>4. Make Aesop Player a privileged application</h2>
@@ -140,7 +368,8 @@ step. The software installed here can be uninstalled later.
 <p>
 In order for Aesop Player to take full control of the UI it needs to be given
 special privilege &mdash; it needs to be made a so-called <em>device owner</em>.
-This uses the BIND_DEVICE_ADMIN privilege discussed at the top of this page.
+This uses the BIND_DEVICE_ADMIN privilege discussed 
+<a href="#BDA">above</a>.
 This doesn't change the software in any way, it does <strong>not</strong>
 void the warranty and it can be easily reversed or temporarily suspended.
 </p>
@@ -245,7 +474,7 @@ In case of errors see
 </div>
 </div>
 
-<h2>5. Enable the full kiosk mode</h2>
+<h2 id="enable-full-kiosk" class="anchor-target"> 5. Enable the full kiosk mode</h2>
 
 <p>
 Now you can enable and disable the full kiosk mode at will.
@@ -283,3 +512,15 @@ If you want to temporarily leave
 Full Kiosk mode to do other work on the device, put Aesop into 
 <a href="install-dedicated.html#maintenance-mode">Maintenance Mode</a>.
 </p>
+<h2 id="finish-up-kiosk" class="anchor-target">6. Finish Up The Install </h2>
+If you did a Factory Reset or started with a device that did not have Aesop Player installed,
+there are a number of settings you should adjust as well:
+<ul>
+    <li>The instructions for creating a Dedicated Device starting
+<a href="install-dedicated.html#after-installation">here</a> describe what should be done for
+a dedicated device &mdash; 
+follow them up to the point of setting the Kiosk Mode, since you've already done that.
+<li>
+Also adjust the other Aesop Player settings, such as the sleep timer,
+<a href="install-configure.html">here</a>.
+</ul>
