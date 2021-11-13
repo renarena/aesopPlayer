@@ -1,0 +1,364 @@
+<!--
+
+    The MIT License (MIT
+
+    Copyright (c) 2018-2020 Donn S. Terry
+    Copyright (c) 2015-2017 Marcin Simonides
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" translatable="false">Aesop Player</string>
+    <string name="demo_samples_service_notification_download">Beispielhörbücher werden herunterladen (englisch)</string>
+    <string name="demo_samples_service_notification_install">Beispielhörbücher werden installiert</string>
+    <string name="playback_service_notification">Hörbuch läuft</string>
+    <string name="noBooksMessage">Es gibt keine Hörbücher auf dem Gerät.</string>
+    <string name="copyBooksInstructionMessage">Kopiere die Hörbücher in den Ordner &lt;b>/%s&lt;/b></string>
+    <string name="device_admin_label" translatable="false">Aesop Player</string>
+    <string name="device_admin_description" translatable="false">Aesop Player</string>
+    <string name="hint_browsing">Wische um ein\ne Buch zu wählen</string>
+    <string name="hint_settings">Tippe 5x\nfür Einstellungen</string>
+    <string name="hint_flip_to_stop">zum Anhalten drehe das Gerät mit dem Display nach unten</string>
+    <string name="hint_volume_drag">Ziehen, um Lautstärke und Sprechgeschwindigkeit anzupassen</string>
+    <string name="back_suppressed_by_kiosk">Beenden ist nicht möglich (Kioskmodus ist an)</string>
+    <string name="notificationChannelPlayback">Hörbuch läuft</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_title_2">Einstellungen (gesperrt)</string>
+    <string name="settings_lock_task_required_alert">Die Anwendung benötigt das \"lock task\" Privilege. Siehe &lt;br>&lt;a href="%1$s">%1$s&lt;/a>.</string> -->
+    <string name="permission_rationale_title">Erlaubnis benötigt</string>
+    <string name="permission_rationale_try_again">wiederholen</string>
+    <string name="permission_rationale_settings">Einstellungen öffnen</string>
+    <string name="permission_rationale_exit">App beendenp</string>
+    <string name="permission_rationale_ignore">Überspringen (Kiosk weniger effektive)</string>
+    <string name="permission_rationale_download_samples">Aesop Player benötigt Speicherzugriff, um herunterladen Beispielbücher (englisch) zu speichern.</string>
+    <string name="permission_rationale_analytics">Hilf, Aesop Player zu verbessern, indem du erlaubst, Fehlerberichte zu senden. Aesop sammelt keine persönlich zuordenbaren Infos. See &lt;br>&lt;a href="%1$s">%1$s&lt;/a> for more details.</string>
+    <string name="permission_rationale_analytics_title">Hilf, Aesop Player zu verbessern</string>
+    <string name="permission_kind_allow">Erlauben</string>
+    <string name="permission_kind_disallow">Nicht erlauben</string>
+    <string name="permission_rationale_scan_audiobooks">Aesop Player benötigt Speicherzugriff, um auf die Hörbücher zuzugreifen.</string>
+    <string name="pref_color_theme_title">Farbschema</string>
+    <string name="pref_color_theme_default_value" translatable="false">CLASSIC_REGULAR</string>
+    <string name="permission_rationale_simple_kiosk">Der einfache Kioskmodus benötigt diese Berechtigung.</string>
+    <string name="permission_rationale_simple_kiosk_overlay">Overlay Erlaubnis verhindert die versehentliche Benutzung der Statusleiste.</string>
+    <string name="permission_rationale_default_app">Der Kioskmodus muss die Standardanwendung setzen.</string>
+    <string name="permission_rationale_home_screen">Einmaleinstellungen für die Standardanwendung. Wähle unten OK, auf dem nächsten Bildschirm…; Wähle \"Aesop Player\", dann \"Immer\" or \"Als Standardanwendung benutzenp\"</string>
+    <string name="permission_rationale_home_screen_more1">…;\nDann auf dem letzten Bildschirm \"OK\".</string>
+    <string name="permission_rationale_home_screen_more2">.</string> <!-- Just a period -->
+    <string name="permission_rationale_home_screen_more3">\nHier geht es zurück zur Buchliste.</string>
+    <string name="pref_data_use">Data Use Policy anzeigen</string>
+    <string name="pref_help_faq_title">Hkilfe: oft gestellte Fragen</string>
+    <string name="pref_help_faq_summary">Gehe zur Webseite: %s</string>
+    <string name="pref_kiosk_mode_screen_title">Verhindere das Beenden der Anwendung (Kioskmodus)…</string>
+    <string name="pref_kiosk_mode_screen_selection">Empfohlener Kioskmodus</string>
+    <string name="pref_kiosk_mode_selection_default_value" translatable="false">NONE</string>
+    <string name="pref_kiosk_mode_screen_summary_disabled">Aus</string>
+    <string name="pref_kiosk_mode_screen_summary_simple">Einfacher Kioskmodus an</string>
+    <string name="pref_kiosk_mode_screen_summary_pinned">Application Pinning an</string>
+    <string name="pref_kiosk_mode_screen_summary_full">Voller Kioskmodus an</string>
+    <string name="pref_kiosk_mode_screen_summary_2_disables">Aktuelle Auswahl deaktivieren</string>
+    <string name="pref_kiosk_mode_screen_summary_2_pinning_acc_OK">Empfohlen.</string>
+    <string name="pref_kiosk_mode_screen_summary_2_pinning_need_acc">Empfohlen. Du wirst gefragt, die Bedienungshilfen zu aktivieren.</string>
+    <string name="pref_kiosk_mode_screen_summary_3_pinning">Pinning ist nicht verfügbar, wenn der volle Kioskmodus an ist.</string>
+    <string name="pref_kiosk_mode_screen_summary_2_full">Sperre das Gerät automatisch beim anschalten.</string>
+    <string name="pref_kiosk_mode_full_title">Voller Modusde - verhindert das Beenden der Anwendung (empfohlen)</string>
+    <string name="pref_kiosk_mode_simple_title_recommended">Empfohlen.</string>
+    <string name="pref_kiosk_mode_simple_title_use_pinning">Application Pinning bevorzugt, funktioniert mit Beschränkungen</string>
+    <string name="pref_kiosk_mode_any_summary_off">Aus</string>
+    <string name="pref_kiosk_mode_any_summary_on">An</string>
+    <string name="pref_kiosk_mode_simple_summary_old_version">ab Android 4.4</string>
+    <string name="pref_kiosk_mode_full_summary_old_version">ab Android 5.0</string>
+    <string name="pref_kiosk_mode_unregister_device_owner">device owner Privileg zurückziehen (möglicherweise für vollen Kioskmodus nötig).</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_dialog_message">Das entfernt das device owner Privileg, dass für den vollen Kioskmodus nötig sein kann,es lässt sich nicht so einfach rückgängig machen.\nProceed?</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_summary_off">Privileg zur Zeit nicht erteilt</string>
+    <string name="pref_kiosk_mode_unregister_device_owner_summary_on">Privileg zur Zeit erteilt</string>
+    <string name="pref_kiosk_already_unlocked_toast">Bereits freigegeben</string>
+    <string name="pref_kiosk_mode_broken_need_acc">Nicht empfohlen. du wirst gefragt, die Bedienhilfen aktivieren.</string>
+    <string name="pref_kiosk_mode_broken_acc_OK">Nicht Empfohlen.</string>
+    <string name="pref_remote_options_screen_title">Remote book Einstellungen…</string>
+    <string name="accessibility_service_description">Wird nur für den Kioskmodus benutzt. Wenn der Kioskmodus an ist, der Player fordert en an, wenn es von diesem Gerät für den Kioskmodus nötig ist.</string>
+    <string name="accessibility_service_label" translatable="false">Aesop Player</string>
+    <string name="pref_why_accessibility">The Kioskmodus you have selected requires that Accessibility be enabled to give acceptable results.\n\nChoose another mode or enable Bedienhilfen.</string>
+    <string name="pref_must_enable_accessibility">Bedienhilfen müssen aktiviert sein</string>
+    <string name="enable_accessibility">Kioskmodus benötigt die Bedienhilfen</string>
+    <string name="allow_aesop">Scrolle durch den nächsten Bildschirm um Aesop Player zu finden und die Bedienhilfen zu aktivieren.</string>
+    <string name="back_arrow_caution">Achtung - Odd behavior ahead</string>
+    <string name="back_arrow_text">Für diese Androidversion, verlasse diesen BIldschirm mit dem Zurück Button (unten im Bildschirm), nicht mit dem Pfeil nach links oben. If something goes wrong just restart the Player.</string>
+    <string name="announce_new_features">Neue Features verfügbar</string>
+    <string name="new_version_web_page">Go to the web page for details of recent changes.</string>
+    <string name="pref_new_version_info">Neue Version Information</string>
+    <string name="pref_new_version_actions">Aktion, wenn eine nue Version installiert wurde.</string>
+    <string name="pref_new_version_action_default_value" translatable="false">SETTINGS</string>
+    <string name="pref_new_version_actions_title">Latest new version information.</string>
+    <string name="pref_summary_of_features_for">Summary of features for %s.</string>
+    <string name="pref_say_new_version">A new version of the Aesop Player, with feature changes you may find useful, has been automatically installed on this device.</string>
+    <string name="pref_not_again">This message will not be displayed again until a newer version with major feature changes is installed.</string>
+    <string name="pref_can_revisit">Du kannst die Einstellungen über die NEue Version EInstellungen in diesem Bildschirm kontrollieren.</string>
+    <string name="pref_no_browser_toast">Cannot open website: no web browser found.</string>
+    <string name="pref_playback_options_screen_title">Einstellungen fürs Abspielen…</string>
+    <string name="pref_playback_speed_title">Abspielgeschwindigkeit</string>
+    <string name="pref_playback_speed_default_value" translatable="false">1.0</string>
+    <string name="pref_snooze_time_title">Button Verzögerung</string>
+    <string name="pref_snooze_time_default_value" translatable="false">2</string>
+    <string name="pref_blink_rate_title">Blinkgeschwindigkeit</string>
+    <string name="pref_blink_rate_default_value" translatable="false">500</string>
+    <string name="pref_ff_rewind_sound">Vorlauf-/Rücklaufgeräusch</string>
+    <string name="pref_ff_rewind_sound_summary_on">An</string>
+    <string name="pref_ff_rewind_sound_summary_off">Aus</string>
+    <string name="pref_screen_volume_speed">Lautstärke und Geschwindigkeit vom Abspielbildschirm aus ändern.</string>
+    <string name="pref_screen_volume_speed_on">An</string>
+    <string name="pref_screen_volume_speed_off">Aus</string>
+    <string name="pref_tilt_volume_speed">Lautstärke und Geschwindigkeit durch Kippen des Gerätes ändern.</string>
+    <string name="pref_tilt_volume_speed_on">An</string>
+    <string name="pref_tilt_volume_speed_off">Aus</string>
+    <string name="pref_jump_back_default_value" translatable="false">5</string>
+    <string name="pref_jump_back_entry_disabled">Aus</string>
+    <string name="pref_jump_back_title">Beim Weiterhören zurückspringen</string>
+    <string name="pref_jump_back_summary" tools:ignore="PluralsCandidate">Springe %d Sekunden zurück</string>
+    <string name="pref_sleep_timer_entry_disabled">Aus</string>
+    <string name="pref_sleep_timer_title">Schlaftimer</string>
+    <string name="pref_sleep_timer_summary">Pause nach %s Inaktivität</string>
+    <string name="pref_sleep_timer_summary_disabled">Aus</string>
+    <string name="pref_sleep_timer_default_value" translatable="false">0</string>
+    <string name="pref_stop_on_face_down_title">Stop beim Umdrehen</string>
+    <string name="pref_stop_on_face_down_default_value" translatable="false">STOP_RESUME</string>
+    <string name="pref_settings_interlock_title">Art der Sperre der Einstellungen</string>
+    <string name="pref_settings_interlock_default_value" translatable="false">NONE</string>
+    <string name="pref_swipe_stop_points">Wische mit zwei Fingern zum Pausenpunkt</string>
+    <string name="pref_proximity_awaken">Aufwachen durch Näherungssensor"</string>
+    <string name="pref_proximity_awaken_summary_on">EnaAnbled</string>
+    <string name="pref_proximity_awaken_summary_off">Aus</string>
+    <string name="pref_analytics">Sende Diagnostik- und Benutzungsinformationen</string>
+    <string name="pref_analytics_summary_on">An</string>
+    <string name="pref_analytics_summary_off">Aus</string>
+    <string name="pref_screen_orientation">Bildschirmausrichtung</string>
+    <string name="pref_screen_orientation_default_value" translatable="false">LANDSCAPE_AUTO</string>
+    <string name="pref_current_position_note" translatable="false">(%1$s)</string>
+    <string name="pref_progress_hint" translatable="false">[hh:]mm</string>
+    <string name="pref_version_title">Version</string>
+    <string name="playback_elapsed_time" translatable="false">%1$s - %2$s%%</string>
+    <string name="button_acc_rewind">Rücklauf</string>
+    <string name="button_acc_fast_forward">Vorlauf</string>
+    <string name="button_start">Start</string>
+    <string name="button_stop">Stop</string>
+    <string name="button_pause">Pause</string>
+    <string name="audio_prompt_slower">Langsamer</string>
+    <string name="audio_prompt_faster">Schneller</string>
+    <string name="audio_prompt_louder">Lauter</string>
+    <string name="audio_prompt_softer">Leiser</string>
+    <string name="audio_prompt_normal">Normal</string>
+    <string name="display_volume">Lautstärke: %2d</string>
+    <string name="display_speed">Geschwindigkeit: %1.1f</string>
+    <string name="bookCompleted">Fertig</string>
+    <string name="multi_tap_prompt" tools:ignore="PluralsCandidate">noch %d mal</string>
+    <string name="initial_multi_tap_prompt" tools:ignore="PluralsCandidate">Für die Einstellungen %d x tippen</string>
+    <string name="press_other_gear_prompt">Für die Einstellungen halte dieses Zahnrad, dann tippe auf das neue Zahnrad</string>
+    <string name="snooze_seconds" translatable="false">"%d"</string>
+    <string name="noBooksOrMessage">oder</string>
+    <string name="noBooksDownloadSamplesButton">Bbeispielbücher (englisch) herunterladen</string>
+    <string name="noBooksWebsiteLoc">Details at: %s</string>
+    <string name="noBooksInstallFromSettings">Installiere Härbücher über die EInstellunge</string>
+    <string name="scanning_books">Scanne nach verfügbaren Hörbüchern</string>
+    <string name="scanning_title">Aesop Player logo</string>
+    <string name="playbackErrorToast">Kann die Datei niccht abspielen:\n%s</string>
+    <string name="samplesDownloadErrorTitle">Fehler</string>
+    <string name="samplesDownloadErrorMessage">Download und Installation fehlgeschlagen.</string>
+    <string name="samplesDownloadProgressTitle">Herunterladen…</string>
+    <string name="samplesDownloadNotificationTitle">Beispielbücher für Aesop Player</string>
+    <string name="content_description_fragment_init_logo">Das Logo dieser Anwendung beim Startvorgang zeigen</string>
+    <string name="info_will_restart">Aesop muss neu starten, um diese Änderung anzuwenden. Das passiert, wenn du die Einstellungen verlässt.</string>
+    <string name="info_info">Information</string>
+    <!-- Should exactly match what Android uses to say the screen is pinned. That's the resource
+         name they use but it's not available in the android.R.strings -->
+    <string name="screen_pinning_toast">Bildschirm fixiert</string>
+
+    <!-- Accessibility help (not all collected here) -->
+    <string name="stopButton">Abspielen beenden</string>
+    <string name="book_title_button">Buchtitel</string>
+    <string name="book_time_button">Buch aktuelle Position</string>
+    <string name="return_to_settings_screen">Zurück zu den Einstellungen</string>
+    <string name="book_selected">ausgewählte Bücher</string>
+    <string name="select_all">Alle aus-/abwählen</string>
+
+    <!-- Below are for provisioning activity -->
+    <string name="title_activity_provisioning">Bücher aktualisieren</string>
+    <string name="title_home">Neue Bücher</string>
+    <string name="title_dashboard">Aktuelle Bücher</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="title_maintenance">Wartungsmodus</string>
+    <string name="dialog_title_install_books">Bücher installieren</string>
+    <string name="dialog_ok_to_install">Möchtest du %s installieren?</string>
+    <string name="dialog_title_set_archive_policy">Regelt zum Archivieren von Büchern</string>
+    <string name="dialog_archive_by_copy">Bücher kopieren, statt sie zu verschieben (falls erlaubt)? (Nicht empfohlen, gibt keinen Speaicherplatz frei.)</string>
+    <string name="dialog_policy_yes">Ja</string>
+    <string name="dialog_policy_no">Nein</string>
+    <string name="warning_toast_directory_not_available">Konnte nicht auf das ausgewählten Ordner zugrefen, nichts geändert.</string>
+    <string name="warning_toast_using_default_source">Ungültiger Ordner für Buchquelle, benutze Standard</string>
+    <string name="fragment_title_add_books">Buch hinzufügen</string>
+    <string name="action_bar_word_all">Alle</string>
+    <string name="error_dialog_title_file_system_full">Der Speicherort ist voll</string>
+    <string name="error_dialog_file_system_full" tools:ignore="StringFormatInvalid" >Alle Speicherorte sind zu >90% voll; lösche einige alte Bücher, damit das Kopieren gelingt.</string>
+    <string name="error_all_file_systems_full">Alle Speicherorte sind voll; lösche einige alte Bücher</string>
+    <string name="error_specific_file_system_full">Der Speicherort %s ist voll; ggf. kannst du alte Bücher löschen</string>
+    <string name="error_duplicate_book_name">Doppelter Buchname %s</string>
+    <string name="error_could_not_delete_book">Das alte Buch %s konnte nicht gelöscht werden</string>
+    <string name="info_book_installed">Titel %1$s installiert (als %2$s)</string>
+    <string name="info_book_removed">Titel %1$s entfernt (als %2$s)</string>
+    <string name="error_could_not_copy_book_with_exception">Konnte das Buch nicht kopieren: %1$s: %2$s</string>
+    <string name="fragment_title_errors_new_books">Fehler beim Installieren neuer Bücher</string>
+    <string name="error_unzip_single_file_with_exception">Auspacken der Datei fehlgeschlagen: %1$s: %2$s</string>
+    <string name="error_unzip_all_files_with_exception">Auspacken aller Dateien fehlgeschlagen: %1$s: %2$s</string>
+    <string name="error_could_not_create_directory">Ordner %s konnte nicht erstellt werden</string>
+    <string name="error_unzip_into_existing_directory">Ordner %s existiert schon beim Auspacken der zip Dazei</string>
+    <string name="error_could_not_create_directory_with_exception">Ordner konnte nicht erstellt werden %1$s: %2$s</string>
+    <string name="error_could_not_rename">%1$s konnte nicht in %2$s umbenannt werden: Namenskollision?</string>
+    <string name="error_could_not_rename_with_exception">%1$s konnte nicht in %2$s umbenannt werden: %3$s</string>
+    <string name="error_could_not_create_books">Buchordner konnte nicht erstellt werden %s</string>
+    <string name="error_copy_single_failed">Kopieren einer Datei fehlgeschlagen: %1$s %2$s</string>
+    <string name="error_delete_failed_with_exception">Löschen fehlgeschlagen für %1$s: %2$s</string>
+    <string name="content_description_name_collision">Neuer Buchname im Konflikt mit installierdem Buch.</string>
+    <string name="content_description_cannot_change">Buch kann nicht verändert oder gelöscht werden.</string>
+    <string name="fragment_title_inventory">Inventar/Buch löschen:</string>
+    <string name="fragment_subtitle_total_length">Gesamt: %1$s%2$s</string>
+    <!-- below item indicates when total length is under-estimated == the single character > -->
+    <string name="fragment_subtitle_total_length_greater_than"><![CDATA[>]]></string>
+    <string name="dialog_title_reset_books_position">Hörpositionen zurücksetzen</string>
+    <string name="dialog_ok_to_rewind">Möchtest du %s wirklich wieder auf den Anfang zurücksetzen?</string>
+    <string name="dialog_title_delete_books">Bücher löschen</string>
+    <string name="dialog_title_archive_books">Bücher archivieren</string>
+    <string name="dialog_ok_to_move">Möchtest du %1$s nach %2$s.old verschieben?</string>
+    <string name="dialog_ok_to_delete">Möchtest du %s entgültig löschen?</string>
+    <string name="dialog_title_archive_policy">Regeln zum Archivieren von Büchern</string>
+    <string name="dialog_archive_policy">Archiviere alte Bücher in %s.old statt sie zu löschen? (Nicht empfohlen; gibt keinen Speicherplatz frei.)</string>
+    <string name="error_archive_target_not_writable">Kann vorhandene Ordner %1$s nicht schreiben, %2$s nicht verschoben.</string>
+    <string name="fragment_title_errors_deleting_books">Fehler beim Löschen alter Bücher</string>
+    <string name="fragment_subtitle_adjust_position">Buchposition anpassen</string>
+    <string name="fragment_subtitle_edit_book_title">Bucchtitel bearbeiten</string>
+    <string name="user_error_bad_book_name">Bucchname unbenutzmar oder Erlaubnis verweigert</string>
+    <string name="user_error_duplicate_book_name">Doppelter BUchname</string>
+    <string name="user_error_title_cannot_be_empty">Titel darf nicht leer sein</string>
+    <string name="user_error_title_too_long">Titel zu lang</string>
+    <string name="user_error_title_cannot_be_blank">Titel kann nicht nur Leerzeichen enthalten</string>
+    <string name="title_edit_accept_button">Akzeptieren</string>
+    <string name="toast_warning_character_fixed">\'/\' durch \'-\' ersetzt (in Namen nicht erlaubt)</string>
+    <string name="book_is_completed">Fertig</string>
+    <string name="button_cancel_editing">Abbrechen</string>
+    <string name="position_edit_accept_button">Akzeptieren</string>
+    <string name="candidate_action_bar_install">Installieren</string>
+    <string name="candidate_action_bar_retain_policy">Nach dem Kopieren behalten</string>
+    <string name="candidate_action_bar_group_books">Markierte Bücher gruppieren</string>
+    <string name="candidate_action_bar_ungroup_books">Ein Buch ungruppieren</string>
+    <string name="candidate_action_bar_new_directory">Verzeichnis mit neuen Büchern wählen</string>
+    <string name="candidate_action_bar_rename_policy">inner Dateinamen angleichen</string>
+    <string name="inventory_action_bar_delete">Löschen</string>
+    <string name="inventory_action_bar_reset">Zurücksetzen</string>
+    <string name="inventory_action_bar_archive_policy">Archivieren</string>
+    <string name="title_edit_hint_book_title">Anzeigbaren Buchtitel</string>
+    <string name="title_edit_button_fix_case">Schreibweise korrigieren</string>
+    <string name="title_edit_button_add_author">Autor ergänzen</string>
+    <string name="no_such_directory">Ordner %s existiert nicht, versuche den nächsten.</string>
+    <string name="directory_not_writable">Ordner %s ist nicht beschreibbar, versuche den nächsten.</string>
+    <string name="status_name_info">Info: </string>
+    <string name="status_name_check">Check: </string>
+    <string name="status_name_error">Fehler: </string>
+    <string name="dialog_title_ungroup_book">Ein Buch aufteilen</string>
+    <string name="dialog_title_group_books">Gruppieren um Buchteile zu kombinieren</string>
+    <string name="dialog_ok_to_group">%s gruppieren?</string>
+    <string name="dialog_ok_to_ungroup">Dieses Buch in mehrere Bücher aufteilen?</string>
+    <string name="dialog_illegal_ungroup">Es kann nur ein Buch gleichzeitig aufgeteilt werden</string>
+    <string name="dialog_illegal_group">Zum Gruppieren sind mindestens zwei BÜcher nötig</string>
+    <string name="dialog_colliding_group">Die Gruppe existiert schon; keine Aktion</string>
+    <string name="dialog_cannot_make_group">Gruppenordner konnte nicht erstellt werden.</string>
+    <string name="cannot_rename_group">Umbenennen von %1$s zu %2$s fehlgeschlagen.</string>
+    <string name="grouping_error">Fehler beim Gruppieren von Dateien.</string>
+    <string name="group_file_not_directory">Eine Nicht-Ordner Datei wurde aufgeteilt - sie sollte aus %1$s entfernt werden.</string>
+    <string name="could_not_ungroup_file">Das BUch %1$s konnte incht aufgeteilt werden. Ist das eine zip Datei?</string>
+    <string name="group_could_not_name_new">Konnte keinen neuen Ordnername für %1$s erstellen.</string>
+    <string name="download_dir_set_source">Quellordner setzen</string>
+    <string name="download_dir_new">Neuen auswählen</string>
+    <string name="deletePath">Eintrag löschen</string>
+
+    <string name="remote_maintenance_screen">Buch-Fernwartung kontrollieren…</string>
+    <string name="remote_via_mail">Via eMail</string>
+    <string name="remote_via_and_word">" und "</string> <!-- note the spaces and quotes! -->
+    <string name="remote_via_file">Via geteilter Datei</string>
+    <string name="remote_via_disabled">Aus</string>
+    <string name="remote_must_have_credentials">Es kann keine Email empfangen werden, bevor ein korrekter Hostname, Login und Password angegeben wurden.</string>
+    <string name="remote_must_have_valid_directory">Der Ondner für Nachrichten muss beschreibbar sein.</string>
+    <string name="remote_must_have_required">Alle benötigten Felder müssen angegeben werden.</string>
+    <string name="remote_required_word">Benötigt</string>
+    <string name="remote_optional_word">Optional</string>
+    <string name="remote_disabled_word">Aus</string>
+    <string name="remote_incomplete_state">Unvollständig</string>
+    <string name="remote_validated_state">Überprüft</string>
+    <string name="remote_pending_state">Überprüfe…</string>
+    <string name="remote_other_state">Unbekannter Netzwerkfehler.</string>
+    <string name="remote_unrecognized_host_state">Host nicht gefunden.</string>
+    <string name="remote_unrecognized_user_password_state">Nutzer/Passwort Kombination ungültig.</string>
+    <string name="remote_unwriteable_state">Ordner nicht beschreibbar.</string>
+    <string name="remote_device_name_title">Gerätename</string>
+    <string name="remote_device_name_illegal">Gerätenam darf nur BUchstaben, Zahlen, _ und - enthalten.</string>
+    <string name="remote_settings_host_name">Hostname</string>
+    <string name="remote_settings_login">Login</string>
+    <string name="remote_settings_password">Passwort</string>
+    <string name="remote_settings_device">Gerätename</string>
+    <string name="remote_settings_file_switch">Benutze Datei für Anfrage</string>
+    <string name="remote_settings_directory">Ordnername</string>
+    <string name="remote_settings_mail_switch">Benutze Email für Anfrage</string>
+
+    <!-- For translations of strings in arrays.xml -->
+    <string name="array_short">Kurz</string>
+    <string name="array_long">Lang</string>
+    <string name="array_slow">Langsam</string>
+    <string name="array_fast">Schnell</string>
+    <string name="array_none">Keine</string>
+    <string name="array_never">Nie</string>
+    <string name="array_stop">Stop</string>
+    <string name="array_normal">Normal</string>
+    <string name="array_regular">Regular</string>
+    <string name="array_high_contrast">Hoher Kontrast</string>
+    <string name="array_landscape_auto">Quer Auto</string>
+    <string name="array_locked_landscape">Quer fix</string>
+    <string name="array_locked_landscape_reversed">Quer fix gedreht</string>
+    <string name="array_no_notification">Keine Benachrichtigung</string>
+    <string name="array_notify_via_settings_only">BEnachrichtigung nur über Einstellungen</string>
+    <string name="array_notify_via_settings_and_on_books_screen">Benachrichtigung über Einstellungen und Buchanzeige</string>
+    <string name="array_playback_very_fast">Sehr schnell</string>
+    <string name="array_playback_fast">Schnell</string>
+    <string name="array_playback_normal">Normal</string>
+    <string name="array_playback_moderate">Etwas langsamer</string>
+    <string name="array_playback_slow">Langsam</string>
+    <string name="array_playback_very_slow">Sehr langsam</string>
+    <string name="array_stop_and_resume_on_face_up">Stop, und Fortsetzen beim Umdrehen</string>
+    <string name="array_press_second_settings_icon_simultaneously">Drücke zweites Einstellungssymbol gleichzeitig</string>
+    <string name="array_tap_settings_icon_repeatedly">Tippe wiederholt auf das Einstellungssymbol</string>
+    <string name="array_simple_kiosk">Einfacher Kioskmodus</string>
+    <string name="array_application_pinning">Bildschimfixierung</string>
+    <string name="array_full_kiosk">Voller Kioskmodus</string>
+
+    <plurals name="numberOfBooks">
+        <item quantity="one">dieses %d Buch</item>
+        <item quantity="other">diese %d Bücher</item>
+    </plurals>
+
+    // Change this with each release as a newline-separated list
+    <string name="release_new_features">\n
+        Remote control of books via eMail/shared file.\n
+        Bugfixes</string>
+</resources>
